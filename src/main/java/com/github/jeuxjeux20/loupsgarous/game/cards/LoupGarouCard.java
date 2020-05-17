@@ -1,6 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
+import com.github.jeuxjeux20.loupsgarous.game.cards.annotations.CardDescription;
+import com.github.jeuxjeux20.loupsgarous.game.cards.annotations.CardName;
+import com.github.jeuxjeux20.loupsgarous.game.cards.annotations.CardTeam;
 import me.lucko.helper.item.ItemStackBuilder;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -9,33 +12,11 @@ import org.bukkit.block.banner.PatternType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
-public final class LoupGarouCard extends MutableLGCard implements AnonymousNameHolder {
+@CardName(singular = "Loup-garou", plural = "Loups-garous", isFeminine = false)
+@CardDescription("Wouf ! C'est LE loup-garou. Son but ? Tuer tous les innocents. Voilà.")
+@CardTeam(LGTeams.LOUPS_GAROUS)
+public final class LoupGarouCard extends MutableLGCard implements AnnotatedLGCard, AnonymousNameHolder {
     private transient String anonymizedName;
-
-    @Override
-    public String getName() {
-        return "Loup-garou";
-    }
-
-    @Override
-    public String getPluralName() {
-        return "Loups-garous";
-    }
-
-    @Override
-    public boolean isFeminineName() {
-        return false;
-    }
-
-    @Override
-    protected String getMainTeam() {
-        return LGTeams.LOUPS_GAROUS;
-    }
-
-    @Override
-    public String getDescription() {
-        return "Wouf ! C'est LE loup-garou. Son but ? Tuer tous les innocents. Voilà.";
-    }
 
     public String getAnonymizedName() {
         return anonymizedName;

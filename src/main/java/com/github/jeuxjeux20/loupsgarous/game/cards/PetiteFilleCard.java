@@ -1,6 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
+import com.github.jeuxjeux20.loupsgarous.game.cards.annotations.CardDescription;
+import com.github.jeuxjeux20.loupsgarous.game.cards.annotations.CardName;
+import com.github.jeuxjeux20.loupsgarous.game.cards.annotations.CardTeam;
 import com.github.jeuxjeux20.loupsgarous.game.composition.validation.annotations.Unique;
 import me.lucko.helper.item.ItemStackBuilder;
 import org.bukkit.DyeColor;
@@ -10,33 +13,12 @@ import org.bukkit.block.banner.PatternType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
+@CardName(singular = "Petite fille", plural = "Petites filles", isFeminine = true)
+@CardDescription("Elle doit tuer les loups garous. " +
+                 "La petite fille se lève la nuit pour espionner ce que disent les loups-garous.")
+@CardTeam(LGTeams.VILLAGEOIS)
 @Unique
-public final class PetiteFilleCard extends MutableLGCard implements LoupGarouNightSpy {
-    @Override
-    public String getName() {
-        return "Petite fille";
-    }
-
-    @Override
-    public String getPluralName() {
-        return "Petites filles";
-    }
-
-    @Override
-    public boolean isFeminineName() {
-        return true;
-    }
-
-    @Override
-    protected String getMainTeam() {
-        return LGTeams.VILLAGEOIS;
-    }
-
-    @Override
-    public String getDescription() {
-        return "La voyante peut espionner ce que disent les loups-garous.";
-    }
-
+public final class PetiteFilleCard extends MutableLGCard implements AnnotatedLGCard, LoupGarouNightSpy {
     @Override
     public ItemStack createGuiItem() {
         return ItemStackBuilder.of(Material.BLACK_BANNER)

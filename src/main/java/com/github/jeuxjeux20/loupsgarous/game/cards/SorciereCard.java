@@ -1,6 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
+import com.github.jeuxjeux20.loupsgarous.game.cards.annotations.CardDescription;
+import com.github.jeuxjeux20.loupsgarous.game.cards.annotations.CardName;
+import com.github.jeuxjeux20.loupsgarous.game.cards.annotations.CardTeam;
 import com.github.jeuxjeux20.loupsgarous.game.composition.validation.annotations.Unique;
 import com.google.common.base.Preconditions;
 import me.lucko.helper.item.ItemStackBuilder;
@@ -11,36 +14,14 @@ import org.bukkit.block.banner.PatternType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
+@CardName(singular = "Sorcière", plural = "Sorcières", isFeminine = true)
+@CardDescription("Elle doit tuer les loups-garous. La nuit, elle se réveille pour utiliser l'une de ses deux potions : " +
+                 "tuer quelqu'un ou sauver une personne des loups-garous. ")
+@CardTeam(LGTeams.VILLAGEOIS)
 @Unique
-public final class SorciereCard extends MutableLGCard {
+public final class SorciereCard extends MutableLGCard implements AnnotatedLGCard {
     private boolean hasKillPotion = true;
     private boolean hasHealPotion = true;
-
-    @Override
-    protected String getMainTeam() {
-        return LGTeams.VILLAGEOIS;
-    }
-
-    @Override
-    public String getName() {
-        return "Sorcière";
-    }
-
-    @Override
-    public String getPluralName() {
-        return "Sorcières";
-    }
-
-    @Override
-    public boolean isFeminineName() {
-        return true;
-    }
-
-    @Override
-    public String getDescription() {
-        return "Elle doit tuer les loups-garous. La nuit, elle se réveille pour utiliser l'une de ses deux potions : " +
-                "tuer quelqu'un ou sauver une personne des loups-garous. ";
-    }
 
     public boolean hasKillPotion() {
         return hasKillPotion;
