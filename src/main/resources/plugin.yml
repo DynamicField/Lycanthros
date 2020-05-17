@@ -1,0 +1,54 @@
+name: LoupsGarous
+version: ${project.version}
+main: com.github.jeuxjeux20.loupsgarous.LoupsGarous
+api-version: "1.15"
+depend: [Multiverse-Core, helper]
+authors: [jeuxjeux20]
+description: Le jeu des loup-garous. Excellent.
+commands:
+  lgstart:
+    usage: /lgstart <joueurs...>
+    description: Commence une partie de loups-garous.
+    permission: loups.garous.game.start
+  lgconfig:
+    usage: /lgconfig set <nom> <valeur>
+    description: Effectue des actions sur la configuration du plugin.
+    permission: loups.garous.config.set
+  lgvote:
+    usage: /lgvote <personne>
+    description: Vote pour une personne.
+  lglook:
+    usage: /lglook
+    description: Permet de trouver le rôle de quelqu'un (Voyante).
+  lgdevote:
+    usage: /lgdevote <personne>
+    description: Retire le vote que vous avez mis.
+  lglist:
+    usage: /lglist [page]
+    description: Affiche une liste des parties en cours.
+    permission: loups.garous.game.list
+  lgfinish:
+    usage: "/lgfinish <game> [raison]\n ou, en partie, /lgfinish [raison]"
+    description: Termine une partie de loups-garous.
+    permission: loups.garous.game.finish
+  lgplayers:
+    usage: /lgplayers
+    description: Affiche tous les joueurs de la partie.
+  lgcomposition:
+    usage: /lgcomposition
+    description: Affiche la composition des cartes d'une partie.
+  lgkill:
+    usage: /lgkill <personne>
+    description: Tue quelqu'un (Chasseur/Sorcière).
+  lgheal:
+    usage: /lgheal <personne>
+    description: Soigne quelqu'un (Sorcière).
+  lgcouple:
+    usage: /lgcouple <partenaire1> <partenaire2>
+    description: Crée un couple avec deux personnes (Cupidon).
+  color:
+    usage: /color <stuff>
+    description: debuggi debuggo
+  guitest:
+    usage: /guitest
+    description: i like to test
