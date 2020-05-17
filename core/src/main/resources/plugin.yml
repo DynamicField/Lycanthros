@@ -1,0 +1,89 @@
+name: LoupsGarous
+version: ${project.version}
+main: com.github.df.loupsgarous.LoupsGarous
+api-version: "1.15"
+depend: [Multiverse-Core, helper]
+authors: [df]
+description: Le jeu des loup-garous. Excellent.
+commands:
+  lgstart:
+    usage: /lgstart
+    description: Commence une partie de loups-garous.
+    permission: loupsgarous.game.start
+    aliases: lg start
+  lgquit:
+    usage: /lgquit
+    description: Quitte une partie de loups-garous.
+    aliases: lg quit
+  lgvote:
+    usage: /lgvote <personne>
+    description: Vote pour une personne.
+    aliases: lg vote
+  lglook:
+    usage: /lglook
+    description: Permet de trouver le rôle de quelqu'un (Voyante).
+    aliases: lg look
+  lgdevote:
+    usage: /lgdevote <personne>
+    description: Retire le vote que vous avez mis.
+    aliases: lg devote
+  lglist:
+    usage: /lglist [page]
+    description: Affiche une liste des parties en cours.
+    permission: loupsgarous.game.list
+    aliases: lg list
+  lgfinish:
+    usage: "/lgfinish <game> [raison]\n ou, en partie, /lgfinish [raison]"
+    description: Termine une partie de loups-garous.
+    permission: loups.garous.game.finish
+    aliases: lg finish
+  lgplayers:
+    usage: /lgplayers
+    description: Affiche tous les joueurs de la partie.
+    aliases: lg players
+  lgcomposition:
+    usage: /lgcomposition
+    description: Affiche la composition des cartes d'une partie.
+    aliases: lg composition
+  lgkill:
+    usage: /lgkill <personne>
+    description: Tue quelqu'un (Chasseur/Sorcière).
+    aliases: lg kill
+  lgheal:
+    usage: /lgheal <personne>
+    description: Soigne quelqu'un (Sorcière).
+    aliases: lg heal
+  lgcouple:
+    usage: /lgcouple <partenaire1> <partenaire2>
+    description: Crée un couple avec deux personnes (Cupidon).
+    aliases: lg couple
+  lglobby:
+    usage: /lglobby
+    description: Permet de configurer la partie, si vous en êtes le maître.
+    aliases: lg lobby
+  lgjoin:
+    usage: /lgjoin <partie/joueur>
+    description: Permet de rejoindre une partie.
+    permission: loupsgarous.game.join
+    aliases: lg join
+  lgreloadconfig:
+    usage: /lgreloadconfig
+    description: Met à jour la configuration en se basant sur config.yml
+    aliases: lg reloadconfig
+    
+permissions:
+  loupsgarous.game.list:
+    description: Permet de lister les parties
+    default: op
+  loupsgarous.game.start:
+    description: Permet de commencer une partie
+    default: true
+  loupsgarous.game.join:
+    description: Permet de rejoindre une partie
+    default: true
+  loupsgarous.debug.registries:
+    description: Allows you to see all the game registries.
+    default: op
+  loupsgarous.debug.skipstage:
+    description: Allows you to skip a stage.
+    default: op
