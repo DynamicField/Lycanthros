@@ -47,11 +47,6 @@ public final class UndeterminedLGPlayer implements LGPlayer {
             }
 
             @Override
-            public String getMainTeam() {
-                return LGTeams.GRAY_AREA;
-            }
-
-            @Override
             public ImmutableSet<String> getTeams() {
                 return ImmutableSet.of();
             }

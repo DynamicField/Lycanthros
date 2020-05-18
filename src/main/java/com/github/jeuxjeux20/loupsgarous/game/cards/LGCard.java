@@ -4,7 +4,28 @@ import com.google.common.collect.ImmutableSet;
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 
-public interface LGCard extends LGCardMetadata {
+public interface LGCard {
+    /**
+     * Gets the name of this card
+     *
+     * @return the name of this card
+     */
+    String getName();
+
+    String getPluralName();
+
+    default String getLowercasePluralName() {
+        String pluralName = getPluralName();
+
+        if (pluralName.length() <= 1) {
+            return pluralName.toLowerCase();
+        }
+
+        return pluralName.substring(0, 1).toLowerCase() + pluralName.substring(1);
+    }
+
+    boolean isFeminineName();
+
     /**
      * Gets the teams that this card has.
      * <p>
@@ -23,4 +44,14 @@ public interface LGCard extends LGCardMetadata {
      */
     ImmutableSet<String> getTags();
 
+    /**
+     * Gets the description, shown at the start of the game, of this card.
+     *
+     * @return the description of this card
+     */
+    String getDescription();
+
+    ChatColor getColor();
+
+    ItemStack createGuiItem();
 }

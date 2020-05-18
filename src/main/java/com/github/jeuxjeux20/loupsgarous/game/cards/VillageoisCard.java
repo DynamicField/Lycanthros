@@ -1,9 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
-import com.github.jeuxjeux20.loupsgarous.game.cards.annotations.CardDescription;
-import com.github.jeuxjeux20.loupsgarous.game.cards.annotations.CardName;
-import com.github.jeuxjeux20.loupsgarous.game.cards.annotations.CardTeam;
 import me.lucko.helper.item.ItemStackBuilder;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -17,10 +14,32 @@ import org.bukkit.inventory.meta.BannerMeta;
  * <p>
  * <img src="doc-files/villageois.jpg" width="128">
  */
-@CardName(singular = "Simple villageois", plural = "Simples villageois", isFeminine = false)
-@CardDescription("Il doit tuer les loups-garous. Le villageois n'a aucun pouvoir. Wow.")
-@CardTeam(LGTeams.VILLAGEOIS)
-public final class VillageoisCard extends MutableLGCard implements AnnotatedLGCard {
+public final class VillageoisCard extends MutableLGCard {
+    @Override
+    public String getName() {
+        return "Simple villageois";
+    }
+
+    @Override
+    public String getPluralName() {
+        return "Simples villageois";
+    }
+
+    @Override
+    public boolean isFeminineName() {
+        return false;
+    }
+
+    @Override
+    protected String getMainTeam() {
+        return LGTeams.VILLAGEOIS;
+    }
+
+    @Override
+    public String getDescription() {
+        return "Il doit tuer les loups-garous. Le villageois n'a aucun pouvoir. Wow.";
+    }
+
     @Override
     public ItemStack createGuiItem() {
         return ItemStackBuilder.of(Material.YELLOW_BANNER)
