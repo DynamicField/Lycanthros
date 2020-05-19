@@ -5,6 +5,7 @@ import com.github.jeuxjeux20.guicybukkit.command.CommandConfigurator;
 import com.github.jeuxjeux20.loupsgarous.commands.*;
 import com.github.jeuxjeux20.loupsgarous.config.LGConfiguration;
 import com.github.jeuxjeux20.loupsgarous.config.PluginLGConfiguration;
+import com.github.jeuxjeux20.loupsgarous.game.LoupsGarousGameModule;
 import com.google.inject.multibindings.Multibinder;
 import com.onarandombox.MultiverseCore.MultiverseCore;
 import me.lucko.helper.plugin.HelperPlugin;
@@ -21,6 +22,8 @@ public final class LoupsGarousModule extends PluginModule {
 
     @Override
     protected void configureBindings() {
+        install(new LoupsGarousGameModule());
+
         bind(MultiverseCore.class).toInstance(getMultiverseCore());
         bind(PermissionChecker.class).to(SuperPermsPermissionChecker.class);
         bind(LGConfiguration.class).to(PluginLGConfiguration.class);

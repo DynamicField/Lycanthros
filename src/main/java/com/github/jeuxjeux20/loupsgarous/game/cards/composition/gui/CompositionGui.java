@@ -1,11 +1,11 @@
-package com.github.jeuxjeux20.loupsgarous.game.composition.gui;
+package com.github.jeuxjeux20.loupsgarous.game.cards.composition.gui;
 
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
-import com.github.jeuxjeux20.loupsgarous.game.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.game.composition.MutableComposition;
-import com.github.jeuxjeux20.loupsgarous.game.composition.validation.CompositionValidator.Problem;
-import com.github.jeuxjeux20.loupsgarous.game.composition.validation.CompositionValidatorAggregator;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator.Problem;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidatorAggregator;
 import com.github.jeuxjeux20.loupsgarous.game.util.CompositionFormatUtil;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -199,6 +199,6 @@ public final class CompositionGui extends Gui {
     }
 
     public interface Factory {
-        CompositionGui create(Player player, Composition composition);
+        CompositionGui create(Player player, MutableComposition composition);
     }
 }

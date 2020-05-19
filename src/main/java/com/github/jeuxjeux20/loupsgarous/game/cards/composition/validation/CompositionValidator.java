@@ -1,11 +1,9 @@
-package com.github.jeuxjeux20.loupsgarous.game.composition.validation;
+package com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
-import com.github.jeuxjeux20.loupsgarous.game.composition.Composition;
-import com.google.common.collect.ImmutableList;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.ChatColor;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.LongFunction;

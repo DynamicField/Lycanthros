@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.loupsgarous.game.LGGame;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.util.Paginate;
+import com.github.jeuxjeux20.loupsgarous.util.PaginationUtils;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
 import org.bukkit.ChatColor;
@@ -33,7 +33,7 @@ public class LGListCommand implements AnnotatedCommandConfigurator {
                     int page = Math.min(c.arg(0).parse(Integer.class).orElse(1), 1);
                     int itemsPerPage = 8;
                     int itemsCount = gameManager.getOngoingGames().size();
-                    int pageCount = Paginate.getPageCount(gameManager.getOngoingGames(), itemsPerPage);
+                    int pageCount = PaginationUtils.getPageCount(gameManager.getOngoingGames(), itemsPerPage);
 
                     if (pageCount == 0) {
                         c.reply("&bIl n'y a aucune partie en cours !");
@@ -48,7 +48,7 @@ public class LGListCommand implements AnnotatedCommandConfigurator {
 
                     messageBuilder.append(header);
 
-                    Paginate.in(gameManager.getOngoingGames(), page, itemsPerPage).forEach(x -> {
+                    PaginationUtils.in(gameManager.getOngoingGames(), page, itemsPerPage).forEach(x -> {
                         LGGameOrchestrator orchestrator = x.getValue();
                         LGGame game = orchestrator.getGame();
 

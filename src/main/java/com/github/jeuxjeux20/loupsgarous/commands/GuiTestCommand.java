@@ -2,9 +2,9 @@ package com.github.jeuxjeux20.loupsgarous.commands;
 
 import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.guicybukkit.command.SelfConfiguredCommandExecutor;
-import com.github.jeuxjeux20.loupsgarous.game.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.game.composition.MutableComposition;
-import com.github.jeuxjeux20.loupsgarous.game.composition.gui.CompositionGui;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.gui.CompositionGui;
 import com.google.inject.Inject;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -25,7 +25,7 @@ public class GuiTestCommand extends SelfConfiguredCommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player)) return true;
-        Composition composition = new MutableComposition(1, Collections.emptyList());
+        MutableComposition composition = new MutableComposition(1, Collections.emptyList());
         CompositionGui compositionGui = compositionGuiFactory.create((Player) sender, composition);
         compositionGui.open();
         return true;

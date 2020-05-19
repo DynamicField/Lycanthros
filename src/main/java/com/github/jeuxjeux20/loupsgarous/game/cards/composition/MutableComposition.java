@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game.composition;
+package com.github.jeuxjeux20.loupsgarous.game.cards.composition;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.VillageoisCard;

@@ -5,8 +5,8 @@ import com.google.common.collect.Streams;
 import java.util.List;
 import java.util.stream.Stream;
 
-public final class Paginate {
-    private Paginate() {
+public final class PaginationUtils {
+    private PaginationUtils() {
     }
 
     @SuppressWarnings("UnstableApiUsage")

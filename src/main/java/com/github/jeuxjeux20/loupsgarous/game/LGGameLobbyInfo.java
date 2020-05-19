@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
-import com.github.jeuxjeux20.loupsgarous.game.composition.MutableComposition;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;

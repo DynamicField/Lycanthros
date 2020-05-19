@@ -1,8 +1,8 @@
-package com.github.jeuxjeux20.loupsgarous.game.composition.validation;
+package com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
-import com.github.jeuxjeux20.loupsgarous.game.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.game.composition.validation.annotations.Unique;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.annotations.Unique;
 import com.google.common.collect.ImmutableSet;
 
 import java.util.List;

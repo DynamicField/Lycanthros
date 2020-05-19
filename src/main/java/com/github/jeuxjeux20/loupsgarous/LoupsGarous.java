@@ -16,10 +16,7 @@ public final class LoupsGarous extends ExtendedJavaPlugin {
     public void enable() {
         getConfig().options().copyDefaults(true);
 
-        Injector injector = Guice.createInjector(
-                new LoupsGarousModule(this),
-                new LoupsGarousGameModule()
-        );
+        Injector injector = Guice.createInjector(new LoupsGarousModule(this));
 
         LGPluginDependencies pluginDependencies = injector.getInstance(LGPluginDependencies.class);
         pluginDependencies.registerAll(this);

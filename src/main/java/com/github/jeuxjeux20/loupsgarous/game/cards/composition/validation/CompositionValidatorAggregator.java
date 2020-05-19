@@ -1,8 +1,6 @@
-package com.github.jeuxjeux20.loupsgarous.game.composition.validation;
+package com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation;
 
-import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
-import com.github.jeuxjeux20.loupsgarous.game.composition.Composition;
-import com.google.common.collect.ImmutableList;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
