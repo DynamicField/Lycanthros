@@ -18,7 +18,6 @@ public final class LoupsGarousGameModule extends AbstractModule {
         install(new LGStagesModule());
         install(new LGCommandsModule());
         install(new LGChatModule());
-        install(new LGStagesModule());
 
         bind(LGGameManager.class).to(DefaultLGGameManager.class);
 
