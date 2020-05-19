@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class DuskStage extends AsyncLGGameStage implements CountdownTimedStage, ComponentBased {
     private final List<Action> actionsToRun;
-    private TickEventCountdown countdown;
+    private final TickEventCountdown countdown;
 
     @Inject
     public DuskStage(@Assisted LGGameOrchestrator orchestrator, Set<Action> allActions) {
