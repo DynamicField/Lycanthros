@@ -1,6 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
-import com.github.jeuxjeux20.loupsgarous.Metadata;
 import com.google.common.base.Preconditions;
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
