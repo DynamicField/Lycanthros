@@ -2,7 +2,6 @@ package com.github.jeuxjeux20.loupsgarous;
 
 import com.github.jeuxjeux20.guicybukkit.PluginDependencies;
 import com.github.jeuxjeux20.guicybukkit.command.CommandConfigurator;
-import com.github.jeuxjeux20.loupsgarous.game.LoupsGarousGameModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;

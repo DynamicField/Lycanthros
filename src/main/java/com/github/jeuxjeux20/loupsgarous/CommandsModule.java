@@ -5,7 +5,6 @@ import com.google.common.base.Preconditions;
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
-import me.lucko.helper.command.Command;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class CommandsModule extends AbstractModule {

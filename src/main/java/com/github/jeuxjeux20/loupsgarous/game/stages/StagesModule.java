@@ -1,6 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
-import com.github.jeuxjeux20.loupsgarous.Metadata;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;

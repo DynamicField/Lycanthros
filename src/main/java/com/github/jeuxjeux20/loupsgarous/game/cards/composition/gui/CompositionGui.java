@@ -2,7 +2,6 @@ package com.github.jeuxjeux20.loupsgarous.game.cards.composition.gui;
 
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator.Problem;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidatorAggregator;
@@ -98,7 +97,7 @@ public final class CompositionGui extends Gui {
 
     private Map<Problem.Type, List<Problem>> getValidationProblemsPerType() {
         return compositionValidatorAggregator.validate(composition)
-        .collect(Collectors.groupingBy(Problem::getType, TreeMap::new, Collectors.toList()));
+                .collect(Collectors.groupingBy(Problem::getType, TreeMap::new, Collectors.toList()));
     }
 
     private String generateValidationDescription(Map<Problem.Type, List<Problem>> validationProblemsPerType) {

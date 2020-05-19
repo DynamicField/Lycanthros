@@ -7,7 +7,8 @@ import com.github.jeuxjeux20.loupsgarous.util.WordingUtils;
 
 import java.util.List;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
+import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.killMessage;
+import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
 public final class NightKillReason extends MultiLGKillReason {
     @Override

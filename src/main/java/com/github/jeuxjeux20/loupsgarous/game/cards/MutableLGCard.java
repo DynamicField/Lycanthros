@@ -21,6 +21,7 @@ public abstract class MutableLGCard implements LGCard {
     protected final ChatColor GRAY_AREA_COLOR = ChatColor.DARK_PURPLE;
     protected final Set<String> teams = new HashSet<>();
     protected final Set<String> tags = new HashSet<>();
+
     public MutableLGCard() {
         teams.add(getMainTeam());
     }

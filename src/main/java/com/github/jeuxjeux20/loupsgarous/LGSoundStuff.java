@@ -17,6 +17,7 @@ public final class LGSoundStuff {
 
     /**
      * It goes "SLURRRP".
+     *
      * @param player the player to play the sound for
      */
     public static void remove(Player player) {
@@ -25,6 +26,7 @@ public final class LGSoundStuff {
 
     /**
      * It goes "naaah", or "huh".
+     *
      * @param player the player to play the sound for
      */
     public static void nah(Player player) {

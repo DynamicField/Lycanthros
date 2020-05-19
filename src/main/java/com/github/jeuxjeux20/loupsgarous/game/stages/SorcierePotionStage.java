@@ -187,7 +187,7 @@ public class SorcierePotionStage extends AsyncLGGameStage implements CountdownTi
             healer.getMinecraftPlayer().ifPresent(player ->
                     player.sendMessage(
                             ChatColor.GREEN + " Glou glou, la potion guérit " + player(target.getName()) +
-                                    ChatColor.GREEN + " qui restera en vie cette nuit."
+                            ChatColor.GREEN + " qui restera en vie cette nuit."
                     )
             );
         }
@@ -218,7 +218,7 @@ public class SorcierePotionStage extends AsyncLGGameStage implements CountdownTi
             killer.getMinecraftPlayer().ifPresent(player ->
                     player.sendMessage(
                             ChatColor.RED + " Glou glou, la potion empoisonne " + player(target.getName()) +
-                                    ChatColor.RED + " qui va mourir cette nuit."
+                            ChatColor.RED + " qui va mourir cette nuit."
                     )
             );
         }

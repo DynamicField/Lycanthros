@@ -1,7 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGKill;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGKillEvent;
 import com.github.jeuxjeux20.loupsgarous.game.killreasons.LGKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.killreasons.MultiLGKillReason;
@@ -29,8 +28,7 @@ public class TellPlayersKilledListener implements Listener {
             if (reason instanceof MultiLGKillReason) {
                 event.getOrchestrator()
                         .sendToEveryone(KILL_PREFIX + ((MultiLGKillReason) reason).getKillMessage(killGroup));
-            }
-            else {
+            } else {
                 for (LGKill kill : killGroup) {
                     event.getOrchestrator().sendToEveryone(KILL_PREFIX + reason.getKillMessage(kill.getWhoDied()));
                 }

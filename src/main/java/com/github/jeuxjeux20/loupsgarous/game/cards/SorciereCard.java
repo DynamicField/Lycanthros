@@ -39,7 +39,7 @@ public final class SorciereCard extends MutableLGCard {
     @Override
     public String getDescription() {
         return "Elle doit tuer les loups-garous. La nuit, elle se réveille pour utiliser l'une de ses deux potions : " +
-                "tuer quelqu'un ou sauver une personne des loups-garous. ";
+               "tuer quelqu'un ou sauver une personne des loups-garous. ";
     }
 
     public boolean hasKillPotion() {

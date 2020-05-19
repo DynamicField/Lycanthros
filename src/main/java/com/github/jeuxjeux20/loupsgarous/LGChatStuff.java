@@ -1,6 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import org.bukkit.ChatColor;
 
 public final class LGChatStuff {

@@ -116,8 +116,7 @@ public interface LGGameOrchestrator {
     default Stream<LGCard> getComposition() {
         if (hasGameStarted()) {
             return getGame().getAlivePlayers().map(LGPlayer::getCard);
-        }
-        else {
+        } else {
             return getLobbyInfo().getComposition().stream();
         }
     }

@@ -20,8 +20,7 @@ public final class PossibleCouplesCupidonCompositionValidator implements Composi
                     "Il est impossible d'avoir " + cupidonCount + " cupidons, car il n'y a pas assez de " +
                     "joueurs pour former tous les couples."
             ));
-        }
-        else {
+        } else {
             return ImmutableSet.of();
         }
     }

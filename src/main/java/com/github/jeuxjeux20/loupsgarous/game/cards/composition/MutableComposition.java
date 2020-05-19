@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 public final class MutableComposition implements Composition {
-    private int playerCount;
     private final List<LGCard> cards;
+    private int playerCount;
 
     public MutableComposition(int playerCount, List<LGCard> cards) {
         this.playerCount = playerCount;
@@ -29,6 +29,13 @@ public final class MutableComposition implements Composition {
         return playerCount;
     }
 
+    public void setPlayerCount(int playerCount) {
+        Preconditions.checkState(playerCount >= 1, "The player count must be positive.");
+
+        this.playerCount = playerCount;
+        adaptCompositionSize();
+    }
+
     public void addPlayer() {
         playerCount++;
         adaptCompositionSize();
@@ -42,13 +49,6 @@ public final class MutableComposition implements Composition {
         Preconditions.checkState(canRemove(), "Minimum player count reached.");
 
         playerCount--;
-        adaptCompositionSize();
-    }
-
-    public void setPlayerCount(int playerCount) {
-        Preconditions.checkState(playerCount >= 1, "The player count must be positive.");
-
-        this.playerCount = playerCount;
         adaptCompositionSize();
     }
 
@@ -70,8 +70,7 @@ public final class MutableComposition implements Composition {
 
         try {
             return cards.remove(card);
-        }
-        finally {
+        } finally {
             adaptPlayerSize();
         }
     }

@@ -20,18 +20,6 @@ public interface CompositionValidator {
             this.message = message;
         }
 
-        public Type getType() {
-            return type;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public boolean is(Type type) {
-            return this.type == type;
-        }
-
         public static Problem ruleBreaking(String message) {
             return new Problem(Type.RULE_BREAKING, message);
         }
@@ -42,6 +30,18 @@ public interface CompositionValidator {
 
         public static Problem of(Type type, String message) {
             return new Problem(type, message);
+        }
+
+        public Type getType() {
+            return type;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public boolean is(Type type) {
+            return this.type == type;
         }
 
         public enum Type {

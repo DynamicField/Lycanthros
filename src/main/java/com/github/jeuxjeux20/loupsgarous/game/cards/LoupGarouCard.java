@@ -49,7 +49,7 @@ public final class LoupGarouCard extends MutableLGCard implements AnonymousNameH
     public ItemStack createGuiItem() {
         return ItemStackBuilder.of(Material.WHITE_BANNER)
                 .transformMeta(m -> {
-                    BannerMeta bannerMeta = (BannerMeta)m;
+                    BannerMeta bannerMeta = (BannerMeta) m;
 
                     bannerMeta.addPattern(new Pattern(DyeColor.GRAY, PatternType.RHOMBUS_MIDDLE));
                     bannerMeta.addPattern(new Pattern(DyeColor.LIGHT_GRAY, PatternType.CREEPER));

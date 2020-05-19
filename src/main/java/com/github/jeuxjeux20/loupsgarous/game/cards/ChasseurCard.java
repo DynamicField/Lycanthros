@@ -35,7 +35,7 @@ public final class ChasseurCard extends MutableLGCard {
     @Override
     public String getDescription() {
         return "Il doit tuer les loups-garous. Juste avant de mourir, il peut tirer une balle sur la personne " +
-                "de son choix. Nice.";
+               "de son choix. Nice.";
     }
 
     @Override

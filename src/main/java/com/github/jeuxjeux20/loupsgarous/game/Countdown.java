@@ -8,13 +8,12 @@ import java.util.concurrent.CompletableFuture;
 
 public abstract class Countdown {
     protected final Plugin plugin;
+    private final CompletableFuture<Void> future = new CompletableFuture<>();
     private int countdownTaskId = -1;
     private int timer;
     private int biggestTimerValue;
     private boolean timerChanged;
     private boolean hasBeenRan;
-
-    private final CompletableFuture<Void> future = new CompletableFuture<>();
 
     public Countdown(Plugin plugin, int timerSeconds) {
         this.plugin = plugin;
@@ -48,8 +47,7 @@ public abstract class Countdown {
             onTick();
             if (timer == 0) {
                 complete(false);
-            }
-            else if (!timerChanged) {
+            } else if (!timerChanged) {
                 timer--;
             }
         }, 0L, 20L);

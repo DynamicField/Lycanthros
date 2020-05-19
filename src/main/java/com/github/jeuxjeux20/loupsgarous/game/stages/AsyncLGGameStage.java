@@ -19,12 +19,12 @@ public abstract class AsyncLGGameStage implements LGGameStage {
         return true;
     }
 
-    public interface Factory<T extends AsyncLGGameStage> {
-        T create(LGGameOrchestrator gameOrchestrator);
-    }
-
     @Override
     public LGGameOrchestrator getOrchestrator() {
         return orchestrator;
+    }
+
+    public interface Factory<T extends AsyncLGGameStage> {
+        T create(LGGameOrchestrator gameOrchestrator);
     }
 }

@@ -337,7 +337,7 @@ public class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         if (!state.gameClass.isInstance(game)) {
             throw new IllegalStateException(
                     "Cannot have a game being an instance of " + game.getClass().getSimpleName() +
-                            " with the state " + state.value + "."
+                    " with the state " + state.value + "."
             );
         }
     }

@@ -15,7 +15,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
+import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.importantTip;
+import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
 public class ChasseurKillStage extends AsyncLGGameStage implements CountdownTimedStage, Killable {
     private final LGPlayer chasseur;

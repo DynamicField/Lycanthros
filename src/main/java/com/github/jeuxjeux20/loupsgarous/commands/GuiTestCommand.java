@@ -2,7 +2,6 @@ package com.github.jeuxjeux20.loupsgarous.commands;
 
 import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.guicybukkit.command.SelfConfiguredCommandExecutor;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.gui.CompositionGui;
 import com.google.inject.Inject;
