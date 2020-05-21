@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class DefaultLGGameChatManager implements LGGameChatManager {
+class DefaultLGGameChatManager implements LGGameChatManager {
     private final Set<LGGameChatChannel> channels;
     private final LoupsGarous plugin;
 

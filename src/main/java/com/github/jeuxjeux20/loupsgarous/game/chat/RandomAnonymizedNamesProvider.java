@@ -7,9 +7,8 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Random;
 
-public class RandomAnonymizedNamesProvider implements AnonymizedNamesProvider {
+class RandomAnonymizedNamesProvider implements AnonymizedNamesProvider {
     private static final Random random = new Random();
-
 
     @Override
     public String createAnonymousName(LGGameOrchestrator orchestrator, AnonymousNameHolder anonymousNameHolder,

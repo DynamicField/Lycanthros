@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
-import com.github.jeuxjeux20.loupsgarous.game.util.CompositionFormatUtil;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.util.CompositionFormatUtil;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
 import org.bukkit.command.PluginCommand;

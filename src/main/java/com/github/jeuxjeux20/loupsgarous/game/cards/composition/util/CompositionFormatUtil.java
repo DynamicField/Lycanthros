@@ -1,6 +1,7 @@
-package com.github.jeuxjeux20.loupsgarous.game.util;
+package com.github.jeuxjeux20.loupsgarous.game.cards.composition.util;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 
 import java.text.Collator;
 import java.util.List;
@@ -13,6 +14,10 @@ public final class CompositionFormatUtil {
     private static final Collator FR_COLLATOR = Collator.getInstance(Locale.FRENCH);
 
     private CompositionFormatUtil() {
+    }
+
+    public static String format(Composition composition) {
+        return format(composition.getCards().stream());
     }
 
     public static String format(Stream<LGCard> composition) {

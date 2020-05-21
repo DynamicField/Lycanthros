@@ -28,13 +28,15 @@ import java.util.*;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.github.jeuxjeux20.loupsgarous.game.MinecraftLGGameOrchestrator.StateGameClass.*;
+import static com.github.jeuxjeux20.loupsgarous.game.MinecraftLGGameOrchestrator.OrchestratorState.*;
 
-public class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
+class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     private final LGCardOrchestrator cardOrchestrator;
     private final LGGameLobbyInfo lobbyInfo;
     private final MultiverseCore multiverse;
@@ -101,7 +103,6 @@ public class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         RunningLGGame game = RunningLGGame.create(lobbyInfo.getPlayers(), lobbyInfo.getComposition(), multiverse);
         changeStateTo(STARTED, game);
 
-        callEvent(new LGGameStartEvent(this));
         callEvent(new LGTurnChangeEvent(this));
 
         callNextStage();
@@ -193,9 +194,7 @@ public class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     public void finish(LGEnding ending) {
         // A game can be finished at any state except when it's already finished.
         ensureNotState(FINISHED);
-        changeStateTo(FINISHED);
-
-        callEvent(new LGGameFinishedEvent(this, ending));
+        changeStateTo(FINISHED, f -> f.apply(this, ending));
 
         callNextStage();
     }
@@ -203,13 +202,13 @@ public class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     @Override
     public void delete() {
         ensureState(FINISHED);
-        changeStateTo(DELETED);
 
-        teleportPlayersAndDelete();
-        callEvent(new LGGameDeletedEvent(this));
+        teleportPlayersAndDeleteWorld();
+
+        changeStateTo(DELETED);
     }
 
-    private void teleportPlayersAndDelete() {
+    private void teleportPlayersAndDeleteWorld() {
         for (LGPlayer player : getGame().getPlayers()) {
             player.getMinecraftPlayer().ifPresent(minecraftPlayer -> teleportPlayer(minecraftPlayer, player));
         }
@@ -332,8 +331,23 @@ public class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         return future;
     }
 
-    private void changeStateTo(StateGameClass<?> state) {
+    private <E extends OrchestratorState.EventCaller<?>> void changeStateTo(OrchestratorState<?, E> state) {
+        checkGameInstanceClass(state);
+
         this.state = state.value;
+
+        callEvent(state.eventSupplier.create(this));
+    }
+
+    private <E> void changeStateTo(OrchestratorState<?, E> state, Function<E, LGEvent> functionRunner) {
+        checkGameInstanceClass(state);
+
+        this.state = state.value;
+
+        callEvent(functionRunner.apply(state.eventSupplier));
+    }
+
+    private <E> void checkGameInstanceClass(OrchestratorState<?, E> state) {
         if (!state.gameClass.isInstance(game)) {
             throw new IllegalStateException(
                     "Cannot have a game being an instance of " + game.getClass().getSimpleName() +
@@ -342,12 +356,20 @@ public class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         }
     }
 
-    private <G extends LGGame> void changeStateTo(StateGameClass<? extends G> state, G newGame) {
-        this.state = state.value;
-        this.game = newGame;
+    private <G extends LGGame, E extends OrchestratorState.EventCaller<?>>
+    void changeStateTo(OrchestratorState<? extends G, E> state, G newGame) {
+        changeStateTo(state, newGame, f -> f.create(this));
     }
 
-    private <G extends LGGame> void ensureState(StateGameClass<? extends G> state,
+    private <G extends LGGame, E>
+    void changeStateTo(OrchestratorState<? extends G, E> state, G newGame, Function<E, LGEvent> functionRunner) {
+        this.state = state.value;
+        this.game = newGame;
+
+        callEvent(functionRunner.apply(state.eventSupplier));
+    }
+
+    private <G extends LGGame> void ensureState(OrchestratorState<? extends G, ?> state,
                                                 Consumer<? super G> gameConsumer) {
         ensureState(state);
 
@@ -355,41 +377,49 @@ public class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         gameConsumer.accept(gameCasted);
     }
 
-    private void ensureNotState(StateGameClass<?> state) {
+    private void ensureNotState(OrchestratorState<?, ?> state) {
         Preconditions.checkState(this.state != state.value,
                 "The game state must NOT be: " + this.state.toString());
     }
 
-    private void ensureState(StateGameClass<?> state) {
+    private void ensureState(OrchestratorState<?, ?> state) {
         Preconditions.checkState(this.state == state.value,
                 "The game state must be: " + this.state.toString());
     }
 
-    static class StateGameClass<G extends LGGame> {
-        public static final StateGameClass<UndeterminedLGGame> WAITING_FOR_PLAYERS
-                = new StateGameClass<>(LGGameState.WAITING_FOR_PLAYERS, UndeterminedLGGame.class);
+    static class OrchestratorState<G extends LGGame, E> {
+        public static final OrchestratorState<UndeterminedLGGame, EventCaller<LGGameWaitingForPlayersEvent>> WAITING_FOR_PLAYERS
+                = new OrchestratorState<>(LGGameState.WAITING_FOR_PLAYERS, UndeterminedLGGame.class,
+                LGGameWaitingForPlayersEvent::new);
 
-        public static final StateGameClass<UndeterminedLGGame> READY_TO_START
-                = new StateGameClass<>(LGGameState.READY_TO_START, UndeterminedLGGame.class);
+        public static final OrchestratorState<UndeterminedLGGame, EventCaller<LGGameReadyToStartEvent>> READY_TO_START
+                = new OrchestratorState<>(LGGameState.READY_TO_START, UndeterminedLGGame.class,
+                LGGameReadyToStartEvent::new);
 
-        public static final StateGameClass<RunningLGGame> STARTED
-                = new StateGameClass<>(LGGameState.STARTED, RunningLGGame.class);
+        public static final OrchestratorState<RunningLGGame, EventCaller<LGGameStartEvent>> STARTED
+                = new OrchestratorState<>(LGGameState.STARTED, RunningLGGame.class, LGGameStartEvent::new);
 
         // Maybe that the game has finished while it was undetermined.
-        public static final StateGameClass<LGGame> FINISHED
-                = new StateGameClass<>(LGGameState.FINISHED, LGGame.class);
+        public static final OrchestratorState<LGGame, BiFunction<LGGameOrchestrator, LGEnding, LGGameFinishedEvent>> FINISHED
+                = new OrchestratorState<>(LGGameState.FINISHED, LGGame.class, LGGameFinishedEvent::new);
 
         // Same as finished.
-        public static final StateGameClass<LGGame> DELETED
-                = new StateGameClass<>(LGGameState.DELETED, LGGame.class);
-
+        public static final OrchestratorState<LGGame, EventCaller<LGGameDeletedEvent>> DELETED
+                = new OrchestratorState<>(LGGameState.DELETED, LGGame.class, LGGameDeletedEvent::new);
 
         public final LGGameState value;
         public final Class<G> gameClass;
+        public final E eventSupplier;
 
-        private StateGameClass(LGGameState value, Class<G> gameClass) {
+        private OrchestratorState(LGGameState value, Class<G> gameClass, E eventSupplier) {
             this.value = value;
             this.gameClass = gameClass;
+            this.eventSupplier = eventSupplier;
+        }
+
+        @FunctionalInterface
+        interface EventCaller<E extends LGEvent> {
+            E create(LGGameOrchestrator orchestrator);
         }
     }
 }

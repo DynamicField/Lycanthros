@@ -24,7 +24,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
 @Singleton
-public class DefaultLGGameManager implements LGGameManager {
+class DefaultLGGameManager implements LGGameManager {
     private final MultiverseCore multiverse;
     private final LoupsGarous plugin;
     private final LGGameOrchestrator.Factory orchestratorFactory;

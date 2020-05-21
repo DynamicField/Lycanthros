@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator.Problem;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidatorAggregator;
-import com.github.jeuxjeux20.loupsgarous.game.util.CompositionFormatUtil;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.util.CompositionFormatUtil;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;

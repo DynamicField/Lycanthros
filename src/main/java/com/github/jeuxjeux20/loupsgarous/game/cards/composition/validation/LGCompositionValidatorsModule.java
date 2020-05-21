@@ -5,5 +5,6 @@ public final class LGCompositionValidatorsModule extends CompositionValidatorsMo
     protected void configureCompositionValidators() {
         addCompositionValidator(PossibleCouplesCupidonCompositionValidator.class);
         addCompositionValidator(UniqueCardCompositionValidator.class);
+        addCompositionValidator(MultipleTeamsCompositionValidator.class);
     }
 }
