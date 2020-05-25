@@ -1,10 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
-import com.github.jeuxjeux20.loupsgarous.game.LGKill;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.cards.SorciereCard;
 import com.github.jeuxjeux20.loupsgarous.game.killreasons.NightKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Healable;
@@ -66,7 +63,7 @@ public class SorcierePotionStage extends AsyncLGGameStage implements CountdownTi
     }
 
     @Override
-    public TickEventCountdown getCountdown() {
+    public Countdown getCountdown() {
         return countdown;
     }
 

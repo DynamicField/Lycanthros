@@ -1,7 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
 import com.google.common.collect.ImmutableSet;
+import me.lucko.helper.item.ItemStackBuilder;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public interface LGCard {
@@ -54,4 +56,46 @@ public interface LGCard {
     ChatColor getColor();
 
     ItemStack createGuiItem();
+
+    final class Unknown implements LGCard {
+        @Override
+        public String getName() {
+            return "Inconnu";
+        }
+
+        @Override
+        public String getPluralName() {
+            return "Inconnus";
+        }
+
+        @Override
+        public boolean isFeminineName() {
+            return false;
+        }
+
+        @Override
+        public ImmutableSet<String> getTeams() {
+            return ImmutableSet.of();
+        }
+
+        @Override
+        public ImmutableSet<String> getTags() {
+            return ImmutableSet.of();
+        }
+
+        @Override
+        public String getDescription() {
+            return "?";
+        }
+
+        @Override
+        public ChatColor getColor() {
+            return ChatColor.RESET;
+        }
+
+        @Override
+        public ItemStack createGuiItem() {
+            return ItemStackBuilder.of(Material.BARRIER).build();
+        }
+    }
 }

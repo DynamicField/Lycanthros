@@ -1,17 +1,20 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface LGGameManager {
     String WORLD_PREFIX = "lg_game_";
     int SHORT_ID_LENGTH = 8;
 
-    SafeResult<LGGameOrchestrator> startGame(String worldToClone, List<Player> players, CommandSender teleporter);
+    SafeResult<LGGameOrchestrator> startGame(String worldToClone, Set<Player> players,
+                                             Composition composition, CommandSender owner);
 
     List<LGGameOrchestrator> getOngoingGames();
 

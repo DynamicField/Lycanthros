@@ -6,15 +6,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class LGGameDeletingPlayerTeleportEvent extends LGEvent implements Cancellable {
+public class LGGamePlayerQuitTeleportEvent extends LGEvent implements Cancellable {
     private static final HandlerList handlerList = new HandlerList();
-    private final LGPlayer lgPlayer;
+    private final @Nullable LGPlayer lgPlayer;
     private final Player player;
 
     private boolean cancelled;
 
-    public LGGameDeletingPlayerTeleportEvent(LGGameOrchestrator orchestrator, LGPlayer lgPlayer, Player player) {
+    public LGGamePlayerQuitTeleportEvent(LGGameOrchestrator orchestrator, @Nullable LGPlayer lgPlayer, Player player) {
         super(orchestrator);
         this.lgPlayer = lgPlayer;
         this.player = player;
@@ -39,7 +40,7 @@ public class LGGameDeletingPlayerTeleportEvent extends LGEvent implements Cancel
         this.cancelled = cancelled;
     }
 
-    public LGPlayer getLGPlayer() {
+    public @Nullable LGPlayer getLGPlayer() {
         return lgPlayer;
     }
 

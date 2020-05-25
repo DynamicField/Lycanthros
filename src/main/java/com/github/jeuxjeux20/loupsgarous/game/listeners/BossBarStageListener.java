@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGGameDeletedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.LGStageChangedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.LGStageChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGTimedStageTickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGGameStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.TimedStage;
@@ -27,7 +27,7 @@ public class BossBarStageListener implements Listener {
     }
 
     @EventHandler
-    public void onLGStageChanged(LGStageChangedEvent event) {
+    public void onLGStageChanged(LGStageChangeEvent event) {
         updateBossBar(event.getStage(), event.getOrchestrator());
     }
 

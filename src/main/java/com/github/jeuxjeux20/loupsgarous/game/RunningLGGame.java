@@ -3,8 +3,6 @@ package com.github.jeuxjeux20.loupsgarous.game;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import com.onarandombox.MultiverseCore.MultiverseCore;
-import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -20,12 +18,11 @@ public final class RunningLGGame implements LGGame {
         this.players = ImmutableSet.copyOf(players);
     }
 
-    public static RunningLGGame create(List<Player> minecraftPlayers, List<LGCard> cardComposition,
-                                       MultiverseCore multiverse) {
-        Preconditions.checkArgument(minecraftPlayers.size() == cardComposition.size(),
+    public static RunningLGGame create(Set<Player> minecraftPlayers, List<LGCard> cards) {
+        Preconditions.checkArgument(minecraftPlayers.size() == cards.size(),
                 "Il n'y a pas le meme nombre de joueurs et de cartes");
 
-        ArrayList<LGCard> cardsToDistribute = new ArrayList<>(cardComposition);
+        ArrayList<LGCard> cardsToDistribute = new ArrayList<>(cards);
 
         int[] count = new int[1];
 
@@ -35,15 +32,14 @@ public final class RunningLGGame implements LGGame {
                     if (player == null) {
                         int c = ++count[0];
                         String name = "Dummy_" + c;
-                        return new MutableLGPlayer(new UUID(0, 0), null, getRandomCardAndRemove(cardsToDistribute)) {
+                        return new MutableLGPlayer(new UUID(0, 0), getRandomCardAndRemove(cardsToDistribute)) {
                             @Override
                             public String getName() {
                                 return name;
                             }
                         };
                     }
-                    MultiverseWorld playerWorld = multiverse.getMVWorldManager().getMVWorld(player.getWorld());
-                    return new MutableLGPlayer(player.getUniqueId(), playerWorld, getRandomCardAndRemove(cardsToDistribute));
+                    return new MutableLGPlayer(player.getUniqueId(), getRandomCardAndRemove(cardsToDistribute));
                 })
                 .collect(Collectors.toSet());
 

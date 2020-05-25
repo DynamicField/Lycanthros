@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.stages.dusk;
 
 import com.github.jeuxjeux20.loupsgarous.ComponentBased;
 import com.github.jeuxjeux20.loupsgarous.LGChatStuff;
+import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.stages.AsyncLGGameStage;
@@ -65,7 +66,7 @@ public class DuskStage extends AsyncLGGameStage implements CountdownTimedStage, 
     }
 
     @Override
-    public TickEventCountdown getCountdown() {
+    public Countdown getCountdown() {
         return countdown;
     }
 

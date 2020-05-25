@@ -19,7 +19,7 @@ public final class LoupsGarousGameModule extends AbstractModule {
         install(new LGCommandsModule());
         install(new LGChatModule());
 
-        bind(LGGameManager.class).to(DefaultLGGameManager.class);
+        bind(LGGameManager.class).to(MinecraftLGGameManager.class);
 
         install(new FactoryModuleBuilder()
                 .implement(LGGameOrchestrator.class, MinecraftLGGameOrchestrator.class)
@@ -29,6 +29,7 @@ public final class LoupsGarousGameModule extends AbstractModule {
                 .implement(LGCardOrchestrator.class, MinecraftLGCardOrchestrator.class)
                 .build(LGCardOrchestrator.Factory.class));
 
-        bind(LGScoreboardManager.class).to(DefaultLGScoreboardManager.class);
+        bind(LGScoreboardManager.class).to(MinecraftLGScoreboardManager.class);
+        bind(LGActionBarManager.class).to(MinecraftLGActionBarManager.class);
     }
 }

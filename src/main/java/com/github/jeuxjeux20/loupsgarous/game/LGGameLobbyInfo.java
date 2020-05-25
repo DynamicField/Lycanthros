@@ -1,8 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
-import com.google.common.collect.ImmutableList;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.SnapshotComposition;
 import com.google.common.collect.ImmutableSet;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import org.bukkit.Bukkit;
@@ -21,19 +20,37 @@ import java.util.stream.Collectors;
 public final class LGGameLobbyInfo {
     private final MultiverseWorld world;
     private final CommandSender initiator;
+    private final Player owner;
     private final UUID id;
-    private final ImmutableSet<UUID> playerUUIDs;
-    private final ImmutableList<LGCard> composition;
+    private final ImmutableSet<Player> players;
+    private final Composition composition;
 
-    public LGGameLobbyInfo(Set<UUID> playerUUIDs, List<LGCard> composition,
+    public LGGameLobbyInfo(Set<Player> players, Composition composition,
                            MultiverseWorld world, CommandSender initiator, UUID id) {
-        this.playerUUIDs = ImmutableSet.copyOf(playerUUIDs);
-        this.composition = new MutableComposition(playerUUIDs.size(), composition).getCards();
+        if (players.isEmpty()) {
+            throw new IllegalArgumentException("There are no players.");
+        }
+        if (players.size() > composition.getCards().size()) {
+            throw new IllegalArgumentException("There are more players than cards.");
+        }
+
+        this.players = ImmutableSet.copyOf(players);
+        this.composition = new SnapshotComposition(composition);
         this.world = world;
         this.initiator = initiator;
         this.id = id;
+
+        this.owner = determineOwner();
     }
 
+    private Player determineOwner() {
+        if (initiator instanceof Player) {
+            if (players.contains(initiator)) {
+                return (Player) initiator;
+            }
+        }
+        return players.iterator().next();
+    }
 
     public MultiverseWorld getWorld() {
         return world;
@@ -47,15 +64,15 @@ public final class LGGameLobbyInfo {
         return id;
     }
 
-    public ImmutableSet<UUID> getPlayerUUIDs() {
-        return playerUUIDs;
+    public ImmutableSet<Player> getPlayers() {
+        return players;
     }
 
-    public List<@Nullable Player> getPlayers() {
-        return playerUUIDs.stream().map(Bukkit::getPlayer).collect(Collectors.toList());
-    }
-
-    public ImmutableList<LGCard> getComposition() {
+    public Composition getComposition() {
         return composition;
+    }
+
+    public Player getOwner() {
+        return owner;
     }
 }

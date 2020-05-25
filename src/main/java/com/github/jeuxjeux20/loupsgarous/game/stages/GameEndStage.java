@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
+import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -28,7 +29,7 @@ public class GameEndStage extends AsyncLGGameStage implements CountdownTimedStag
     }
 
     @Override
-    public TickEventCountdown getCountdown() {
+    public Countdown getCountdown() {
         return countdown;
     }
 

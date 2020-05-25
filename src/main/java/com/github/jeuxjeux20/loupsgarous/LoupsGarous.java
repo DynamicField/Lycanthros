@@ -10,6 +10,9 @@ import org.bukkit.event.Listener;
 
 import java.util.Set;
 
+/**
+ * The main loups-garous plugin! Woof!
+ */
 public final class LoupsGarous extends ExtendedJavaPlugin {
     @Override
     public void enable() {

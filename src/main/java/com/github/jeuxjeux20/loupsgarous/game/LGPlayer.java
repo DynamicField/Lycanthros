@@ -17,12 +17,11 @@ public interface LGPlayer {
      * @return the player
      */
     default Optional<Player> getMinecraftPlayer() {
+        if (isAway()) return Optional.empty();
         return Optional.ofNullable(Bukkit.getPlayer(getPlayerUUID()));
     }
 
     UUID getPlayerUUID();
-
-    @Nullable MultiverseWorld getPreviousWorld();
 
     LGCard getCard();
 
@@ -35,4 +34,6 @@ public interface LGPlayer {
     default String getName() {
         return getMinecraftPlayer().map(HumanEntity::getName).orElse("[Inconnu]");
     }
+
+    boolean isAway();
 }

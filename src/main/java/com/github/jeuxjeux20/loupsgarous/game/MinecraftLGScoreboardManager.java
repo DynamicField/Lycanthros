@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 import java.util.Optional;
 
-class DefaultLGScoreboardManager implements LGScoreboardManager {
+class MinecraftLGScoreboardManager implements LGScoreboardManager {
     private static final MetadataKey<Scoreboard> SCOREBOARD_KEY
             = MetadataKey.create("lg_scoreboard", Scoreboard.class);
 

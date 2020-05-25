@@ -14,5 +14,6 @@ public final class LGCommandsModule extends CommandsModule {
         addCommand(LGKillCommand.class);
         addCommand(LGHealCommand.class);
         addCommand(LGCoupleCommand.class);
+        addCommand(LGLobbyCommand.class);
     }
 }

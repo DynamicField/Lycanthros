@@ -2,11 +2,13 @@ package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.cards.*;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGGameDeletedEvent;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.github.jeuxjeux20.loupsgarous.util.WordingUtils;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -24,7 +26,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
 @Singleton
-class DefaultLGGameManager implements LGGameManager {
+class MinecraftLGGameManager implements LGGameManager {
     private final MultiverseCore multiverse;
     private final LoupsGarous plugin;
     private final LGGameOrchestrator.Factory orchestratorFactory;
@@ -32,8 +34,8 @@ class DefaultLGGameManager implements LGGameManager {
     private final CopyOnWriteArrayList<LGGameOrchestrator> ongoingGames = new CopyOnWriteArrayList<>();
 
     @Inject
-    public DefaultLGGameManager(MultiverseCore multiverse, LoupsGarous plugin,
-                                LGGameOrchestrator.Factory orchestratorFactory) {
+    public MinecraftLGGameManager(MultiverseCore multiverse, LoupsGarous plugin,
+                                  LGGameOrchestrator.Factory orchestratorFactory) {
         this.multiverse = multiverse;
         this.plugin = plugin;
         this.orchestratorFactory = orchestratorFactory;
@@ -42,7 +44,8 @@ class DefaultLGGameManager implements LGGameManager {
     }
 
     @Override
-    public synchronized SafeResult<LGGameOrchestrator> startGame(String worldToClone, List<Player> players, CommandSender teleporter) {
+    public synchronized SafeResult<LGGameOrchestrator> startGame(String worldToClone, Set<Player> players,
+                                                                 Composition composition, CommandSender owner) {
         List<Player> playersLockedWhileStarting = playersLocked.stream().filter(players::contains).collect(Collectors.toList());
         if (!playersLockedWhileStarting.isEmpty()) {
             return SafeResult.error(playersLockedWhileStarting.size() > 1 ?
@@ -53,18 +56,14 @@ class DefaultLGGameManager implements LGGameManager {
 
         playersLocked.addAll(players);
         try {
-            List<Player> presentPlayers = ongoingGames.stream().flatMap(x -> x.getGame().getPlayers().stream())
-                    .map(LGPlayer::getMinecraftPlayer)
-                    .flatMap(OptionalUtils::stream)
-                    .filter(players::contains)
-                    .collect(Collectors.toList());
+            Set<Player> presentPlayers = findPresentPlayers(players);
 
             int presentPlayersCount = presentPlayers.size();
             if (presentPlayersCount > 0) {
                 return SafeResult.error(presentPlayersCount > 1 ?
                         "Les joueurs " + presentPlayers.stream().map(Player::getName).collect(Collectors.joining(", ")) +
                         " sont déjà en partie." :
-                        "Le joueur " + presentPlayers.get(0).getName() + " est déjà en partie.");
+                        "Le joueur " + presentPlayers.iterator().next().getName() + " est déjà en partie.");
             }
 
             UUID id = UUID.randomUUID();
@@ -79,31 +78,8 @@ class DefaultLGGameManager implements LGGameManager {
             MultiverseWorld mvWorld = multiverse.getMVWorldManager().getMVWorld(gameWorldName);
             mvWorld.setAlias(mvWorld.getName().substring(0, WORLD_PREFIX.length() + SHORT_ID_LENGTH));
 
-            // Debug stuff
-
-            players = Lists.newArrayList(players);
-            while (players.size() < 7) {
-                players.add(null);
-            }
-
-            LGCard[] lgCards = new LGCard[players.size()];
-            Arrays.fill(lgCards, new VillageoisCard());
-            lgCards[0] = new LoupGarouCard();
-            lgCards[1] = new CupidonCard();
-            lgCards[2] = new ChasseurCard();
-            lgCards[3] = new VoyanteCard();
-            lgCards[4] = new PetiteFilleCard();
-            lgCards[5] = new VillageoisCard();
-            lgCards[6] = new SorciereCard();
-
-            // End debug stuff
-
-            Set<UUID> playerUUIDs = players.stream()
-                    .map(x -> x == null ? UUID.randomUUID() : x.getUniqueId())
-                    .collect(Collectors.toSet());
-
             LGGameOrchestrator orchestrator = orchestratorFactory.create(
-                    new LGGameLobbyInfo(playerUUIDs, Arrays.asList(lgCards), mvWorld, teleporter, id)
+                    new LGGameLobbyInfo(players, composition, mvWorld, owner, id)
             );
 
             ongoingGames.add(orchestrator);
@@ -114,6 +90,14 @@ class DefaultLGGameManager implements LGGameManager {
         } finally {
             playersLocked.removeAll(players);
         }
+    }
+
+    private Set<Player> findPresentPlayers(Set<Player> players) {
+        return ongoingGames.stream().flatMap(x -> x.getGame().getPlayers().stream())
+                .map(LGPlayer::getMinecraftPlayer)
+                .flatMap(OptionalUtils::stream)
+                .filter(players::contains)
+                .collect(Collectors.toSet());
     }
 
     @Override

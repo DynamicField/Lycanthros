@@ -2,10 +2,13 @@ package com.github.jeuxjeux20.loupsgarous.game.cards.composition.gui;
 
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.IllegalPlayerCountException;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.util.CompositionFormatUtil;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator.Problem;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidatorAggregator;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.util.CompositionFormatUtil;
+import com.github.jeuxjeux20.loupsgarous.util.Check;
+import com.github.jeuxjeux20.loupsgarous.util.CollectorUtils;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
@@ -59,7 +62,7 @@ public final class CompositionGui extends Gui {
         this.composition = composition;
         this.cardsToProvider = cardProviders.stream()
                 .collect(Collectors.toMap(Provider::get, Function.identity(),
-                        this::throwDuplicate, this::createSortedCardsMap));
+                        CollectorUtils::throwDuplicate, this::createSortedCardsMap));
         this.compositionValidatorAggregator = compositionValidatorAggregator;
     }
 
@@ -157,7 +160,7 @@ public final class CompositionGui extends Gui {
         MenuPopulator populator = CARDS.newPopulator(this);
         for (LGCard card : cardsToProvider.keySet()) {
             int amount = (int) composition.getCards().stream().filter(x -> x.getClass() == card.getClass()).count();
-            boolean canRemoveCard = composition.canRemove() && amount > 0;
+            boolean canRemoveCard = amount > 0;
 
             ItemStackBuilder builder = ItemStackBuilder.of(card.createGuiItem())
                     .name(card.getColor() + card.getName())
@@ -178,23 +181,44 @@ public final class CompositionGui extends Gui {
         Provider<LGCard> cardProvider = cardsToProvider.get(card);
         LGCard newCard = cardProvider.get();
 
-        composition.addCard(newCard);
-        LGSoundStuff.ding(getPlayer());
-        redraw();
+        try {
+            try {
+                composition.addCard(newCard);
+            } catch (IllegalPlayerCountException e) {
+                getPlayer().sendMessage(ChatColor.RED + e.getMessage());
+                LGSoundStuff.nah(getPlayer());
+                return;
+            }
+
+            LGSoundStuff.ding(getPlayer());
+        }
+        finally {
+            redraw();
+        }
     }
 
     private void removeCard(LGCard card) {
-        if (!composition.removeCardOfClass(card.getClass())) {
-            getPlayer().sendMessage(ChatColor.RED + "Impossible de retirer la carte.");
-            LGSoundStuff.nah(getPlayer());
-            return;
-        }
-        LGSoundStuff.remove(getPlayer());
-        redraw();
-    }
+        boolean success = false;
+        String errorMessage = "Impossible de retirer la carte.";
 
-    private Provider<LGCard> throwDuplicate(Provider<LGCard> v1, Provider<LGCard> v2) {
-        throw new UnsupportedOperationException("Duplicate keys: " + v1 + " ; " + v2);
+        try {
+            try {
+                success = composition.removeCardOfClass(card.getClass());
+            } catch (IllegalPlayerCountException e) {
+                errorMessage = e.getMessage();
+            }
+
+            if (!success) {
+                getPlayer().sendMessage(ChatColor.RED + errorMessage);
+                LGSoundStuff.nah(getPlayer());
+                return;
+            }
+
+            LGSoundStuff.remove(getPlayer());
+        }
+        finally {
+            redraw();
+        }
     }
 
     public interface Factory {

@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
+import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
@@ -176,7 +177,7 @@ public class CupidonCoupleStage extends AsyncLGGameStage implements CountdownTim
     }
 
     @Override
-    public TickEventCountdown getCountdown() {
+    public Countdown getCountdown() {
         return countdown;
     }
 

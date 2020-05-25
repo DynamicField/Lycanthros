@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
+import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
@@ -61,7 +62,7 @@ public class VillageVoteStage extends AsyncLGGameStage implements Votable, Count
     }
 
     @Override
-    public TickEventCountdown getCountdown() {
+    public Countdown getCountdown() {
         return countdown;
     }
 

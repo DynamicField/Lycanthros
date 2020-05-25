@@ -7,7 +7,7 @@ authors: [jeuxjeux20]
 description: Le jeu des loup-garous. Excellent.
 commands:
   lgstart:
-    usage: /lgstart <joueurs...>
+    usage: /lgstart
     description: Commence une partie de loups-garous.
     permission: loups.garous.game.start
   lgconfig:
@@ -46,6 +46,9 @@ commands:
   lgcouple:
     usage: /lgcouple <partenaire1> <partenaire2>
     description: Crée un couple avec deux personnes (Cupidon).
+  lglobby:
+    usage: /lglobby
+    description: Permet de configurer la partie, si vous en êtes le maître.
   color:
     usage: /color <stuff>
     description: debuggi debuggo

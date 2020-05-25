@@ -1,20 +1,18 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
-import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
 public class MutableLGPlayer implements LGPlayer {
-    private final @Nullable MultiverseWorld previousWorld;
     private final UUID playerUUID;
     private final LGCard card;
     private boolean isDead;
+    private boolean isAway;
 
-    public MutableLGPlayer(UUID playerUUID, @Nullable MultiverseWorld previousWorld, LGCard card) {
+    public MutableLGPlayer(UUID playerUUID, LGCard card) {
         this.playerUUID = playerUUID;
-        this.previousWorld = previousWorld;
         this.card = card;
     }
 
@@ -38,7 +36,11 @@ public class MutableLGPlayer implements LGPlayer {
     }
 
     @Override
-    public @Nullable MultiverseWorld getPreviousWorld() {
-        return previousWorld;
+    public boolean isAway() {
+        return isAway;
+    }
+
+    public void setAway(boolean isAway) {
+        this.isAway = isAway;
     }
 }

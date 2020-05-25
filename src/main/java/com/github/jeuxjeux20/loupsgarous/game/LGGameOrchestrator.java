@@ -40,11 +40,9 @@ public interface LGGameOrchestrator {
 
     MultiverseWorld getWorld();
 
-    boolean hasGameStarted();
-
     LGGame getGame();
 
-    LGGameLobbyInfo getLobbyInfo();
+    LGGameLobby lobby();
 
     UUID getId();
 
@@ -114,10 +112,10 @@ public interface LGGameOrchestrator {
     }
 
     default Stream<LGCard> getComposition() {
-        if (hasGameStarted()) {
-            return getGame().getAlivePlayers().map(LGPlayer::getCard);
+        if (getState() == LGGameState.WAITING_FOR_PLAYERS || getState() == LGGameState.READY_TO_START) {
+            return lobby().getComposition().getCards().stream();
         } else {
-            return getLobbyInfo().getComposition().stream();
+            return getGame().getAlivePlayers().map(LGPlayer::getCard);
         }
     }
 

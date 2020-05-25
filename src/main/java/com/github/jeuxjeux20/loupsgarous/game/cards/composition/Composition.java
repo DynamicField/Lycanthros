@@ -15,5 +15,7 @@ public interface Composition {
 
     ImmutableList<LGCard> getCards();
 
-    int getPlayerCount();
+    default int getPlayerCount() {
+        return getCards().size();
+    }
 }

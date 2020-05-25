@@ -80,7 +80,7 @@ public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Vot
     }
 
     @Override
-    public TickEventCountdown getCountdown() {
+    public Countdown getCountdown() {
         return countdown;
     }
 

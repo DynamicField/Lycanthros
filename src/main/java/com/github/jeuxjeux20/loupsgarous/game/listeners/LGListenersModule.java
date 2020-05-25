@@ -26,5 +26,6 @@ public final class LGListenersModule extends ListenersModule {
         addListener(ClearAllEffectsOnEndListener.class);
         addListener(TellStageTitleListener.class);
         addListener(TellVoteTipsListener.class);
+        addListener(DeleteGamesOnDisableListener.class);
     }
 }

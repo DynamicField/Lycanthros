@@ -38,7 +38,7 @@ public class UpdateScoreboardListener implements Listener {
     }
 
     @EventHandler
-    public void onLGStageChanged(LGStageChangedEvent event) {
+    public void onLGStageChanged(LGStageChangeEvent event) {
         updateAll(event);
     }
 

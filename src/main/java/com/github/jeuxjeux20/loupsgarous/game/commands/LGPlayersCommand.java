@@ -4,6 +4,7 @@ import com.github.jeuxjeux20.guicybukkit.command.AnnotatedCommandConfigurator;
 import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
 import com.google.inject.Inject;
@@ -57,7 +58,7 @@ public class LGPlayersCommand implements AnnotatedCommandConfigurator {
 
                         messageBuilder.append(ChatColor.DARK_AQUA);
 
-                        if (player.isDead() || !game.get().getOrchestrator().isGameRunning())
+                        if (player.isDead() || game.get().getOrchestrator().getState() == LGGameState.FINISHED)
                             messageBuilder.append(" (")
                                     .append(role(player.getCard().getName()))
                                     .append(ChatColor.DARK_AQUA)

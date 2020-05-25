@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGTimedStageTickEvent;
 
 public interface CountdownTimedStage extends TimedStage {
-    TickEventCountdown getCountdown();
+    Countdown getCountdown();
 
     @Override
     default int getSecondsLeft() {

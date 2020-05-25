@@ -17,9 +17,13 @@ import com.onarandombox.MultiverseCore.MultiverseCore;
 import com.onarandombox.MultiverseCore.api.MVDestination;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import com.onarandombox.MultiverseCore.destination.DestinationFactory;
+import me.lucko.helper.Events;
+import me.lucko.helper.Schedulers;
+import me.lucko.helper.scheduler.Task;
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
 import org.bukkit.GameRule;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,18 +36,26 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.github.jeuxjeux20.loupsgarous.game.MinecraftLGGameOrchestrator.OrchestratorState.*;
 
 class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     private final LGCardOrchestrator cardOrchestrator;
-    private final LGGameLobbyInfo lobbyInfo;
     private final MultiverseCore multiverse;
     private final LoupsGarous plugin;
     private final Logger logger;
     private final LinkedList<AsyncLGGameStage.Factory<?>> stageFactories;
     private final ArrayList<LGKill> pendingKills = new ArrayList<>();
     private final HashMap<AnonymizedChatChannel, List<String>> anonymizedNames = new HashMap<>();
+    private final CommandSender initiator;
+    private final MultiverseWorld world;
+    private final MinecraftLGGameLobby lobby;
+    private final LGActionBarManager actionBarManager;
+    private final UUID id;
+    private final MVDestination worldDestination;
+    private final Task actionBarUpdateTask;
     private LGGame game;
     private LGGameState state = LGGameState.WAITING_FOR_PLAYERS;
     private @Nullable ListIterator<AsyncLGGameStage.Factory<?>> stageIterator = null;
@@ -51,60 +63,58 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     private @Nullable CompletableFuture<Void> currentStageFuture = null;
 
     @Inject
-    public MinecraftLGGameOrchestrator(@Assisted LGGameLobbyInfo gameLobbyInfo,
+    public MinecraftLGGameOrchestrator(@Assisted LGGameLobbyInfo lobbyInfo,
                                        Set<AsyncLGGameStage.Factory<?>> stageFactories,
                                        MultiverseCore multiverse,
                                        LoupsGarous plugin,
+                                       LGActionBarManager actionBarManager,
                                        LGCardOrchestrator.Factory cardOrchestratorFactory) {
-        this.lobbyInfo = gameLobbyInfo;
+        this.id = lobbyInfo.getId();
+        this.initiator = lobbyInfo.getInitiator();
+        this.world = lobbyInfo.getWorld();
         this.stageFactories = new LinkedList<>(stageFactories);
         this.multiverse = multiverse;
         this.plugin = plugin;
         this.logger = plugin.getLogger();
-        this.game = new UndeterminedLGGame(gameLobbyInfo.getPlayerUUIDs());
+        this.actionBarManager = actionBarManager;
+
+        this.lobby = new MinecraftLGGameLobby(lobbyInfo, this);
+
+        this.game = new UndeterminedLobby();
+
+        this.worldDestination = multiverse.getDestFactory().getDestination(getWorld().getName());
+
         this.cardOrchestrator = cardOrchestratorFactory.create(this);
+
+        registerLobbyEvents();
+
+        // Wait 1 second before running it for the first time, because teleporting isn't instant ;).
+        this.actionBarUpdateTask = Schedulers.sync().runRepeating(this::updateActionBars, 20, 20);
     }
 
-    @Override
-    public void teleportAllPlayers() {
-        ensureState(WAITING_FOR_PLAYERS);
+    private void registerLobbyEvents() {
+        Events.merge(LGEvent.class, LGLobbyPlayerJoinEvent.class, LGLobbyPlayerQuitEvent.class, LGLobbyCompositionChangeEvent.class)
+                .filter(this::isMyEvent)
+                .expireIf(e -> lobby.isLocked())
+                .handler(e -> updateLobbyState());
 
-        DestinationFactory destFactory = multiverse.getDestFactory();
-        MVDestination destination = destFactory.getDestination(getWorld().getName());
+        Events.subscribe(LGLobbyPlayerQuitEvent.class)
+                .filter(this::isMyEvent)
+                .expireIf(e -> lobby.isLocked())
+                .handler(this::handlePlayerQuit);
 
-        initializeWorld();
-
-        getAllMinecraftPlayers()
-                .forEach(player -> multiverse.getSafeTTeleporter().teleport(lobbyInfo.getInitiator(), player, destination));
-
-        changeStateTo(READY_TO_START, LGGameReadyToStartEvent::new);
-
-        callNextStage();
+        Events.subscribe(LGLobbyPlayerJoinEvent.class)
+                .filter(this::isMyEvent)
+                .expireIf(e -> lobby.isLocked())
+                .handler(this::handlePlayerJoin);
     }
 
-    private void initializeWorld() {
-        getWorld().setDifficulty(Difficulty.PEACEFUL);
-        getWorld().setGameMode(GameMode.ADVENTURE);
-        getWorld().setAllowAnimalSpawn(false);
-        getWorld().setAllowMonsterSpawn(false);
-        getWorld().setTime("day");
-        getWorld().setPVPMode(false);
-        getWorld().setRespawnToWorld(getWorld().getName());
-        getWorld().getCBWorld().setGameRule(GameRule.FALL_DAMAGE, false);
-        getWorld().getCBWorld().setGameRule(GameRule.KEEP_INVENTORY, true);
-        getWorld().getCBWorld().setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
+    private boolean isMyEvent(LGEvent event) {
+        return event.getOrchestrator() == this;
     }
 
-    @Override
-    public void start() {
-        ensureState(READY_TO_START);
-
-        RunningLGGame game = RunningLGGame.create(lobbyInfo.getPlayers(), lobbyInfo.getComposition(), multiverse);
-        changeStateTo(STARTED, game, LGGameStartEvent::new);
-
-        callEvent(new LGTurnChangeEvent(this));
-
-        callNextStage();
+    private void updateActionBars() {
+        getGame().getPlayers().forEach(player -> actionBarManager.update(player, this));
     }
 
     @Override
@@ -113,18 +123,13 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     }
 
     @Override
-    public LGGameLobbyInfo getLobbyInfo() {
-        return lobbyInfo;
+    public LGGameLobby lobby() {
+        return lobby;
     }
 
     @Override
     public MultiverseWorld getWorld() {
-        return lobbyInfo.getWorld();
-    }
-
-    @Override
-    public boolean hasGameStarted() {
-        return game != null;
+        return world;
     }
 
     @Override
@@ -134,8 +139,9 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
     @Override
     public UUID getId() {
-        return lobbyInfo.getId();
+        return id;
     }
+
 
     @Override
     public void killInstantly(LGKill kill) {
@@ -189,6 +195,31 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         });
     }
 
+
+    @Override
+    public void start() {
+        ensureState(READY_TO_START);
+
+        Set<Player> players = lobby.getPlayers();
+
+        RunningLGGame game = RunningLGGame.create(players, lobby.getComposition().getCards());
+        changeStateTo(STARTED, game, LGGameStartEvent::new);
+
+        callEvent(new LGTurnChangeEvent(this));
+
+        callNextStage();
+    }
+
+    private void updateLobbyState() {
+        ensureState(WAITING_FOR_PLAYERS, READY_TO_START);
+
+        if (lobby.isFull()) {
+            changeStateTo(READY_TO_START, LGGameReadyToStartEvent::new);
+        } else {
+            changeStateTo(WAITING_FOR_PLAYERS, LGGameWaitingForPlayersEvent::new);
+        }
+    }
+
     @Override
     public void finish(LGEnding ending) {
         // A game can be finished at any state except when it's already finished.
@@ -200,33 +231,82 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
     @Override
     public void delete() {
-        ensureState(FINISHED);
+        ensureNotState(DELETED);
 
-        teleportPlayersAndDeleteWorld();
+        actionBarUpdateTask.stop();
+
+        teleportPlayersOutAndDeleteWorld();
 
         changeStateTo(DELETED, LGGameDeletedEvent::new);
     }
 
-    private void teleportPlayersAndDeleteWorld() {
+
+    @Override
+    public void teleportAllPlayers() {
+        ensureState(WAITING_FOR_PLAYERS, READY_TO_START);
+
+        initializeWorld();
+
+        getAllMinecraftPlayers().forEach(this::teleportPlayerIn);
+
+        if (stageIterator == null) {
+            callNextStage();
+        }
+    }
+
+    public void teleportPlayerIn(Player player) {
+        if (player.getWorld() == world.getCBWorld()) return;
+        multiverse.getSafeTTeleporter().teleport(initiator, player, worldDestination);
+    }
+
+    private void initializeWorld() {
+        getWorld().setDifficulty(Difficulty.PEACEFUL);
+        getWorld().setGameMode(GameMode.ADVENTURE);
+        getWorld().setAllowAnimalSpawn(false);
+        getWorld().setAllowMonsterSpawn(false);
+        getWorld().setTime("day");
+        getWorld().setPVPMode(false);
+        getWorld().setRespawnToWorld(getWorld().getName());
+        getWorld().getCBWorld().setGameRule(GameRule.FALL_DAMAGE, false);
+        getWorld().getCBWorld().setGameRule(GameRule.KEEP_INVENTORY, true);
+        getWorld().getCBWorld().setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
+    }
+
+    private void teleportPlayersOutAndDeleteWorld() {
         for (LGPlayer player : getGame().getPlayers()) {
-            player.getMinecraftPlayer().ifPresent(minecraftPlayer -> teleportPlayer(minecraftPlayer, player));
+            player.getMinecraftPlayer().ifPresent(minecraftPlayer -> teleportPlayerOut(minecraftPlayer, player));
         }
         multiverse.getMVWorldManager().deleteWorld(getWorld().getName());
     }
 
-    private void teleportPlayer(Player minecraftPlayer, LGPlayer player) {
-        LGGameDeletingPlayerTeleportEvent event
-                = new LGGameDeletingPlayerTeleportEvent(this, player, minecraftPlayer);
+    private void teleportPlayerOut(Player minecraftPlayer, @Nullable LGPlayer player) {
+        LGGamePlayerQuitTeleportEvent event
+                = new LGGamePlayerQuitTeleportEvent(this, player, minecraftPlayer);
         callEvent(event);
         if (event.isCancelled()) return;
 
-        MultiverseWorld previousWorld = player.getPreviousWorld();
-        if (previousWorld == null) previousWorld = multiverse.getMVWorldManager().getSpawnWorld();
+        MultiverseWorld spawnWorld = multiverse.getMVWorldManager().getSpawnWorld();
 
         DestinationFactory destFactory = multiverse.getDestFactory();
-        MVDestination destination = destFactory.getDestination(previousWorld.getName());
+        MVDestination destination = destFactory.getDestination(spawnWorld.getName());
 
-        multiverse.getSafeTTeleporter().teleport(lobbyInfo.getInitiator(), minecraftPlayer, destination);
+        multiverse.getSafeTTeleporter().teleport(initiator, minecraftPlayer, destination);
+    }
+
+    private void handlePlayerJoin(LGLobbyPlayerJoinEvent event) {
+        teleportPlayerIn(event.getPlayer());
+
+        sendToEveryone(event.getPlayer().getName() + " a rejoint la partie ! " + lobby.getSlotsDisplay());
+    }
+
+    private void handlePlayerQuit(LGLobbyPlayerQuitEvent e) {
+        sendToEveryone(e.getPlayer().getName() + " a quitté la partie ! " + lobby.getSlotsDisplay());
+
+        if (lobby.getPlayers().isEmpty()) {
+            delete();
+        }
+
+        teleportPlayerOut(e.getPlayer(), null);
     }
 
     /**
@@ -298,7 +378,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     }
 
     private boolean callSpecialStages() {
-        if (state == LGGameState.READY_TO_START) {
+        if (state == LGGameState.READY_TO_START || state == LGGameState.WAITING_FOR_PLAYERS) {
             if (!(currentStage instanceof GameStartStage)) {
                 GameStartStage stage = new GameStartStage(this);
                 updateAndRunCurrentStage(stage).thenRun(this::start).exceptionally(ex -> {
@@ -323,7 +403,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
     private CompletionStage<Void> updateAndRunCurrentStage(AsyncLGGameStage stage) {
         currentStage = stage;
-        callEvent(new LGStageChangedEvent(this, stage));
+        callEvent(new LGStageChangeEvent(this, stage));
         CompletableFuture<Void> future = stage.run();
         currentStageFuture = future;
         logger.info("current future is now: " + future);
@@ -336,10 +416,10 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
      * Changes the current state to the specified {@code state}, and calls the event created using the given
      * function.
      *
-     * @throws IllegalStateException when the state's game type is not the same as the current one
-     * @param state the state to change to
+     * @param state         the state to change to
      * @param eventFunction the function that creates the event to call
-     * @param <E> the type of the event
+     * @param <E>           the type of the event
+     * @throws IllegalStateException when the state's game type is not the same as the current one
      */
     private <E extends LGEvent> void changeStateTo(OrchestratorState<?, E> state,
                                                    Function<? super LGGameOrchestrator, E> eventFunction) {
@@ -359,11 +439,11 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
      * Changes the current state to the specified {@code state}, calls the event created using the given
      * function and changes the current game to the specified {@code newGame}.
      *
-     * @param state the state to change to
-     * @param newGame the new game
+     * @param state         the state to change to
+     * @param newGame       the new game
      * @param eventFunction the function that creates the event to call
-     * @param <G> the type of the game
-     * @param <E> the type of the event
+     * @param <G>           the type of the game
+     * @param <E>           the type of the event
      */
     private <G extends LGGame, E extends LGEvent>
     void changeStateTo(OrchestratorState<? extends G, E> state, G newGame,
@@ -378,10 +458,10 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
      * Ensures that the current state is the same as the specified one, if so, runs the {@code gameConsumer}
      * with the game casted to the state's game type, else throws an exception.
      *
-     * @throws IllegalStateException when the current state is not the same as the given one
-     * @param state the state to check
+     * @param state        the state to check
      * @param gameConsumer the function to run when
-     * @param <G> the type of the game
+     * @param <G>          the type of the game
+     * @throws IllegalStateException when the current state is not the same as the given one
      */
     private <G extends LGGame> void ensureState(OrchestratorState<? extends G, ?> state,
                                                 Consumer<? super G> gameConsumer) {
@@ -395,15 +475,25 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         Preconditions.checkState(this.state != state.value,
                 "The game state must NOT be: " + this.state.toString());
     }
+
     /**
      * Ensures that the current state is the same as the specified one, if it isn't, throws an exception.
      *
-     * @throws IllegalStateException when the current state is not the same as the given one
      * @param state the state to check
+     * @throws IllegalStateException when the current state is not the same as the given one
      */
     private void ensureState(OrchestratorState<?, ?> state) {
         Preconditions.checkState(this.state == state.value,
-                "The game state must be: " + this.state.toString());
+                "The game state must be: " + state.toString());
+    }
+
+    private void ensureState(OrchestratorState<?, ?>... states) {
+        for (OrchestratorState<?, ?> state : states) {
+            if (this.state == state.value) return;
+        }
+
+        throw new IllegalStateException("The game state must be in [" +
+                                        Arrays.stream(states).map(Object::toString).collect(Collectors.joining(", ")) + "].");
     }
 
     /**
@@ -426,11 +516,11 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
      * @param <E> the type of the event to call
      */
     static class OrchestratorState<G extends LGGame, E extends LGEvent> {
-        public static final OrchestratorState<UndeterminedLGGame, LGGameWaitingForPlayersEvent> WAITING_FOR_PLAYERS
-                = new OrchestratorState<>(LGGameState.WAITING_FOR_PLAYERS, UndeterminedLGGame.class);
+        public static final OrchestratorState<UndeterminedLobby, LGGameWaitingForPlayersEvent> WAITING_FOR_PLAYERS
+                = new OrchestratorState<>(LGGameState.WAITING_FOR_PLAYERS, UndeterminedLobby.class);
 
-        public static final OrchestratorState<UndeterminedLGGame, LGGameReadyToStartEvent> READY_TO_START
-                = new OrchestratorState<>(LGGameState.READY_TO_START, UndeterminedLGGame.class);
+        public static final OrchestratorState<UndeterminedLobby, LGGameReadyToStartEvent> READY_TO_START
+                = new OrchestratorState<>(LGGameState.READY_TO_START, UndeterminedLobby.class);
 
         public static final OrchestratorState<RunningLGGame, LGGameStartEvent> STARTED
                 = new OrchestratorState<>(LGGameState.STARTED, RunningLGGame.class);
@@ -449,6 +539,23 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         private OrchestratorState(LGGameState value, Class<G> gameClass) {
             this.value = value;
             this.gameClass = gameClass;
+        }
+
+        @Override
+        public String toString() {
+            return value.toString();
+        }
+    }
+
+    private class UndeterminedLobby extends UndeterminedLGGame<LGGameLobby> {
+        @Override
+        public LGGameLobby value() {
+            return lobby;
+        }
+
+        @Override
+        public Stream<UUID> getPlayerUUIDs() {
+            return lobby.getPlayers().stream().map(Player::getUniqueId);
         }
     }
 }
