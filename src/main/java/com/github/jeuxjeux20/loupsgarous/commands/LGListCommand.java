@@ -26,7 +26,7 @@ public class LGListCommand implements AnnotatedCommandConfigurator {
     @Override
     public void configureCommand(@NotNull PluginCommand command) {
         Commands.create()
-                .assertPermission("loups.garous.game.list",
+                .assertPermission("loupsgarous.game.list",
                         ChatColor.RED + "Vous n'avez pas la permission de voir les parties :(")
                 .assertUsage("[page]", "{usage}")
                 .handler(c -> {

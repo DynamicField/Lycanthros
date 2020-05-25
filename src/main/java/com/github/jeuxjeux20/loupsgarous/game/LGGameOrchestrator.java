@@ -28,7 +28,7 @@ import java.util.stream.Stream;
  * Orchestrators manage the game state, with methods such as {@link #killInstantly(LGKill)}, {@link #nextTimeOfDay()}.
  */
 public interface LGGameOrchestrator {
-    Pattern shortIdPattern = Pattern.compile("^[0-9a-f]$");
+    Pattern shortIdPattern = Pattern.compile("^[0-9a-f]{8}$");
 
     static boolean isShortIdValid(@Nullable String id) {
         if (id == null) return false;
@@ -50,7 +50,7 @@ public interface LGGameOrchestrator {
         return getId().toString().substring(0, 8);
     }
 
-    void teleportAllPlayers();
+    void initializeAndTeleport();
 
     LGGameState getState();
 

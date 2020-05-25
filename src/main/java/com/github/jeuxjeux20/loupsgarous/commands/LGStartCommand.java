@@ -44,7 +44,7 @@ public class LGStartCommand extends SelfConfiguredCommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!permissionChecker.hasPermission(sender, "loups.garous.game.start")) {
+        if (!permissionChecker.hasPermission(sender, "loupsgarous.game.start")) {
             sender.sendMessage(error("Vous n'avez pas la permission de lancer une partie. :("));
             return true;
         }

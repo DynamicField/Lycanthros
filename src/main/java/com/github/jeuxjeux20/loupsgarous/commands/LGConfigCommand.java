@@ -23,7 +23,7 @@ public class LGConfigCommand extends SelfConfiguredCommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!permissionChecker.hasPermission(sender, "loups.garous.config.edit")) {
+        if (!permissionChecker.hasPermission(sender, "loupsgarous.config.edit")) {
             sender.sendMessage(ChatColor.RED + "Vous n'avez pas la permission de modifier la configuration. :(");
         }
         if (args.length <= 2) return false;

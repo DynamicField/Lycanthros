@@ -32,12 +32,10 @@ import java.util.*;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.github.jeuxjeux20.loupsgarous.game.MinecraftLGGameOrchestrator.OrchestratorState.*;
 
@@ -56,7 +54,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     private final UUID id;
     private final MVDestination worldDestination;
     private final Task actionBarUpdateTask;
-    private LGGame game;
+    private final MutableLGGame game;
     private LGGameState state = LGGameState.WAITING_FOR_PLAYERS;
     private @Nullable ListIterator<AsyncLGGameStage.Factory<?>> stageIterator = null;
     private @Nullable AsyncLGGameStage currentStage = null;
@@ -78,11 +76,10 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         this.logger = plugin.getLogger();
         this.actionBarManager = actionBarManager;
 
-        this.lobby = new MinecraftLGGameLobby(lobbyInfo, this);
-
-        this.game = new UndeterminedLobby();
-
+        this.game = new MutableLGGame(lobbyInfo.getPlayers());
         this.worldDestination = multiverse.getDestFactory().getDestination(getWorld().getName());
+
+        this.lobby = new MinecraftLGGameLobby(lobbyInfo, this);
 
         this.cardOrchestrator = cardOrchestratorFactory.create(this);
 
@@ -118,7 +115,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     }
 
     @Override
-    public LGGame getGame() {
+    public MutableLGGame getGame() {
         return game;
     }
 
@@ -141,7 +138,6 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     public UUID getId() {
         return id;
     }
-
 
     @Override
     public void killInstantly(LGKill kill) {
@@ -183,16 +179,17 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
     @Override
     public void nextTimeOfDay() {
-        ensureState(STARTED, game -> {
-            MutableLGGameTurn turn = game.getTurn();
-            if (turn.getTime() == LGGameTurnTime.DAY) {
-                turn.setTurnNumber(turn.getTurnNumber() + 1);
-                turn.setTime(LGGameTurnTime.NIGHT);
-            } else {
-                turn.setTime(LGGameTurnTime.DAY);
-            }
-            callEvent(new LGTurnChangeEvent(this));
-        });
+        ensureState(STARTED);
+
+        MutableLGGameTurn turn = game.getTurn();
+        if (turn.getTime() == LGGameTurnTime.DAY) {
+            turn.setTurnNumber(turn.getTurnNumber() + 1);
+            turn.setTime(LGGameTurnTime.NIGHT);
+        } else {
+            turn.setTime(LGGameTurnTime.DAY);
+        }
+
+        callEvent(new LGTurnChangeEvent(this));
     }
 
 
@@ -200,10 +197,8 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     public void start() {
         ensureState(READY_TO_START);
 
-        Set<Player> players = lobby.getPlayers();
-
-        RunningLGGame game = RunningLGGame.create(players, lobby.getComposition().getCards());
-        changeStateTo(STARTED, game, LGGameStartEvent::new);
+        game.distributeCards(lobby.getComposition());
+        changeStateTo(STARTED, LGGameStartEvent::new);
 
         callEvent(new LGTurnChangeEvent(this));
 
@@ -242,7 +237,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
 
     @Override
-    public void teleportAllPlayers() {
+    public void initializeAndTeleport() {
         ensureState(WAITING_FOR_PLAYERS, READY_TO_START);
 
         initializeWorld();
@@ -302,7 +297,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     private void handlePlayerQuit(LGLobbyPlayerQuitEvent e) {
         sendToEveryone(e.getPlayer().getName() + " a quitté la partie ! " + lobby.getSlotsDisplay());
 
-        if (lobby.getPlayers().isEmpty()) {
+        if (getGame().getPlayers().isEmpty()) {
             delete();
         }
 
@@ -421,57 +416,14 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
      * @param <E>           the type of the event
      * @throws IllegalStateException when the state's game type is not the same as the current one
      */
-    private <E extends LGEvent> void changeStateTo(OrchestratorState<?, E> state,
+    private <E extends LGEvent> void changeStateTo(OrchestratorState<E> state,
                                                    Function<? super LGGameOrchestrator, E> eventFunction) {
-        if (!state.gameClass.isInstance(game)) {
-            throw new IllegalStateException(
-                    "Cannot have a game being an instance of " + game.getClass().getSimpleName() +
-                    " with the state " + state.value + "."
-            );
-        }
-
         this.state = state.value;
 
         callEvent(eventFunction.apply(this));
     }
 
-    /**
-     * Changes the current state to the specified {@code state}, calls the event created using the given
-     * function and changes the current game to the specified {@code newGame}.
-     *
-     * @param state         the state to change to
-     * @param newGame       the new game
-     * @param eventFunction the function that creates the event to call
-     * @param <G>           the type of the game
-     * @param <E>           the type of the event
-     */
-    private <G extends LGGame, E extends LGEvent>
-    void changeStateTo(OrchestratorState<? extends G, E> state, G newGame,
-                       Function<? super LGGameOrchestrator, E> eventFunction) {
-        this.state = state.value;
-        this.game = newGame;
-
-        callEvent(eventFunction.apply(this));
-    }
-
-    /**
-     * Ensures that the current state is the same as the specified one, if so, runs the {@code gameConsumer}
-     * with the game casted to the state's game type, else throws an exception.
-     *
-     * @param state        the state to check
-     * @param gameConsumer the function to run when
-     * @param <G>          the type of the game
-     * @throws IllegalStateException when the current state is not the same as the given one
-     */
-    private <G extends LGGame> void ensureState(OrchestratorState<? extends G, ?> state,
-                                                Consumer<? super G> gameConsumer) {
-        ensureState(state);
-
-        G gameCasted = state.gameClass.cast(game);
-        gameConsumer.accept(gameCasted);
-    }
-
-    private void ensureNotState(OrchestratorState<?, ?> state) {
+    private void ensureNotState(OrchestratorState<?> state) {
         Preconditions.checkState(this.state != state.value,
                 "The game state must NOT be: " + this.state.toString());
     }
@@ -482,80 +434,54 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
      * @param state the state to check
      * @throws IllegalStateException when the current state is not the same as the given one
      */
-    private void ensureState(OrchestratorState<?, ?> state) {
+    private void ensureState(OrchestratorState<?> state) {
         Preconditions.checkState(this.state == state.value,
                 "The game state must be: " + state.toString());
     }
 
-    private void ensureState(OrchestratorState<?, ?>... states) {
-        for (OrchestratorState<?, ?> state : states) {
+    private void ensureState(OrchestratorState<?>... states) {
+        for (OrchestratorState<?> state : states) {
             if (this.state == state.value) return;
         }
 
         throw new IllegalStateException("The game state must be in [" +
-                                        Arrays.stream(states).map(Object::toString).collect(Collectors.joining(", ")) + "].");
+                Arrays.stream(states).map(Object::toString).collect(Collectors.joining(", ")) + "].");
     }
 
     /**
      * Represents the game state of the orchestrator, which wraps a {@link LGGameState} {@linkplain #value}, with some
-     * additional information:
-     * <ul>
-     *     <li>
-     *         The type of game to have when having this state ({@code <G>} and {@link #gameClass}).<br>
-     *         <i>Example:</i> The {@link #STARTED} state has a game type of {@link RunningLGGame}.
-     *     </li>
-     *     <li>
-     *         The type of the event to call when changing to this state ({@code <E>}).<br>
-     *         <i>Example:</i> The {@link #FINISHED} state has an event type of {@link LGGameFinishedEvent}.<br>
-     *         <i>Note:</i> Do not use wildcards for events (such as {@code ? extends E}), since
-     *         events listeners only listens for concrete types and not subclasses.
-     *     </li>
-     * </ul>
+     * the type of the event to call when changing to this state ({@code <E>}).<br>
+     * <i>Example:</i> The {@link #FINISHED} state has an event type of {@link LGGameFinishedEvent}.<br>
+     * <i>Note:</i> Do not use wildcards for events (such as {@code ? extends E}), since
+     * events listeners only listens for concrete types and not subclasses.
      *
-     * @param <G> the type of game to have when having this state
      * @param <E> the type of the event to call
      */
-    static class OrchestratorState<G extends LGGame, E extends LGEvent> {
-        public static final OrchestratorState<UndeterminedLobby, LGGameWaitingForPlayersEvent> WAITING_FOR_PLAYERS
-                = new OrchestratorState<>(LGGameState.WAITING_FOR_PLAYERS, UndeterminedLobby.class);
+    static class OrchestratorState<E extends LGEvent> {
+        public static final OrchestratorState<LGGameWaitingForPlayersEvent> WAITING_FOR_PLAYERS
+                = new OrchestratorState<>(LGGameState.WAITING_FOR_PLAYERS);
 
-        public static final OrchestratorState<UndeterminedLobby, LGGameReadyToStartEvent> READY_TO_START
-                = new OrchestratorState<>(LGGameState.READY_TO_START, UndeterminedLobby.class);
+        public static final OrchestratorState<LGGameReadyToStartEvent> READY_TO_START
+                = new OrchestratorState<>(LGGameState.READY_TO_START);
 
-        public static final OrchestratorState<RunningLGGame, LGGameStartEvent> STARTED
-                = new OrchestratorState<>(LGGameState.STARTED, RunningLGGame.class);
+        public static final OrchestratorState<LGGameStartEvent> STARTED
+                = new OrchestratorState<>(LGGameState.STARTED);
 
-        // Maybe that the game has finished while it was undetermined.
-        public static final OrchestratorState<LGGame, LGGameFinishedEvent> FINISHED
-                = new OrchestratorState<>(LGGameState.FINISHED, LGGame.class);
+        public static final OrchestratorState<LGGameFinishedEvent> FINISHED
+                = new OrchestratorState<>(LGGameState.FINISHED);
 
-        // Same as finished.
-        public static final OrchestratorState<LGGame, LGGameDeletedEvent> DELETED
-                = new OrchestratorState<>(LGGameState.DELETED, LGGame.class);
+        public static final OrchestratorState<LGGameDeletedEvent> DELETED
+                = new OrchestratorState<>(LGGameState.DELETED);
 
         public final LGGameState value;
-        public final Class<G> gameClass;
 
-        private OrchestratorState(LGGameState value, Class<G> gameClass) {
+        private OrchestratorState(LGGameState value) {
             this.value = value;
-            this.gameClass = gameClass;
         }
 
         @Override
         public String toString() {
             return value.toString();
-        }
-    }
-
-    private class UndeterminedLobby extends UndeterminedLGGame<LGGameLobby> {
-        @Override
-        public LGGameLobby value() {
-            return lobby;
-        }
-
-        @Override
-        public Stream<UUID> getPlayerUUIDs() {
-            return lobby.getPlayers().stream().map(Player::getUniqueId);
         }
     }
 }

@@ -29,7 +29,7 @@ public class LGFinishCommand implements AnnotatedCommandConfigurator {
     @Override
     public void configureCommand(@NotNull PluginCommand command) {
         Commands.create()
-                .assertPermission("loups.garous.game.finish",
+                .assertPermission("loupsgarous.game.finish",
                         ChatColor.RED + "Vous n'avez pas la permission de terminer les parties :(")
                 .assertUsage("[game] [reason]", "{usage}")
                 .handler(c -> {
@@ -48,9 +48,7 @@ public class LGFinishCommand implements AnnotatedCommandConfigurator {
                             return;
                         }
                     } else {
-                        game = gameManager.getOngoingGames().stream()
-                                .filter(x -> x.getShortId().equalsIgnoreCase(gameId))
-                                .findFirst();
+                        game = gameManager.getGameByShortId(gameId);
                         if (!game.isPresent()) {
                             c.reply(ChatColor.RED + "La partie n'a pas été trouvée :c");
                             return;

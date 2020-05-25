@@ -9,11 +9,11 @@ commands:
   lgstart:
     usage: /lgstart
     description: Commence une partie de loups-garous.
-    permission: loups.garous.game.start
+    permission: loupsgarous.game.start
   lgconfig:
     usage: /lgconfig set <nom> <valeur>
     description: Effectue des actions sur la configuration du plugin.
-    permission: loups.garous.config.set
+    permission: loupsgarous.config.set
   lgvote:
     usage: /lgvote <personne>
     description: Vote pour une personne.
@@ -26,7 +26,7 @@ commands:
   lglist:
     usage: /lglist [page]
     description: Affiche une liste des parties en cours.
-    permission: loups.garous.game.list
+    permission: loupsgarous.game.list
   lgfinish:
     usage: "/lgfinish <game> [raison]\n ou, en partie, /lgfinish [raison]"
     description: Termine une partie de loups-garous.
@@ -49,6 +49,10 @@ commands:
   lglobby:
     usage: /lglobby
     description: Permet de configurer la partie, si vous en êtes le maître.
+  lgjoin:
+    usage: /lgjoin <partie>
+    description: Permet de rejoindre une partie.
+    permission: loupsgarous.game.join
   color:
     usage: /color <stuff>
     description: debuggi debuggo

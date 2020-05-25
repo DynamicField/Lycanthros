@@ -29,4 +29,10 @@ public interface LGGameManager {
         }
         return Optional.empty();
     }
+
+    default Optional<LGGameOrchestrator> getGameByShortId(String shortId) {
+        return getOngoingGames().stream()
+                .filter(x -> x.getShortId().equalsIgnoreCase(shortId))
+                .findFirst();
+    }
 }

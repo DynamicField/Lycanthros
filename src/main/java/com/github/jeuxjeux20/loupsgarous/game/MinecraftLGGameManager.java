@@ -1,14 +1,12 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
-import com.github.jeuxjeux20.loupsgarous.game.cards.*;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGGameDeletedEvent;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.github.jeuxjeux20.loupsgarous.util.WordingUtils;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -84,7 +82,7 @@ class MinecraftLGGameManager implements LGGameManager {
 
             ongoingGames.add(orchestrator);
 
-            orchestrator.teleportAllPlayers();
+            orchestrator.initializeAndTeleport();
 
             return SafeResult.success(orchestrator);
         } finally {

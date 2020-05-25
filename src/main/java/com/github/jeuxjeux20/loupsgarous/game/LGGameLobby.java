@@ -22,10 +22,10 @@ public interface LGGameLobby {
 
     Composition getComposition();
 
-    ImmutableSet<Player> getPlayers();
+    LGGameOrchestrator getOrchestrator();
 
     default int getSlotsTaken() {
-        return getPlayers().size();
+        return getOrchestrator().getGame().getPlayers().size();
     }
 
     default int getTotalSlotCount() {

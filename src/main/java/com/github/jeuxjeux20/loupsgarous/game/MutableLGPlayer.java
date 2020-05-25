@@ -1,15 +1,20 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public class MutableLGPlayer implements LGPlayer {
+public final class MutableLGPlayer implements LGPlayer {
     private final UUID playerUUID;
-    private final LGCard card;
+    private LGCard card;
     private boolean isDead;
     private boolean isAway;
+
+    public MutableLGPlayer(Player player) {
+        this(player.getUniqueId(), new LGCard.Unknown());
+    }
 
     public MutableLGPlayer(UUID playerUUID, LGCard card) {
         this.playerUUID = playerUUID;
@@ -24,6 +29,10 @@ public class MutableLGPlayer implements LGPlayer {
     @Override
     public LGCard getCard() {
         return card;
+    }
+
+    public void setCard(LGCard card) {
+        this.card = card;
     }
 
     @Override
