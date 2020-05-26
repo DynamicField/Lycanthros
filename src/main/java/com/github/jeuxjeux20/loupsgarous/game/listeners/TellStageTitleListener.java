@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.events.LGStageChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.stage.LGStageChangeEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 

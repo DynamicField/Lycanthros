@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
+import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.stages.TimedStage;
 import me.lucko.helper.time.DurationFormatter;
 import net.md_5.bungee.api.ChatColor;
@@ -82,7 +83,20 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
 
             components.add(cardComponent);
         } else if (orchestrator.getState() == LGGameState.FINISHED) {
-            components.add(new TextComponent("Vous avez gagné, ou perdu ! (TODO)")); // TODO
+            LGEnding ending = orchestrator.getEnding()
+                    .orElseThrow(() -> new AssertionError("How is the ending null? The game's finished."));
+
+            switch (ending.getOutcomeFor(player)) {
+                case WIN:
+                    components.add(new TextComponent("Vous avez gagné !"));
+                    break;
+                case LOSE:
+                    components.add(new TextComponent("Vous avez perdu !"));
+                    break;
+                case SHRUG:
+                    components.add(new TextComponent("Vous avez... " + PlayerGameOutcome.SHRUG_EMOJI));
+                    break;
+            }
         }
     }
 

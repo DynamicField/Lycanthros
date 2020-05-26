@@ -58,8 +58,13 @@ public final class MutableLGGame implements LGGame {
     }
 
     @Override
-    public Optional<LGPlayer> getPlayerByUUID(UUID playerUUID) {
+    public Optional<MutableLGPlayer> getPlayer(UUID playerUUID) {
         return Optional.ofNullable(playersByUUID.get(playerUUID));
+    }
+
+    @Override
+    public Optional<MutableLGPlayer> getPlayer(Player player) {
+        return getPlayer(player.getUniqueId());
     }
 
     public @Nullable MutableLGPlayer addPlayerIfAbsent(MutableLGPlayer player) {

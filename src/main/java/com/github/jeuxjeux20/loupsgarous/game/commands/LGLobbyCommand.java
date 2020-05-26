@@ -7,6 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.gui.CompositionGui;
 import com.github.jeuxjeux20.loupsgarous.game.events.*;
+import com.github.jeuxjeux20.loupsgarous.game.events.lobby.LGLobbyOwnerChangeEvent;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
 import me.lucko.helper.Events;

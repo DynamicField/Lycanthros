@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import org.bukkit.entity.Player;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -12,12 +13,24 @@ public interface LGGame {
 
     ImmutableMap<UUID, LGPlayer> getPlayerByUUIDMap();
 
-    Optional<LGPlayer> getPlayerByUUID(UUID playerUUID);
+    default Optional<? extends LGPlayer> getPlayer(Player player) {
+        return getPlayer(player.getUniqueId());
+    }
+
+    Optional<? extends LGPlayer> getPlayer(UUID playerUUID);
 
     LGGameTurn getTurn();
 
     default Stream<LGPlayer> getAlivePlayers() {
         return getPlayers().stream().filter(LGPlayer::isAlive);
+    }
+
+    default Stream<LGPlayer> getPresentPlayers() {
+        return getPlayers().stream().filter(LGPlayer::isPresent);
+    }
+
+    default boolean isEmpty() {
+        return !getPresentPlayers().findAny().isPresent();
     }
 
     default Optional<LGPlayer> findByName(String name) {

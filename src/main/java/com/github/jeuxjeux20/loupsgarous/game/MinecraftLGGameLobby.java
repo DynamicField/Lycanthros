@@ -1,11 +1,13 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.IllegalPlayerCountException;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.SnapshotComposition;
-import com.github.jeuxjeux20.loupsgarous.game.events.*;
+import com.github.jeuxjeux20.loupsgarous.game.events.lobby.LGLobbyCompositionChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.lobby.LGLobbyOwnerChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerJoinEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitEvent;
 import com.google.common.base.Preconditions;
 import me.lucko.helper.Events;
 import org.bukkit.entity.Player;
@@ -14,7 +16,7 @@ import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.*;
+import java.util.Optional;
 
 class MinecraftLGGameLobby implements LGGameLobby {
     private final MinecraftLGGameOrchestrator orchestrator;
@@ -27,7 +29,7 @@ class MinecraftLGGameLobby implements LGGameLobby {
         this.owner = lobbyInfo.getOwner();
         this.composition = new LobbyComposition(lobbyInfo.getComposition());
 
-        Preconditions.checkArgument(getGame().getPlayerByUUID(owner.getUniqueId()).isPresent(),
+        Preconditions.checkArgument(getGame().getPlayer(owner.getUniqueId()).isPresent(),
                 "The owner is not in the present in the players.");
         Preconditions.checkArgument(getGame().getPlayers().size() <= composition.getPlayerCount(),
                 "There are more players than the given composition is supposed to have.");
@@ -35,44 +37,57 @@ class MinecraftLGGameLobby implements LGGameLobby {
         registerPlayerQuitEvents();
     }
 
-    @Override
-    public boolean canAddPlayer() {
+    private boolean canAddPlayer() {
         return composition.getPlayerCount() != getGame().getPlayers().size() && !isLocked();
     }
 
-    @Override
-    public boolean canRemovePlayer() {
-        return !isLocked();
+    private boolean canRemovePlayer(Player player) {
+        return !isLocked() || getGame().getPlayer(player).map(LGPlayer::isPresent).orElse(false);
     }
 
     @Override
     public boolean addPlayer(Player player) {
         if (!player.isOnline() || !canAddPlayer()) return false;
 
-        boolean added = getGame().addPlayerIfAbsent(new MutableLGPlayer(player)) == null;
+        MutableLGPlayer lgPlayer = new MutableLGPlayer(player);
+
+        boolean added = getGame().addPlayerIfAbsent(lgPlayer) == null;
         if (added) {
-            orchestrator.callEvent(new LGLobbyPlayerJoinEvent(orchestrator, player));
+            orchestrator.callEvent(new LGPlayerJoinEvent(orchestrator, player, lgPlayer));
         }
         return added;
     }
 
     @Override
     public boolean removePlayer(Player player) {
-        if (!canRemovePlayer()) return false;
+        if (!canRemovePlayer(player)) return false;
 
-        boolean removed = getGame().removePlayer(player.getUniqueId()) != null;
+        Optional<MutableLGPlayer> maybeLGPlayer = getGame().getPlayer(player);
+
+        boolean removed;
+        if (isLocked()) {
+            maybeLGPlayer.orElseThrow(AssertionError::new).setAway(true);
+            removed = true;
+        } else {
+            removed = getGame().removePlayer(player.getUniqueId()) != null;
+        }
+
         if (removed) {
-            orchestrator.callEvent(new LGLobbyPlayerQuitEvent(orchestrator, player));
+            orchestrator.callEvent(
+                    new LGPlayerQuitEvent(orchestrator, player, maybeLGPlayer.orElseThrow(AssertionError::new))
+            );
 
-            if (!getGame().getPlayers().isEmpty()) {
-                if (player == owner) {
-                    Optional<Player> maybeMinecraftPlayer = getGame().getPlayers().iterator().next().getMinecraftPlayer();
-                    owner = maybeMinecraftPlayer
-                            .orElseThrow(() -> new AssertionError("Wait what, how is the owner I got offline?"));
-                }
+            if (!getGame().isEmpty() && player.equals(owner)) {
+                putRandomOwner();
             }
         }
         return removed;
+    }
+
+    private void putRandomOwner() {
+        setOwner(getGame().getPresentPlayers().findAny()
+                .flatMap(LGPlayer::getMinecraftPlayer)
+                .orElseThrow(() -> new AssertionError("Wait what, how is the owner I got offline?")));
     }
 
     @Override
@@ -104,7 +119,7 @@ class MinecraftLGGameLobby implements LGGameLobby {
 
     @Override
     public void setOwner(Player owner) {
-        Preconditions.checkArgument(getGame().getPlayerByUUID(owner.getUniqueId()).isPresent(),
+        Preconditions.checkArgument(getGame().getPlayer(owner.getUniqueId()).isPresent(),
                 "The given owner isn't present in the lobby.");
 
         if (owner == this.owner) return;
@@ -117,13 +132,15 @@ class MinecraftLGGameLobby implements LGGameLobby {
 
     private void registerPlayerQuitEvents() {
         Events.merge(PlayerEvent.class, PlayerQuitEvent.class, PlayerKickEvent.class)
-                .expireIf(e -> isLocked())
-                .handler(e -> removePlayer(e.getPlayer()));
+                .expireIf(e -> orchestrator.getState() == LGGameState.DELETED)
+                .handler(e -> removePlayer(e.getPlayer()))
+                .bindWith(orchestrator);
 
         Events.subscribe(PlayerChangedWorldEvent.class)
-                .expireIf(e -> isLocked())
+                .expireIf(e -> orchestrator.getState() == LGGameState.DELETED)
                 .filter(e -> e.getFrom() == orchestrator.getWorld().getCBWorld())
-                .handler(e -> removePlayer(e.getPlayer()));
+                .handler(e -> removePlayer(e.getPlayer()))
+                .bindWith(orchestrator);
     }
 
     private MutableLGGame getGame() {

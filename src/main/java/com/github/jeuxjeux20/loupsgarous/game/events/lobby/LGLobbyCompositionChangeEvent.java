@@ -1,6 +1,7 @@
-package com.github.jeuxjeux20.loupsgarous.game.events;
+package com.github.jeuxjeux20.loupsgarous.game.events.lobby;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 

@@ -1,25 +1,20 @@
 package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
 import com.github.jeuxjeux20.loupsgarous.game.LGScoreboardManager;
 import com.github.jeuxjeux20.loupsgarous.game.events.*;
+import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerJoinEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.stage.LGStageChangeEvent;
 import com.google.inject.Inject;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-
-import java.util.Optional;
 
 public class UpdateScoreboardListener implements Listener {
     private final LGScoreboardManager scoreboardManager;
-    private final LGGameManager gameManager;
 
     @Inject
-    public UpdateScoreboardListener(LGScoreboardManager scoreboardManager, LGGameManager gameManager) {
+    public UpdateScoreboardListener(LGScoreboardManager scoreboardManager) {
         this.scoreboardManager = scoreboardManager;
-        this.gameManager = gameManager;
     }
 
     @EventHandler
@@ -43,11 +38,8 @@ public class UpdateScoreboardListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        Optional<LGPlayerAndGame> playerInGame = gameManager.getPlayerInGame(event.getPlayer());
-
-        playerInGame.ifPresent(pg ->
-                scoreboardManager.updatePlayer(pg.getPlayer(), pg.getOrchestrator()));
+    public void onPlayerJoin(LGPlayerJoinEvent event) {
+        scoreboardManager.updatePlayer(event.getLGPlayer(), event.getOrchestrator());
     }
 
     @EventHandler

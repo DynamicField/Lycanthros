@@ -2,16 +2,11 @@ package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
-import com.google.common.collect.ImmutableSet;
 import org.bukkit.entity.Player;
 
 import java.util.Optional;
 
 public interface LGGameLobby {
-    boolean canAddPlayer();
-
-    boolean canRemovePlayer();
-
     boolean addPlayer(Player player);
 
     boolean removePlayer(Player player);

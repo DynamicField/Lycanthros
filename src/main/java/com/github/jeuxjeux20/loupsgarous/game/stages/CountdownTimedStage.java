@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.events.LGTimedStageTickEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.stage.LGTimedStageTickEvent;
 
 public interface CountdownTimedStage extends TimedStage {
     Countdown getCountdown();

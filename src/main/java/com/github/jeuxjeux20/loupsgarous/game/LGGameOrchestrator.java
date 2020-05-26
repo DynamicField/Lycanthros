@@ -10,6 +10,8 @@ import com.github.jeuxjeux20.loupsgarous.game.stages.AsyncLGGameStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGGameStage;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
+import me.lucko.helper.terminable.Terminable;
+import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -27,7 +30,7 @@ import java.util.stream.Stream;
  * <p>
  * Orchestrators manage the game state, with methods such as {@link #killInstantly(LGKill)}, {@link #nextTimeOfDay()}.
  */
-public interface LGGameOrchestrator {
+public interface LGGameOrchestrator extends TerminableConsumer {
     Pattern shortIdPattern = Pattern.compile("^[0-9a-f]{8}$");
 
     static boolean isShortIdValid(@Nullable String id) {
@@ -41,8 +44,6 @@ public interface LGGameOrchestrator {
     MultiverseWorld getWorld();
 
     LGGame getGame();
-
-    LGGameLobby lobby();
 
     UUID getId();
 
@@ -77,6 +78,8 @@ public interface LGGameOrchestrator {
     void nextTimeOfDay();
 
     void finish(LGEnding ending);
+
+    Optional<LGEnding> getEnding();
 
     void delete();
 
@@ -120,6 +123,8 @@ public interface LGGameOrchestrator {
     }
 
     LGCardOrchestrator cards();
+
+    LGGameLobby lobby();
 
     interface Factory {
         LGGameOrchestrator create(LGGameLobbyInfo worldInfo);

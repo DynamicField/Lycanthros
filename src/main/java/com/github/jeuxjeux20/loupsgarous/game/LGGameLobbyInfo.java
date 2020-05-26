@@ -5,6 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.composition.SnapshotComposit
 import com.google.common.collect.ImmutableSet;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -27,14 +28,17 @@ public final class LGGameLobbyInfo {
 
     public LGGameLobbyInfo(Set<Player> players, Composition composition,
                            MultiverseWorld world, CommandSender initiator, UUID id) {
-        if (players.isEmpty()) {
-            throw new IllegalArgumentException("There are no players.");
+        ImmutableSet<Player> onlinePlayers
+                = players.stream().filter(OfflinePlayer::isOnline).collect(ImmutableSet.toImmutableSet());
+
+        if (onlinePlayers.isEmpty()) {
+            throw new IllegalArgumentException("There are no online players.");
         }
-        if (players.size() > composition.getCards().size()) {
+        if (onlinePlayers.size() > composition.getCards().size()) {
             throw new IllegalArgumentException("There are more players than cards.");
         }
 
-        this.players = ImmutableSet.copyOf(players);
+        this.players = onlinePlayers;
         this.composition = new SnapshotComposition(composition);
         this.world = world;
         this.initiator = initiator;
