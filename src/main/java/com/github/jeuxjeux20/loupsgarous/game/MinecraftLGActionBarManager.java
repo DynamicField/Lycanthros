@@ -21,8 +21,8 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
             List<BaseComponent> components = new ArrayList<>();
 
             renderParts(orchestrator, components, player,
-                    this::addStateComponents,
-                    this::addTimeComponents);
+                    this::createStateComponents,
+                    this::createTimeComponents);
 
             BaseComponent[] componentsArray = components.toArray(new BaseComponent[0]);
 
@@ -30,7 +30,9 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
         });
     }
 
-    private void addTimeComponents(LGGameOrchestrator orchestrator, List<BaseComponent> components, LGPlayer player) {
+    private List<BaseComponent> createTimeComponents(LGGameOrchestrator orchestrator, LGPlayer player) {
+        List<BaseComponent> components = new ArrayList<>();
+
         if (!orchestrator.lobby().isLocked()) {
             TextComponent slotsComponent = new TextComponent(orchestrator.lobby().getSlotsDisplay());
             slotsComponent.setBold(true);
@@ -50,13 +52,17 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
                 components.add(timeComponent);
             });
         }
+
+        return components;
     }
 
     private void addHyphen(List<BaseComponent> components) {
         components.add(new TextComponent(" - "));
     }
 
-    private void addStateComponents(LGGameOrchestrator orchestrator, List<BaseComponent> components, LGPlayer player) {
+    private List<BaseComponent> createStateComponents(LGGameOrchestrator orchestrator, LGPlayer player) {
+        List<BaseComponent> components = new ArrayList<>();
+
         if (orchestrator.getState() == LGGameState.WAITING_FOR_PLAYERS) {
             components.add(new TextComponent("En attente"));
         } else if (orchestrator.getState() == LGGameState.READY_TO_START) {
@@ -98,6 +104,8 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
                     break;
             }
         }
+
+        return components;
     }
 
     private void renderParts(LGGameOrchestrator orchestrator, List<BaseComponent> components, LGPlayer player,
@@ -105,16 +113,15 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
         for (int i = 0; i < parts.length; i++) {
             Part part = parts[i];
 
-            int previousSize = components.size();
+            List<BaseComponent> partComponents = part.render(orchestrator, player);
 
-            part.render(orchestrator, components, player);
-
-            if (previousSize < components.size() && i != parts.length - 1) {
+            if (i != 0 && !partComponents.isEmpty()) {
                 addHyphen(components);
             }
+
+            components.addAll(partComponents);
         }
     }
-
 
     private TextComponent numberComponent(TimedStage timedStage) {
         return new TextComponent(String.valueOf(timedStage.getSecondsLeft()));
@@ -122,6 +129,6 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
 
     @FunctionalInterface
     private interface Part {
-        void render(LGGameOrchestrator orchestrator, List<BaseComponent> components, LGPlayer player);
+        List<BaseComponent> render(LGGameOrchestrator orchestrator, LGPlayer player);
     }
 }
