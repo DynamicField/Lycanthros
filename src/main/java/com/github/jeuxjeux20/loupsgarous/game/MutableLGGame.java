@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public final class MutableLGGame implements LGGame {
+final class MutableLGGame implements LGGame {
     private static final Random random = new Random();
 
     private final Map<UUID, MutableLGPlayer> playersByUUID;

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public final class MutableLGPlayer implements LGPlayer {
+final class MutableLGPlayer implements LGPlayer {
     private final UUID playerUUID;
     private LGCard card;
     private boolean isDead;

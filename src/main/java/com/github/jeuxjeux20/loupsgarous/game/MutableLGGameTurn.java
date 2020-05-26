@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-public final class MutableLGGameTurn implements LGGameTurn {
+final class MutableLGGameTurn implements LGGameTurn {
     private int turnNumber = 1;
     private LGGameTurnTime time = LGGameTurnTime.NIGHT;
 
