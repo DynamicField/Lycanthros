@@ -4,6 +4,8 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.cards.AnonymousNameHolder;
 import com.google.common.collect.Lists;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -17,7 +19,7 @@ class RandomAnonymizedNamesProvider implements AnonymizedNamesProvider {
             return anonymousNameHolder.getAnonymizedName();
 
         List<String> availableNames = orchestrator.getAnonymizedNames().computeIfAbsent(chatChannel,
-                k -> Lists.newArrayList(names));
+                k -> new ArrayList<>(Arrays.asList(names)));
 
         String name;
         if (availableNames.isEmpty()) {

@@ -11,7 +11,7 @@ public enum PlayerGameOutcome {
      */
     WIN,
     /**
-     * Indicates that a player lost of the game.
+     * Indicates that a player lost the game.
      */
     LOSE,
     /**

@@ -17,6 +17,7 @@ import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.Optional;
+import java.util.UUID;
 
 class MinecraftLGGameLobby implements LGGameLobby {
     private final MinecraftLGGameOrchestrator orchestrator;
@@ -29,9 +30,7 @@ class MinecraftLGGameLobby implements LGGameLobby {
         this.owner = lobbyInfo.getOwner();
         this.composition = new LobbyComposition(lobbyInfo.getComposition());
 
-        Preconditions.checkArgument(getGame().getPlayer(owner.getUniqueId()).isPresent(),
-                "The owner is not in the present in the players.");
-        Preconditions.checkArgument(getGame().getPlayers().size() <= composition.getPlayerCount(),
+        Preconditions.checkArgument(lobbyInfo.getPlayers().size() <= composition.getPlayerCount(),
                 "There are more players than the given composition is supposed to have.");
 
         registerPlayerQuitEvents();
@@ -41,8 +40,8 @@ class MinecraftLGGameLobby implements LGGameLobby {
         return composition.getPlayerCount() != getGame().getPlayers().size() && !isLocked();
     }
 
-    private boolean canRemovePlayer(Player player) {
-        return !isLocked() || getGame().getPlayer(player).map(LGPlayer::isPresent).orElse(false);
+    private boolean canRemovePlayer(UUID playerUUID) {
+        return !isLocked() || getGame().getPlayer(playerUUID).map(LGPlayer::isPresent).orElse(false);
     }
 
     @Override
@@ -59,25 +58,26 @@ class MinecraftLGGameLobby implements LGGameLobby {
     }
 
     @Override
-    public boolean removePlayer(Player player) {
-        if (!canRemovePlayer(player)) return false;
+    public boolean removePlayer(UUID playerUUID) {
+        if (!canRemovePlayer(playerUUID)) return false;
 
-        Optional<MutableLGPlayer> maybeLGPlayer = getGame().getPlayer(player);
+        Optional<MutableLGPlayer> maybeLGPlayer = getGame().getPlayer(playerUUID);
 
         boolean removed;
         if (isLocked()) {
             maybeLGPlayer.orElseThrow(AssertionError::new).setAway(true);
             removed = true;
         } else {
-            removed = getGame().removePlayer(player.getUniqueId()) != null;
+            removed = getGame().removePlayer(playerUUID) != null;
         }
 
         if (removed) {
             orchestrator.callEvent(
-                    new LGPlayerQuitEvent(orchestrator, player, maybeLGPlayer.orElseThrow(AssertionError::new))
+                    new LGPlayerQuitEvent(orchestrator, playerUUID, maybeLGPlayer.orElseThrow(AssertionError::new))
             );
 
-            if (!getGame().isEmpty() && player.equals(owner)) {
+            if (!getGame().isEmpty() && playerUUID.equals(owner.getUniqueId()) &&
+                orchestrator.getState().isEnabled()) {
                 putRandomOwner();
             }
         }

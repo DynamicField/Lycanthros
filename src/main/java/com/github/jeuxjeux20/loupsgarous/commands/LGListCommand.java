@@ -53,7 +53,7 @@ public class LGListCommand implements AnnotatedCommandConfigurator {
                         LGGame game = orchestrator.getGame();
 
                         long gameNumber = x.getIndex() + 1;
-                        String gameId = orchestrator.getShortId();
+                        String gameId = orchestrator.getId();
 
                         messageBuilder.append(ChatColor.RESET)
                                 .append(gameNumber)

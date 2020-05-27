@@ -3,20 +3,20 @@ package com.github.jeuxjeux20.loupsgarous.game;
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGGameDeletedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerJoinEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.github.jeuxjeux20.loupsgarous.util.WordingUtils;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.onarandombox.MultiverseCore.MultiverseCore;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
+import me.lucko.helper.Events;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -28,8 +28,12 @@ class MinecraftLGGameManager implements LGGameManager {
     private final MultiverseCore multiverse;
     private final LoupsGarous plugin;
     private final LGGameOrchestrator.Factory orchestratorFactory;
+
     private final CopyOnWriteArraySet<Player> playersLocked = new CopyOnWriteArraySet<>();
     private final CopyOnWriteArrayList<LGGameOrchestrator> ongoingGames = new CopyOnWriteArrayList<>();
+
+    private final Hashtable<String, LGGameOrchestrator> gamesById = new Hashtable<>();
+    private final Hashtable<UUID, LGGameOrchestrator> gamesByPlayerUUID = new Hashtable<>();
 
     @Inject
     public MinecraftLGGameManager(MultiverseCore multiverse, LoupsGarous plugin,
@@ -38,7 +42,14 @@ class MinecraftLGGameManager implements LGGameManager {
         this.plugin = plugin;
         this.orchestratorFactory = orchestratorFactory;
 
-        plugin.getServer().getPluginManager().registerEvents(new RemoveGameOnDeleteListener(), plugin);
+        Events.subscribe(LGGameDeletedEvent.class)
+                .handler(e -> removeDeletedGame(e.getOrchestrator()));
+
+        Events.subscribe(LGPlayerJoinEvent.class)
+                .handler(e -> gamesByPlayerUUID.put(e.getPlayer().getUniqueId(), e.getOrchestrator()));
+
+        Events.subscribe(LGPlayerQuitEvent.class)
+                .handler(e -> gamesByPlayerUUID.remove(e.getPlayerUUID()));
     }
 
     @Override
@@ -64,8 +75,8 @@ class MinecraftLGGameManager implements LGGameManager {
                         "Le joueur " + presentPlayers.iterator().next().getName() + " est déjà en partie.");
             }
 
-            UUID id = UUID.randomUUID();
-            String gameWorldName = WORLD_PREFIX + id.toString();
+            String id = UUID.randomUUID().toString().substring(0, 8);
+            String gameWorldName = WORLD_PREFIX + id;
 
             if (!multiverse.getMVWorldManager().cloneWorld(worldToClone, gameWorldName)) {
                 String msg = "Impossible de cloner le monde.";
@@ -74,15 +85,16 @@ class MinecraftLGGameManager implements LGGameManager {
             }
 
             MultiverseWorld mvWorld = multiverse.getMVWorldManager().getMVWorld(gameWorldName);
-            mvWorld.setAlias(mvWorld.getName().substring(0, WORLD_PREFIX.length() + SHORT_ID_LENGTH));
+            mvWorld.setAlias(mvWorld.getName());
 
             LGGameOrchestrator orchestrator = orchestratorFactory.create(
                     new LGGameLobbyInfo(players, composition, mvWorld, owner, id)
             );
 
             ongoingGames.add(orchestrator);
+            gamesById.put(id, orchestrator);
 
-            orchestrator.initializeAndTeleport();
+            orchestrator.initialize();
 
             return SafeResult.success(orchestrator);
         } finally {
@@ -99,19 +111,26 @@ class MinecraftLGGameManager implements LGGameManager {
     }
 
     @Override
-    public synchronized final List<LGGameOrchestrator> getOngoingGames() {
-        return Collections.unmodifiableList(Lists.newArrayList(ongoingGames));
+    public synchronized final ImmutableList<LGGameOrchestrator> getOngoingGames() {
+        return ImmutableList.copyOf(ongoingGames);
+    }
+
+    @Override
+    public Optional<LGPlayerAndGame> getPlayerInGame(UUID playerUUID) {
+        LGGameOrchestrator orchestrator = gamesByPlayerUUID.get(playerUUID);
+        if (orchestrator == null) return Optional.empty();
+
+        return orchestrator.getGame().getPlayer(playerUUID).map(p -> new LGPlayerAndGame(p, orchestrator));
+    }
+
+    @Override
+    public Optional<LGGameOrchestrator> getGameById(String id) {
+        return Optional.ofNullable(gamesById.get(id));
     }
 
     private synchronized void removeDeletedGame(LGGameOrchestrator orchestrator) {
         Preconditions.checkArgument(orchestrator.getState() == LGGameState.DELETED, "The game must have been deleted.");
         ongoingGames.remove(orchestrator);
-    }
-
-    private class RemoveGameOnDeleteListener implements Listener {
-        @EventHandler(priority = EventPriority.HIGH)
-        public void onLGGameDeleted(LGGameDeletedEvent event) {
-            removeDeletedGame(event.getOrchestrator());
-        }
+        gamesById.remove(orchestrator.getId());
     }
 }

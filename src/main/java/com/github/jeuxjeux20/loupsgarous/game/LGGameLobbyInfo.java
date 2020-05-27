@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.SnapshotComposition;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import org.bukkit.Bukkit;
@@ -22,12 +23,12 @@ public final class LGGameLobbyInfo {
     private final MultiverseWorld world;
     private final CommandSender initiator;
     private final Player owner;
-    private final UUID id;
+    private final String id;
     private final ImmutableSet<Player> players;
     private final Composition composition;
 
     public LGGameLobbyInfo(Set<Player> players, Composition composition,
-                           MultiverseWorld world, CommandSender initiator, UUID id) {
+                           MultiverseWorld world, CommandSender initiator, String id) {
         ImmutableSet<Player> onlinePlayers
                 = players.stream().filter(OfflinePlayer::isOnline).collect(ImmutableSet.toImmutableSet());
 
@@ -64,7 +65,7 @@ public final class LGGameLobbyInfo {
         return initiator;
     }
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 

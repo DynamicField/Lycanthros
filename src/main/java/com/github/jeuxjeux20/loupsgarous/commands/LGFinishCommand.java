@@ -35,22 +35,24 @@ public class LGFinishCommand implements AnnotatedCommandConfigurator {
                 .handler(c -> {
                     Optional<LGGameOrchestrator> game = Optional.empty();
                     String gameId = c.arg(0).value().orElse(null);
-                    boolean isValidGameId = LGGameOrchestrator.isShortIdValid(gameId);
+                    if (gameId != null) game = gameManager.getGameById(gameId);
 
-                    if (!isValidGameId) {
+                    boolean hasTried = gameId != null;
+                    boolean hasProvidedGame = game.isPresent();
+
+                    if (!hasProvidedGame) {
                         if (c.sender() instanceof Player) {
                             Player sender = (Player) c.sender();
                             game = gameManager.getPlayerInGame(sender).map(LGPlayerAndGame::getOrchestrator);
                         }
                         if (!game.isPresent()) {
-                            c.reply(ChatColor.RED + "Vous n'êtes pas en partie. Pour terminer une partie," +
-                                    " utilisez /lglist pour avoir les parties et /lgfinish <partie> pour la terminer.");
-                            return;
-                        }
-                    } else {
-                        game = gameManager.getGameByShortId(gameId);
-                        if (!game.isPresent()) {
-                            c.reply(ChatColor.RED + "La partie n'a pas été trouvée :c");
+                            if (hasTried) {
+                                c.reply(ChatColor.RED + "Impossible de trouver la partie " + gameId + ".");
+                            } else {
+                                c.reply(ChatColor.RED + "Vous n'êtes pas en partie. Pour terminer une partie," +
+                                        " utilisez /lglist pour avoir les parties et /lgfinish <partie> pour la terminer.");
+                            }
+
                             return;
                         }
                     }
@@ -60,8 +62,8 @@ public class LGFinishCommand implements AnnotatedCommandConfigurator {
                         return;
                     }
 
-                    String reason = isValidGameId && c.args().size() == 1 || c.args().size() == 0 ? null :
-                            c.args().stream().skip(isValidGameId ? 1 : 0).collect(Collectors.joining(" "));
+                    String reason = hasProvidedGame && c.args().size() == 1 || c.args().size() == 0 ? null :
+                            c.args().stream().skip(hasProvidedGame ? 1 : 0).collect(Collectors.joining(" "));
 
                     game.get().finish(new FinishCommandEnding(reason));
                 })

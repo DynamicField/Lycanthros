@@ -4,18 +4,13 @@ import com.github.jeuxjeux20.guicybukkit.command.AnnotatedCommandConfigurator;
 import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
-import com.github.jeuxjeux20.loupsgarous.game.endings.FinishCommandEnding;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @CommandName("lgjoin")
 public class LGJoinCommand implements AnnotatedCommandConfigurator {
@@ -34,9 +29,7 @@ public class LGJoinCommand implements AnnotatedCommandConfigurator {
                 .assertUsage("<game>", "{usage}")
                 .assertPlayer()
                 .handler(c -> {
-                    Optional<LGGameOrchestrator> maybeGame = c.arg(0).value()
-                            .filter(LGGameOrchestrator::isShortIdValid)
-                            .flatMap(gameManager::getGameByShortId);
+                    Optional<LGGameOrchestrator> maybeGame = c.arg(0).value().flatMap(gameManager::getGameById);
 
                     if (!maybeGame.isPresent()) {
                         c.reply("&cImpossible de trouver la partie.");

@@ -1,9 +1,27 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 public enum LGGameState {
+    UNINITIALIZED,
     WAITING_FOR_PLAYERS,
     READY_TO_START,
     STARTED,
     FINISHED,
-    DELETED
+    DELETING,
+    DELETED;
+
+    public boolean wentThrough(LGGameState state) {
+        return this.compareTo(state) >= 0;
+    }
+
+    public boolean didNotPass(LGGameState state) {
+        return this.compareTo(state) < 0;
+    }
+
+    public boolean isEnabled() {
+        return didNotPass(DELETING);
+    }
+
+    public boolean isDisabled() {
+        return wentThrough(DELETING);
+    }
 }

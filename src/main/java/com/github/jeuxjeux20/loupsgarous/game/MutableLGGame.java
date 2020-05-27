@@ -17,14 +17,8 @@ import java.util.stream.Collectors;
 final class MutableLGGame implements LGGame {
     private static final Random random = new Random();
 
-    private final Map<UUID, MutableLGPlayer> playersByUUID;
+    private final Map<UUID, MutableLGPlayer> playersByUUID = new HashMap<>();
     private final MutableLGGameTurn turn = new MutableLGGameTurn();
-
-    public MutableLGGame(Set<Player> players) {
-        playersByUUID = players.stream().map(MutableLGPlayer::new)
-                .collect(Collectors.toMap(MutableLGPlayer::getPlayerUUID, Function.identity(),
-                        CollectorUtils::throwDuplicate, HashMap::new));
-    }
 
     private static LGCard getRandomCardAndRemove(List<LGCard> cards) {
         int index = random.nextInt(cards.size());
