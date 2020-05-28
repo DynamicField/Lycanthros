@@ -8,6 +8,10 @@ public final class LGStagesModule extends StagesModule {
     @Override
     protected void configureBindings() {
         install(new LGDuskActionsModule());
+
+        install(new FactoryModuleBuilder()
+                .implement(LGStagesOrchestrator.class, MinecraftLGStagesOrchestrator.class)
+                .build(LGStagesOrchestrator.Factory.class));
     }
 
     @Override

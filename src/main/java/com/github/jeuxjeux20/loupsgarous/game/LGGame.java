@@ -13,6 +13,10 @@ public interface LGGame {
 
     ImmutableMap<UUID, LGPlayer> getPlayerByUUIDMap();
 
+    default Optional<? extends LGPlayer> getPlayer(LGPlayer player) {
+        return getPlayer(player.getPlayerUUID());
+    }
+
     default Optional<? extends LGPlayer> getPlayer(Player player) {
         return getPlayer(player.getUniqueId());
     }

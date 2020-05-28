@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.cards.composition.util;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
+import org.bukkit.ChatColor;
 
 import java.text.Collator;
 import java.util.List;
@@ -23,6 +24,8 @@ public final class CompositionFormatUtil {
     public static String format(Stream<LGCard> composition) {
         Map<Class<? extends LGCard>, List<LGCard>> cardsByType
                 = composition.collect(Collectors.groupingBy(LGCard::getClass));
+
+        if (cardsByType.isEmpty()) return ChatColor.GOLD.toString() + ChatColor.BOLD + "[Rien]";
 
         StringBuilder stringBuilder = new StringBuilder();
 

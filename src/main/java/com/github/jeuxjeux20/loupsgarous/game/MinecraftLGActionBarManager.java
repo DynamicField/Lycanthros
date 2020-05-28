@@ -41,7 +41,7 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
             components.add(slotsComponent);
         }
         else if (orchestrator.getState() == LGGameState.STARTED) {
-            orchestrator.getCurrentStage().getComponent(TimedStage.class).ifPresent(timedStage -> {
+            orchestrator.stages().current().getComponent(TimedStage.class).ifPresent(timedStage -> {
                 Duration secondsLeftDuration = Duration.ofSeconds(timedStage.getSecondsLeft());
                 String formattedDuration = DurationFormatter.CONCISE.format(secondsLeftDuration);
 
@@ -68,7 +68,7 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
         } else if (orchestrator.getState() == LGGameState.READY_TO_START) {
             components.add(new TextComponent("Départ dans "));
 
-            Optional<TimedStage> maybeTimedStage = orchestrator.getCurrentStage().getComponent(TimedStage.class);
+            Optional<TimedStage> maybeTimedStage = orchestrator.stages().current().getComponent(TimedStage.class);
 
             TextComponent numberComponent = maybeTimedStage.map(this::numberComponent)
                     .orElseGet(() -> new TextComponent("?"));

@@ -42,7 +42,7 @@ public final class WinConditionBuilder {
     }
 
     public void checkAfterStage() {
-        orchestrator.addStage(x -> new EphemeralLogicGameStage(x) {
+        orchestrator.stages().add(x -> new EphemeralLogicGameStage(x) {
             @Override
             public void runSync() {
                 check();

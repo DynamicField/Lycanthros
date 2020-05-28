@@ -45,7 +45,7 @@ public class LoupsGarousChatChannel implements LGGameChatChannel, AnonymizedChat
     @Override
     public boolean canBeUsedByPlayer(LGGameOrchestrator orchestrator) {
         return orchestrator.isGameRunning() &&
-               orchestrator.getCurrentStage() instanceof LoupGarouNightKillVoteStage;
+               orchestrator.stages().current() instanceof LoupGarouNightKillVoteStage;
     }
 
     @Override

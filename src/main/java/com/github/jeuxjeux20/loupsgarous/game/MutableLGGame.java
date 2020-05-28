@@ -2,7 +2,6 @@ package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.util.CollectorUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -11,8 +10,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 final class MutableLGGame implements LGGame {
     private static final Random random = new Random();
@@ -59,6 +56,11 @@ final class MutableLGGame implements LGGame {
     @Override
     public Optional<MutableLGPlayer> getPlayer(Player player) {
         return getPlayer(player.getUniqueId());
+    }
+
+    @Override
+    public Optional<MutableLGPlayer> getPlayer(LGPlayer player) {
+        return getPlayer(player.getPlayerUUID());
     }
 
     public @Nullable MutableLGPlayer addPlayerIfAbsent(MutableLGPlayer player) {

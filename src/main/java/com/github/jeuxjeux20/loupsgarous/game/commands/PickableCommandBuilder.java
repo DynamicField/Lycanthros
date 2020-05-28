@@ -72,7 +72,7 @@ public final class PickableCommandBuilder<T extends PickableProvider> {
 
             LGGameOrchestrator orchestrator = game.get().getOrchestrator();
             LGPlayer lgPlayer = game.get().getPlayer();
-            LGGameStage stage = orchestrator.getCurrentStage();
+            LGGameStage stage = orchestrator.stages().current();
 
             String targetName = c.arg(0).value().orElseThrow(AssertionError::new);
 
@@ -153,7 +153,7 @@ public final class PickableCommandBuilder<T extends PickableProvider> {
             LGPlayer lgPlayer = playerInGame.get().getPlayer();
             LGGameOrchestrator orchestrator = playerInGame.get().getOrchestrator();
 
-            LGGameStage stage = orchestrator.getCurrentStage();
+            LGGameStage stage = orchestrator.stages().current();
 
             Pickable pickable =
                     stage.getComponent(pickableClass, x -> x.providePickable().canPlayerPick(lgPlayer).isSuccess())

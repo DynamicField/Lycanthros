@@ -19,7 +19,7 @@ public class CurrentVotesScoreboardComponent implements ScoreboardComponent {
 
         ImmutableList.Builder<Line> lines = ImmutableList.builder();
 
-        Optional<Votable> maybeVotable = orchestrator.getCurrentStage().getComponent(Votable.class,
+        Optional<Votable> maybeVotable = orchestrator.stages().current().getComponent(Votable.class,
                 x -> x.getCurrentState().canPlayerPick(player).isSuccess());
 
         maybeVotable.ifPresent(votable -> {

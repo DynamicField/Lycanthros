@@ -1,8 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardsModule;
-import com.github.jeuxjeux20.loupsgarous.game.cards.MinecraftLGCardOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.cards.MinecraftLGCardsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatModule;
 import com.github.jeuxjeux20.loupsgarous.game.commands.LGCommandsModule;
 import com.github.jeuxjeux20.loupsgarous.game.listeners.LGListenersModule;
@@ -28,8 +28,8 @@ public final class LoupsGarousGameModule extends AbstractModule {
                 .build(LGGameOrchestrator.Factory.class));
 
         install(new FactoryModuleBuilder()
-                .implement(LGCardOrchestrator.class, MinecraftLGCardOrchestrator.class)
-                .build(LGCardOrchestrator.Factory.class));
+                .implement(LGCardsOrchestrator.class, MinecraftLGCardsOrchestrator.class)
+                .build(LGCardsOrchestrator.Factory.class));
 
         bind(LGActionBarManager.class).to(MinecraftLGActionBarManager.class);
     }

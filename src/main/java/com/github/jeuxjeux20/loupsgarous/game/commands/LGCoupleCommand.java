@@ -48,7 +48,7 @@ public class LGCoupleCommand implements AnnotatedCommandConfigurator {
 
                     AtomicReference<Optional<Check>> check = new AtomicReference<>();
 
-                    Optional<CupidonCoupleStage> maybeCoupleStage = orchestrator.getCurrentStage()
+                    Optional<CupidonCoupleStage> maybeCoupleStage = orchestrator.stages().current()
                             .getComponent(CupidonCoupleStage.class, x -> x.canPlayerCreateCouple(player), check);
 
                     if (!maybeCoupleStage.isPresent()) {

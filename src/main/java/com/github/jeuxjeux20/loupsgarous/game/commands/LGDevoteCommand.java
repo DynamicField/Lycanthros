@@ -23,7 +23,7 @@ public class LGDevoteCommand extends LGGameCommand {
                           Player player, Command command, String label, String[] args) {
         if (args.length != 0) return false;
 
-        LGGameStage stage = orchestrator.getCurrentStage();
+        LGGameStage stage = orchestrator.stages().current();
 
         Votable votable = stage.getComponent(Votable.class).orElse(null);
         if (votable == null) {

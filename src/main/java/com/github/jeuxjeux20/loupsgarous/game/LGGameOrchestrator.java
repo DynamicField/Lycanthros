@@ -1,26 +1,25 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
-import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.chat.AnonymizedChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.game.killreasons.LGKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.stages.AsyncLGGameStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGGameStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
@@ -71,17 +70,6 @@ public interface LGGameOrchestrator extends TerminableConsumer {
 
     Optional<LGEnding> getEnding();
 
-    /**
-     * Adds a stage to the current game.
-     * If the game has started, the stage added will be executed as soon as possible,
-     * else, it will be added at the end.
-     *
-     * @param stage the stage to add
-     */
-    void addStage(AsyncLGGameStage.Factory<?> stage);
-
-    @NotNull LGGameStage getCurrentStage();
-
 
     void callEvent(LGEvent event);
 
@@ -111,7 +99,9 @@ public interface LGGameOrchestrator extends TerminableConsumer {
         }
     }
 
-    LGCardOrchestrator cards();
+    LGStagesOrchestrator stages();
+
+    LGCardsOrchestrator cards();
 
     LGGameLobby lobby();
 
