@@ -22,7 +22,6 @@ public final class LGListenersModule extends ListenersModule {
         addListener(PlayerJoinGameListener.class);
         addListener(DeadPlayerAsSpectatorListener.class);
         addListener(TellPlayerDevoteListener.class);
-        addListener(UpdateScoreboardListener.class);
         addListener(ClearAllEffectsOnEndListener.class);
         addListener(TellStageTitleListener.class);
         addListener(TellVoteTipsListener.class);

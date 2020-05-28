@@ -11,6 +11,7 @@ import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitTeleportEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.stage.LGStageChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.game.killreasons.PlayerQuitKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardManager;
 import com.github.jeuxjeux20.loupsgarous.game.stages.AsyncLGGameStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.GameEndStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.GameStartStage;
@@ -99,6 +100,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
                                        MultiverseCore multiverse,
                                        LoupsGarous plugin,
                                        LGActionBarManager actionBarManager,
+                                       LGScoreboardManager scoreboardManager,
                                        LGCardOrchestrator.Factory cardOrchestratorFactory) {
         this.id = lobbyInfo.getId();
         this.initiator = lobbyInfo.getInitiator();
@@ -116,6 +118,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
         this.bind(Schedulers.sync().runRepeating(this::updateActionBars, 20, 20));
         this.bind(new CurrentStageTerminable());
+        scoreboardManager.registerEvents();
     }
 
     private void updateActionBars() {

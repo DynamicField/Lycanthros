@@ -6,6 +6,7 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.MinecraftLGCardOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatModule;
 import com.github.jeuxjeux20.loupsgarous.game.commands.LGCommandsModule;
 import com.github.jeuxjeux20.loupsgarous.game.listeners.LGListenersModule;
+import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardModule;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
@@ -18,6 +19,7 @@ public final class LoupsGarousGameModule extends AbstractModule {
         install(new LGStagesModule());
         install(new LGCommandsModule());
         install(new LGChatModule());
+        install(new LGScoreboardModule());
 
         bind(LGGameManager.class).to(MinecraftLGGameManager.class);
 
@@ -29,7 +31,6 @@ public final class LoupsGarousGameModule extends AbstractModule {
                 .implement(LGCardOrchestrator.class, MinecraftLGCardOrchestrator.class)
                 .build(LGCardOrchestrator.Factory.class));
 
-        bind(LGScoreboardManager.class).to(MinecraftLGScoreboardManager.class);
         bind(LGActionBarManager.class).to(MinecraftLGActionBarManager.class);
     }
 }

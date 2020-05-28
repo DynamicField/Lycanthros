@@ -103,7 +103,7 @@ public interface LGGameOrchestrator extends TerminableConsumer {
         getAllMinecraftPlayers().forEach(player -> player.sendTitle("", subtitle, -1, -1, -1));
     }
 
-    default Stream<LGCard> getComposition() {
+    default Stream<LGCard> getCurrentComposition() {
         if (getState() == LGGameState.WAITING_FOR_PLAYERS || getState() == LGGameState.READY_TO_START) {
             return lobby().getComposition().getCards().stream();
         } else {

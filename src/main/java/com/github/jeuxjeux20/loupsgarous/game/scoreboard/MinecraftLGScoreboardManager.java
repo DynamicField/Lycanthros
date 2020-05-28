@@ -1,6 +1,13 @@
-package com.github.jeuxjeux20.loupsgarous.game;
+package com.github.jeuxjeux20.loupsgarous.game.scoreboard;
 
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerJoinEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitEvent;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import me.lucko.helper.Events;
 import me.lucko.helper.metadata.Metadata;
 import me.lucko.helper.metadata.MetadataKey;
 import org.bukkit.Bukkit;
@@ -12,11 +19,49 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
-import java.util.Optional;
+import java.util.Set;
 
+@Singleton
 class MinecraftLGScoreboardManager implements LGScoreboardManager {
     private static final MetadataKey<Scoreboard> SCOREBOARD_KEY
             = MetadataKey.create("lg_scoreboard", Scoreboard.class);
+
+    private final ScoreboardComponentRenderer componentRenderer;
+    private final Set<ScoreboardComponent> components;
+
+    private boolean hasEvents;
+
+    @Inject
+    MinecraftLGScoreboardManager(ScoreboardComponentRenderer componentRenderer,
+                                 Set<ScoreboardComponent> components) {
+        this.componentRenderer = componentRenderer;
+        this.components = components;
+    }
+
+    @SuppressWarnings({"unchecked"})
+    public void registerEvents() {
+        if (hasEvents) return;
+
+        Class<?>[] classes = components.stream()
+                .flatMap(x -> x.getUpdateTriggers().stream())
+                .distinct()
+                .toArray(Class[]::new);
+
+        Events.merge(LGEvent.class, (Class<? extends LGEvent>[]) classes) // Safe because of getUpdateTriggers().
+                .handler(e -> {
+                    for (LGPlayer player : e.getGame().getPlayers()) {
+                        updatePlayer(player, e.getOrchestrator());
+                    }
+                });
+
+        Events.subscribe(LGPlayerJoinEvent.class)
+                .handler(e -> updatePlayer(e.getLGPlayer(), e.getOrchestrator()));
+
+        Events.subscribe(LGPlayerQuitEvent.class)
+                .handler(e -> removePlayer(e.getLGPlayer()));
+
+        hasEvents = true;
+    }
 
     @Override
     public void updatePlayer(LGPlayer player, LGGameOrchestrator orchestrator) {
@@ -38,34 +83,9 @@ class MinecraftLGScoreboardManager implements LGScoreboardManager {
     }
 
     private void update(LGPlayer player, Scoreboard scoreboard, LGGameOrchestrator orchestrator) {
-        LGGame game = orchestrator.getGame();
-
         Objective objective = recreateObjective(scoreboard);
 
-        if (orchestrator.isGameRunning()) {
-            objective.getScore(ChatColor.AQUA + "Joueurs en vie : " + ChatColor.BOLD + game.getAlivePlayers().count())
-                    .setScore(99);
-
-            Optional<Votable> maybeVotable = orchestrator.getCurrentStage().getComponent(Votable.class,
-                    x -> x.getCurrentState().canPlayerPick(player).isSuccess());
-
-            maybeVotable.ifPresent(votable -> {
-                Votable.VoteState voteState = votable.getCurrentState();
-                if (voteState == null) return;
-
-                LGPlayer playerWithMostVotes = voteState.getPlayerWithMostVotes();
-
-                objective.getScore(ChatColor.LIGHT_PURPLE + "-= Votes =-").setScore(98);
-
-                final Objective finalObjective = objective;
-                voteState.getPlayersVoteCount().forEach((votedPlayer, voteCount) -> {
-                    boolean isMostVotes = playerWithMostVotes == votedPlayer;
-                    String prefix = isMostVotes ? ChatColor.RED.toString() + ChatColor.BOLD : "";
-
-                    finalObjective.getScore(prefix + votedPlayer.getName()).setScore(voteCount);
-                });
-            });
-        }
+        componentRenderer.renderObjective(objective, components, player, orchestrator);
     }
 
     @NotNull

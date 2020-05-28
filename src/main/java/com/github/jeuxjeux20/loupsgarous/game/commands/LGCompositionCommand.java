@@ -40,7 +40,7 @@ public class LGCompositionCommand implements AnnotatedCommandConfigurator {
                     LGGameOrchestrator orchestrator = game.get().getOrchestrator();
 
                     String message = banner("Composition") + '\n' +
-                                     CompositionFormatUtil.format(orchestrator.getComposition());
+                                     CompositionFormatUtil.format(orchestrator.getCurrentComposition());
 
                     c.reply(message);
                 })
