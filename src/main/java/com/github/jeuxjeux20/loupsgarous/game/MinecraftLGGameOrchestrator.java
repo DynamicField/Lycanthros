@@ -241,7 +241,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     }
 
     @Override
-    public @Nullable Optional<LGEnding> getEnding() {
+    public Optional<LGEnding> getEnding() {
         return Optional.ofNullable(ending);
     }
 
