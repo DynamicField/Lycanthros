@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.game.stages.dusk.LGStagesDuskModule;
+import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 
 public final class LGStagesModule extends StagesModule {
@@ -22,5 +23,7 @@ public final class LGStagesModule extends StagesModule {
         addStage(VillageVoteStage.class);
 
         install(new FactoryModuleBuilder().build(ChasseurKillStage.Factory.class));
+        install(new FactoryModuleBuilder().build(new TypeLiteral<AsyncLGGameStage.Factory<GameStartStage>>(){}));
+        install(new FactoryModuleBuilder().build(new TypeLiteral<AsyncLGGameStage.Factory<GameEndStage>>(){}));
     }
 }
