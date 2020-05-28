@@ -17,7 +17,7 @@ public class LGJoinCommand implements AnnotatedCommandConfigurator {
     private final LGGameManager gameManager;
 
     @Inject
-    public LGJoinCommand(LGGameManager gameManager) {
+    LGJoinCommand(LGGameManager gameManager) {
         this.gameManager = gameManager;
     }
 

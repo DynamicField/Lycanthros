@@ -13,7 +13,7 @@ public class LGKillCommand implements AnnotatedCommandConfigurator {
     private final Provider<PickableCommandBuilder<Killable>> commandBuilderProvider;
 
     @Inject
-    public LGKillCommand(Provider<PickableCommandBuilder<Killable>> commandBuilderProvider) {
+    LGKillCommand(Provider<PickableCommandBuilder<Killable>> commandBuilderProvider) {
         this.commandBuilderProvider = commandBuilderProvider;
     }
 

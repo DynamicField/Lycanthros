@@ -8,6 +8,6 @@ public final class PlayerQuitKillReason extends LGKillReason {
     @Override
     public String getKillMessage(LGPlayer player) {
         return killMessage(player(player.getName())) +
-                killMessage(" a quitté la partie, il était ") + role(player.getCard().getName()) + killMessage(".");
+               killMessage(" a quitté la partie, il était ") + role(player.getCard().getName()) + killMessage(".");
     }
 }

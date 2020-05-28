@@ -20,7 +20,7 @@ public class VillageVoteStage extends AsyncLGGameStage implements Votable, Count
     private final TickEventCountdown countdown;
 
     @Inject
-    public VillageVoteStage(@Assisted LGGameOrchestrator orchestrator) {
+    VillageVoteStage(@Assisted LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
         currentState = new VoteState(orchestrator, this);

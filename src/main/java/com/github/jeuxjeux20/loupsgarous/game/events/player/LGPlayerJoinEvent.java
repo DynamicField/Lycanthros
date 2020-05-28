@@ -18,16 +18,16 @@ public class LGPlayerJoinEvent extends LGEvent {
         this.lgPlayer = lgPlayer;
     }
 
+    public static @NotNull HandlerList getHandlerList() {
+        return handlerList;
+    }
+
     public Player getPlayer() {
         return player;
     }
 
     public LGPlayer getLGPlayer() {
         return lgPlayer;
-    }
-
-    public static @NotNull HandlerList getHandlerList() {
-        return handlerList;
     }
 
     @Override

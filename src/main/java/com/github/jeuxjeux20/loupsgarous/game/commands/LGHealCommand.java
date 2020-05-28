@@ -13,7 +13,7 @@ public class LGHealCommand implements AnnotatedCommandConfigurator {
     private final Provider<PickableCommandBuilder<Healable>> commandBuilderProvider;
 
     @Inject
-    public LGHealCommand(Provider<PickableCommandBuilder<Healable>> commandBuilderProvider) {
+    LGHealCommand(Provider<PickableCommandBuilder<Healable>> commandBuilderProvider) {
         this.commandBuilderProvider = commandBuilderProvider;
     }
 

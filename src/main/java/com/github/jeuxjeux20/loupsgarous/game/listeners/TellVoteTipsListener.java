@@ -12,7 +12,7 @@ public class TellVoteTipsListener implements Listener {
     private final LGGameChatManager chatManager;
 
     @Inject
-    public TellVoteTipsListener(LGGameChatManager chatManager) {
+    TellVoteTipsListener(LGGameChatManager chatManager) {
         this.chatManager = chatManager;
     }
 

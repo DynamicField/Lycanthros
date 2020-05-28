@@ -39,7 +39,6 @@ public class VoyanteDuskAction extends DuskStage.Action implements Lookable {
         LGSoundStuff.ding(player);
     }
 
-
     @Override
     protected String getMessage() {
         return "La voyante va découvrir le rôle de quelqu'un...";

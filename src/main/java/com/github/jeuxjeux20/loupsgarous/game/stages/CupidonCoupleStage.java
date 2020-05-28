@@ -28,7 +28,7 @@ public class CupidonCoupleStage extends AsyncLGGameStage implements CountdownTim
     private final Map<LGPlayer, Couple> couplePicks = new HashMap<>();
 
     @Inject
-    public CupidonCoupleStage(@Assisted LGGameOrchestrator orchestrator, Random random, LoupsGarous plugin) {
+    CupidonCoupleStage(@Assisted LGGameOrchestrator orchestrator, Random random, LoupsGarous plugin) {
         super(orchestrator);
         this.random = random;
         this.plugin = plugin;

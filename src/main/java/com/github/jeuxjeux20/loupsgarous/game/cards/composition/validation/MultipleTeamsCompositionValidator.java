@@ -1,6 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation;
 
-import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.google.common.collect.ImmutableSet;
 

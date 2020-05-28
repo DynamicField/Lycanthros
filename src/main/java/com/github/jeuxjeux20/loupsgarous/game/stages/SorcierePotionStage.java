@@ -29,7 +29,7 @@ public class SorcierePotionStage extends AsyncLGGameStage implements CountdownTi
     private final Killable killable;
 
     @Inject
-    public SorcierePotionStage(@Assisted LGGameOrchestrator orchestrator) {
+    SorcierePotionStage(@Assisted LGGameOrchestrator orchestrator) {
         super(orchestrator);
         healable = new SorciereHealable();
         killable = new SorciereKillable();

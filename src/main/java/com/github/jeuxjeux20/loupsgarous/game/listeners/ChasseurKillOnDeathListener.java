@@ -14,7 +14,7 @@ public class ChasseurKillOnDeathListener implements Listener {
     private final ChasseurKillStage.Factory chasseurStageFactory;
 
     @Inject
-    public ChasseurKillOnDeathListener(ChasseurKillStage.Factory chasseurStageFactory) {
+    ChasseurKillOnDeathListener(ChasseurKillStage.Factory chasseurStageFactory) {
         this.chasseurStageFactory = chasseurStageFactory;
     }
 

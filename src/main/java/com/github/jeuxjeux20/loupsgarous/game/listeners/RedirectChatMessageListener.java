@@ -17,16 +17,13 @@ public class RedirectChatMessageListener implements Listener {
     private final LGGameChatManager chatManager;
 
     @Inject
-    public RedirectChatMessageListener(LGGameManager gameManager, LGGameChatManager chatManager) {
+    RedirectChatMessageListener(LGGameManager gameManager, LGGameChatManager chatManager) {
         this.gameManager = gameManager;
         this.chatManager = chatManager;
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onChatMessage(AsyncPlayerChatEvent event) {
-        if (!event.getPlayer().getWorld().getName().startsWith(LGGameManager.WORLD_PREFIX)) {
-            return;
-        }
         Optional<LGPlayerAndGame> playerAndGame = gameManager.getPlayerInGame(event.getPlayer());
         if (!playerAndGame.isPresent()) return;
 

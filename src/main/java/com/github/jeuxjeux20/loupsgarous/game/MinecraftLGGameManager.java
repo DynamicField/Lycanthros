@@ -13,7 +13,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.onarandombox.MultiverseCore.MultiverseCore;
-import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import me.lucko.helper.Events;
 import org.bukkit.entity.Player;
 
@@ -35,8 +34,8 @@ class MinecraftLGGameManager implements LGGameManager {
     private final Hashtable<UUID, LGGameOrchestrator> gamesByPlayerUUID = new Hashtable<>();
 
     @Inject
-    public MinecraftLGGameManager(MultiverseCore multiverse, LoupsGarous plugin,
-                                  LGGameOrchestrator.Factory orchestratorFactory) {
+    MinecraftLGGameManager(MultiverseCore multiverse, LoupsGarous plugin,
+                           LGGameOrchestrator.Factory orchestratorFactory) {
         this.multiverse = multiverse;
         this.plugin = plugin;
         this.orchestratorFactory = orchestratorFactory;

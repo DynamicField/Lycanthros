@@ -18,7 +18,7 @@ import org.bukkit.event.server.PluginDisableEvent;
 
 import java.util.HashMap;
 
-public class BossBarStageListener implements Listener {
+public class UpdateBossBarListener implements Listener {
     private final HashMap<LGGameOrchestrator, BossBar> gameBossBar = new HashMap<>();
 
     @EventHandler

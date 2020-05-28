@@ -25,7 +25,7 @@ public class ChasseurKillStage extends AsyncLGGameStage implements CountdownTime
     private boolean killed;
 
     @Inject
-    public ChasseurKillStage(@Assisted LGGameOrchestrator orchestrator, @Assisted LGPlayer chasseur) {
+    ChasseurKillStage(@Assisted LGGameOrchestrator orchestrator, @Assisted LGPlayer chasseur) {
         super(orchestrator);
         this.chasseur = chasseur;
 

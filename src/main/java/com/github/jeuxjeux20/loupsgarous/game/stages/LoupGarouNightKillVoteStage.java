@@ -26,9 +26,9 @@ public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Vot
     private final LoupsGarousVoteChatChannel loupsGarousVoteChatChannel;
 
     @Inject
-    public LoupGarouNightKillVoteStage(@Assisted LGGameOrchestrator orchestrator,
-                                       LGGameChatManager chatManager,
-                                       LoupsGarousVoteChatChannel loupsGarousVoteChatChannel) {
+    LoupGarouNightKillVoteStage(@Assisted LGGameOrchestrator orchestrator,
+                                LGGameChatManager chatManager,
+                                LoupsGarousVoteChatChannel loupsGarousVoteChatChannel) {
         super(orchestrator);
 
         this.chatManager = chatManager;

@@ -25,7 +25,7 @@ public class LGCoupleCommand implements AnnotatedCommandConfigurator {
     private final LGGameManager gameManager;
 
     @Inject
-    public LGCoupleCommand(LGGameManager gameManager) {
+    LGCoupleCommand(LGGameManager gameManager) {
         this.gameManager = gameManager;
     }
 

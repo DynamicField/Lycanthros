@@ -11,19 +11,16 @@ import me.lucko.helper.Commands;
 import org.bukkit.command.PluginCommand;
 import org.jetbrains.annotations.NotNull;
 
-import java.text.Collator;
-import java.util.Locale;
 import java.util.Optional;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.banner;
 
 @CommandName("lgcomposition")
 public class LGCompositionCommand implements AnnotatedCommandConfigurator {
-    private static final Collator FR_COLLATOR = Collator.getInstance(Locale.FRENCH);
     private final LGGameManager gameManager;
 
     @Inject
-    public LGCompositionCommand(LGGameManager gameManager) {
+    LGCompositionCommand(LGGameManager gameManager) {
         this.gameManager = gameManager;
     }
 

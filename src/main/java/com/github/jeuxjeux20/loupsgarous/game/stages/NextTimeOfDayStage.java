@@ -6,7 +6,7 @@ import com.google.inject.assistedinject.Assisted;
 
 public class NextTimeOfDayStage extends LogicLGGameStage {
     @Inject
-    public NextTimeOfDayStage(@Assisted LGGameOrchestrator orchestrator) {
+    NextTimeOfDayStage(@Assisted LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }
 

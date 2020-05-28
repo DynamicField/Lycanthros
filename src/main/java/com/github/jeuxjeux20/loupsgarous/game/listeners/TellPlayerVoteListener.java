@@ -15,7 +15,7 @@ public class TellPlayerVoteListener implements Listener {
     private final LGGameChatManager chatManager;
 
     @Inject
-    public TellPlayerVoteListener(LGGameChatManager chatManager) {
+    TellPlayerVoteListener(LGGameChatManager chatManager) {
         this.chatManager = chatManager;
     }
 

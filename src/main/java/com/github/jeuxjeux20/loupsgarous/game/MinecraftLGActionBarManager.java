@@ -39,8 +39,7 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
             slotsComponent.setColor(ChatColor.GREEN);
 
             components.add(slotsComponent);
-        }
-        else if (orchestrator.getState() == LGGameState.STARTED) {
+        } else if (orchestrator.getState() == LGGameState.STARTED) {
             orchestrator.stages().current().getComponent(TimedStage.class).ifPresent(timedStage -> {
                 Duration secondsLeftDuration = Duration.ofSeconds(timedStage.getSecondsLeft());
                 String formattedDuration = DurationFormatter.CONCISE.format(secondsLeftDuration);

@@ -22,7 +22,7 @@ public class LGFinishCommand implements AnnotatedCommandConfigurator {
     private final LGGameManager gameManager;
 
     @Inject
-    public LGFinishCommand(LGGameManager gameManager) {
+    LGFinishCommand(LGGameManager gameManager) {
         this.gameManager = gameManager;
     }
 

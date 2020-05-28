@@ -17,7 +17,7 @@ public class GuiTestCommand extends SelfConfiguredCommandExecutor {
     private final CompositionGui.Factory compositionGuiFactory;
 
     @Inject
-    public GuiTestCommand(CompositionGui.Factory compositionGuiFactory) {
+    GuiTestCommand(CompositionGui.Factory compositionGuiFactory) {
         this.compositionGuiFactory = compositionGuiFactory;
     }
 

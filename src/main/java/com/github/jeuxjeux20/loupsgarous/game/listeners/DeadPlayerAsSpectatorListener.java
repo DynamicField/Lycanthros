@@ -17,7 +17,7 @@ public class DeadPlayerAsSpectatorListener implements Listener {
     private final LGGameManager gameManager;
 
     @Inject
-    public DeadPlayerAsSpectatorListener(LGGameManager gameManager) {
+    DeadPlayerAsSpectatorListener(LGGameManager gameManager) {
         this.gameManager = gameManager;
     }
 

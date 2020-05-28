@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 @CommandName("lgdevote")
 public class LGDevoteCommand extends LGGameCommand {
     @Inject
-    public LGDevoteCommand(LGGameManager gameManager) {
+    LGDevoteCommand(LGGameManager gameManager) {
         super(gameManager);
     }
 

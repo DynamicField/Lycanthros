@@ -6,7 +6,9 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.gui.CompositionGui;
-import com.github.jeuxjeux20.loupsgarous.game.events.*;
+import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.LGGameDeletedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.LGGameStartEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.lobby.LGLobbyOwnerChangeEvent;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
@@ -24,7 +26,7 @@ public class LGLobbyCommand implements AnnotatedCommandConfigurator {
     private final CompositionGui.Factory compositionGuiFactory;
 
     @Inject
-    public LGLobbyCommand(LGGameManager gameManager, CompositionGui.Factory compositionGuiFactory) {
+    LGLobbyCommand(LGGameManager gameManager, CompositionGui.Factory compositionGuiFactory) {
         this.gameManager = gameManager;
         this.compositionGuiFactory = compositionGuiFactory;
     }

@@ -13,7 +13,7 @@ public class GameEndStage extends AsyncLGGameStage implements CountdownTimedStag
     private final TickEventCountdown countdown;
 
     @Inject
-    public GameEndStage(@Assisted LGGameOrchestrator orchestrator) {
+    GameEndStage(@Assisted LGGameOrchestrator orchestrator) {
         super(orchestrator);
         countdown = new TickEventCountdown(this, 15);
     }

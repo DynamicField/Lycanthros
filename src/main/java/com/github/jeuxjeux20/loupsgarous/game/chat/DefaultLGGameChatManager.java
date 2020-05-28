@@ -18,7 +18,7 @@ class DefaultLGGameChatManager implements LGGameChatManager {
     private final LoupsGarous plugin;
 
     @Inject
-    public DefaultLGGameChatManager(Set<LGGameChatChannel> channels, LoupsGarous plugin) {
+    DefaultLGGameChatManager(Set<LGGameChatChannel> channels, LoupsGarous plugin) {
         this.channels = new HashSet<>(channels);
         this.plugin = plugin;
     }

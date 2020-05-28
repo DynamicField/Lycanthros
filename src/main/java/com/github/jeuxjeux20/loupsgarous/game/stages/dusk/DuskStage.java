@@ -22,7 +22,7 @@ public class DuskStage extends AsyncLGGameStage implements CountdownTimedStage, 
     private final TickEventCountdown countdown;
 
     @Inject
-    public DuskStage(@Assisted LGGameOrchestrator orchestrator, Set<Action> allActions) {
+    DuskStage(@Assisted LGGameOrchestrator orchestrator, Set<Action> allActions) {
         super(orchestrator);
 
         countdown = new TickEventCountdown(this, 20);

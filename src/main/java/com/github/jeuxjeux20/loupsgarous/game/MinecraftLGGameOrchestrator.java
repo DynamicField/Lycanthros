@@ -21,7 +21,9 @@ import me.lucko.helper.Events;
 import me.lucko.helper.Schedulers;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
 import me.lucko.helper.terminable.module.TerminableModule;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -69,13 +71,13 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     private final LGActionBarManager actionBarManager;
 
     @Inject
-    public MinecraftLGGameOrchestrator(@Assisted LGGameLobbyInfo lobbyInfo,
-                                       LoupsGarous plugin,
-                                       LGActionBarManager actionBarManager,
-                                       LGScoreboardManager scoreboardManager,
-                                       LGGameLobby.Factory lobbyFactory,
-                                       LGCardsOrchestrator.Factory cardOrchestratorFactory,
-                                       LGStagesOrchestrator.Factory stagesOrchestratorFactory) throws CannotCreateLobbyException {
+    MinecraftLGGameOrchestrator(@Assisted LGGameLobbyInfo lobbyInfo,
+                                LoupsGarous plugin,
+                                LGActionBarManager actionBarManager,
+                                LGScoreboardManager scoreboardManager,
+                                LGGameLobby.Factory lobbyFactory,
+                                LGCardsOrchestrator.Factory cardOrchestratorFactory,
+                                LGStagesOrchestrator.Factory stagesOrchestratorFactory) throws CannotCreateLobbyException {
         this.id = lobbyInfo.getId();
         this.initialPlayers = lobbyInfo.getPlayers();
         this.plugin = plugin;

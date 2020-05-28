@@ -8,7 +8,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 public final class DefaultCompositions {
-    private DefaultCompositions() {}
+    private DefaultCompositions() {
+    }
 
     public static Composition villagerComposition(int playerCount) {
         Preconditions.checkArgument(playerCount > 1, "The player count must be greater than 1.");

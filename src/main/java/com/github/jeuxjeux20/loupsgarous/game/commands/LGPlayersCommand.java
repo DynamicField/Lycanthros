@@ -2,7 +2,6 @@ package com.github.jeuxjeux20.loupsgarous.game.commands;
 
 import com.github.jeuxjeux20.guicybukkit.command.AnnotatedCommandConfigurator;
 import com.github.jeuxjeux20.guicybukkit.command.CommandName;
-import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
@@ -21,12 +20,10 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.role;
 
 @CommandName("lgplayers")
 public class LGPlayersCommand implements AnnotatedCommandConfigurator {
-    private final LoupsGarous plugin;
     private final LGGameManager gameManager;
 
     @Inject
-    public LGPlayersCommand(LoupsGarous plugin, LGGameManager gameManager) {
-        this.plugin = plugin;
+    LGPlayersCommand(LGGameManager gameManager) {
         this.gameManager = gameManager;
     }
 

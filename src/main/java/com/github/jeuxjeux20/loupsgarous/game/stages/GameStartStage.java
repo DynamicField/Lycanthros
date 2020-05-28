@@ -14,7 +14,7 @@ public class GameStartStage extends AsyncLGGameStage implements CountdownTimedSt
     private final Countdown countdown;
 
     @Inject
-    public GameStartStage(@Assisted LGGameOrchestrator orchestrator) {
+    GameStartStage(@Assisted LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
         this.countdown = new GameStartCountdown();

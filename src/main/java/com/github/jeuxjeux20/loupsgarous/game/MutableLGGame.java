@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-final class MutableLGGame implements LGGame {
+public final class MutableLGGame implements LGGame {
     private static final Random random = new Random();
 
     private final Map<UUID, MutableLGPlayer> playersByUUID = new HashMap<>();

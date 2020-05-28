@@ -13,7 +13,7 @@ public class LGVoteCommand implements AnnotatedCommandConfigurator {
     private final Provider<PickableCommandBuilder<Votable>> commandBuilderProvider;
 
     @Inject
-    public LGVoteCommand(Provider<PickableCommandBuilder<Votable>> commandBuilderProvider) {
+    LGVoteCommand(Provider<PickableCommandBuilder<Votable>> commandBuilderProvider) {
         this.commandBuilderProvider = commandBuilderProvider;
     }
 

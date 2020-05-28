@@ -7,7 +7,6 @@ import com.github.jeuxjeux20.loupsgarous.game.events.stage.LGStageChangeEvent;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.terminable.Terminable;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
@@ -27,22 +26,25 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     private @Nullable ListIterator<AsyncLGGameStage.Factory<?>> stageIterator = null;
     private @Nullable AsyncLGGameStage currentStage = null;
     private @Nullable CompletableFuture<Void> currentStageFuture = null;
+    private final AsyncLGGameStage.Factory<GameStartStage> gameStartStageFactory;
+    private final AsyncLGGameStage.Factory<GameEndStage> gameEndStageFactory;
     private final Logger logger;
 
     @Inject
-    public MinecraftLGStagesOrchestrator(@Assisted LGGameOrchestrator gameOrchestrator,
-                                         Set<AsyncLGGameStage.Factory<?>> stageFactories,
-                                         LoupsGarous plugin) {
+    MinecraftLGStagesOrchestrator(@Assisted LGGameOrchestrator gameOrchestrator,
+                                  Set<AsyncLGGameStage.Factory<?>> stageFactories,
+                                  AsyncLGGameStage.Factory<GameStartStage> gameStartStageFactory,
+                                  AsyncLGGameStage.Factory<GameEndStage> gameEndStageFactory,
+                                  LoupsGarous plugin) {
         this.gameOrchestrator = gameOrchestrator;
         this.stageFactories = new LinkedList<>(stageFactories);
+        this.gameStartStageFactory = gameStartStageFactory;
+        this.gameEndStageFactory = gameEndStageFactory;
         this.logger = plugin.getLogger();
 
         gameOrchestrator.bind(new CurrentStageTerminable());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void add(AsyncLGGameStage.Factory<?> stage) {
         if (stageIterator == null) {
@@ -83,7 +85,7 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
 
         if (state == LGGameState.READY_TO_START || state == LGGameState.WAITING_FOR_PLAYERS) {
             if (!(currentStage instanceof GameStartStage)) {
-                GameStartStage stage = new GameStartStage(gameOrchestrator);
+                GameStartStage stage = gameStartStageFactory.create(gameOrchestrator);
                 updateAndRunCurrentStage(stage).thenRun(gameOrchestrator::start).exceptionally(ex -> {
                     if (ex.getCause() instanceof CancellationException) return null;
                     logger.log(Level.SEVERE, "Unhandled exception while the game was running: ", ex);
@@ -94,7 +96,7 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
         }
         if (state == LGGameState.FINISHED) {
             if (!(currentStage instanceof GameEndStage)) {
-                GameEndStage stage = new GameEndStage(gameOrchestrator);
+                GameEndStage stage = gameEndStageFactory.create(gameOrchestrator);
                 updateAndRunCurrentStage(stage).thenRun(gameOrchestrator::delete).exceptionally(ex -> {
                     if (ex.getCause() instanceof CancellationException) return null;
                     logger.log(Level.SEVERE, "Unhandled exception while deleting the game: ", ex);
@@ -122,7 +124,7 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     }
 
     @Override
-    public @NotNull LGGameStage current() {
+    public @org.jetbrains.annotations.NotNull LGGameStage current() {
         return currentStage == null ? new LGGameStage.Null() : currentStage;
     }
 

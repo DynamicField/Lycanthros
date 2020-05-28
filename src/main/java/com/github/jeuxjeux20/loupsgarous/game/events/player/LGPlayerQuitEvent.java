@@ -3,7 +3,6 @@ package com.github.jeuxjeux20.loupsgarous.game.events.player;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,16 +19,16 @@ public class LGPlayerQuitEvent extends LGEvent {
         this.lgPlayer = lgPlayer;
     }
 
+    public static @NotNull HandlerList getHandlerList() {
+        return handlerList;
+    }
+
     public UUID getPlayerUUID() {
         return playerUUID;
     }
 
     public LGPlayer getLGPlayer() {
         return lgPlayer;
-    }
-
-    public static @NotNull HandlerList getHandlerList() {
-        return handlerList;
     }
 
     @Override

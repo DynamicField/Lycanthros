@@ -15,7 +15,7 @@ public class TellPlayerDevoteListener implements Listener {
     private final LGGameChatManager chatManager;
 
     @Inject
-    public TellPlayerDevoteListener(LGGameChatManager chatManager) {
+    TellPlayerDevoteListener(LGGameChatManager chatManager) {
         this.chatManager = chatManager;
     }
 

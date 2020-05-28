@@ -10,7 +10,7 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
 public class RevealAllKillsStage extends LogicLGGameStage {
     @Inject
-    public RevealAllKillsStage(@Assisted LGGameOrchestrator orchestrator) {
+    RevealAllKillsStage(@Assisted LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }
 

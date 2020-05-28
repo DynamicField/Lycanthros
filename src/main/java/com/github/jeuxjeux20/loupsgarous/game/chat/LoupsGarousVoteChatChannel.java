@@ -6,7 +6,7 @@ import com.google.inject.Inject;
 
 public class LoupsGarousVoteChatChannel extends LoupsGarousChatChannel {
     @Inject
-    public LoupsGarousVoteChatChannel(AnonymizedNamesProvider anonymizedNamesProvider) {
+    LoupsGarousVoteChatChannel(AnonymizedNamesProvider anonymizedNamesProvider) {
         super(anonymizedNamesProvider);
     }
 

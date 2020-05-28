@@ -19,7 +19,7 @@ public class LGListCommand implements AnnotatedCommandConfigurator {
     private final LGGameManager gameManager;
 
     @Inject
-    public LGListCommand(LGGameManager gameManager) {
+    LGListCommand(LGGameManager gameManager) {
         this.gameManager = gameManager;
     }
 

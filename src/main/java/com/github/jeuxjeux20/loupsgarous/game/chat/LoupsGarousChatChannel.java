@@ -28,7 +28,7 @@ public class LoupsGarousChatChannel implements LGGameChatChannel, AnonymizedChat
     private final AnonymizedNamesProvider anonymizedNamesProvider;
 
     @Inject
-    public LoupsGarousChatChannel(AnonymizedNamesProvider anonymizedNamesProvider) {
+    LoupsGarousChatChannel(AnonymizedNamesProvider anonymizedNamesProvider) {
         this.anonymizedNamesProvider = anonymizedNamesProvider;
     }
 

@@ -12,7 +12,7 @@ public class DeleteGamesOnDisableListener implements Listener {
     private final LGGameManager gameManager;
 
     @Inject
-    public DeleteGamesOnDisableListener(LGGameManager gameManager) {
+    DeleteGamesOnDisableListener(LGGameManager gameManager) {
         this.gameManager = gameManager;
     }
 
