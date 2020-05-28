@@ -315,7 +315,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         if (getGame().isEmpty() && state.isEnabled()) {
             delete();
         } else {
-            Player onlinePlayer = Bukkit.getPlayer(e.getPlayerUUID());
+            Player onlinePlayer = offlinePlayer.getPlayer();
             if (onlinePlayer != null) {
                 teleportPlayerOut(onlinePlayer, e.getLGPlayer());
             }
