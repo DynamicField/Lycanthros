@@ -12,6 +12,7 @@ import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import me.lucko.helper.terminable.TerminableConsumer;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +31,7 @@ import java.util.stream.Stream;
 public interface LGGameOrchestrator extends TerminableConsumer {
     Plugin getPlugin();
 
-    MultiverseWorld getWorld();
+    World getWorld();
 
     LGGame getGame();
 
@@ -106,6 +107,6 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     LGGameLobby lobby();
 
     interface Factory {
-        LGGameOrchestrator create(LGGameLobbyInfo worldInfo);
+        LGGameOrchestrator create(LGGameLobbyInfo lobbyInfo) throws CannotCreateLobbyException;
     }
 }

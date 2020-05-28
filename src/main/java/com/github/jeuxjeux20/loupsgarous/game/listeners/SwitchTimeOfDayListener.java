@@ -18,7 +18,7 @@ public class SwitchTimeOfDayListener implements Listener {
         LGGameOrchestrator orchestrator = event.getOrchestrator();
 
         if (orchestrator.getTurn().getTime() == LGGameTurnTime.NIGHT) {
-            orchestrator.getWorld().getCBWorld().setTime(13000);
+            orchestrator.getWorld().setTime(13000);
             orchestrator.getAllMinecraftPlayers().forEach(player -> {
                 player.sendTitle(ChatColor.RED + "C'est la nuit",
                         null,
@@ -28,7 +28,7 @@ public class SwitchTimeOfDayListener implements Listener {
                 player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10000, 2));
             });
         } else if (orchestrator.getTurn().getTime() == LGGameTurnTime.DAY) {
-            orchestrator.getWorld().getCBWorld().setTime(1000);
+            orchestrator.getWorld().setTime(1000);
             orchestrator.getAllMinecraftPlayers().forEach(player -> {
                 player.sendTitle(ChatColor.GOLD + "C'est le jour",
                         null,

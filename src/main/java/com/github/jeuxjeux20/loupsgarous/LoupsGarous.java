@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous;
 
 import com.github.jeuxjeux20.guicybukkit.PluginDependencies;
 import com.github.jeuxjeux20.guicybukkit.command.CommandConfigurator;
+import com.github.jeuxjeux20.loupsgarous.game.MultiverseLobbiesModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -18,7 +19,7 @@ public final class LoupsGarous extends ExtendedJavaPlugin {
     public void enable() {
         getConfig().options().copyDefaults(true);
 
-        Injector injector = Guice.createInjector(new LoupsGarousModule(this));
+        Injector injector = Guice.createInjector(new LoupsGarousModule(this), new MultiverseLobbiesModule());
 
         LGPluginDependencies pluginDependencies = injector.getInstance(LGPluginDependencies.class);
         pluginDependencies.registerAll(this);

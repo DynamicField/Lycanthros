@@ -1,7 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-import java.util.function.Supplier;
-
 /**
  * A set a values containing the outcome of a game for a player.
  */

@@ -15,7 +15,6 @@ import com.google.inject.Singleton;
 import com.onarandombox.MultiverseCore.MultiverseCore;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import me.lucko.helper.Events;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -53,8 +52,7 @@ class MinecraftLGGameManager implements LGGameManager {
     }
 
     @Override
-    public synchronized SafeResult<LGGameOrchestrator> startGame(String worldToClone, Set<Player> players,
-                                                                 Composition composition, CommandSender owner) {
+    public synchronized SafeResult<LGGameOrchestrator> startGame(Set<Player> players, Composition composition) {
         List<Player> playersLockedWhileStarting = playersLocked.stream().filter(players::contains).collect(Collectors.toList());
         if (!playersLockedWhileStarting.isEmpty()) {
             return SafeResult.error(playersLockedWhileStarting.size() > 1 ?
@@ -76,19 +74,9 @@ class MinecraftLGGameManager implements LGGameManager {
             }
 
             String id = UUID.randomUUID().toString().substring(0, 8);
-            String gameWorldName = WORLD_PREFIX + id;
-
-            if (!multiverse.getMVWorldManager().cloneWorld(worldToClone, gameWorldName)) {
-                String msg = "Impossible de cloner le monde.";
-                plugin.getLogger().warning(msg);
-                return SafeResult.error(msg);
-            }
-
-            MultiverseWorld mvWorld = multiverse.getMVWorldManager().getMVWorld(gameWorldName);
-            mvWorld.setAlias(mvWorld.getName());
 
             LGGameOrchestrator orchestrator = orchestratorFactory.create(
-                    new LGGameLobbyInfo(players, composition, mvWorld, owner, id)
+                    new LGGameLobbyInfo(players, composition, null, id)
             );
 
             ongoingGames.add(orchestrator);
@@ -97,6 +85,8 @@ class MinecraftLGGameManager implements LGGameManager {
             orchestrator.initialize();
 
             return SafeResult.success(orchestrator);
+        } catch (CannotCreateLobbyException e) {
+            return SafeResult.error(e.getMessage());
         } finally {
             playersLocked.removeAll(players);
         }

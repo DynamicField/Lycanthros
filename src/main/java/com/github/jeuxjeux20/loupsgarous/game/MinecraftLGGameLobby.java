@@ -9,7 +9,10 @@ import com.github.jeuxjeux20.loupsgarous.game.events.lobby.LGLobbyOwnerChangeEve
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitEvent;
 import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerEvent;
@@ -21,18 +24,25 @@ import java.util.Optional;
 import java.util.UUID;
 
 class MinecraftLGGameLobby implements LGGameLobby {
-    private final MinecraftLGGameOrchestrator orchestrator;
+    private final MutableLGGameOrchestrator orchestrator;
     private final MutableComposition composition;
+    private final LobbyTeleporter lobbyTeleporter;
     private Player owner;
 
-    public MinecraftLGGameLobby(LGGameLobbyInfo lobbyInfo, MinecraftLGGameOrchestrator orchestrator) {
+    @Inject
+    MinecraftLGGameLobby(@Assisted LGGameLobbyInfo lobbyInfo,
+                         @Assisted MutableLGGameOrchestrator orchestrator,
+                         LobbyTeleporter.Factory lobbyTeleporterFactory) throws CannotCreateLobbyException {
+        Preconditions.checkArgument(lobbyInfo.getPlayers().size() <= lobbyInfo.getComposition().getPlayerCount(),
+                "There are more players than the given composition is supposed to have.");
+
         this.orchestrator = orchestrator;
 
         this.owner = lobbyInfo.getOwner();
         this.composition = new LobbyComposition(lobbyInfo.getComposition());
+        this.lobbyTeleporter = lobbyTeleporterFactory.create(lobbyInfo.getId());
 
-        Preconditions.checkArgument(lobbyInfo.getPlayers().size() <= composition.getPlayerCount(),
-                "There are more players than the given composition is supposed to have.");
+        lobbyTeleporter.bindWith(orchestrator);
 
         registerPlayerQuitEvents();
     }
@@ -46,6 +56,11 @@ class MinecraftLGGameLobby implements LGGameLobby {
     }
 
     @Override
+    public World getWorld() {
+        return lobbyTeleporter.getWorld();
+    }
+
+    @Override
     public boolean addPlayer(Player player) {
         if (!player.isOnline() || !canAddPlayer()) return false;
 
@@ -54,6 +69,8 @@ class MinecraftLGGameLobby implements LGGameLobby {
         boolean added = getGame().addPlayerIfAbsent(lgPlayer) == null;
         if (added) {
             orchestrator.callEvent(new LGPlayerJoinEvent(orchestrator, player, lgPlayer));
+
+            lobbyTeleporter.teleportPlayerIn(player);
         }
         return added;
     }
@@ -72,6 +89,11 @@ class MinecraftLGGameLobby implements LGGameLobby {
         }
 
         orchestrator.callEvent(new LGPlayerQuitEvent(orchestrator, playerUUID, lgPlayer));
+
+        Player onlinePlayer = lgPlayer.getOfflineMinecraftPlayer().getPlayer();
+        if (onlinePlayer != null) {
+            lobbyTeleporter.teleportPlayerOut(onlinePlayer);
+        }
 
         if (playerUUID.equals(owner.getUniqueId()) && orchestrator.getState().isEnabled()) {
             putRandomOwner();
@@ -100,7 +122,7 @@ class MinecraftLGGameLobby implements LGGameLobby {
     }
 
     @Override
-    public MinecraftLGGameOrchestrator getOrchestrator() {
+    public LGGameOrchestrator gameOrchestrator() {
         return orchestrator;
     }
 
@@ -136,7 +158,7 @@ class MinecraftLGGameLobby implements LGGameLobby {
 
         Events.subscribe(PlayerChangedWorldEvent.class)
                 .expireIf(e -> orchestrator.getState().isDisabled())
-                .filter(e -> e.getFrom() == orchestrator.getWorld().getCBWorld())
+                .filter(e -> e.getFrom() == orchestrator.getWorld())
                 .handler(e -> removePlayer(e.getPlayer()))
                 .bindWith(orchestrator);
     }

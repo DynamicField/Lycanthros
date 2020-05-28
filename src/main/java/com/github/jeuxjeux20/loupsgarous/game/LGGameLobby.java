@@ -3,12 +3,15 @@ package com.github.jeuxjeux20.loupsgarous.game;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.Optional;
 import java.util.UUID;
 
 public interface LGGameLobby {
+    World getWorld();
+
     boolean addPlayer(Player player);
 
     boolean removePlayer(UUID playerUUID);
@@ -23,10 +26,10 @@ public interface LGGameLobby {
 
     Composition getComposition();
 
-    LGGameOrchestrator getOrchestrator();
+    LGGameOrchestrator gameOrchestrator();
 
     default int getSlotsTaken() {
-        return getOrchestrator().getGame().getPlayers().size();
+        return gameOrchestrator().getGame().getPlayers().size();
     }
 
     default int getTotalSlotCount() {
@@ -44,4 +47,9 @@ public interface LGGameLobby {
     Player getOwner();
 
     void setOwner(Player owner);
+
+    interface Factory {
+        LGGameLobby create(LGGameLobbyInfo lobbyInfo, MutableLGGameOrchestrator orchestrator)
+                throws CannotCreateLobbyException;
+    }
 }

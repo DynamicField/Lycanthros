@@ -14,7 +14,7 @@ import java.util.Optional;
 public class PlayerDiesOnKillListener implements Listener {
     @EventHandler
     public void onLGKill(LGKillEvent event) {
-        World world = event.getOrchestrator().getWorld().getCBWorld();
+        World world = event.getOrchestrator().getWorld();
         for (LGKill kill : event.getKills()) {
             Optional<Player> maybePlayer = kill.getWhoDied().getMinecraftPlayer();
 

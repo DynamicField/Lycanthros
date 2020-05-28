@@ -2,33 +2,24 @@ package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.SnapshotComposition;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import com.onarandombox.MultiverseCore.api.MultiverseWorld;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * A set of data to create a new Loups-Garous game instance.
  */
 public final class LGGameLobbyInfo {
-    private final MultiverseWorld world;
-    private final CommandSender initiator;
     private final Player owner;
     private final String id;
     private final ImmutableSet<Player> players;
     private final Composition composition;
 
     public LGGameLobbyInfo(Set<Player> players, Composition composition,
-                           MultiverseWorld world, CommandSender initiator, String id) {
+                           @Nullable Player owner, String id) {
         ImmutableSet<Player> onlinePlayers
                 = players.stream().filter(OfflinePlayer::isOnline).collect(ImmutableSet.toImmutableSet());
 
@@ -38,32 +29,24 @@ public final class LGGameLobbyInfo {
         if (onlinePlayers.size() > composition.getCards().size()) {
             throw new IllegalArgumentException("There are more players than cards.");
         }
+        if (owner != null && !onlinePlayers.contains(owner)) {
+            throw new IllegalArgumentException("The owner is not online and/or present in the given players.");
+        }
 
         this.players = onlinePlayers;
         this.composition = new SnapshotComposition(composition);
-        this.world = world;
-        this.initiator = initiator;
         this.id = id;
 
-        this.owner = determineOwner();
+        this.owner = determineOwner(owner);
     }
 
-    private Player determineOwner() {
-        if (initiator instanceof Player) {
-            if (players.contains(initiator)) {
-                return (Player) initiator;
-            }
+    private Player determineOwner(@Nullable Player presetOwner) {
+        if (players.contains(presetOwner)) {
+            return presetOwner;
         }
         return players.iterator().next();
     }
 
-    public MultiverseWorld getWorld() {
-        return world;
-    }
-
-    public CommandSender getInitiator() {
-        return initiator;
-    }
 
     public String getId() {
         return id;

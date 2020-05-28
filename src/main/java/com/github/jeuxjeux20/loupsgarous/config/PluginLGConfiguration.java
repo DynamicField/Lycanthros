@@ -4,6 +4,8 @@ import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.google.inject.Inject;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 public class PluginLGConfiguration implements LGConfiguration {
     private final LoupsGarous plugin;
 
@@ -13,8 +15,8 @@ public class PluginLGConfiguration implements LGConfiguration {
     }
 
     @Override
-    public @Nullable String getDefaultWorld() {
-        return plugin.getConfig().getString("default-world");
+    public Optional<String> getDefaultWorld() {
+        return Optional.ofNullable(plugin.getConfig().getString("default-world"));
     }
 
     @Override

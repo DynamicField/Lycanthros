@@ -8,7 +8,6 @@ import com.github.jeuxjeux20.loupsgarous.game.events.*;
 import com.github.jeuxjeux20.loupsgarous.game.events.lobby.LGLobbyCompositionChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitTeleportEvent;
 import com.github.jeuxjeux20.loupsgarous.game.killreasons.PlayerQuitKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardManager;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGGameStage;
@@ -18,16 +17,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.onarandombox.MultiverseCore.MultiverseCore;
-import com.onarandombox.MultiverseCore.api.MVDestination;
-import com.onarandombox.MultiverseCore.api.MultiverseWorld;
-import com.onarandombox.MultiverseCore.destination.DestinationFactory;
 import me.lucko.helper.Events;
 import me.lucko.helper.Schedulers;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
 import me.lucko.helper.terminable.module.TerminableModule;
 import org.bukkit.*;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +35,7 @@ import static com.github.jeuxjeux20.loupsgarous.game.MinecraftLGGameOrchestrator
 import static com.github.jeuxjeux20.loupsgarous.game.MinecraftLGGameOrchestrator.FunctionalEventAdapters.predicate;
 import static com.github.jeuxjeux20.loupsgarous.game.MinecraftLGGameOrchestrator.OrchestratorState.*;
 
-class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
+class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     static {
         Events.subscribe(LGPlayerQuitEvent.class)
                 .handler(consumer(MinecraftLGGameOrchestrator::handlePlayerQuit));
@@ -57,7 +51,6 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     // Terminables
     private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
     // Base dependencies
-    private final MultiverseCore multiverse;
     private final LoupsGarous plugin;
     // Game state
     private final ArrayList<LGKill> pendingKills = new ArrayList<>();
@@ -66,13 +59,10 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     private LGGameState state = LGGameState.UNINITIALIZED;
     private @Nullable LGEnding ending;
     // Metadata
-    private final CommandSender initiator;
-    private final MultiverseWorld world;
     private final String id;
-    private final MVDestination worldDestination;
     private final ImmutableSet<Player> initialPlayers;
     // Components
-    private final MinecraftLGGameLobby lobby;
+    private final LGGameLobby lobby;
     private final LGCardsOrchestrator cardOrchestrator;
     private final LGStagesOrchestrator stagesOrchestrator;
     // UI & All
@@ -80,22 +70,18 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
     @Inject
     public MinecraftLGGameOrchestrator(@Assisted LGGameLobbyInfo lobbyInfo,
-                                       MultiverseCore multiverse,
                                        LoupsGarous plugin,
                                        LGActionBarManager actionBarManager,
                                        LGScoreboardManager scoreboardManager,
+                                       LGGameLobby.Factory lobbyFactory,
                                        LGCardsOrchestrator.Factory cardOrchestratorFactory,
-                                       LGStagesOrchestrator.Factory stagesOrchestratorFactory) {
+                                       LGStagesOrchestrator.Factory stagesOrchestratorFactory) throws CannotCreateLobbyException {
         this.id = lobbyInfo.getId();
-        this.initiator = lobbyInfo.getInitiator();
-        this.world = lobbyInfo.getWorld();
         this.initialPlayers = lobbyInfo.getPlayers();
-        this.multiverse = multiverse;
         this.plugin = plugin;
         this.actionBarManager = actionBarManager;
-        this.worldDestination = multiverse.getDestFactory().getDestination(getWorld().getName());
         this.game = new MutableLGGame();
-        this.lobby = new MinecraftLGGameLobby(lobbyInfo, this);
+        this.lobby = lobbyFactory.create(lobbyInfo, this);
         this.cardOrchestrator = cardOrchestratorFactory.create(this);
         this.stagesOrchestrator = stagesOrchestratorFactory.create(this);
 
@@ -118,8 +104,8 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     }
 
     @Override
-    public MultiverseWorld getWorld() {
-        return world;
+    public World getWorld() {
+        return lobby.getWorld();
     }
 
     @Override
@@ -235,16 +221,12 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
                 .map(LGPlayer::getPlayerUUID)
                 .forEach(lobby::removePlayer);
 
-        deleteWorld();
-
         changeStateTo(DELETED, LGGameDeletedEvent::new);
     }
 
     @Override
     public void initialize() {
         ensureState(UNINITIALIZED);
-
-        initializeWorld();
 
         changeStateTo(WAITING_FOR_PLAYERS, LGGameWaitingForPlayersEvent::new);
 
@@ -260,45 +242,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         }
     }
 
-    public void teleportPlayerIn(Player player) {
-        if (player.getWorld() == world.getCBWorld()) return;
-        multiverse.getSafeTTeleporter().teleport(initiator, player, worldDestination);
-    }
-
-    private void initializeWorld() {
-        getWorld().setDifficulty(Difficulty.PEACEFUL);
-        getWorld().setGameMode(GameMode.ADVENTURE);
-        getWorld().setAllowAnimalSpawn(false);
-        getWorld().setAllowMonsterSpawn(false);
-        getWorld().setTime("day");
-        getWorld().setPVPMode(false);
-        getWorld().setRespawnToWorld(getWorld().getName());
-        getWorld().getCBWorld().setGameRule(GameRule.FALL_DAMAGE, false);
-        getWorld().getCBWorld().setGameRule(GameRule.KEEP_INVENTORY, true);
-        getWorld().getCBWorld().setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
-    }
-
-    private void deleteWorld() {
-        multiverse.getMVWorldManager().deleteWorld(getWorld().getName());
-    }
-
-    private void teleportPlayerOut(Player minecraftPlayer, @Nullable LGPlayer player) {
-        LGPlayerQuitTeleportEvent event
-                = new LGPlayerQuitTeleportEvent(this, player, minecraftPlayer);
-        callEvent(event);
-        if (event.isCancelled()) return;
-
-        MultiverseWorld spawnWorld = multiverse.getMVWorldManager().getSpawnWorld();
-
-        DestinationFactory destFactory = multiverse.getDestFactory();
-        MVDestination destination = destFactory.getDestination(spawnWorld.getName());
-
-        multiverse.getSafeTTeleporter().teleport(initiator, minecraftPlayer, destination);
-    }
-
     private void handlePlayerJoin(LGPlayerJoinEvent event) {
-        teleportPlayerIn(event.getPlayer());
-
         sendToEveryone(event.getPlayer().getName() + " a rejoint la partie ! " + lobby.getSlotsDisplay());
     }
 
@@ -314,11 +258,6 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         // Are they all gone?
         if (getGame().isEmpty() && state.isEnabled()) {
             delete();
-        } else {
-            Player onlinePlayer = offlinePlayer.getPlayer();
-            if (onlinePlayer != null) {
-                teleportPlayerOut(onlinePlayer, e.getLGPlayer());
-            }
         }
     }
 
