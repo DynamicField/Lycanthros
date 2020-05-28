@@ -31,6 +31,10 @@ public final class LoupsGarousGameModule extends AbstractModule {
                 .implement(LGCardsOrchestrator.class, MinecraftLGCardsOrchestrator.class)
                 .build(LGCardsOrchestrator.Factory.class));
 
+        install(new FactoryModuleBuilder()
+                .implement(LGGameLobby.class, MinecraftLGGameLobby.class)
+                .build(LGGameLobby.Factory.class));
+
         bind(LGActionBarManager.class).to(MinecraftLGActionBarManager.class);
     }
 }
