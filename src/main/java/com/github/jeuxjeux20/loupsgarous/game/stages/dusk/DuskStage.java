@@ -7,6 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.stages.AsyncLGGameStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.CountdownTimedStage;
+import com.github.jeuxjeux20.loupsgarous.util.CompletableFutureUtils;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.bukkit.boss.BarColor;
@@ -16,6 +17,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import static com.github.jeuxjeux20.loupsgarous.util.CompletableFutureUtils.returnOriginal;
 
 public class DuskStage extends AsyncLGGameStage implements CountdownTimedStage, ComponentBased {
     private final List<Action> actionsToRun;
@@ -46,7 +49,7 @@ public class DuskStage extends AsyncLGGameStage implements CountdownTimedStage, 
             action.onDuskStart(orchestrator);
         }
 
-        return countdown.start().thenRun(this::runActionsEnd);
+        return returnOriginal(countdown.start(), f -> f.thenRun(this::runActionsEnd));
     }
 
     private void runActionsEnd() {

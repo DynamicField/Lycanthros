@@ -7,6 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.game.chat.LoupsGarousVoteChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.killreasons.NightKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
+import com.github.jeuxjeux20.loupsgarous.util.CompletableFutureUtils;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.bukkit.ChatColor;
@@ -17,6 +18,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
+import static com.github.jeuxjeux20.loupsgarous.util.CompletableFutureUtils.returnOriginal;
 
 public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Votable, CountdownTimedStage {
     private final VoteState currentState;
@@ -45,7 +47,7 @@ public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Vot
 
     @Override
     public CompletableFuture<Void> run() {
-        return countdown.start().thenRun(this::computeVoteOutcome);
+        return returnOriginal(countdown.start(), f -> f.thenRun(this::computeVoteOutcome));
     }
 
     @NotNull

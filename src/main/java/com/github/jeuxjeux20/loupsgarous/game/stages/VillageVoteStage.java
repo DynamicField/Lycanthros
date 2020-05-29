@@ -6,6 +6,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.killreasons.VillageVoteKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
+import com.github.jeuxjeux20.loupsgarous.util.CompletableFutureUtils;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.jetbrains.annotations.NotNull;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
+import static com.github.jeuxjeux20.loupsgarous.util.CompletableFutureUtils.returnOriginal;
 
 public class VillageVoteStage extends AsyncLGGameStage implements Votable, CountdownTimedStage {
     private final VoteState currentState;
@@ -34,7 +36,7 @@ public class VillageVoteStage extends AsyncLGGameStage implements Votable, Count
 
     @Override
     public CompletableFuture<Void> run() {
-        return countdown.start().thenRun(this::computeVoteOutcome);
+        return returnOriginal(countdown.start(), f -> f.thenRun(this::computeVoteOutcome));
     }
 
     private void computeVoteOutcome() {

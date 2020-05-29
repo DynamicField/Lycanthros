@@ -6,7 +6,6 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.google.inject.Inject;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -42,21 +41,13 @@ class DefaultLGGameChatManager implements LGGameChatManager {
         }
         LGGameChatChannel channel = writableChannels.iterator().next();
 
-        if (channel instanceof AnonymizedChatChannel) {
-            sendMessage(channel, recipient -> {
-                StringBuilder messageBuilder = new StringBuilder();
-                buildMessage(sender, message, orchestrator, channel, recipient, messageBuilder);
-                return messageBuilder.toString();
-            }, orchestrator);
-        } else {
-            StringBuilder messageBuilder = new StringBuilder();
-            buildMessage(sender, message, orchestrator, channel, null, messageBuilder);
-            sendMessage(channel, messageBuilder.toString(), orchestrator);
-        }
+        sendMessage(channel, recipient -> buildMessage(sender, message, orchestrator, channel, recipient), orchestrator);
     }
 
-    private void buildMessage(LGPlayer sender, String message, LGGameOrchestrator orchestrator,
-                              LGGameChatChannel channel, @Nullable LGPlayer recipient, StringBuilder messageBuilder) {
+    private String buildMessage(LGPlayer sender, String message, LGGameOrchestrator orchestrator,
+                              LGGameChatChannel channel, LGPlayer recipient) {
+        StringBuilder messageBuilder = new StringBuilder();
+
         if (channel.isNameDisplayed()) {
             messageBuilder.append(ChatColor.GRAY)
                     .append('[')
@@ -66,16 +57,12 @@ class DefaultLGGameChatManager implements LGGameChatManager {
                     .append(ChatColor.RESET);
         }
 
-
-        String senderName = recipient != null && channel instanceof AnonymizedChatChannel &&
-                            ((AnonymizedChatChannel) channel).shouldAnonymizeTo(recipient, orchestrator) ?
-                ((AnonymizedChatChannel) channel).anonymizeName(sender, orchestrator) :
-                sender.getName();
-
         messageBuilder.append('<')
-                .append(senderName)
+                .append(channel.formatUsername(sender, recipient, orchestrator))
                 .append("> ")
                 .append(message);
+
+        return messageBuilder.toString();
     }
 
     @Override
