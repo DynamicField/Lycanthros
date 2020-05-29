@@ -4,6 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 public interface ScoreboardComponent {
@@ -13,7 +14,13 @@ public interface ScoreboardComponent {
         return ImmutableList.of();
     }
 
+    default boolean isSeparated() {
+        return true;
+    }
+
     final class Line {
+        public static final Line EMPTY = new Line();
+
         private final String content;
         private final @Nullable Integer position;
 
@@ -36,6 +43,10 @@ public interface ScoreboardComponent {
 
         public @Nullable Integer getPosition() {
             return position;
+        }
+
+        public boolean isEmpty() {
+            return this == EMPTY || StringUtils.isBlank(content);
         }
     }
 }

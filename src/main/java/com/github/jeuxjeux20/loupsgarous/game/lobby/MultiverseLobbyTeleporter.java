@@ -1,11 +1,8 @@
-package com.github.jeuxjeux20.loupsgarous.game;
+package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
-import com.github.jeuxjeux20.loupsgarous.config.LGConfiguration;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import com.onarandombox.MultiverseCore.MultiverseCore;
 import com.onarandombox.MultiverseCore.api.MVDestination;
-import com.onarandombox.MultiverseCore.api.MVWorldManager;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
@@ -13,17 +10,19 @@ import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-public class MultiverseLobbyTeleporter implements LobbyTeleporter {
+class MultiverseLobbyTeleporter implements LobbyTeleporter {
     private final MultiverseCore multiverse;
+    private final TerminableMultiverseWorld terminableWorld;
     private final MultiverseWorld world;
     private final MVDestination worldDestination;
 
     @Inject
-    MultiverseLobbyTeleporter(@Assisted String id, MultiverseCore multiverse, LGConfiguration configuration)
-            throws CannotCreateLobbyException {
+    MultiverseLobbyTeleporter(MultiverseCore multiverse, MultiverseWorldProvider multiverseWorldProvider)
+            throws CannotCreateWorldException {
         this.multiverse = multiverse;
 
-        this.world = createClonedWorld(id, configuration);
+        this.terminableWorld = multiverseWorldProvider.get();
+        this.world = terminableWorld.get();
         this.worldDestination = multiverse.getDestFactory().getDestination(world.getName());
 
         configureWorld();
@@ -51,24 +50,7 @@ public class MultiverseLobbyTeleporter implements LobbyTeleporter {
 
     @Override
     public void close() {
-        multiverse.getMVWorldManager().deleteWorld(world.getName());
-    }
-
-    private MultiverseWorld createClonedWorld(@Assisted String id, LGConfiguration configuration)
-            throws CannotCreateLobbyException {
-        MVWorldManager worldManager = multiverse.getMVWorldManager();
-
-        String sourceWorld = configuration.getDefaultWorld().orElse("loups_garous");
-        String newWorld = LGGameManager.WORLD_PREFIX + id;
-
-        if (!worldManager.cloneWorld(sourceWorld, newWorld)) {
-            throw new CannotCreateLobbyException("Could not clone sourceWorld \"" + sourceWorld + "\".");
-        }
-
-        MultiverseWorld world = worldManager.getMVWorld(newWorld);
-        world.setAlias(world.getName());
-
-        return world;
+        terminableWorld.closeAndReportException();
     }
 
     private void configureWorld() {

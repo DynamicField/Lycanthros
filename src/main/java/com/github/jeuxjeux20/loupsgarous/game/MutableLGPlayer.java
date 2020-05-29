@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-final class MutableLGPlayer implements LGPlayer {
+public final class MutableLGPlayer implements LGPlayer {
     private final UUID playerUUID;
     private LGCard card;
     private boolean isDead;

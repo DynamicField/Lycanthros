@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game;
+package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
 import me.lucko.helper.terminable.Terminable;
 import org.bukkit.World;
@@ -12,6 +12,6 @@ public interface LobbyTeleporter extends Terminable {
     void teleportPlayerOut(Player player);
 
     interface Factory {
-        LobbyTeleporter create(String id) throws CannotCreateLobbyException;
+        LobbyTeleporter create() throws CannotCreateLobbyException;
     }
 }

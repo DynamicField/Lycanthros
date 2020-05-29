@@ -1,5 +1,6 @@
-package com.github.jeuxjeux20.loupsgarous.game;
+package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
+import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.IllegalPlayerCountException;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
@@ -40,7 +41,7 @@ class MinecraftLGGameLobby implements LGGameLobby {
 
         this.owner = lobbyInfo.getOwner();
         this.composition = new LobbyComposition(lobbyInfo.getComposition());
-        this.lobbyTeleporter = lobbyTeleporterFactory.create(lobbyInfo.getId());
+        this.lobbyTeleporter = lobbyTeleporterFactory.create();
 
         lobbyTeleporter.bindWith(orchestrator);
 

@@ -9,6 +9,9 @@ import com.github.jeuxjeux20.loupsgarous.game.events.lobby.LGLobbyCompositionCha
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.game.killreasons.PlayerQuitKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.CannotCreateLobbyException;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobby;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobbyInfo;
 import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardManager;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGGameStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;

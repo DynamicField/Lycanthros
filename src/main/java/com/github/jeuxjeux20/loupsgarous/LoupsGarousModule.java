@@ -8,6 +8,7 @@ import com.onarandombox.MultiverseCore.MultiverseCore;
 import me.lucko.helper.plugin.HelperPlugin;
 
 import java.util.Random;
+import java.util.logging.Logger;
 
 public final class LoupsGarousModule extends PluginModule {
     private final LoupsGarous plugin;
@@ -24,6 +25,7 @@ public final class LoupsGarousModule extends PluginModule {
         install(new LoupsGarousGameModule());
 
         bind(MultiverseCore.class).toInstance(getMultiverseCore());
+        bind(Logger.class).annotatedWith(Plugin.class).toInstance(plugin.getLogger());
 
         bind(Random.class).toInstance(new Random());
     }

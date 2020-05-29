@@ -7,10 +7,10 @@ public final class LGRootCommandsModule extends CommandsModule {
     protected void configureCommands() {
         addCommand(LGStartCommand.class);
         addCommand(LGListCommand.class);
-        addCommand(LGConfigCommand.class);
         addCommand(LGFinishCommand.class);
         addCommand(ColorCommand.class);
         addCommand(GuiTestCommand.class);
         addCommand(LGJoinCommand.class);
+        addCommand(LGReloadConfigCommand.class);
     }
 }

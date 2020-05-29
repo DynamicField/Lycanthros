@@ -14,7 +14,6 @@ public class CompositionScoreboardComponent implements ScoreboardComponent {
     public ImmutableList<Line> render(LGPlayer player, LGGameOrchestrator orchestrator) {
         ImmutableList.Builder<Line> lines = ImmutableList.builder();
 
-        lines.add(new Line());
         lines.add(new Line(ChatColor.AQUA.toString() + ChatColor.BOLD + "Composition"));
 
         String[] cardNames = CompositionFormatUtil.format(orchestrator.getCurrentComposition()).split("\n");
@@ -22,8 +21,6 @@ public class CompositionScoreboardComponent implements ScoreboardComponent {
         for (String cardName : cardNames) {
             lines.add(new Line(cardName));
         }
-
-        lines.add(new Line());
 
         return lines.build();
     }

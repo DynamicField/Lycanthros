@@ -1,10 +1,15 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
+import com.github.jeuxjeux20.loupsgarous.Plugin;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGGameDeletedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitEvent;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.CannotCloneWorldException;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.CannotCreateLobbyException;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobbyInfo;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.MaximumWorldCountReachedException;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.github.jeuxjeux20.loupsgarous.util.WordingUtils;
@@ -19,12 +24,15 @@ import org.bukkit.entity.Player;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Singleton
 class MinecraftLGGameManager implements LGGameManager {
     private final MultiverseCore multiverse;
     private final LoupsGarous plugin;
+    private final Logger logger;
     private final LGGameOrchestrator.Factory orchestratorFactory;
 
     private final CopyOnWriteArraySet<Player> playersLocked = new CopyOnWriteArraySet<>();
@@ -34,10 +42,13 @@ class MinecraftLGGameManager implements LGGameManager {
     private final Hashtable<UUID, LGGameOrchestrator> gamesByPlayerUUID = new Hashtable<>();
 
     @Inject
-    MinecraftLGGameManager(MultiverseCore multiverse, LoupsGarous plugin,
+    MinecraftLGGameManager(MultiverseCore multiverse,
+                           LoupsGarous plugin,
+                           @Plugin Logger logger,
                            LGGameOrchestrator.Factory orchestratorFactory) {
         this.multiverse = multiverse;
         this.plugin = plugin;
+        this.logger = logger;
         this.orchestratorFactory = orchestratorFactory;
 
         Events.subscribe(LGGameDeletedEvent.class)
@@ -84,11 +95,22 @@ class MinecraftLGGameManager implements LGGameManager {
             orchestrator.initialize();
 
             return SafeResult.success(orchestrator);
+        } catch (MaximumWorldCountReachedException e) {
+            logWorldError(Level.FINE, e);
+            return SafeResult.error("Trop de mondes utilisés (" + e.getMaximumWorldCount() + ").");
+        } catch (CannotCloneWorldException e) {
+            logWorldError(Level.SEVERE, e);
+            return SafeResult.error("Impossible de cloner le monde \"" + e.getWorldName() + "\".");
         } catch (CannotCreateLobbyException e) {
+            logWorldError(Level.WARNING, e);
             return SafeResult.error(e.getMessage());
         } finally {
             playersLocked.removeAll(players);
         }
+    }
+
+    private void logWorldError(Level level, Throwable throwable) {
+        logger.log(level, "Couldn't create game: " + throwable.getMessage());
     }
 
     private Set<Player> findPresentPlayers(Set<Player> players) {

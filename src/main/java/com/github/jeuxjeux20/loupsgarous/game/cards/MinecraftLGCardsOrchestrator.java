@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-public class MinecraftLGCardsOrchestrator implements LGCardsOrchestrator {
+class MinecraftLGCardsOrchestrator implements LGCardsOrchestrator {
     private final LGGameOrchestrator gameOrchestrator;
 
     @Inject

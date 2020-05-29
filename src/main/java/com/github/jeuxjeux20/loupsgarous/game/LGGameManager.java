@@ -11,7 +11,6 @@ import java.util.UUID;
 
 public interface LGGameManager {
     String WORLD_PREFIX = "lg_game_";
-    int SHORT_ID_LENGTH = 8;
 
     SafeResult<LGGameOrchestrator> startGame(Set<Player> players, Composition composition);
 
