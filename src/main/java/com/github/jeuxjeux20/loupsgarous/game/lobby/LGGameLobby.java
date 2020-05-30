@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.MutableLGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
@@ -20,6 +21,10 @@ public interface LGGameLobby {
 
     default boolean removePlayer(OfflinePlayer player) {
         return removePlayer(player.getUniqueId());
+    }
+
+    default boolean removePlayer(LGPlayer player) {
+        return removePlayer(player.getPlayerUUID());
     }
 
     boolean isLocked();

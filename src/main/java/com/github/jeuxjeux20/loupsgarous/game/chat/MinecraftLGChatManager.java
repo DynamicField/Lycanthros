@@ -4,6 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -12,22 +13,24 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-class DefaultLGGameChatManager implements LGGameChatManager {
-    private final Set<LGGameChatChannel> channels;
+class MinecraftLGChatManager implements LGChatManager {
+    private final LGGameOrchestrator orchestrator;
+    private final Set<LGChatChannel> channels;
     private final LoupsGarous plugin;
 
     @Inject
-    DefaultLGGameChatManager(Set<LGGameChatChannel> channels, LoupsGarous plugin) {
+    MinecraftLGChatManager(@Assisted LGGameOrchestrator orchestrator, Set<LGChatChannel> channels, LoupsGarous plugin) {
+        this.orchestrator = orchestrator;
         this.channels = new HashSet<>(channels);
         this.plugin = plugin;
     }
 
     @Override
-    public void redirectMessage(LGPlayer sender, String message, LGGameOrchestrator orchestrator) {
+    public void redirectMessage(LGPlayer sender, String message) {
         Player senderMinecraftPlayer = sender.getMinecraftPlayer()
                 .orElseThrow(() -> new IllegalArgumentException("The sender has no minecraft player."));
 
-        Set<LGGameChatChannel> writableChannels = getWritableChannels(sender, orchestrator);
+        Set<LGChatChannel> writableChannels = getWritableChannels(sender);
 
         if (writableChannels.isEmpty()) {
             senderMinecraftPlayer.sendMessage(ChatColor.RED +
@@ -36,16 +39,16 @@ class DefaultLGGameChatManager implements LGGameChatManager {
         }
         if (writableChannels.size() > 1) {
             plugin.getLogger().warning("Il y'a plusieurs channels et c'est choisir 1 est pas encore implémenté:\n" +
-                                       writableChannels.stream().map(LGGameChatChannel::getName).collect(Collectors.joining(", ")) +
+                                       writableChannels.stream().map(LGChatChannel::getName).collect(Collectors.joining(", ")) +
                                        "\n Seulement le premier sera pris.");
         }
-        LGGameChatChannel channel = writableChannels.iterator().next();
+        LGChatChannel channel = writableChannels.iterator().next();
 
-        sendMessage(channel, recipient -> buildMessage(sender, message, orchestrator, channel, recipient), orchestrator);
+        sendMessage(channel, recipient -> buildMessage(sender, message, orchestrator, channel, recipient));
     }
 
     private String buildMessage(LGPlayer sender, String message, LGGameOrchestrator orchestrator,
-                              LGGameChatChannel channel, LGPlayer recipient) {
+                                LGChatChannel channel, LGPlayer recipient) {
         StringBuilder messageBuilder = new StringBuilder();
 
         if (channel.isNameDisplayed()) {
@@ -66,8 +69,7 @@ class DefaultLGGameChatManager implements LGGameChatManager {
     }
 
     @Override
-    public void sendMessage(LGGameChatChannel channel, Function<? super LGPlayer, String> messageFunction,
-                            LGGameOrchestrator orchestrator) {
+    public void sendMessage(LGChatChannel channel, Function<? super LGPlayer, String> messageFunction) {
         for (LGPlayer player : orchestrator.getGame().getPlayers()) {
             player.getMinecraftPlayer().ifPresent(minecraftPlayer -> {
                 if (!channel.areMessagesVisibleTo(player, orchestrator)) return;
@@ -78,7 +80,12 @@ class DefaultLGGameChatManager implements LGGameChatManager {
     }
 
     @Override
-    public Set<LGGameChatChannel> getChannels() {
+    public Set<LGChatChannel> getChannels() {
         return channels;
+    }
+
+    @Override
+    public LGGameOrchestrator gameOrchestrator() {
+        return orchestrator;
     }
 }

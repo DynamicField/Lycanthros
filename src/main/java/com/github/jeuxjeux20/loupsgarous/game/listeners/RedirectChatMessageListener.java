@@ -4,7 +4,6 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
-import com.github.jeuxjeux20.loupsgarous.game.chat.LGGameChatManager;
 import com.google.inject.Inject;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,12 +13,10 @@ import java.util.Optional;
 
 public class RedirectChatMessageListener implements Listener {
     private final LGGameManager gameManager;
-    private final LGGameChatManager chatManager;
 
     @Inject
-    RedirectChatMessageListener(LGGameManager gameManager, LGGameChatManager chatManager) {
+    RedirectChatMessageListener(LGGameManager gameManager) {
         this.gameManager = gameManager;
-        this.chatManager = chatManager;
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -31,6 +28,6 @@ public class RedirectChatMessageListener implements Listener {
         LGGameOrchestrator orchestrator = playerAndGame.get().getOrchestrator();
 
         event.setCancelled(true);
-        chatManager.redirectMessage(sender, event.getMessage(), orchestrator);
+        orchestrator.chat().redirectMessage(sender, event.getMessage());
     }
 }

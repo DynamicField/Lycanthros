@@ -1,9 +1,14 @@
 package com.github.jeuxjeux20.loupsgarous.game.chat;
 
+import com.google.inject.assistedinject.FactoryModuleBuilder;
+
 public final class LGChatModule extends ChatChannelsModule {
     @Override
     protected void configureBindings() {
-        bind(LGGameChatManager.class).to(DefaultLGGameChatManager.class);
+        install(new FactoryModuleBuilder()
+                .implement(LGChatManager.class, MinecraftLGChatManager.class)
+                .build(LGChatManager.Factory.class));
+
         bind(AnonymizedNamesProvider.class).to(RandomAnonymizedNamesProvider.class);
     }
 
@@ -12,7 +17,7 @@ public final class LGChatModule extends ChatChannelsModule {
         addChatChannel(DayChatChannel.class);
         addChatChannel(DeadChatChannel.class);
         addChatChannel(LoupsGarousChatChannel.class);
-        addChatChannel(OutOfGameChatChannel.class);
+        addChatChannel(OutOfChatChannel.class);
         addChatChannel(LoupsGarousVoteChatChannel.class);
     }
 }

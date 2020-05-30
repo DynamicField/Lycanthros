@@ -10,6 +10,9 @@ commands:
     usage: /lgstart
     description: Commence une partie de loups-garous.
     permission: loupsgarous.game.start
+  lgquit:
+    usage: /lgquit
+    description: Quitte une partie de loups-garous.
   lgvote:
     usage: /lgvote <personne>
     description: Vote pour une personne.

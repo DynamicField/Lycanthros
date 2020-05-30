@@ -3,7 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game.chat;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 
-public interface LGGameChatChannel {
+public interface LGChatChannel {
     String getName();
 
     boolean isNameDisplayed();

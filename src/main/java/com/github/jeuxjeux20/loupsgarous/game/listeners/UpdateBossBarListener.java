@@ -26,8 +26,8 @@ public class UpdateBossBarListener implements Listener {
         updateBossBar(event.getStage(), event.getOrchestrator());
     }
 
-    @EventHandler
-    public void onLGStageChanged(LGStageChangeEvent event) {
+    @EventHandler(ignoreCancelled = true)
+    public void onLGStageChange(LGStageChangeEvent event) {
         updateBossBar(event.getStage(), event.getOrchestrator());
     }
 

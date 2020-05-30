@@ -8,7 +8,6 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.game.cards.CupidonCard;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
-import com.github.jeuxjeux20.loupsgarous.util.CompletableFutureUtils;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.bukkit.boss.BarColor;
@@ -20,7 +19,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
-import static com.github.jeuxjeux20.loupsgarous.util.CompletableFutureUtils.returnOriginal;
 
 public class CupidonCoupleStage extends AsyncLGGameStage implements CountdownTimedStage {
     private final Random random;
@@ -47,7 +45,7 @@ public class CupidonCoupleStage extends AsyncLGGameStage implements CountdownTim
     public CompletableFuture<Void> run() {
         getEligibleCupidons().forEach(this::sendTipNotification);
 
-        return returnOriginal(countdown.start(), f -> f.thenRun(this::createRandomCouples));
+        return cancelRoot(countdown.start(), f -> f.thenRun(this::createRandomCouples));
     }
 
     private void createRandomCouples() {

@@ -1,27 +1,26 @@
-package com.github.jeuxjeux20.loupsgarous.game.commands;
+package com.github.jeuxjeux20.loupsgarous.commands;
 
 import com.github.jeuxjeux20.guicybukkit.command.AnnotatedCommandConfigurator;
 import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.loupsgarous.LGMessages;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.util.CompositionFormatUtil;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
+import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.banner;
-
-@CommandName("lgcomposition")
-public class LGCompositionCommand implements AnnotatedCommandConfigurator {
+@CommandName("lgquit")
+public final class LGQuitCommand implements AnnotatedCommandConfigurator {
     private final LGGameManager gameManager;
 
     @Inject
-    LGCompositionCommand(LGGameManager gameManager) {
+    LGQuitCommand(LGGameManager gameManager) {
         this.gameManager = gameManager;
     }
 
@@ -35,12 +34,16 @@ public class LGCompositionCommand implements AnnotatedCommandConfigurator {
                         c.reply(LGMessages.NOT_IN_GAME);
                         return;
                     }
+
                     LGGameOrchestrator orchestrator = game.get().getOrchestrator();
+                    LGPlayer player = game.get().getPlayer();
 
-                    String message = banner("Composition") + '\n' +
-                                     CompositionFormatUtil.format(orchestrator.getCurrentComposition());
-
-                    c.reply(message);
+                    if (!orchestrator.lobby().removePlayer(player)) {
+                        c.reply(ChatColor.RED + "Impossible de quitter la partie.");
+                    }
+                    else {
+                        c.reply(ChatColor.GREEN + "Vous avez quitté la partie.");
+                    }
                 })
                 .register(getCommandName());
     }

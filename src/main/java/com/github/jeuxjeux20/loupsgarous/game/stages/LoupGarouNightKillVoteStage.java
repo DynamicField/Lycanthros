@@ -1,13 +1,11 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.game.*;
-import com.github.jeuxjeux20.loupsgarous.game.chat.LGGameChatChannel;
-import com.github.jeuxjeux20.loupsgarous.game.chat.LGGameChatManager;
+import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LoupsGarousVoteChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.killreasons.NightKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
-import com.github.jeuxjeux20.loupsgarous.util.CompletableFutureUtils;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.bukkit.ChatColor;
@@ -18,23 +16,19 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
-import static com.github.jeuxjeux20.loupsgarous.util.CompletableFutureUtils.returnOriginal;
 
 public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Votable, CountdownTimedStage {
     private final VoteState currentState;
     private final TickEventCountdown countdown;
 
-    private final LGGameChatManager chatManager;
-    private final LoupsGarousVoteChatChannel loupsGarousVoteChatChannel;
+    private final LoupsGarousVoteChatChannel voteChannel;
 
     @Inject
     LoupGarouNightKillVoteStage(@Assisted LGGameOrchestrator orchestrator,
-                                LGGameChatManager chatManager,
-                                LoupsGarousVoteChatChannel loupsGarousVoteChatChannel) {
+                                LoupsGarousVoteChatChannel voteChannel) {
         super(orchestrator);
 
-        this.chatManager = chatManager;
-        this.loupsGarousVoteChatChannel = loupsGarousVoteChatChannel;
+        this.voteChannel = voteChannel;
 
         currentState = createVoteState();
         countdown = new TickEventCountdown(this, 10);
@@ -47,7 +41,7 @@ public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Vot
 
     @Override
     public CompletableFuture<Void> run() {
-        return returnOriginal(countdown.start(), f -> f.thenRun(this::computeVoteOutcome));
+        return cancelRoot(countdown.start(), f -> f.thenRun(this::computeVoteOutcome));
     }
 
     @NotNull
@@ -66,14 +60,14 @@ public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Vot
         LGPlayer playerWithMostVotes = currentState.getPlayerWithMostVotes();
         if (playerWithMostVotes != null) {
             orchestrator.getPendingKills().add(LGKill.of(playerWithMostVotes, NightKillReason::new));
-            chatManager.sendMessage(loupsGarousVoteChatChannel,
+            orchestrator.chat().sendMessage(voteChannel,
                     ChatColor.AQUA + "Les loups ont décidé de tuer " +
-                    player(playerWithMostVotes.getName()) + ChatColor.AQUA + ".",
-                    orchestrator);
+                    player(playerWithMostVotes.getName()) + ChatColor.AQUA + "."
+            );
         } else {
-            chatManager.sendMessage(loupsGarousVoteChatChannel,
-                    ChatColor.AQUA + "Les loups n'ont pas pu se décider !",
-                    orchestrator);
+            orchestrator.chat().sendMessage(voteChannel,
+                    ChatColor.AQUA + "Les loups n'ont pas pu se décider !"
+            );
         }
     }
 
@@ -102,8 +96,8 @@ public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Vot
     }
 
     @Override
-    public LGGameChatChannel getInfoMessagesChannel() {
-        return loupsGarousVoteChatChannel;
+    public LGChatChannel getInfoMessagesChannel() {
+        return voteChannel;
     }
 
     @Override
