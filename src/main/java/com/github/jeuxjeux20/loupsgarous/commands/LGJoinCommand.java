@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.commands;
 
 import com.github.jeuxjeux20.guicybukkit.command.AnnotatedCommandConfigurator;
 import com.github.jeuxjeux20.guicybukkit.command.CommandName;
+import com.github.jeuxjeux20.loupsgarous.LGMessages;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.inject.Inject;
@@ -30,9 +31,8 @@ public class LGJoinCommand implements AnnotatedCommandConfigurator {
                 .assertPlayer()
                 .handler(c -> {
                     Optional<LGGameOrchestrator> maybeGame = c.arg(0).value().flatMap(gameManager::getGameById);
-
                     if (!maybeGame.isPresent()) {
-                        c.reply("&cImpossible de trouver la partie.");
+                        c.reply("&cCette partie n'existe pas.");
                         return;
                     }
 

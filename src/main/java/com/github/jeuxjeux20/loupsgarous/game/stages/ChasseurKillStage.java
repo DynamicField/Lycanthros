@@ -7,8 +7,8 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.ChasseurCard;
 import com.github.jeuxjeux20.loupsgarous.game.killreasons.ChasseurKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Killable;
+import com.github.jeuxjeux20.loupsgarous.game.winconditions.PostponesWinConditions;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
-import com.github.jeuxjeux20.loupsgarous.util.CompletableFutureUtils;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.jetbrains.annotations.NotNull;
@@ -19,8 +19,8 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.importantTip;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
-import static com.github.jeuxjeux20.loupsgarous.util.CompletableFutureUtils.returnOriginal;
 
+@PostponesWinConditions
 public class ChasseurKillStage extends AsyncLGGameStage implements CountdownTimedStage, Killable {
     private final LGPlayer chasseur;
     private final TickEventCountdown countdown;
@@ -44,7 +44,7 @@ public class ChasseurKillStage extends AsyncLGGameStage implements CountdownTime
             LGSoundStuff.ding(player);
         });
 
-        return returnOriginal(countdown.start(), f -> f.thenRun(this::sendInfoMessage));
+        return cancelRoot(countdown.start(), f -> f.thenRun(this::sendInfoMessage));
     }
 
     @NotNull

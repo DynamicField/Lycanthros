@@ -26,6 +26,7 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     private @Nullable ListIterator<AsyncLGGameStage.Factory<?>> stageIterator = null;
     private @Nullable AsyncLGGameStage currentStage = null;
     private @Nullable CompletableFuture<Void> currentStageFuture = null;
+    private @Nullable LGStageChangeEvent currentStageEvent = null;
     private final AsyncLGGameStage.Factory<GameStartStage> gameStartStageFactory;
     private final AsyncLGGameStage.Factory<GameEndStage> gameEndStageFactory;
     private final Logger logger;
@@ -57,8 +58,6 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
 
     @Override
     public void next() {
-        if (currentStageFuture != null && !currentStageFuture.isDone()) currentStageFuture.cancel(true);
-
         if (callSpecialStages()) return;
 
         if (stageFactories.size() == 0)
@@ -109,10 +108,32 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     }
 
     private CompletionStage<Void> updateAndRunCurrentStage(AsyncLGGameStage stage) {
+        CompletableFuture<Void> lastFuture = this.currentStageFuture;
+        LGStageChangeEvent lastEvent = this.currentStageEvent;
+
+        LGStageChangeEvent event = new LGStageChangeEvent(gameOrchestrator, stage);
+        currentStageEvent = event;
+
+        gameOrchestrator.callEvent(event);
+
+        if (event.isCancelled()) {
+            // Some listeners cancelled the event
+            // or changed the stage, don't run the initial one,
+            // and return a cancelled future.
+            CompletableFuture<Void> future = new CompletableFuture<>();
+            future.cancel(true);
+            return future;
+        }
+
+        // Cancel the previous stage stuff before running the new one
+        if (lastFuture != null && !lastFuture.isDone()) lastFuture.cancel(true);
+        if (lastEvent != null) lastEvent.setCancelled(true);
+
         currentStage = stage;
-        gameOrchestrator.callEvent(new LGStageChangeEvent(gameOrchestrator, stage));
+
         CompletableFuture<Void> future = stage.run();
         currentStageFuture = future;
+
         return future.exceptionally(ex -> {
             // We cancelled it, no need to log.
             if (!(ex instanceof CancellationException)) {

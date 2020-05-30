@@ -8,7 +8,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,10 +17,6 @@ public class MutableComposition implements Composition {
 
     public MutableComposition(Composition composition) {
         this(composition.getPlayerCount(), composition.getCards());
-    }
-
-    public MutableComposition(int playerCount) {
-        this(playerCount, Collections.emptyList());
     }
 
     public MutableComposition(int playerCount, List<LGCard> cards) {
@@ -54,18 +49,6 @@ public class MutableComposition implements Composition {
         if (playerCount < 1) {
             throw new IllegalPlayerCountException("Nombre minimum de joueurs atteint.");
         }
-    }
-
-    public final void addPlayer() throws IllegalPlayerCountException {
-        setPlayerCount(playerCount);
-        adaptCompositionSize();
-        onChange();
-    }
-
-    public final void removePlayer() throws IllegalPlayerCountException {
-        setPlayerCount(playerCount - 1);
-        adaptCompositionSize();
-        onChange();
     }
 
     // Cards

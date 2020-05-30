@@ -37,7 +37,7 @@ public class LGCoupleCommand implements AnnotatedCommandConfigurator {
                 .handler(c -> {
                     Optional<LGPlayerAndGame> maybeGame = gameManager.getPlayerInGame(c.sender());
                     if (!maybeGame.isPresent()) {
-                        c.reply("&cVous n'êtes pas en partie.");
+                        c.reply(LGMessages.NOT_IN_GAME);
                         return;
                     }
                     LGGameOrchestrator orchestrator = maybeGame.get().getOrchestrator();

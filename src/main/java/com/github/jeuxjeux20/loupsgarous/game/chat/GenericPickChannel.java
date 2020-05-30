@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.PickableProvider;
 
-public class GenericPickChannel<T extends PickableProvider> implements LGGameChatChannel {
+public class GenericPickChannel<T extends PickableProvider> implements LGChatChannel {
     private final T pickableProvider;
 
     public GenericPickChannel(T pickableProvider) {

@@ -54,6 +54,14 @@ public final class LGChatStuff {
         return ChatColor.RED + text;
     }
 
+    public static String lobbyMessage(String text) {
+        return ChatColor.WHITE + text;
+    }
+
+    public static String slots(String text) {
+        return ChatColor.AQUA + text;
+    }
+
     public static String importantInfo(String text) {
         return ChatColor.GOLD + ChatColor.BOLD.toString() + RIGHT_ARROWHEAD_SYMBOL + ' ' + text; // Arrow
     }

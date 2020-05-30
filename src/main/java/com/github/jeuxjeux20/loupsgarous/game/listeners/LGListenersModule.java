@@ -13,9 +13,7 @@ public final class LGListenersModule extends ListenersModule {
         addListener(ChasseurKillOnDeathListener.class);
         addListener(PlayerJoinGameListener.class);
         addListener(PlayerDiesOnKillListener.class);
-        addListener(CheckForEveryoneDeadListener.class);
-        addListener(CheckForVillageWinListener.class);
-        addListener(CheckForLoupsGarousWinListener.class);
+        addListener(CheckWinConditionsListener.class);
         addListener(RedirectChatMessageListener.class);
         addListener(KillCoupleOnPartnerDeadListener.class);
         addListener(UpdateBossBarListener.class);

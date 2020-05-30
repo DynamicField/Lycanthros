@@ -32,4 +32,12 @@ public final class LGSoundStuff {
     public static void nah(Player player) {
         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
     }
+
+    /**
+     * The noteblock "pling" sound you have heard at least once while playing on Minecraft servers.
+     * @param player the player to play the sound for
+     */
+    public static void pling(Player player) {
+        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
+    }
 }

@@ -10,7 +10,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 @Singleton
-public class LoupsGarousChatChannel implements LGGameChatChannel, AnonymizedChatChannel {
+public class LoupsGarousChatChannel implements LGChatChannel, AnonymizedChatChannel {
     public static final String[] ANONYMIZED_NAMES = {
             "Loup sympa",
             "Loup bizarre",
@@ -22,7 +22,10 @@ public class LoupsGarousChatChannel implements LGGameChatChannel, AnonymizedChat
             "Loup terrifiant",
             "Loup éco+",
             "Loup gris",
-            "Loup dominant"
+            "Loup dominant",
+            "Loup allemand",
+            "Loup speedrunner",
+            "Mario LOUPdyssey"
     };
 
     private final AnonymizedNamesProvider anonymizedNamesProvider;

@@ -29,14 +29,17 @@ class MinecraftLGGameLobby implements LGGameLobby {
     private final MutableComposition composition;
     private final LobbyTeleporter lobbyTeleporter;
     private Player owner;
+    private final LGGameManager gameManager;
 
     @Inject
     MinecraftLGGameLobby(@Assisted LGGameLobbyInfo lobbyInfo,
                          @Assisted MutableLGGameOrchestrator orchestrator,
-                         LobbyTeleporter.Factory lobbyTeleporterFactory) throws CannotCreateLobbyException {
+                         LobbyTeleporter.Factory lobbyTeleporterFactory,
+                         LGGameManager gameManager) throws CannotCreateLobbyException {
         Preconditions.checkArgument(lobbyInfo.getPlayers().size() <= lobbyInfo.getComposition().getPlayerCount(),
                 "There are more players than the given composition is supposed to have.");
 
+        this.gameManager = gameManager;
         this.orchestrator = orchestrator;
 
         this.owner = lobbyInfo.getOwner();
@@ -63,7 +66,11 @@ class MinecraftLGGameLobby implements LGGameLobby {
 
     @Override
     public boolean addPlayer(Player player) {
-        if (!player.isOnline() || !canAddPlayer()) return false;
+        // The LGGameManager approach works well for now
+        // but it will cause issues with BungeeCord support.
+        if (!player.isOnline() || !canAddPlayer() || gameManager.getPlayerInGame(player).isPresent()) {
+            return false;
+        }
 
         MutableLGPlayer lgPlayer = new MutableLGPlayer(player);
 

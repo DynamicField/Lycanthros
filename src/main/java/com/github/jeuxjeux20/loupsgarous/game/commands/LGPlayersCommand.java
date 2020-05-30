@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.commands;
 
 import com.github.jeuxjeux20.guicybukkit.command.AnnotatedCommandConfigurator;
 import com.github.jeuxjeux20.guicybukkit.command.CommandName;
+import com.github.jeuxjeux20.loupsgarous.LGMessages;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
@@ -34,7 +35,7 @@ public class LGPlayersCommand implements AnnotatedCommandConfigurator {
                 .handler(c -> {
                     Optional<LGPlayerAndGame> game = gameManager.getPlayerInGame(c.sender());
                     if (!game.isPresent()) {
-                        c.reply("&cVous n'êtes pas en partie.");
+                        c.reply(LGMessages.NOT_IN_GAME);
                         return;
                     }
                     Set<LGPlayer> players = game.get().getOrchestrator().getGame().getPlayers();

@@ -3,7 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game.chat;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 
-public final class OutOfGameChatChannel implements LGGameChatChannel {
+public final class OutOfChatChannel implements LGChatChannel {
     @Override
     public String getName() {
         return "Chat";

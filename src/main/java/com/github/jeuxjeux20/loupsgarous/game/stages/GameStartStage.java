@@ -1,11 +1,13 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
+import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -37,22 +39,21 @@ public class GameStartStage extends AsyncLGGameStage implements CountdownTimedSt
 
     private class GameStartCountdown extends Countdown {
         public GameStartCountdown() {
-            super(orchestrator.getPlugin(), 5);
+            super(orchestrator.getPlugin(), 15);
         }
 
         @Override
         protected void onTick() {
             if (orchestrator.getState() != LGGameState.READY_TO_START) {
                 setTimer(getBiggestTimerValue());
-                return;
+            } else if (getTimer() != 0 && getTimer() < 5) {
+                orchestrator.getAllMinecraftPlayers().forEach(this::displayCountdown);
             }
+        }
 
-            if (getTimer() == 0) return;
-
-            String message = ChatColor.BLUE + "La partie va commencer dans " +
-                             ChatColor.YELLOW + getTimer() +
-                             ChatColor.BLUE + " secondes.";
-            orchestrator.sendToEveryone(message);
+        private void displayCountdown(Player player) {
+            player.sendTitle(ChatColor.YELLOW + String.valueOf(getTimer()), null, 3, 15, 3);
+            LGSoundStuff.pling(player);
         }
     }
 }

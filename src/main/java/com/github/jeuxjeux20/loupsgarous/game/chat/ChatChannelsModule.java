@@ -7,7 +7,7 @@ import com.google.inject.multibindings.Multibinder;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class ChatChannelsModule extends AbstractModule {
-    private @Nullable Multibinder<LGGameChatChannel> chatChannelBinder;
+    private @Nullable Multibinder<LGChatChannel> chatChannelBinder;
 
     @Override
     protected final void configure() {
@@ -22,16 +22,16 @@ public abstract class ChatChannelsModule extends AbstractModule {
     }
 
     private void actualConfigureChatChannels() {
-        chatChannelBinder = Multibinder.newSetBinder(binder(), LGGameChatChannel.class);
+        chatChannelBinder = Multibinder.newSetBinder(binder(), LGChatChannel.class);
 
         configureChatChannels();
     }
 
-    protected final void addChatChannel(Class<? extends LGGameChatChannel> chatChannel) {
+    protected final void addChatChannel(Class<? extends LGChatChannel> chatChannel) {
         addChatChannel(TypeLiteral.get(chatChannel));
     }
 
-    protected final void addChatChannel(TypeLiteral<? extends LGGameChatChannel> chatChannel) {
+    protected final void addChatChannel(TypeLiteral<? extends LGChatChannel> chatChannel) {
         Preconditions.checkState(chatChannelBinder != null, "addChatChannel can only be used inside configureChatChannels()");
 
         chatChannelBinder.addBinding().to(chatChannel);

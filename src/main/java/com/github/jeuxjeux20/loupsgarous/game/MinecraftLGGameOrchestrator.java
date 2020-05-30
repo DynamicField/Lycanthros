@@ -3,6 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game;
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.chat.AnonymizedChatChannel;
+import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatManager;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.events.*;
 import com.github.jeuxjeux20.loupsgarous.game.events.lobby.LGLobbyCompositionChangeEvent;
@@ -25,6 +26,7 @@ import me.lucko.helper.Schedulers;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
 import me.lucko.helper.terminable.module.TerminableModule;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -36,6 +38,7 @@ import java.util.*;
 import java.util.function.*;
 import java.util.stream.Collectors;
 
+import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 import static com.github.jeuxjeux20.loupsgarous.game.MinecraftLGGameOrchestrator.FunctionalEventAdapters.consumer;
 import static com.github.jeuxjeux20.loupsgarous.game.MinecraftLGGameOrchestrator.FunctionalEventAdapters.predicate;
 import static com.github.jeuxjeux20.loupsgarous.game.MinecraftLGGameOrchestrator.OrchestratorState.*;
@@ -70,6 +73,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     private final LGGameLobby lobby;
     private final LGCardsOrchestrator cardOrchestrator;
     private final LGStagesOrchestrator stagesOrchestrator;
+    private final LGChatManager chatManager;
     // UI & All
     private final LGActionBarManager actionBarManager;
 
@@ -78,6 +82,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
                                 LoupsGarous plugin,
                                 LGActionBarManager actionBarManager,
                                 LGScoreboardManager scoreboardManager,
+                                LGChatManager.Factory chatManagerFactory,
                                 LGGameLobby.Factory lobbyFactory,
                                 LGCardsOrchestrator.Factory cardOrchestratorFactory,
                                 LGStagesOrchestrator.Factory stagesOrchestratorFactory) throws CannotCreateLobbyException {
@@ -89,6 +94,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         this.lobby = lobbyFactory.create(lobbyInfo, this);
         this.cardOrchestrator = cardOrchestratorFactory.create(this);
         this.stagesOrchestrator = stagesOrchestratorFactory.create(this);
+        this.chatManager = chatManagerFactory.create(this);
 
         this.bind(Schedulers.sync().runRepeating(this::updateActionBars, 20, 20));
         scoreboardManager.registerEvents();
@@ -248,7 +254,8 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     }
 
     private void handlePlayerJoin(LGPlayerJoinEvent event) {
-        sendToEveryone(event.getPlayer().getName() + " a rejoint la partie ! " + lobby.getSlotsDisplay());
+        sendToEveryone(player(event.getPlayer().getName()) + lobbyMessage(" a rejoint la partie ! ") +
+                       slots(lobby.getSlotsDisplay()));
     }
 
     private void handlePlayerQuit(LGPlayerQuitEvent e) {
@@ -256,8 +263,9 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
         if (isGameRunning()) {
             killInstantly(LGKill.of(e.getLGPlayer(), PlayerQuitKillReason::new));
-        } else {
-            sendToEveryone(offlinePlayer.getName() + " a quitté la partie ! " + lobby.getSlotsDisplay());
+        } else if (state.isEnabled()) { // Let's not write quit messages while deleting.
+            sendToEveryone(player(offlinePlayer.getName()) + lobbyMessage(" a quitté la partie ! ") +
+                           slots(lobby.getSlotsDisplay()));
         }
 
         // Are they all gone?
@@ -278,6 +286,11 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     @Override
     public HashMap<AnonymizedChatChannel, List<String>> getAnonymizedNames() {
         return anonymizedNames;
+    }
+
+    @Override
+    public LGChatManager chat() {
+        return chatManager;
     }
 
     @Override

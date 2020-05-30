@@ -66,7 +66,7 @@ public final class PickableCommandBuilder<T extends PickableProvider> {
         return c -> {
             Optional<LGPlayerAndGame> game = gameManager.getPlayerInGame(c.sender());
             if (!game.isPresent()) {
-                c.reply("&cVous n'êtes pas en partie.");
+                c.reply(LGMessages.NOT_IN_GAME);
                 return;
             }
 
