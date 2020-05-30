@@ -8,9 +8,11 @@ public interface LGGameChatChannel {
 
     boolean isNameDisplayed();
 
-    // This thing just feels weird for implementors, so it's disabled.
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean canBeUsedByPlayer(LGGameOrchestrator orchestrator);
+
+    default boolean cannotBeUsedByPlayer(LGGameOrchestrator orchestrator) {
+        return !canBeUsedByPlayer(orchestrator);
+    }
 
     boolean areMessagesVisibleTo(LGPlayer recipient, LGGameOrchestrator orchestrator);
 

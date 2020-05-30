@@ -26,7 +26,7 @@ public interface LGGameChatManager {
     default Set<LGGameChatChannel> getVisibleChannels(LGPlayer recipient, LGGameOrchestrator orchestrator) {
         HashSet<LGGameChatChannel> channels = new HashSet<>();
         for (LGGameChatChannel channel : getChannels()) {
-            if (!channel.canBeUsedByPlayer(orchestrator)) continue;
+            if (channel.cannotBeUsedByPlayer(orchestrator)) continue;
 
             if (channel.areMessagesVisibleTo(recipient, orchestrator)) {
                 channels.add(channel);
@@ -38,7 +38,7 @@ public interface LGGameChatManager {
     default Set<LGGameChatChannel> getWritableChannels(LGPlayer sender, LGGameOrchestrator orchestrator) {
         HashSet<LGGameChatChannel> channels = new HashSet<>();
         for (LGGameChatChannel channel : getChannels()) {
-            if (!channel.canBeUsedByPlayer(orchestrator)) continue;
+            if (channel.cannotBeUsedByPlayer(orchestrator)) continue;
 
             if (channel.canTalk(sender, orchestrator)) {
                 channels.add(channel);
