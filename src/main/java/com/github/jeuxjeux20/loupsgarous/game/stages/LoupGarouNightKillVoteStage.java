@@ -17,8 +17,10 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
-public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Votable, CountdownTimedStage {
+@MajorityVoteShortensCountdown(timeLeft = 10)
+public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Votable, DualCountdownStage {
     private final VoteState currentState;
+    private final Countdown unmodifiedCountdown;
     private final TickEventCountdown countdown;
 
     private final LoupsGarousVoteChatChannel voteChannel;
@@ -31,7 +33,8 @@ public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Vot
         this.voteChannel = voteChannel;
 
         currentState = createVoteState();
-        countdown = new TickEventCountdown(this, 10);
+        unmodifiedCountdown = new Countdown(orchestrator.getPlugin(), 30);
+        countdown = new TickEventCountdown(this, unmodifiedCountdown.getTimer());
     }
 
     @Override
@@ -41,6 +44,7 @@ public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Vot
 
     @Override
     public CompletableFuture<Void> run() {
+        unmodifiedCountdown.start();
         return cancelRoot(countdown.start(), f -> f.thenRun(this::computeVoteOutcome));
     }
 
@@ -103,5 +107,10 @@ public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Vot
     @Override
     public String getIndicator() {
         return "vote pour tuer";
+    }
+
+    @Override
+    public Countdown getUnmodifiedCountdown() {
+        return unmodifiedCountdown;
     }
 }

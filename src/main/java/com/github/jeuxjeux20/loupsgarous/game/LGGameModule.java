@@ -7,11 +7,12 @@ import com.github.jeuxjeux20.loupsgarous.game.listeners.LGListenersModule;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobbyModule;
 import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardModule;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesModule;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeamsModule;
 import com.github.jeuxjeux20.loupsgarous.game.winconditions.LGWinConditionsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 
-public final class LoupsGarousGameModule extends AbstractModule {
+public final class LGGameModule extends AbstractModule {
     @Override
     protected void configure() {
         install(new LGCardsModule());
@@ -22,6 +23,7 @@ public final class LoupsGarousGameModule extends AbstractModule {
         install(new LGScoreboardModule());
         install(new LGLobbyModule());
         install(new LGWinConditionsModule());
+        install(new LGTeamsModule());
 
         bind(LGGameManager.class).to(MinecraftLGGameManager.class);
 

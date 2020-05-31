@@ -9,6 +9,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
 import com.github.jeuxjeux20.loupsgarous.game.stages.CupidonCoupleStage;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
+import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
 import org.bukkit.command.PluginCommand;
@@ -46,18 +47,21 @@ public class LGCoupleCommand implements AnnotatedCommandConfigurator {
                     String partner1Name = c.arg(0).value().orElseThrow(AssertionError::new);
                     String partner2Name = c.arg(1).value().orElseThrow(AssertionError::new);
 
-                    AtomicReference<Optional<Check>> check = new AtomicReference<>();
+                    Optional<SafeResult<CupidonCoupleStage>> maybeStage = orchestrator.stages().current()
+                            .getSafeComponent(CupidonCoupleStage.class, x -> x.canPlayerCreateCouple(player));
 
-                    Optional<CupidonCoupleStage> maybeCoupleStage = orchestrator.stages().current()
-                            .getComponent(CupidonCoupleStage.class, x -> x.canPlayerCreateCouple(player), check);
+                    CupidonCoupleStage coupleStage = maybeStage
+                            .flatMap(SafeResult::getValueOptional)
+                            .orElse(null);
 
-                    if (!maybeCoupleStage.isPresent()) {
-                        String errorMessage = check.get().map(Check::getErrorMessage).orElse("Ce n'est pas l'heure !");
+                    if (coupleStage == null) {
+                        String errorMessage = maybeStage
+                                .flatMap(SafeResult::getErrorMessageOptional)
+                                .orElse("Ce n'est pas l'heure !");
+
                         c.reply(error(errorMessage));
                         return;
                     }
-
-                    CupidonCoupleStage coupleStage = maybeCoupleStage.get();
 
                     createCouple(partner1Name, partner2Name, orchestrator, c.sender()).ifPresent(couple -> {
                         if (coupleStage.canCreateCouple(player, couple).sendMessageOnError(c.sender()))

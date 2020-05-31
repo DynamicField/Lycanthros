@@ -1,7 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.annotations.Unique;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import me.lucko.helper.item.ItemStackBuilder;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -10,10 +12,15 @@ import org.bukkit.block.banner.PatternType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Unique
 public final class VoyanteCard extends MutableLGCard {
+    private final Set<LGPlayer> playersSaw = new HashSet<>();
+
     @Override
-    protected String getMainTeam() {
+    protected LGTeam getMainTeam() {
         return LGTeams.VILLAGEOIS;
     }
 
@@ -47,5 +54,9 @@ public final class VoyanteCard extends MutableLGCard {
                     bannerMeta.addPattern(new Pattern(DyeColor.PURPLE, PatternType.GRADIENT_UP));
                     bannerMeta.addPattern(new Pattern(DyeColor.PINK, PatternType.FLOWER));
                 }).build();
+    }
+
+    public Set<LGPlayer> getPlayersSaw() {
+        return playersSaw;
     }
 }

@@ -3,15 +3,16 @@ package com.github.jeuxjeux20.loupsgarous.game.winconditions;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 
 import java.util.Optional;
 import java.util.function.Supplier;
 
 public class OnlyAliveTeamWinCondition implements WinCondition {
-    private final String team;
+    private final LGTeam team;
     private final Supplier<LGEnding> endingSupplier;
 
-    public OnlyAliveTeamWinCondition(String team, Supplier<LGEnding> endingSupplier) {
+    public OnlyAliveTeamWinCondition(LGTeam team, Supplier<LGEnding> endingSupplier) {
         this.team = team;
         this.endingSupplier = endingSupplier;
     }

@@ -9,7 +9,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGGameStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Pickable;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.PickableProvider;
-import com.github.jeuxjeux20.loupsgarous.util.Check;
+import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.google.inject.Inject;
 import com.google.inject.TypeLiteral;
 import me.lucko.helper.Commands;
@@ -31,7 +31,6 @@ import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -76,14 +75,17 @@ public final class PickableCommandBuilder<T extends PickableProvider> {
 
             String targetName = c.arg(0).value().orElseThrow(AssertionError::new);
 
-            AtomicReference<Optional<Check>> check = new AtomicReference<>();
+            Optional<SafeResult<T>> maybePickable
+                    = stage.getSafeComponent(pickableClass, x -> x.providePickable().canPlayerPick(lgPlayer));
 
-            Pickable pickable =
-                    stage.getComponent(pickableClass, x -> x.providePickable().canPlayerPick(lgPlayer), check)
-                            .map(PickableProvider::providePickable).orElse(null);
+            String errorMessage = maybePickable
+                    .flatMap(SafeResult::getErrorMessageOptional)
+                    .orElse(cannotPickErrorMessage);
 
-            String errorMessage =
-                    check.get().map(Check::getErrorMessage).orElse(cannotPickErrorMessage);
+            Pickable pickable = maybePickable
+                    .flatMap(SafeResult::getValueOptional)
+                    .map(PickableProvider::providePickable)
+                    .orElse(null);
 
             if (pickable == null) {
                 c.sender().sendMessage(ChatColor.RED + errorMessage);

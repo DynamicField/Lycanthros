@@ -6,7 +6,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.concurrent.CompletableFuture;
 
-public abstract class Countdown {
+public class Countdown {
     protected final Plugin plugin;
     private final CompletableFuture<Void> future = new CompletableFuture<>();
     private int countdownTaskId = -1;
@@ -47,7 +47,7 @@ public abstract class Countdown {
             onTick();
             if (timer == 0) {
                 complete(false);
-            } else if (!timerChanged) {
+            } else if (!timerChanged) {  // Do not decrement the timer if it has changed in onTick()
                 timer--;
             }
         }, 0L, 20L);
@@ -63,7 +63,7 @@ public abstract class Countdown {
         }
     }
 
-    protected abstract void onTick();
+    protected void onTick() {}
 
     public int getTimer() {
         return timer;
@@ -78,7 +78,7 @@ public abstract class Countdown {
             return;
         }
 
-        if (this.timer < timer) biggestTimerValue = timer;
+        if (this.biggestTimerValue < timer) biggestTimerValue = timer;
 
         this.timer = timer;
         timerChanged = true;

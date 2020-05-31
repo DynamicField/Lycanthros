@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.function.*;
 
 /**
@@ -49,6 +50,10 @@ public final class Check {
     public @NotNull String getErrorMessage() {
         Preconditions.checkState(!success, "The operation must not be successful.");
         return errorMessage;
+    }
+
+    public Optional<String> getErrorMessageOptional() {
+        return Optional.ofNullable(errorMessage);
     }
 
     public void ifSuccess(Runnable runnable) {

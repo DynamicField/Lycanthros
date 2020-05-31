@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.cards;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.ChatColor;
 
@@ -19,7 +20,7 @@ public abstract class MutableLGCard implements LGCard {
     protected final ChatColor LOUPS_GAROUS_COLOR = ChatColor.RED;
     protected final ChatColor VILLAGEOIS_COLOR = ChatColor.DARK_AQUA;
     protected final ChatColor GRAY_AREA_COLOR = ChatColor.DARK_PURPLE;
-    protected final Set<String> teams = new HashSet<>();
+    protected final Set<LGTeam> teams = new HashSet<>();
     protected final Set<String> tags = new HashSet<>();
 
     public MutableLGCard() {
@@ -27,13 +28,13 @@ public abstract class MutableLGCard implements LGCard {
     }
 
     @Override
-    public final ImmutableSet<String> getTeams() {
+    public final ImmutableSet<LGTeam> getTeams() {
         return ImmutableSet.copyOf(teams);
     }
 
-    protected abstract String getMainTeam();
+    protected abstract LGTeam getMainTeam();
 
-    public final Set<String> getMutableTeams() {
+    public final Set<LGTeam> getMutableTeams() {
         return teams;
     }
 
@@ -48,9 +49,7 @@ public abstract class MutableLGCard implements LGCard {
 
     @Override
     public ChatColor getColor() {
-        return getMainTeam().equals(LGTeams.VILLAGEOIS) ? VILLAGEOIS_COLOR :
-                getMainTeam().equals(LGTeams.LOUPS_GAROUS) ? LOUPS_GAROUS_COLOR :
-                        GRAY_AREA_COLOR;
+        return getMainTeam().getColor();
     }
 
     @Override

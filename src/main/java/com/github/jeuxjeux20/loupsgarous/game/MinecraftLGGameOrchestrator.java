@@ -26,7 +26,6 @@ import me.lucko.helper.Schedulers;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
 import me.lucko.helper.terminable.module.TerminableModule;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -196,7 +195,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     private void updateLobbyState() {
         ensureState(UNINITIALIZED, WAITING_FOR_PLAYERS, READY_TO_START);
 
-        if (lobby.isFull()) {
+        if (lobby.isFull() && lobby.isCompositionValid()) {
             changeStateTo(READY_TO_START, LGGameReadyToStartEvent::new);
         } else {
             changeStateTo(WAITING_FOR_PLAYERS, LGGameWaitingForPlayersEvent::new);
@@ -261,7 +260,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     private void handlePlayerQuit(LGPlayerQuitEvent e) {
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(e.getPlayerUUID());
 
-        if (isGameRunning()) {
+        if (isGameRunning() && e.getLGPlayer().isAlive()) {
             killInstantly(LGKill.of(e.getLGPlayer(), PlayerQuitKillReason::new));
         } else if (state.isEnabled()) { // Let's not write quit messages while deleting.
             sendToEveryone(player(offlinePlayer.getName()) + lobbyMessage(" a quitté la partie ! ") +

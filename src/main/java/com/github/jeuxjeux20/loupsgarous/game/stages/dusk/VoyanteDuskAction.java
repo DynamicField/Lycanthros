@@ -61,6 +61,9 @@ public class VoyanteDuskAction extends DuskStage.Action implements Lookable {
     public void look(LGPlayer looker, LGPlayer target) {
         playersWhoLooked.add(looker);
 
+        VoyanteCard voyanteCard = (VoyanteCard) looker.getCard();
+        voyanteCard.getPlayersSaw().add(target);
+
         looker.getMinecraftPlayer().ifPresent(player -> {
             player.sendMessage(
                     ChatColor.DARK_PURPLE.toString() + "Votre boule de cristal indique... que " +

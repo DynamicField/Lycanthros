@@ -7,6 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.game.cards.CupidonCard;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -79,7 +80,7 @@ public class CupidonCoupleStage extends AsyncLGGameStage implements CountdownTim
 
         couplePicks.put(cupidon, couple);
 
-        String coupleTeam = LGTeams.newCouple();
+        LGTeam coupleTeam = LGTeams.newCouple();
 
         for (LGPlayer partner : couple.partners) {
             orchestrator.cards().addTeam(partner.getCard(), coupleTeam);

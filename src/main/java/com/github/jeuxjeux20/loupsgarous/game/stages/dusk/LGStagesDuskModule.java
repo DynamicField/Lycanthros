@@ -1,8 +1,26 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages.dusk;
 
-public final class LGStagesDuskModule extends DuskActionsModule {
+import com.github.jeuxjeux20.loupsgarous.game.stages.StagesModule;
+import com.google.inject.AbstractModule;
+
+public final class LGStagesDuskModule extends AbstractModule {
     @Override
-    protected void configureDuskActions() {
-        addDuskAction(VoyanteDuskAction.class);
+    protected void configure() {
+        install(new StageModule());
+        install(new DuskActions());
+    }
+
+    private static final class StageModule extends StagesModule {
+        @Override
+        protected void configureStages() {
+            addStage(DuskStage.class);
+        }
+    }
+
+    private static final class DuskActions extends DuskActionsModule {
+        @Override
+        protected void configureDuskActions() {
+            addDuskAction(VoyanteDuskAction.class);
+        }
     }
 }

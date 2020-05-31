@@ -5,6 +5,6 @@ import com.github.jeuxjeux20.loupsgarous.game.endings.VillageWonEnding;
 
 public final class VillageWinCondition extends OnlyAliveTeamWinCondition {
     public VillageWinCondition() {
-        super(LGTeams.LOUPS_GAROUS, VillageWonEnding::new);
+        super(LGTeams.VILLAGEOIS, VillageWonEnding::new);
     }
 }

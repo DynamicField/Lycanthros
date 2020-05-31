@@ -3,10 +3,10 @@ package com.github.jeuxjeux20.loupsgarous.game.commands;
 import com.github.jeuxjeux20.guicybukkit.command.AnnotatedCommandConfigurator;
 import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.loupsgarous.LGMessages;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
+import com.github.jeuxjeux20.loupsgarous.game.*;
+import com.github.jeuxjeux20.loupsgarous.game.cards.revealers.CardRevealer;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
+import com.github.jeuxjeux20.loupsgarous.game.teams.revealers.TeamRevealer;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
 import org.bukkit.ChatColor;
@@ -22,10 +22,14 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.role;
 @CommandName("lgplayers")
 public class LGPlayersCommand implements AnnotatedCommandConfigurator {
     private final LGGameManager gameManager;
+    private final CardRevealer cardRevealer;
+    private final TeamRevealer teamRevealer;
 
     @Inject
-    LGPlayersCommand(LGGameManager gameManager) {
+    LGPlayersCommand(LGGameManager gameManager, CardRevealer cardRevealer, TeamRevealer teamRevealer) {
         this.gameManager = gameManager;
+        this.cardRevealer = cardRevealer;
+        this.teamRevealer = teamRevealer;
     }
 
     @Override
@@ -38,7 +42,9 @@ public class LGPlayersCommand implements AnnotatedCommandConfigurator {
                         c.reply(LGMessages.NOT_IN_GAME);
                         return;
                     }
-                    Set<LGPlayer> players = game.get().getOrchestrator().getGame().getPlayers();
+                    LGPlayer sender = game.get().getPlayer();
+                    LGGameOrchestrator orchestrator = game.get().getOrchestrator();
+                    Set<LGPlayer> players = orchestrator.getGame().getPlayers();
 
                     StringBuilder messageBuilder = new StringBuilder()
                             .append(banner("Liste des joueurs"))
@@ -56,11 +62,22 @@ public class LGPlayersCommand implements AnnotatedCommandConfigurator {
 
                         messageBuilder.append(ChatColor.DARK_AQUA);
 
-                        if (player.isDead() || game.get().getOrchestrator().getState() == LGGameState.FINISHED)
+                        if (cardRevealer.willReveal(player, sender, orchestrator)) {
                             messageBuilder.append(" (")
-                                    .append(role(player.getCard().getName()))
+                                    .append(player.getCard().getColor())
+                                    .append(player.getCard().getName())
                                     .append(ChatColor.DARK_AQUA)
                                     .append(")");
+                        }
+
+                        for (LGTeam team : teamRevealer.getTeamsRevealed(player, sender, orchestrator)) {
+                            messageBuilder.append(ChatColor.YELLOW)
+                                    .append(" [")
+                                    .append(team.getColor())
+                                    .append(team.getName())
+                                    .append(ChatColor.YELLOW)
+                                    .append("]");
+                        }
 
                         messageBuilder.append('\n');
                     }

@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator.Problem;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.stages.TimedStage;
 import me.lucko.helper.time.DurationFormatter;
@@ -30,40 +31,13 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
         });
     }
 
-    private List<BaseComponent> createTimeComponents(LGGameOrchestrator orchestrator, LGPlayer player) {
-        List<BaseComponent> components = new ArrayList<>();
-
-        if (!orchestrator.lobby().isLocked()) {
-            TextComponent slotsComponent = new TextComponent(orchestrator.lobby().getSlotsDisplay());
-            slotsComponent.setBold(true);
-            slotsComponent.setColor(ChatColor.GREEN);
-
-            components.add(slotsComponent);
-        } else if (orchestrator.getState() == LGGameState.STARTED) {
-            orchestrator.stages().current().getComponent(TimedStage.class).ifPresent(timedStage -> {
-                Duration secondsLeftDuration = Duration.ofSeconds(timedStage.getSecondsLeft());
-                String formattedDuration = DurationFormatter.CONCISE.format(secondsLeftDuration);
-
-                TextComponent timeComponent = new TextComponent(formattedDuration);
-                timeComponent.setBold(true);
-                timeComponent.setColor(ChatColor.GREEN);
-
-                components.add(timeComponent);
-            });
-        }
-
-        return components;
-    }
-
-    private void addHyphen(List<BaseComponent> components) {
-        components.add(new TextComponent(" - "));
-    }
-
     private List<BaseComponent> createStateComponents(LGGameOrchestrator orchestrator, LGPlayer player) {
         List<BaseComponent> components = new ArrayList<>();
 
         if (orchestrator.getState() == LGGameState.WAITING_FOR_PLAYERS) {
             components.add(new TextComponent("En attente"));
+
+            addCompositionProblemComponent(orchestrator, components);
         } else if (orchestrator.getState() == LGGameState.READY_TO_START) {
             components.add(new TextComponent("Départ dans "));
 
@@ -77,6 +51,8 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
             components.add(numberComponent);
 
             components.add(new TextComponent(" secondes"));
+
+            addCompositionProblemComponent(orchestrator, components);
         } else if (orchestrator.getState() == LGGameState.STARTED) {
             components.add(new TextComponent("Vous êtes : "));
 
@@ -105,6 +81,47 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
         }
 
         return components;
+    }
+
+    private void addCompositionProblemComponent(LGGameOrchestrator orchestrator, List<BaseComponent> components) {
+        if (orchestrator.lobby().getWorseCompositionProblemType() == Problem.Type.IMPOSSIBLE) {
+            TextComponent component = new TextComponent(" (Composition invalide !)");
+            component.setColor(ChatColor.RED);
+            components.add(component);
+        } else if (orchestrator.lobby().getWorseCompositionProblemType() == Problem.Type.RULE_BREAKING) {
+            TextComponent component = new TextComponent(" (Composition contre les règles)");
+            component.setColor(ChatColor.YELLOW);
+            components.add(component);
+        }
+    }
+
+    private List<BaseComponent> createTimeComponents(LGGameOrchestrator orchestrator, LGPlayer player) {
+        List<BaseComponent> components = new ArrayList<>();
+
+        if (!orchestrator.lobby().isLocked()) {
+            TextComponent slotsComponent = new TextComponent(orchestrator.lobby().getSlotsDisplay());
+            slotsComponent.setBold(true);
+            slotsComponent.setColor(ChatColor.GREEN);
+
+            components.add(slotsComponent);
+        } else if (orchestrator.getState() == LGGameState.STARTED) {
+            orchestrator.stages().current().getComponent(TimedStage.class).ifPresent(timedStage -> {
+                Duration secondsLeftDuration = Duration.ofSeconds(timedStage.getSecondsLeft());
+                String formattedDuration = DurationFormatter.CONCISE.format(secondsLeftDuration);
+
+                TextComponent timeComponent = new TextComponent(formattedDuration);
+                timeComponent.setBold(true);
+                timeComponent.setColor(ChatColor.GREEN);
+
+                components.add(timeComponent);
+            });
+        }
+
+        return components;
+    }
+
+    private void addHyphen(List<BaseComponent> components) {
+        components.add(new TextComponent(" - "));
     }
 
     private void renderParts(LGGameOrchestrator orchestrator, List<BaseComponent> components, LGPlayer player,

@@ -5,6 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.IllegalPlayerCountException;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.util.CompositionFormatUtil;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator.Problem;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidatorAggregator;
 import com.github.jeuxjeux20.loupsgarous.util.CollectorUtils;
@@ -51,18 +52,18 @@ public final class CompositionGui extends Gui {
     private final MutableComposition composition;
 
     private final Map<LGCard, Provider<LGCard>> cardsToProvider;
-    private final CompositionValidatorAggregator compositionValidatorAggregator;
+    private final CompositionValidator compositionValidator;
 
     @Inject
     public CompositionGui(@Assisted Player player, @Assisted MutableComposition composition,
                           Collection<Provider<LGCard>> cardProviders,
-                          CompositionValidatorAggregator compositionValidatorAggregator) {
+                          CompositionValidator compositionValidator) {
         super(player, 6, "Composition");
         this.composition = composition;
         this.cardsToProvider = cardProviders.stream()
                 .collect(Collectors.toMap(Provider::get, Function.identity(),
                         CollectorUtils::throwDuplicate, this::createSortedCardsMap));
-        this.compositionValidatorAggregator = compositionValidatorAggregator;
+        this.compositionValidator = compositionValidator;
     }
 
     private <K extends LGCard, V extends Provider<K>> TreeMap<K, V> createSortedCardsMap() {
@@ -98,7 +99,7 @@ public final class CompositionGui extends Gui {
     }
 
     private Map<Problem.Type, List<Problem>> getValidationProblemsPerType() {
-        return compositionValidatorAggregator.validate(composition)
+        return compositionValidator.validate(composition).stream()
                 .collect(Collectors.groupingBy(Problem::getType, TreeMap::new, Collectors.toList()));
     }
 

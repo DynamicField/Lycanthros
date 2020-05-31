@@ -18,7 +18,7 @@ public enum LGGameState {
     }
 
     public boolean isEnabled() {
-        return didNotPass(DELETING);
+        return !isDisabled();
     }
 
     public boolean isDisabled() {

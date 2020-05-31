@@ -2,13 +2,16 @@ package com.github.jeuxjeux20.loupsgarous.commands;
 
 import com.github.jeuxjeux20.guicybukkit.command.AnnotatedCommandConfigurator;
 import com.github.jeuxjeux20.guicybukkit.command.CommandName;
-import com.github.jeuxjeux20.loupsgarous.LGMessages;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
+import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -30,14 +33,23 @@ public class LGJoinCommand implements AnnotatedCommandConfigurator {
                 .assertUsage("<game>", "{usage}")
                 .assertPlayer()
                 .handler(c -> {
-                    Optional<LGGameOrchestrator> maybeGame = c.arg(0).value().flatMap(gameManager::getGameById);
+                    String name = c.arg(0).value().orElseThrow(AssertionError::new);
+
+                    Optional<LGGameOrchestrator> maybeGame = OptionalUtils.or(
+                            () -> gameManager.getGameById(name),
+                            () -> {
+                                Player player = Bukkit.getPlayer(name);
+                                if (player == null) return Optional.empty();
+                                return gameManager.getPlayerInGame(player).map(LGPlayerAndGame::getOrchestrator);
+                            }
+                    );
+
                     if (!maybeGame.isPresent()) {
-                        c.reply("&cCette partie n'existe pas.");
+                        c.reply("&cImpossible de trouver la partie.");
                         return;
                     }
 
-                    LGGameOrchestrator game = maybeGame.get();
-                    if (!game.lobby().addPlayer(c.sender())) {
+                    if (!maybeGame.get().lobby().addPlayer(c.sender())) {
                         c.reply("&cImpossible de rejoindre la partie.");
                     }
                 })

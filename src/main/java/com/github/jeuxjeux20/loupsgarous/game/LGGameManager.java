@@ -4,6 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.Set;
@@ -12,7 +13,11 @@ import java.util.UUID;
 public interface LGGameManager {
     String WORLD_PREFIX = "lg_game_";
 
-    SafeResult<LGGameOrchestrator> startGame(Set<Player> players, Composition composition);
+    SafeResult<LGGameOrchestrator> startGame(Set<Player> players, Composition composition, @Nullable String id);
+
+    default SafeResult<LGGameOrchestrator> startGame(Set<Player> players, Composition composition) {
+        return startGame(players, composition, null);
+    }
 
     ImmutableList<LGGameOrchestrator> getOngoingGames();
 

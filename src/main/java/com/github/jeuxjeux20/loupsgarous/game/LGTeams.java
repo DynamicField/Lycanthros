@@ -1,27 +1,27 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-import java.util.UUID;
+import com.github.jeuxjeux20.loupsgarous.game.teams.CoupleTeam;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LoupsGarousTeam;
+import com.github.jeuxjeux20.loupsgarous.game.teams.VillageoisTeam;
 
 public final class LGTeams {
-    public static final String GRAY_AREA = "GRAY_AREA";
-    public static final String LOUPS_GAROUS = "LOUPS_GAROUS";
-    public static final String VILLAGEOIS = "VILLAGEOIS";
-
-    public static final String COUPLE_PREFIX = "COUPLE_";
+    public static final LGTeam LOUPS_GAROUS = LoupsGarousTeam.INSTANCE;
+    public static final LGTeam VILLAGEOIS = VillageoisTeam.INSTANCE;
 
     private LGTeams() {
     }
 
     /**
-     * Creates a new couple team, using the {@link #COUPLE_PREFIX} and appends a randomly generated {@link UUID}.
+     * Creates a new couple team.
      *
-     * @return the team string of the couple
+     * @return the new couple
      */
-    public static String newCouple() {
-        return COUPLE_PREFIX + UUID.randomUUID();
+    public static CoupleTeam newCouple() {
+        return new CoupleTeam();
     }
 
-    public static boolean isCouple(String team) {
-        return team.startsWith(COUPLE_PREFIX);
+    public static boolean isCouple(LGTeam team) {
+        return team instanceof CoupleTeam;
     }
 }

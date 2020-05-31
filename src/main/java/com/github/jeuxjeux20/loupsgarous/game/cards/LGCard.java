@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.item.ItemStackBuilder;
 import org.bukkit.ChatColor;
@@ -35,7 +36,7 @@ public interface LGCard {
      *
      * @return an immutable set of teams
      */
-    ImmutableSet<String> getTeams();
+    ImmutableSet<LGTeam> getTeams();
 
     /**
      * Gets the tags that this card has
@@ -74,7 +75,7 @@ public interface LGCard {
         }
 
         @Override
-        public ImmutableSet<String> getTeams() {
+        public ImmutableSet<LGTeam> getTeams() {
             return ImmutableSet.of();
         }
 

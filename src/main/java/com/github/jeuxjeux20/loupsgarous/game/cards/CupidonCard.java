@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.cards;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.annotations.Unique;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import me.lucko.helper.item.ItemStackBuilder;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -13,7 +14,7 @@ import org.bukkit.inventory.meta.BannerMeta;
 @Unique
 public final class CupidonCard extends MutableLGCard {
     @Override
-    protected String getMainTeam() {
+    protected LGTeam getMainTeam() {
         return LGTeams.VILLAGEOIS;
     }
 

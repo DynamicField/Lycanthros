@@ -24,7 +24,6 @@ public class SwitchTimeOfDayListener implements Listener {
                             10, 100, 10);
                     player.playSound(player.getLocation(), Sound.ENTITY_WITHER_AMBIENT, SoundCategory.MASTER, 0.5f, 1f);
                     player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 10000, 1));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10000, 2));
                 });
                 break;
             case DAY:

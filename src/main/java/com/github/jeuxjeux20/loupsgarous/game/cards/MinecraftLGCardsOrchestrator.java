@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -18,12 +19,12 @@ class MinecraftLGCardsOrchestrator implements LGCardsOrchestrator {
     }
 
     @Override
-    public boolean addTeam(LGCard card, String team) {
+    public boolean addTeam(LGCard card, LGTeam team) {
         return asMutable(card).getMutableTeams().add(team);
     }
 
     @Override
-    public boolean removeTeam(LGCard card, String team) {
+    public boolean removeTeam(LGCard card, LGTeam team) {
         return asMutable(card).getMutableTeams().remove(team);
     }
 

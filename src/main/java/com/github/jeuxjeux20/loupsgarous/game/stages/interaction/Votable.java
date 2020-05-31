@@ -80,7 +80,7 @@ public interface Votable extends StatefulPickableProvider {
          */
         @NotNull
         public Map<LGPlayer, Integer> getPlayersVoteCount() {
-            HashMap<LGPlayer, Integer> votedPlayerCount = new HashMap<>();
+            Map<LGPlayer, Integer> votedPlayerCount = new HashMap<>();
 
             // Fill the votes count map
             picks.forEach((from, to) -> {
@@ -88,6 +88,10 @@ public interface Votable extends StatefulPickableProvider {
                 votedPlayerCount.put(to, count);
             });
             return votedPlayerCount;
+        }
+
+        public int getTotalVoteCount() {
+            return getPlayersVoteCount().values().stream().reduce(0, Integer::sum);
         }
 
         @Override

@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import me.lucko.helper.item.ItemStackBuilder;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -31,7 +32,7 @@ public final class VillageoisCard extends MutableLGCard {
     }
 
     @Override
-    protected String getMainTeam() {
+    protected LGTeam getMainTeam() {
         return LGTeams.VILLAGEOIS;
     }
 

@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.cards;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.annotations.Unique;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.google.common.base.Preconditions;
 import me.lucko.helper.item.ItemStackBuilder;
 import org.bukkit.DyeColor;
@@ -17,7 +18,7 @@ public final class SorciereCard extends MutableLGCard {
     private boolean hasHealPotion = true;
 
     @Override
-    protected String getMainTeam() {
+    protected LGTeam getMainTeam() {
         return LGTeams.VILLAGEOIS;
     }
 

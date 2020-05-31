@@ -15,8 +15,10 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
-public class VillageVoteStage extends AsyncLGGameStage implements Votable, CountdownTimedStage {
+@MajorityVoteShortensCountdown
+public class VillageVoteStage extends AsyncLGGameStage implements Votable, DualCountdownStage {
     private final VoteState currentState;
+    private final Countdown unmodifiedCountdown;
     private final TickEventCountdown countdown;
 
     @Inject
@@ -24,7 +26,8 @@ public class VillageVoteStage extends AsyncLGGameStage implements Votable, Count
         super(orchestrator);
 
         currentState = new VoteState(orchestrator, this);
-        countdown = new TickEventCountdown(this, 15);
+        unmodifiedCountdown = new Countdown(orchestrator.getPlugin(), 90);
+        countdown = new TickEventCountdown(this, unmodifiedCountdown.getTimer());
     }
 
     @Override
@@ -34,6 +37,13 @@ public class VillageVoteStage extends AsyncLGGameStage implements Votable, Count
 
     @Override
     public CompletableFuture<Void> run() {
+        // Only two players? They'll vote each other and that's it.
+        if (orchestrator.getGame().getAlivePlayers().count() <= 2) {
+            unmodifiedCountdown.setTimer(30);
+            countdown.setTimer(30);
+        }
+
+        unmodifiedCountdown.start();
         return cancelRoot(countdown.start(), f -> f.thenRun(this::computeVoteOutcome));
     }
 
@@ -64,6 +74,11 @@ public class VillageVoteStage extends AsyncLGGameStage implements Votable, Count
     @Override
     public Countdown getCountdown() {
         return countdown;
+    }
+
+    @Override
+    public Countdown getUnmodifiedCountdown() {
+        return unmodifiedCountdown;
     }
 
     @Override

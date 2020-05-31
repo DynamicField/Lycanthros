@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.commands;
 
 import com.github.jeuxjeux20.loupsgarous.CommandsModule;
 
-public final class LGRootCommandsModule extends CommandsModule {
+public final class RootCommandsModule extends CommandsModule {
     @Override
     protected void configureCommands() {
         addCommand(LGStartCommand.class);

@@ -20,6 +20,7 @@ import com.google.inject.Singleton;
 import com.onarandombox.MultiverseCore.MultiverseCore;
 import me.lucko.helper.Events;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -30,8 +31,6 @@ import java.util.stream.Collectors;
 
 @Singleton
 class MinecraftLGGameManager implements LGGameManager {
-    private final MultiverseCore multiverse;
-    private final LoupsGarous plugin;
     private final Logger logger;
     private final LGGameOrchestrator.Factory orchestratorFactory;
 
@@ -42,12 +41,7 @@ class MinecraftLGGameManager implements LGGameManager {
     private final Hashtable<UUID, LGGameOrchestrator> gamesByPlayerUUID = new Hashtable<>();
 
     @Inject
-    MinecraftLGGameManager(MultiverseCore multiverse,
-                           LoupsGarous plugin,
-                           @Plugin Logger logger,
-                           LGGameOrchestrator.Factory orchestratorFactory) {
-        this.multiverse = multiverse;
-        this.plugin = plugin;
+    MinecraftLGGameManager(@Plugin Logger logger, LGGameOrchestrator.Factory orchestratorFactory) {
         this.logger = logger;
         this.orchestratorFactory = orchestratorFactory;
 
@@ -62,7 +56,7 @@ class MinecraftLGGameManager implements LGGameManager {
     }
 
     @Override
-    public synchronized SafeResult<LGGameOrchestrator> startGame(Set<Player> players, Composition composition) {
+    public synchronized SafeResult<LGGameOrchestrator> startGame(Set<Player> players, Composition composition, @Nullable String id) {
         List<Player> playersLockedWhileStarting = playersLocked.stream().filter(players::contains).collect(Collectors.toList());
         if (!playersLockedWhileStarting.isEmpty()) {
             return SafeResult.error(playersLockedWhileStarting.size() > 1 ?
@@ -83,7 +77,9 @@ class MinecraftLGGameManager implements LGGameManager {
                         "Le joueur " + presentPlayers.iterator().next().getName() + " est déjà en partie.");
             }
 
-            String id = UUID.randomUUID().toString().substring(0, 8);
+            if (id == null) {
+                id = UUID.randomUUID().toString().substring(0, 8);
+            }
 
             LGGameOrchestrator orchestrator = orchestratorFactory.create(
                     new LGGameLobbyInfo(players, composition, null, id)

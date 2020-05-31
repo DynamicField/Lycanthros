@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous;
 
 import com.github.jeuxjeux20.loupsgarous.util.Check;
+import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.google.common.collect.Iterables;
 
 import java.util.*;
@@ -80,24 +81,7 @@ public interface ComponentBased {
         );
     }
 
-    /**
-     * Executes {@link #getComponent(Class, Predicate)}, with the predicate
-     * taking a {@link Check} instead of a boolean, and uses the {@link Check#isSuccess()} method.
-     * <p>
-     * This also has a {@code checkRef} parameter which will be set
-     * an {@link Optional} containing the <b>unique check that failed</b>, if none or more than one check failed
-     * it will return an empty {@link Optional}.
-     *
-     * @param clazz          the class of the type to search
-     * @param ensurePossible a function that gives a {@link Check} indicating
-     *                       with {@link Check#isSuccess()} if the component should be in
-     * @param checkRef       the reference where will be set the unique failed check
-     * @param <T>            the type of the class
-     * @return an {@link Optional} with the found component, or an empty one if none has been found
-     * @throws MultipleComponentsException when multiple (filtered) components have been found
-     */
-    default <T> Optional<T> getComponent(Class<T> clazz, Function<? super T, Check> ensurePossible,
-                                         AtomicReference<Optional<Check>> checkRef) {
+    default <T> Optional<SafeResult<T>> getSafeComponent(Class<T> clazz, Function<? super T, Check> ensurePossible) {
         int[] count = new int[1];
         Check[] actualCheck = new Check[1];
 
@@ -115,9 +99,13 @@ public interface ComponentBased {
             return check.isSuccess();
         });
 
-        checkRef.set(Optional.ofNullable(actualCheck[0]));
+        if (result.isPresent()) {
+            return result.map(SafeResult::success);
+        } else {
+            if (actualCheck[0] == null) return Optional.empty();
 
-        return result;
+            return Optional.of(SafeResult.error(actualCheck[0].getErrorMessage()));
+        }
     }
 
     default <T> List<T> getComponents(Class<T> clazz) {

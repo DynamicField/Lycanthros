@@ -16,59 +16,62 @@ import java.util.function.Consumer;
  * @see Check
  */
 public final class SafeResult<T> {
-    public final @Nullable T value;
-    public final boolean success;
-    public final @Nullable String errorMessage;
+    public final T value;
 
-    private SafeResult(@Nullable T value, boolean success, @Nullable String errorMessage) {
-        if (success && value == null) {
+    private final Check check;
+
+    private SafeResult(@Nullable T value, Check check) {
+        if (check.isSuccess() && value == null) {
             throw new IllegalArgumentException("The value must not be null when the operation is successful.");
         }
-        if (errorMessage == null && success) errorMessage = "Error";
 
         this.value = value;
-        this.success = success;
-        this.errorMessage = errorMessage;
+        this.check = check;
     }
 
     public static <T> SafeResult<T> success(T value) {
-        return new SafeResult<>(value, true, null);
+        return new SafeResult<>(value, Check.success());
     }
 
     public static <T> SafeResult<T> error(@Nullable String message) {
-        return new SafeResult<>(null, false, message);
+        return new SafeResult<>(null, Check.error(message));
     }
 
     public @NotNull T getValue() {
-        Preconditions.checkState(success, "The operation is not successful.");
-        Preconditions.checkState(value != null, "The value must not be null.");
+        Preconditions.checkState(check.isSuccess(), "The operation is not successful.");
         return value;
     }
 
+    public Optional<T> getValueOptional() {
+        return Optional.ofNullable(value);
+    }
+
+    public boolean isError() {
+        return !check.isSuccess();
+    }
+
     public boolean isSuccess() {
-        return success;
+        return check.isSuccess();
     }
 
     public @NotNull String getErrorMessage() {
-        Preconditions.checkState(!success, "The operation must not be successful.");
-        Preconditions.checkState(errorMessage != null, "The message must not be null.");
-        return errorMessage;
+        return check.getErrorMessage();
+    }
+
+    public Optional<String> getErrorMessageOptional() {
+        return check.getErrorMessageOptional();
     }
 
     public void ifSuccess(Consumer<T> consumer) {
-        if (success) consumer.accept(value);
+        if (check.isSuccess()) consumer.accept(value);
     }
 
     public void ifSuccessOrElse(Consumer<T> successConsumer, Consumer<String> errorConsumer) {
-        if (success) successConsumer.accept(value);
-        else errorConsumer.accept(errorMessage);
+        if (check.isSuccess()) successConsumer.accept(value);
+        else errorConsumer.accept(check.getErrorMessage());
     }
 
     public void ifError(Consumer<String> consumer) {
-        if (success) consumer.accept(errorMessage);
-    }
-
-    public Optional<T> asOptional() {
-        return Optional.ofNullable(value);
+        if (!check.isSuccess()) consumer.accept(check.getErrorMessage());
     }
 }
