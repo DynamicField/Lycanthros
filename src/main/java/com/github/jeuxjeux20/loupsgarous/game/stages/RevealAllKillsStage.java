@@ -5,8 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.bukkit.ChatColor;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.SKULL_SYMBOL;
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
+import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 
 public class RevealAllKillsStage extends LogicLGGameStage {
     @Inject
@@ -18,7 +17,7 @@ public class RevealAllKillsStage extends LogicLGGameStage {
     public void runSync() {
         if (orchestrator.getPendingKills().isEmpty()) {
             orchestrator.sendToEveryone(
-                    ChatColor.BOLD + info(SKULL_SYMBOL + " Le village se lève... et personne n'est mort !")
+                    ChatColor.BOLD + killMessage(SKULL_SYMBOL + " Le village se lève... et personne n'est mort !")
             );
         }
         orchestrator.revealAllPendingKills();

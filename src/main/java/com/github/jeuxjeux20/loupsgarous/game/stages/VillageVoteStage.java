@@ -41,6 +41,7 @@ public class VillageVoteStage extends AsyncLGGameStage implements Votable, DualC
         if (orchestrator.getGame().getAlivePlayers().count() <= 2) {
             unmodifiedCountdown.setTimer(30);
             countdown.setTimer(30);
+            countdown.resetBiggestTimerValue();
         }
 
         unmodifiedCountdown.start();

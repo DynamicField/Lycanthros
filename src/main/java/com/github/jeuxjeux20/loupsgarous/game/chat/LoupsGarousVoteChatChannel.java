@@ -12,7 +12,7 @@ public class LoupsGarousVoteChatChannel extends LoupsGarousChatChannel {
 
     @Override
     public boolean areMessagesVisibleTo(LGPlayer recipient, LGGameOrchestrator orchestrator) {
-        return canTalk(recipient, orchestrator);
+        return hasAccess(recipient, true);
     }
 
     @Override

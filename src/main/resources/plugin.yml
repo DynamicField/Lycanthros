@@ -49,7 +49,7 @@ commands:
     usage: /lglobby
     description: Permet de configurer la partie, si vous en êtes le maître.
   lgjoin:
-    usage: /lgjoin <partie>
+    usage: /lgjoin <partie/joueur>
     description: Permet de rejoindre une partie.
     permission: loupsgarous.game.join
   lgreloadconfig:

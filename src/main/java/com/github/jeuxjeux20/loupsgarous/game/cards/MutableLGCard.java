@@ -1,7 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.ChatColor;

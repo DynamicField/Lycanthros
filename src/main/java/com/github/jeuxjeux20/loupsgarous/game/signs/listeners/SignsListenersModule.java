@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.signs.listeners;
+package com.github.jeuxjeux20.loupsgarous.game.signs.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.ListenersModule;
 

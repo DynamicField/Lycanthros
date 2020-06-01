@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game;
+package com.github.jeuxjeux20.loupsgarous.game.teams;
 
 import com.github.jeuxjeux20.loupsgarous.game.teams.CoupleTeam;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;

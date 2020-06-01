@@ -71,11 +71,19 @@ class MinecraftLGGameLobby implements LGGameLobby {
         return lobbyTeleporter.getWorld();
     }
 
-    @Override
-    public boolean addPlayer(Player player) {
+    private boolean canPlayerJoin(Player player) {
         // The LGGameManager approach works well for now
         // but it will cause issues with BungeeCord support.
-        if (!player.isOnline() || !canAddPlayer() || gameManager.getPlayerInGame(player).isPresent()) {
+
+        return player.isOnline() &&
+               player.hasPermission("loupsgarous.game.join") &&
+               canAddPlayer() &&
+               !gameManager.getPlayerInGame(player).isPresent();
+    }
+
+    @Override
+    public boolean addPlayer(Player player) {
+        if (!canPlayerJoin(player)) {
             return false;
         }
 

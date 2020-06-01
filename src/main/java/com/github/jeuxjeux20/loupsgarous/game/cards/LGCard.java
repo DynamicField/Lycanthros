@@ -38,6 +38,10 @@ public interface LGCard {
      */
     ImmutableSet<LGTeam> getTeams();
 
+    default boolean isInTeam(LGTeam team) {
+        return getTeams().contains(team);
+    }
+
     /**
      * Gets the tags that this card has
      * <p>

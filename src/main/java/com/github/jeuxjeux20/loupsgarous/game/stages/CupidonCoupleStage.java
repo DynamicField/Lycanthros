@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.game.cards.CupidonCard;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.github.jeuxjeux20.loupsgarous.util.Check;

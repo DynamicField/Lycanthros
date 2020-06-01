@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.annotations.Unique;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.google.common.base.Preconditions;

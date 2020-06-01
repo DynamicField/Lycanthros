@@ -4,7 +4,6 @@ import com.github.jeuxjeux20.guicybukkit.PluginModule;
 import com.github.jeuxjeux20.loupsgarous.commands.RootCommandsModule;
 import com.github.jeuxjeux20.loupsgarous.config.ConfigurationModule;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameModule;
-import com.github.jeuxjeux20.loupsgarous.signs.SignsModule;
 import com.onarandombox.MultiverseCore.MultiverseCore;
 import me.lucko.helper.plugin.HelperPlugin;
 
@@ -24,7 +23,6 @@ public final class LoupsGarousModule extends PluginModule {
         install(new RootCommandsModule());
         install(new ConfigurationModule());
         install(new LGGameModule());
-        install(new SignsModule());
 
         bind(MultiverseCore.class).toInstance(getMultiverseCore());
         bind(Logger.class).annotatedWith(Plugin.class).toInstance(plugin.getLogger());

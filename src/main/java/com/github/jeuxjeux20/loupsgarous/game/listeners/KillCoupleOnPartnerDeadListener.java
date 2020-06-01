@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGKillEvent;
 import com.github.jeuxjeux20.loupsgarous.game.killreasons.CouplePartnerKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;

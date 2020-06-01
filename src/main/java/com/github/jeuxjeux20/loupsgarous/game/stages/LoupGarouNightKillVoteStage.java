@@ -1,11 +1,14 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
+import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LoupsGarousVoteChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.killreasons.NightKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
+import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.bukkit.ChatColor;
@@ -45,7 +48,7 @@ public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Vot
     @Override
     public CompletableFuture<Void> run() {
         unmodifiedCountdown.start();
-        return cancelRoot(countdown.start(), f -> f.thenRun(this::computeVoteOutcome));
+        return cancelRoot(countdown.start(), f -> f.thenRun(this::computeVoteOutcome).thenRun(this::howl));
     }
 
     @NotNull
@@ -54,7 +57,7 @@ public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Vot
             @Override
             public Check canPlayerPick(@NotNull LGPlayer player) {
                 return super.canPlayerPick(player)
-                        .and(player.getCard().getTeams().contains(LGTeams.LOUPS_GAROUS),
+                        .and(player.getCard().isInTeam(LGTeams.LOUPS_GAROUS),
                                 "Impossible de voter, car vous n'êtes pas loup-garou !");
             }
         };
@@ -73,6 +76,14 @@ public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Vot
                     ChatColor.AQUA + "Les loups n'ont pas pu se décider !"
             );
         }
+    }
+
+    private void howl() {
+        orchestrator.getGame().getPlayers().stream()
+                .filter(p -> voteChannel.areMessagesVisibleTo(p, orchestrator))
+                .map(LGPlayer::getMinecraftPlayer)
+                .flatMap(OptionalUtils::stream)
+                .forEach(LGSoundStuff::howl);
     }
 
     public VoteState getCurrentState() {

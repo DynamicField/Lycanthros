@@ -4,6 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.google.inject.Inject;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,7 +26,15 @@ public class PreventNightPlayerMovementListener implements Listener {
             LGGameOrchestrator orchestrator = pg.getOrchestrator();
 
             if (orchestrator.isGameRunning() && orchestrator.getTurn().getTime() == LGGameTurnTime.NIGHT) {
-                event.setCancelled(true);
+                Location to = event.getTo();
+                Location from = event.getFrom();
+
+                if (to != null) {
+                    to.setX(from.getX());
+                    to.setY(from.getY());
+                    to.setZ(from.getZ());
+                    // Do not change the pitch and yaw.
+                }
             }
         });
     }

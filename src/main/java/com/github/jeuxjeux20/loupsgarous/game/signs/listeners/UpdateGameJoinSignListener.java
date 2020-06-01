@@ -1,6 +1,6 @@
-package com.github.jeuxjeux20.loupsgarous.signs.listeners;
+package com.github.jeuxjeux20.loupsgarous.game.signs.listeners;
 
-import com.github.jeuxjeux20.loupsgarous.signs.GameJoinSignManager;
+import com.github.jeuxjeux20.loupsgarous.game.signs.GameJoinSignManager;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import org.bukkit.ChatColor;
@@ -28,16 +28,18 @@ public class UpdateGameJoinSignListener implements Listener {
             signManager.deleteSignData(sign);
         }
         else {
-            event.getPlayer().sendMessage(ChatColor.GREEN + "Panneau mis à jour : " + gameName);
+            event.setLine(0, ChatColor.AQUA.toString() + ChatColor.BOLD + "[LoupsGarous]");
             signManager.updateSignData(sign, gameName);
+            event.getPlayer().sendMessage(ChatColor.GREEN + "Panneau mis à jour : " + gameName);
         }
     }
+
 
     private @Nullable String getSignGameName(SignChangeEvent event) {
         String firstLine = event.getLine(0);
         String gameNameLine = event.getLine(1);
 
-        if (!"[LoupsGarous]".equalsIgnoreCase(firstLine) ||
+        if (!"[LoupsGarous]".equalsIgnoreCase(ChatColor.stripColor(firstLine)) ||
             Strings.isNullOrEmpty(gameNameLine)) {
             return null;
         } else {

@@ -92,4 +92,8 @@ public class Countdown {
     public int getBiggestTimerValue() {
         return biggestTimerValue;
     }
+
+    public void resetBiggestTimerValue() {
+        this.biggestTimerValue = this.timer;
+    }
 }

@@ -40,4 +40,12 @@ public final class LGSoundStuff {
     public static void pling(Player player) {
         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
     }
+
+    /**
+     * HOWWWWWWWWWWWWWWWL!
+     * @param player the player to play the sound for
+     */
+    public static void howl(Player player) {
+        player.playSound(player.getLocation(), Sound.ENTITY_WOLF_HOWL, 1f, 1f);
+    }
 }

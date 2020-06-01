@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.chat;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.game.cards.AnonymousNameHolder;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LoupGarouNightSpy;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LoupGarouNightKillVoteStage;
@@ -53,12 +53,17 @@ public class LoupsGarousChatChannel implements LGChatChannel, AnonymizedChatChan
 
     @Override
     public boolean areMessagesVisibleTo(LGPlayer recipient, LGGameOrchestrator orchestrator) {
-        return canTalk(recipient, orchestrator) || isPlayerSpying(recipient);
+        return hasAccess(recipient, true) || isPlayerSpying(recipient);
     }
 
     @Override
     public boolean canTalk(LGPlayer sender, LGGameOrchestrator orchestrator) {
-        return sender.getCard().getTeams().contains(LGTeams.LOUPS_GAROUS);
+        return hasAccess(sender, false);
+    }
+
+    protected boolean hasAccess(LGPlayer sender, boolean canBeDead) {
+        return sender.getCard().isInTeam(LGTeams.LOUPS_GAROUS) &&
+               (canBeDead || sender.isAlive());
     }
 
     private boolean isPlayerSpying(LGPlayer recipient) {

@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.endings;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.LGTeams;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.game.PlayerGameOutcome;
 
 public final class VillageWonEnding extends LGEnding {
