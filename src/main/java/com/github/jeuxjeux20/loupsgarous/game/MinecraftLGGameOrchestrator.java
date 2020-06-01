@@ -9,6 +9,7 @@ import com.github.jeuxjeux20.loupsgarous.game.events.*;
 import com.github.jeuxjeux20.loupsgarous.game.events.lobby.LGLobbyCompositionChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitEvent;
+import com.github.jeuxjeux20.loupsgarous.game.inventory.LGInventoryManager;
 import com.github.jeuxjeux20.loupsgarous.game.killreasons.PlayerQuitKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.CannotCreateLobbyException;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobby;
@@ -81,6 +82,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
                                 LoupsGarous plugin,
                                 LGActionBarManager actionBarManager,
                                 LGScoreboardManager scoreboardManager,
+                                LGInventoryManager inventoryManager,
                                 LGChatManager.Factory chatManagerFactory,
                                 LGGameLobby.Factory lobbyFactory,
                                 LGCardsOrchestrator.Factory cardOrchestratorFactory,
@@ -97,6 +99,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
         this.bind(Schedulers.sync().runRepeating(this::updateActionBars, 20, 20));
         scoreboardManager.registerEvents();
+        inventoryManager.registerEvents();
     }
 
     private void updateActionBars() {

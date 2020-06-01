@@ -5,7 +5,11 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.IllegalPlayerCountException;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.SnapshotComposition;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.gui.CompositionGui;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator;
+import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.LGGameDeletedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.LGGameStartEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.lobby.LGLobbyCompositionChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.lobby.LGLobbyOwnerChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerJoinEvent;
@@ -34,13 +38,16 @@ class MinecraftLGGameLobby implements LGGameLobby {
     private final LGGameManager gameManager;
     private final CompositionValidator compositionValidator;
     private @Nullable CompositionValidator.Problem.Type worseCompositionProblemType;
+    private CompositionGui.Factory compositionGuiFactory;
 
     @Inject
     MinecraftLGGameLobby(@Assisted LGGameLobbyInfo lobbyInfo,
                          @Assisted MutableLGGameOrchestrator orchestrator,
                          LobbyTeleporter.Factory lobbyTeleporterFactory,
                          LGGameManager gameManager,
-                         CompositionValidator compositionValidator) throws CannotCreateLobbyException {
+                         CompositionValidator compositionValidator,
+                         CompositionGui.Factory compositionGuiFactory) throws CannotCreateLobbyException {
+
         Preconditions.checkArgument(lobbyInfo.getPlayers().size() <= lobbyInfo.getComposition().getPlayerCount(),
                 "There are more players than the given composition is supposed to have.");
 
@@ -51,6 +58,7 @@ class MinecraftLGGameLobby implements LGGameLobby {
         this.composition = new LobbyComposition(lobbyInfo.getComposition());
         this.lobbyTeleporter = lobbyTeleporterFactory.create();
         this.compositionValidator = compositionValidator;
+        this.compositionGuiFactory = compositionGuiFactory;
 
         lobbyTeleporter.bindWith(orchestrator);
 
@@ -137,6 +145,21 @@ class MinecraftLGGameLobby implements LGGameLobby {
     public Optional<MutableComposition> getMutableComposition() {
         if (isLocked()) return Optional.empty();
         return Optional.of(composition);
+    }
+
+    @Override
+    public void openOwnerGui() {
+        if (isLocked()) return;
+
+        CompositionGui gui = compositionGuiFactory.create(owner, composition);
+        gui.open();
+
+        Events.merge(LGEvent.class,
+                LGGameStartEvent.class, LGGameDeletedEvent.class, LGLobbyOwnerChangeEvent.class)
+                .expireIf(x -> !gui.isValid())
+                .filter(x -> x.getOrchestrator() == orchestrator)
+                .handler(e -> gui.close())
+                .bindWith(orchestrator);
     }
 
     @Override

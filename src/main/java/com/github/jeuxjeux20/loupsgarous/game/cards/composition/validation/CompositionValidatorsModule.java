@@ -11,8 +11,6 @@ public abstract class CompositionValidatorsModule extends AbstractModule {
 
     @Override
     protected final void configure() {
-        bind(CompositionValidator.class).to(CompositionValidatorAggregator.class);
-
         configureBindings();
         actualConfigureCompositionValidators();
     }

@@ -11,8 +11,6 @@ public abstract class CardRevealersModule extends AbstractModule {
 
     @Override
     protected final void configure() {
-        bind(CardRevealer.class).to(CardRevealerAggregator.class);
-
         configureBindings();
         actualConfigureCardRevealers();
     }
