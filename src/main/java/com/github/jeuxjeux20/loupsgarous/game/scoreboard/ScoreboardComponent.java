@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.scoreboard;
 
+import com.github.jeuxjeux20.loupsgarous.game.HasTriggers;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
@@ -7,12 +8,8 @@ import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
-public interface ScoreboardComponent {
+public interface ScoreboardComponent extends HasTriggers {
     ImmutableList<Line> render(LGPlayer player, LGGameOrchestrator orchestrator);
-
-    default ImmutableList<Class<? extends LGEvent>> getUpdateTriggers() {
-        return ImmutableList.of();
-    }
 
     default boolean isSeparated() {
         return true;

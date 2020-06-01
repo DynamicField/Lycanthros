@@ -3,6 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardsModule;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatModule;
 import com.github.jeuxjeux20.loupsgarous.game.commands.LGCommandsModule;
+import com.github.jeuxjeux20.loupsgarous.game.inventory.LGInventoryModule;
 import com.github.jeuxjeux20.loupsgarous.game.listeners.LGListenersModule;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobbyModule;
 import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardModule;
@@ -26,6 +27,7 @@ public final class LGGameModule extends AbstractModule {
         install(new LGWinConditionsModule());
         install(new LGTeamsModule());
         install(new LGSignsModule());
+        install(new LGInventoryModule());
 
         bind(LGGameManager.class).to(MinecraftLGGameManager.class);
 

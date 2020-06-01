@@ -4,6 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import me.lucko.helper.menu.Gui;
 import org.bukkit.boss.BarColor;
 import org.jetbrains.annotations.NotNull;
 

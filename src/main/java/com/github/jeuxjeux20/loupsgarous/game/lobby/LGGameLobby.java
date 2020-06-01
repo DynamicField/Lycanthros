@@ -33,6 +33,8 @@ public interface LGGameLobby {
 
     Optional<MutableComposition> getMutableComposition();
 
+    void openOwnerGui();
+
     Composition getComposition();
 
     @Nullable CompositionValidator.Problem.Type getWorseCompositionProblemType();

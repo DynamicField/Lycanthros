@@ -53,17 +53,7 @@ public class LGLobbyCommand implements AnnotatedCommandConfigurator {
                         return;
                     }
 
-                    orchestrator.lobby().getMutableComposition().ifPresent(composition -> {
-                        CompositionGui gui = compositionGuiFactory.create(c.sender(), composition);
-                        gui.open();
-
-                        Events.merge(LGEvent.class,
-                                LGGameStartEvent.class, LGGameDeletedEvent.class, LGLobbyOwnerChangeEvent.class)
-                                .expireIf(x -> !gui.isValid())
-                                .filter(x -> x.getOrchestrator() == orchestrator)
-                                .handler(e -> gui.close());
-
-                    });
+                    orchestrator.lobby().openOwnerGui();
                 })
                 .register(getCommandName());
     }

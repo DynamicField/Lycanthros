@@ -31,7 +31,7 @@ public class PreventNightPlayerMovementListener implements Listener {
 
                 if (to != null) {
                     to.setX(from.getX());
-                    to.setY(from.getY());
+                    to.setY(Math.min(from.getY(), to.getY())); // Still apply gravity.
                     to.setZ(from.getZ());
                     // Do not change the pitch and yaw.
                 }
