@@ -9,6 +9,7 @@ import com.google.inject.Inject;
 import me.lucko.helper.cooldown.Cooldown;
 import me.lucko.helper.cooldown.CooldownMap;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -33,7 +34,8 @@ public class JoinOnSignClickListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getClickedBlock() == null ||
+        if (event.getPlayer().getGameMode() == GameMode.CREATIVE ||
+            event.getClickedBlock() == null ||
             !(event.getClickedBlock().getState() instanceof Sign)) return;
 
         Player player = event.getPlayer();
