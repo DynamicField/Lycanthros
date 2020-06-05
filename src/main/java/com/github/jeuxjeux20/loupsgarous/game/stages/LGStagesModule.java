@@ -34,7 +34,7 @@ public final class LGStagesModule extends StagesModule {
         addStage(VillageVoteStage.class);
 
         install(new FactoryModuleBuilder().build(ChasseurKillStage.Factory.class));
-        install(new FactoryModuleBuilder().build(new TypeLiteral<AsyncLGGameStage.Factory<GameStartStage>>(){}));
-        install(new FactoryModuleBuilder().build(new TypeLiteral<AsyncLGGameStage.Factory<GameEndStage>>(){}));
+        install(new FactoryModuleBuilder().build(new TypeLiteral<RunnableLGGameStage.Factory<GameStartStage>>(){}));
+        install(new FactoryModuleBuilder().build(new TypeLiteral<RunnableLGGameStage.Factory<GameEndStage>>(){}));
     }
 }

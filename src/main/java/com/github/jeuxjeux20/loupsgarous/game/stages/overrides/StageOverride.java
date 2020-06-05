@@ -1,15 +1,14 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages.overrides;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.stages.AsyncLGGameStage;
-import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.stages.RunnableLGGameStage;
 
 public interface StageOverride {
     boolean shouldOverride(LGGameOrchestrator orchestrator);
 
     void onceComplete(LGGameOrchestrator orchestrator);
 
-    Class<? extends AsyncLGGameStage> getStageClass();
+    Class<? extends RunnableLGGameStage> getStageClass();
 
-    AsyncLGGameStage.Factory<?> getStageFactory();
+    RunnableLGGameStage.Factory<?> getStageFactory();
 }

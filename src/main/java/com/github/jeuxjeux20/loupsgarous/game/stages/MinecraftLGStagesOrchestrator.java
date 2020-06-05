@@ -24,9 +24,9 @@ import java.util.logging.Logger;
 public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     private final LGGameOrchestrator gameOrchestrator;
 
-    private final LinkedList<AsyncLGGameStage.Factory<?>> stageFactories;
-    private @Nullable ListIterator<AsyncLGGameStage.Factory<?>> stageIterator = null;
-    private @Nullable AsyncLGGameStage currentStage = null;
+    private final LinkedList<RunnableLGGameStage.Factory<?>> stageFactories;
+    private @Nullable ListIterator<RunnableLGGameStage.Factory<?>> stageIterator = null;
+    private @Nullable RunnableLGGameStage currentStage = null;
     private @Nullable CompletableFuture<Void> currentStageFuture = null;
     private @Nullable LGStageChangeEvent currentStageEvent = null;
     private final Set<StageOverride> stageOverrides;
@@ -34,7 +34,7 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
 
     @Inject
     MinecraftLGStagesOrchestrator(@Assisted LGGameOrchestrator gameOrchestrator,
-                                  Set<AsyncLGGameStage.Factory<?>> stageFactories,
+                                  Set<RunnableLGGameStage.Factory<?>> stageFactories,
                                   Set<StageOverride> stageOverrides,
                                   LoupsGarous plugin) {
         this.gameOrchestrator = gameOrchestrator;
@@ -46,7 +46,7 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     }
 
     @Override
-    public void add(AsyncLGGameStage.Factory<?> stage) {
+    public void add(RunnableLGGameStage.Factory<?> stage) {
         if (stageIterator == null) {
             stageFactories.add(stage);
         } else {
@@ -65,8 +65,8 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
         if (stageIterator == null || !stageIterator.hasNext())
             stageIterator = stageFactories.listIterator(); // Reset the iterator
 
-        AsyncLGGameStage.Factory<?> factory = stageIterator.next();
-        AsyncLGGameStage stage = factory.create(gameOrchestrator);
+        RunnableLGGameStage.Factory<?> factory = stageIterator.next();
+        RunnableLGGameStage stage = factory.create(gameOrchestrator);
 
         if (stage.isTemporary())
             stageIterator.remove();
@@ -86,7 +86,7 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
         activeStageOverride.ifPresent(stageOverride -> {
             if (stageOverride.getStageClass().isInstance(currentStage)) return;
 
-            AsyncLGGameStage stage = stageOverride.getStageFactory().create(gameOrchestrator);
+            RunnableLGGameStage stage = stageOverride.getStageFactory().create(gameOrchestrator);
 
             updateAndRunCurrentStage(stage)
                     .thenRun(() -> stageOverride.onceComplete(gameOrchestrator))
@@ -96,7 +96,7 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
         return activeStageOverride.isPresent();
     }
 
-    private CompletionStage<Void> updateAndRunCurrentStage(AsyncLGGameStage stage) {
+    private CompletionStage<Void> updateAndRunCurrentStage(RunnableLGGameStage stage) {
         CompletableFuture<Void> lastFuture = currentStageFuture;
         LGStageChangeEvent lastEvent = currentStageEvent;
 

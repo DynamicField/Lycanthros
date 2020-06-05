@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
 @MajorityVoteShortensCountdown
-public class VillageVoteStage extends AsyncLGGameStage implements Votable, DualCountdownStage {
+public class VillageVoteStage extends RunnableLGGameStage implements Votable, DualCountdownStage {
     private final VoteState currentState;
     private final Countdown unmodifiedCountdown;
     private final Countdown countdown;

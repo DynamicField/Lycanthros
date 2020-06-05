@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 
-public class CupidonCoupleStage extends AsyncLGGameStage implements CountdownTimedStage {
+public class CupidonCoupleStage extends RunnableLGGameStage implements CountdownTimedStage {
     private final Random random;
     private final LoupsGarous plugin;
     private final Countdown countdown;

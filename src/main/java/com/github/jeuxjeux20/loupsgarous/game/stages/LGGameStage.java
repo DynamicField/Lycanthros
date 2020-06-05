@@ -12,11 +12,11 @@ import java.util.Optional;
  * (like in the real tabletop game) and are ran sequentially, in a loop, until
  * something ends the game (like a team winning, for example).
  * <p>
- * The runnable implementation of this interface is {@link AsyncLGGameStage}, or
+ * The runnable implementation of this interface is {@link RunnableLGGameStage}, or
  * its synchronous counterpart, {@link LogicLGGameStage}.
  * <p>
  * They can be used with a {@link StagesModule}, or by
- * using {@link LGStagesOrchestrator#add(AsyncLGGameStage.Factory)}.
+ * using {@link LGStagesOrchestrator#add(RunnableLGGameStage.Factory)}.
  * <p>
  * The {@link LGStagesModule} contains all the stages of the classic game.
  */

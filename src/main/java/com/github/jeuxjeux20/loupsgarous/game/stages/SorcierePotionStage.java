@@ -28,7 +28,7 @@ import static me.lucko.helper.text.format.TextColor.*;
 import static me.lucko.helper.text.format.TextDecoration.BOLD;
 import static me.lucko.helper.text.format.TextDecoration.ITALIC;
 
-public class SorcierePotionStage extends AsyncLGGameStage implements CountdownTimedStage {
+public class SorcierePotionStage extends RunnableLGGameStage implements CountdownTimedStage {
     private final Countdown countdown;
     private final Healable healable;
     private final Killable killable;

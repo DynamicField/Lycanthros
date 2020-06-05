@@ -17,7 +17,7 @@ public interface LGStagesOrchestrator extends LGGameOrchestratorComponent {
      *
      * @param stage the stage to add
      */
-    void add(AsyncLGGameStage.Factory<?> stage);
+    void add(RunnableLGGameStage.Factory<?> stage);
 
     /**
      * Cancels the current stages, if any, and runs the next one.

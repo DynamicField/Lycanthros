@@ -20,7 +20,7 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.importantTip;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
 @PostponesWinConditions
-public class ChasseurKillStage extends AsyncLGGameStage implements CountdownTimedStage, Killable {
+public class ChasseurKillStage extends RunnableLGGameStage implements CountdownTimedStage, Killable {
     private final LGPlayer chasseur;
     private final Countdown countdown;
     private boolean killed;

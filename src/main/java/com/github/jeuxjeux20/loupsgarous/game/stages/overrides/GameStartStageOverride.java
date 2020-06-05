@@ -2,14 +2,14 @@ package com.github.jeuxjeux20.loupsgarous.game.stages.overrides;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
-import com.github.jeuxjeux20.loupsgarous.game.stages.AsyncLGGameStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.RunnableLGGameStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.GameStartStage;
 import com.google.inject.Inject;
 import com.google.inject.TypeLiteral;
 
 public class GameStartStageOverride extends AbstractStageOverride<GameStartStage> {
     @Inject
-    GameStartStageOverride(AsyncLGGameStage.Factory<GameStartStage> factory, TypeLiteral<GameStartStage> typeLiteral) {
+    GameStartStageOverride(RunnableLGGameStage.Factory<GameStartStage> factory, TypeLiteral<GameStartStage> typeLiteral) {
         super(factory, typeLiteral);
     }
 

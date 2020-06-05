@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.LGChatStuff;
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
-import com.github.jeuxjeux20.loupsgarous.game.stages.AsyncLGGameStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.RunnableLGGameStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.CountdownTimedStage;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-public class DuskStage extends AsyncLGGameStage implements CountdownTimedStage, ComponentBased {
+public class DuskStage extends RunnableLGGameStage implements CountdownTimedStage, ComponentBased {
     private final List<Action> actionsToRun;
     private final Countdown countdown;
 

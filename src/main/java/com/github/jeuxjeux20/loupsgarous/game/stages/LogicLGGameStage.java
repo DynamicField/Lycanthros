@@ -1,12 +1,11 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.google.inject.assistedinject.Assisted;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
-public abstract class LogicLGGameStage extends AsyncLGGameStage {
+public abstract class LogicLGGameStage extends RunnableLGGameStage {
     public LogicLGGameStage(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }

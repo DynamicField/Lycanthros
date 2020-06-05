@@ -8,12 +8,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.logging.Level;
 
-public abstract class AsyncLGGameStage implements LGGameStage {
+public abstract class RunnableLGGameStage implements LGGameStage {
     protected final static CompletableFuture<Void> COMPLETED = CompletableFuture.completedFuture(null);
     protected final LGGameOrchestrator orchestrator;
 
     @Inject
-    public AsyncLGGameStage(@Assisted LGGameOrchestrator orchestrator) {
+    public RunnableLGGameStage(@Assisted LGGameOrchestrator orchestrator) {
         this.orchestrator = orchestrator;
     }
 
@@ -43,7 +43,7 @@ public abstract class AsyncLGGameStage implements LGGameStage {
         return orchestrator;
     }
 
-    public interface Factory<T extends AsyncLGGameStage> {
+    public interface Factory<T extends RunnableLGGameStage> {
         T create(LGGameOrchestrator gameOrchestrator);
     }
 }

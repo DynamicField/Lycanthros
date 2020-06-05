@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
-public class GameEndStage extends AsyncLGGameStage implements CountdownTimedStage {
+public class GameEndStage extends RunnableLGGameStage implements CountdownTimedStage {
     private final Countdown countdown;
 
     @Inject
