@@ -88,11 +88,11 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
     }
 
     private void addCompositionProblemComponent(LGGameOrchestrator orchestrator, List<BaseComponent> components) {
-        if (orchestrator.lobby().getWorseCompositionProblemType() == Problem.Type.IMPOSSIBLE) {
+        if (orchestrator.lobby().getWorstCompositionProblemType() == Problem.Type.IMPOSSIBLE) {
             TextComponent component = new TextComponent(" (Composition invalide !)");
             component.setColor(ChatColor.RED);
             components.add(component);
-        } else if (orchestrator.lobby().getWorseCompositionProblemType() == Problem.Type.RULE_BREAKING) {
+        } else if (orchestrator.lobby().getWorstCompositionProblemType() == Problem.Type.RULE_BREAKING) {
             TextComponent component = new TextComponent(" (Composition contre les règles)");
             component.setColor(ChatColor.YELLOW);
             components.add(component);

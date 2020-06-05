@@ -4,14 +4,12 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.MutableLGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
 import java.util.UUID;
 
 public interface LGGameLobby {
@@ -35,10 +33,10 @@ public interface LGGameLobby {
 
     Composition getComposition();
 
-    @Nullable CompositionValidator.Problem.Type getWorseCompositionProblemType();
+    @Nullable CompositionValidator.Problem.Type getWorstCompositionProblemType();
 
     default boolean isCompositionValid() {
-        return getWorseCompositionProblemType() != CompositionValidator.Problem.Type.IMPOSSIBLE;
+        return getWorstCompositionProblemType() != CompositionValidator.Problem.Type.IMPOSSIBLE;
     }
 
     LGGameOrchestrator gameOrchestrator();

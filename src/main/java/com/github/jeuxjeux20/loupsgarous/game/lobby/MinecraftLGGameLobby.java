@@ -161,7 +161,7 @@ class MinecraftLGGameLobby implements LGGameLobby {
     }
 
     @Override
-    public @Nullable CompositionValidator.Problem.Type getWorseCompositionProblemType() {
+    public @Nullable CompositionValidator.Problem.Type getWorstCompositionProblemType() {
         return worseCompositionProblemType;
     }
 
