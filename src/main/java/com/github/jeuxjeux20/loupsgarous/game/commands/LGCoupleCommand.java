@@ -1,81 +1,69 @@
 package com.github.jeuxjeux20.loupsgarous.game.commands;
 
-import com.github.jeuxjeux20.guicybukkit.command.AnnotatedCommandConfigurator;
-import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.loupsgarous.LGMessages;
+import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
 import com.github.jeuxjeux20.loupsgarous.game.stages.CupidonCoupleStage;
-import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
-import org.bukkit.command.PluginCommand;
+import me.lucko.helper.command.context.CommandContext;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.error;
 
-@CommandName("lgcouple")
-public class LGCoupleCommand implements AnnotatedCommandConfigurator {
-    private final LGGameManager gameManager;
+public class LGCoupleCommand implements HelperCommandRegisterer {
+    private final InGameHandlerCondition inGameHandlerCondition;
 
     @Inject
-    LGCoupleCommand(LGGameManager gameManager) {
-        this.gameManager = gameManager;
+    LGCoupleCommand(LGGameManager gameManager, InGameHandlerCondition inGameHandlerCondition) {
+        this.inGameHandlerCondition = inGameHandlerCondition;
     }
 
     @Override
-    public void configureCommand(@NotNull PluginCommand command) {
+    public void register() {
         Commands.create()
                 .assertPlayer()
                 .assertUsage("<partenaire1> <partenaire2>", "On a dit : {usage}")
-                .handler(c -> {
-                    Optional<LGPlayerAndGame> maybeGame = gameManager.getPlayerInGame(c.sender());
-                    if (!maybeGame.isPresent()) {
-                        c.reply(LGMessages.NOT_IN_GAME);
-                        return;
-                    }
-                    LGGameOrchestrator orchestrator = maybeGame.get().getOrchestrator();
-                    LGPlayer player = maybeGame.get().getPlayer();
+                .handler(inGameHandlerCondition.wrap(this::handle))
+                .register("lgcouple", "lg couple");
+    }
 
-                    String partner1Name = c.arg(0).value().orElseThrow(AssertionError::new);
-                    String partner2Name = c.arg(1).value().orElseThrow(AssertionError::new);
+    private void handle(CommandContext<Player> c, LGPlayer player, LGGameOrchestrator orchestrator) {
+        String partner1Name = c.arg(0).value().orElseThrow(AssertionError::new);
+        String partner2Name = c.arg(1).value().orElseThrow(AssertionError::new);
 
-                    Optional<SafeResult<CupidonCoupleStage>> maybeStage = orchestrator.stages().current()
-                            .getSafeComponent(CupidonCoupleStage.class, x -> x.canPlayerCreateCouple(player));
+        Optional<SafeResult<CupidonCoupleStage>> maybeStage = orchestrator.stages().current()
+                .getSafeComponent(CupidonCoupleStage.class, x -> x.canPlayerCreateCouple(player));
 
-                    CupidonCoupleStage coupleStage = maybeStage
-                            .flatMap(SafeResult::getValueOptional)
-                            .orElse(null);
+        CupidonCoupleStage coupleStage = maybeStage
+                .flatMap(SafeResult::getValueOptional)
+                .orElse(null);
 
-                    if (coupleStage == null) {
-                        String errorMessage = maybeStage
-                                .flatMap(SafeResult::getErrorMessageOptional)
-                                .orElse("Ce n'est pas l'heure !");
+        if (coupleStage == null) {
+            String errorMessage = maybeStage
+                    .flatMap(SafeResult::getErrorMessageOptional)
+                    .orElse("Ce n'est pas l'heure !");
 
-                        c.reply(error(errorMessage));
-                        return;
-                    }
+            c.reply(error(errorMessage));
+            return;
+        }
 
-                    createCouple(partner1Name, partner2Name, orchestrator, c.sender()).ifPresent(couple -> {
-                        if (coupleStage.canCreateCouple(player, couple).sendMessageOnError(c.sender()))
-                            return;
+        createCouple(partner1Name, partner2Name, orchestrator, c.sender()).ifPresent(couple -> {
+            if (coupleStage.canCreateCouple(player, couple).sendMessageOnError(c.sender()))
+                return;
 
-                        coupleStage.createCouple(player, couple);
-                    });
-                })
-                .register(getCommandName());
+            coupleStage.createCouple(player, couple);
+        });
     }
 
     private Optional<CupidonCoupleStage.Couple> createCouple(String partner1Name, String partner2Name,
                                                              LGGameOrchestrator orchestrator, Player sender) {
-
         Optional<LGPlayer> partner1 = orchestrator.getGame().findByName(partner1Name);
         if (!partner1.isPresent()) {
             sender.sendMessage(LGMessages.cannotFindPlayer(partner1Name));

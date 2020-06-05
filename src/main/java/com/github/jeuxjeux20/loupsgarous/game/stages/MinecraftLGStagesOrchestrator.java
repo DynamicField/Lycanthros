@@ -2,15 +2,17 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
 import com.github.jeuxjeux20.loupsgarous.game.events.stage.LGStageChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.game.stages.overrides.StageOverride;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.terminable.Terminable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
@@ -27,20 +29,17 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     private @Nullable AsyncLGGameStage currentStage = null;
     private @Nullable CompletableFuture<Void> currentStageFuture = null;
     private @Nullable LGStageChangeEvent currentStageEvent = null;
-    private final AsyncLGGameStage.Factory<GameStartStage> gameStartStageFactory;
-    private final AsyncLGGameStage.Factory<GameEndStage> gameEndStageFactory;
+    private final Set<StageOverride> stageOverrides;
     private final Logger logger;
 
     @Inject
     MinecraftLGStagesOrchestrator(@Assisted LGGameOrchestrator gameOrchestrator,
                                   Set<AsyncLGGameStage.Factory<?>> stageFactories,
-                                  AsyncLGGameStage.Factory<GameStartStage> gameStartStageFactory,
-                                  AsyncLGGameStage.Factory<GameEndStage> gameEndStageFactory,
+                                  Set<StageOverride> stageOverrides,
                                   LoupsGarous plugin) {
         this.gameOrchestrator = gameOrchestrator;
         this.stageFactories = new LinkedList<>(stageFactories);
-        this.gameStartStageFactory = gameStartStageFactory;
-        this.gameEndStageFactory = gameEndStageFactory;
+        this.stageOverrides = stageOverrides;
         this.logger = plugin.getLogger();
 
         gameOrchestrator.bind(new CurrentStageTerminable());
@@ -58,7 +57,7 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
 
     @Override
     public void next() {
-        if (callSpecialStages()) return;
+        if (callStageOverride()) return;
 
         if (stageFactories.size() == 0)
             throw new IllegalStateException("No stages have been found.");
@@ -73,43 +72,33 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
             stageIterator.remove();
 
         if (stage.shouldRun()) {
-            updateAndRunCurrentStage(stage).thenRun(this::next);
+            updateAndRunCurrentStage(stage).thenRun(this::next).exceptionally(this::handleFutureException);
         } else {
             next();
         }
     }
 
-    private boolean callSpecialStages() {
-        LGGameState state = gameOrchestrator.getState();
+    private boolean callStageOverride() {
+        Optional<StageOverride> activeStageOverride = stageOverrides.stream()
+                .filter(x -> x.shouldOverride(gameOrchestrator))
+                .findFirst();
 
-        if (state == LGGameState.READY_TO_START || state == LGGameState.WAITING_FOR_PLAYERS) {
-            if (!(currentStage instanceof GameStartStage)) {
-                GameStartStage stage = gameStartStageFactory.create(gameOrchestrator);
-                updateAndRunCurrentStage(stage).thenRun(gameOrchestrator::start).exceptionally(ex -> {
-                    if (ex.getCause() instanceof CancellationException) return null;
-                    logger.log(Level.SEVERE, "Unhandled exception while the game was running: ", ex);
-                    return null;
-                });
-            }
-            return true;
-        }
-        if (state == LGGameState.FINISHED) {
-            if (!(currentStage instanceof GameEndStage)) {
-                GameEndStage stage = gameEndStageFactory.create(gameOrchestrator);
-                updateAndRunCurrentStage(stage).thenRun(gameOrchestrator::delete).exceptionally(ex -> {
-                    if (ex.getCause() instanceof CancellationException) return null;
-                    logger.log(Level.SEVERE, "Unhandled exception while deleting the game: ", ex);
-                    return null;
-                });
-            }
-            return true;
-        }
-        return false;
+        activeStageOverride.ifPresent(stageOverride -> {
+            if (stageOverride.getStageClass().isInstance(currentStage)) return;
+
+            AsyncLGGameStage stage = stageOverride.getStageFactory().create(gameOrchestrator);
+
+            updateAndRunCurrentStage(stage)
+                    .thenRun(() -> stageOverride.onceComplete(gameOrchestrator))
+                    .exceptionally(this::handleFutureException);
+        });
+
+        return activeStageOverride.isPresent();
     }
 
     private CompletionStage<Void> updateAndRunCurrentStage(AsyncLGGameStage stage) {
-        CompletableFuture<Void> lastFuture = this.currentStageFuture;
-        LGStageChangeEvent lastEvent = this.currentStageEvent;
+        CompletableFuture<Void> lastFuture = currentStageFuture;
+        LGStageChangeEvent lastEvent = currentStageEvent;
 
         LGStageChangeEvent event = new LGStageChangeEvent(gameOrchestrator, stage);
         currentStageEvent = event;
@@ -134,18 +123,26 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
         CompletableFuture<Void> future = stage.run();
         currentStageFuture = future;
 
-        return future.exceptionally(ex -> {
-            // We cancelled it, no need to log.
-            if (!(ex instanceof CancellationException)) {
-                logger.log(Level.SEVERE, "Unhandled exception while running stage: " + stage, ex);
-            }
-            throw ex instanceof CompletionException ?
-                    (CompletionException) ex : new CompletionException(ex);
-        });
+        return future.exceptionally(this::handleStageException);
+    }
+
+    private Void handleStageException(Throwable ex) {
+        // We cancelled it, no need to log.
+        if (!(ex instanceof CancellationException)) {
+            logger.log(Level.SEVERE, "Unhandled exception while running stage: " + currentStage, ex);
+        }
+        throw ex instanceof CompletionException ?
+                (CompletionException) ex : new CompletionException(ex);
+    }
+
+    private Void handleFutureException(Throwable ex) {
+        if (ex.getCause() instanceof CancellationException) return null;
+        logger.log(Level.SEVERE, "Unhandled exception while the game was running the next stage.", ex);
+        return null;
     }
 
     @Override
-    public @org.jetbrains.annotations.NotNull LGGameStage current() {
+    public @NotNull LGGameStage current() {
         return currentStage == null ? new LGGameStage.Null() : currentStage;
     }
 

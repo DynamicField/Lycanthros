@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class LogicLGGameStage extends AsyncLGGameStage {
-    public LogicLGGameStage(@Assisted LGGameOrchestrator orchestrator) {
+    public LogicLGGameStage(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }
 

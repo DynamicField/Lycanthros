@@ -4,6 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGGameDeletedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.stage.LGStageChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.stage.LGTimedStageTickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGGameStage;
@@ -12,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
@@ -34,6 +36,14 @@ public class UpdateBossBarListener implements Listener {
     @EventHandler
     public void onLGGameDeleted(LGGameDeletedEvent event) {
         removeBossBar(event);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onLGPlayerQuit(LGPlayerQuitEvent event) {
+        Player onlinePlayer = event.getLGPlayer().getOfflineMinecraftPlayer().getPlayer();
+        if (onlinePlayer != null) {
+            gameBossBar.get(event.getOrchestrator()).removePlayer(onlinePlayer);
+        }
     }
 
     @EventHandler

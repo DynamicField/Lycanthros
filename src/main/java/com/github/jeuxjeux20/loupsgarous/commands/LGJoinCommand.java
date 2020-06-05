@@ -1,7 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.commands;
 
-import com.github.jeuxjeux20.guicybukkit.command.AnnotatedCommandConfigurator;
-import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
@@ -10,14 +8,11 @@ import com.google.inject.Inject;
 import me.lucko.helper.Commands;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-@CommandName("lgjoin")
-public class LGJoinCommand implements AnnotatedCommandConfigurator {
+public class LGJoinCommand implements HelperCommandRegisterer {
     private final LGGameManager gameManager;
 
     @Inject
@@ -26,7 +21,7 @@ public class LGJoinCommand implements AnnotatedCommandConfigurator {
     }
 
     @Override
-    public void configureCommand(@NotNull PluginCommand command) {
+    public void register() {
         Commands.create()
                 .assertPermission("loupsgarous.game.finish",
                         ChatColor.RED + "Vous n'avez pas la permission de terminer les parties :(")
@@ -53,6 +48,6 @@ public class LGJoinCommand implements AnnotatedCommandConfigurator {
                         c.reply("&cImpossible de rejoindre la partie.");
                     }
                 })
-                .register(getCommandName());
+                .register("lgjoin", "lg join");
     }
 }

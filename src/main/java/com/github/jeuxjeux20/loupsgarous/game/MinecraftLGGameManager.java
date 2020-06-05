@@ -1,6 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.Plugin;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGGameDeletedEvent;
@@ -17,7 +16,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.onarandombox.MultiverseCore.MultiverseCore;
 import me.lucko.helper.Events;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;

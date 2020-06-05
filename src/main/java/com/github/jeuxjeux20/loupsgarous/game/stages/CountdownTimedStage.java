@@ -1,8 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.events.stage.LGTimedStageTickEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.PluginManager;
 
 public interface CountdownTimedStage extends TimedStage {
     Countdown getCountdown();
@@ -17,19 +18,12 @@ public interface CountdownTimedStage extends TimedStage {
         return getCountdown() == null ? 1 : getCountdown().getBiggestTimerValue();
     }
 
-    class TickEventCountdown extends Countdown {
-        private final LGGameOrchestrator orchestrator;
-        private final CountdownTimedStage me;
+    default void addTickEvents(Countdown.Builder builder) {
+        PluginManager pluginManager = Bukkit.getServer().getPluginManager();
 
-        public TickEventCountdown(CountdownTimedStage me, int timerSeconds) {
-            super(me.getOrchestrator().getPlugin(), timerSeconds);
-            this.orchestrator = me.getOrchestrator();
-            this.me = me;
-        }
-
-        @Override
-        protected final void onTick() {
-            plugin.getServer().getPluginManager().callEvent(new LGTimedStageTickEvent(orchestrator, me));
-        }
+        builder.tick(() ->
+            pluginManager.callEvent(new LGTimedStageTickEvent(this.getOrchestrator(), this))
+        );
     }
+
 }

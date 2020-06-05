@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
+import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
@@ -10,22 +11,13 @@ import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
 public class GameStartStage extends AsyncLGGameStage implements CountdownTimedStage {
-    static {
-        Events.subscribe(LGLobbyCompositionChangeEvent.class)
-                .handler(e -> {
-                    LGGameStage currentStage = e.getOrchestrator().stages().current();
-                    if (currentStage instanceof GameStartStage) {
-                        GameStartStage stage = (GameStartStage) currentStage;
-                        stage.countdown.setTimer(stage.countdown.getBiggestTimerValue());
-                    }
-                });
-    }
-
     private final Countdown countdown;
 
     @Inject
@@ -48,6 +40,17 @@ public class GameStartStage extends AsyncLGGameStage implements CountdownTimedSt
     @Override
     public Countdown getCountdown() {
         return countdown;
+    }
+
+    static class ResetTimerListener implements Listener {
+        @EventHandler(ignoreCancelled = true)
+        public void onLGLobbyCompositionChange(LGLobbyCompositionChangeEvent event) {
+            LGGameStage currentStage = event.getOrchestrator().stages().current();
+            if (currentStage instanceof GameStartStage) {
+                GameStartStage stage = (GameStartStage) currentStage;
+                stage.countdown.setTimer(stage.countdown.getBiggestTimerValue());
+            }
+        }
     }
 
     private class GameStartCountdown extends Countdown {

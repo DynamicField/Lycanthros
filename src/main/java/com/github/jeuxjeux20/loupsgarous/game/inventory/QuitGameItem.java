@@ -13,7 +13,6 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public class QuitGameItem implements InventoryItem {
-
     @Override
     public boolean isShown(LGPlayer player, LGGameOrchestrator orchestrator) {
         return true;

@@ -6,9 +6,6 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Optional;
-import java.util.OptionalInt;
-
 public interface InventoryItem extends HasTriggers {
 
     boolean isShown(LGPlayer player, LGGameOrchestrator orchestrator);

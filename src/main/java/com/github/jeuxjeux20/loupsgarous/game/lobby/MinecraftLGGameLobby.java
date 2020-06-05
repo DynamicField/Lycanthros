@@ -27,7 +27,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
-import java.util.Optional;
 import java.util.UUID;
 
 class MinecraftLGGameLobby implements LGGameLobby {
@@ -38,7 +37,7 @@ class MinecraftLGGameLobby implements LGGameLobby {
     private final LGGameManager gameManager;
     private final CompositionValidator compositionValidator;
     private @Nullable CompositionValidator.Problem.Type worseCompositionProblemType;
-    private CompositionGui.Factory compositionGuiFactory;
+    private final CompositionGui.Factory compositionGuiFactory;
 
     @Inject
     MinecraftLGGameLobby(@Assisted LGGameLobbyInfo lobbyInfo,
@@ -139,12 +138,6 @@ class MinecraftLGGameLobby implements LGGameLobby {
         setOwner(getGame().getPresentPlayers().findAny()
                 .flatMap(LGPlayer::getMinecraftPlayer)
                 .orElseThrow(() -> new AssertionError("Wait what, how is the owner I got offline?")));
-    }
-
-    @Override
-    public Optional<MutableComposition> getMutableComposition() {
-        if (isLocked()) return Optional.empty();
-        return Optional.of(composition);
     }
 
     @Override

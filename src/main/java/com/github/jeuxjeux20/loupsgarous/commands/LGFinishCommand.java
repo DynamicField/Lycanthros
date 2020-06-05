@@ -1,7 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.commands;
 
-import com.github.jeuxjeux20.guicybukkit.command.AnnotatedCommandConfigurator;
-import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
@@ -10,15 +8,12 @@ import com.github.jeuxjeux20.loupsgarous.game.endings.FinishCommandEnding;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
 import org.bukkit.ChatColor;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@CommandName("lgfinish")
-public class LGFinishCommand implements AnnotatedCommandConfigurator {
+public class LGFinishCommand implements HelperCommandRegisterer {
     private final LGGameManager gameManager;
 
     @Inject
@@ -27,7 +22,7 @@ public class LGFinishCommand implements AnnotatedCommandConfigurator {
     }
 
     @Override
-    public void configureCommand(@NotNull PluginCommand command) {
+    public void register() {
         Commands.create()
                 .assertPermission("loupsgarous.game.finish",
                         ChatColor.RED + "Vous n'avez pas la permission de terminer les parties :(")
@@ -67,6 +62,6 @@ public class LGFinishCommand implements AnnotatedCommandConfigurator {
 
                     game.get().finish(new FinishCommandEnding(reason));
                 })
-                .register(getCommandName());
+                .register("lgfinish", "lg finish");
     }
 }

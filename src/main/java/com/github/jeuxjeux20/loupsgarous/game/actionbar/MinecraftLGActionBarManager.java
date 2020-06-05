@@ -1,5 +1,9 @@
-package com.github.jeuxjeux20.loupsgarous.game;
+package com.github.jeuxjeux20.loupsgarous.game.actionbar;
 
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.PlayerGameOutcome;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator.Problem;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;

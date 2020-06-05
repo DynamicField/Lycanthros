@@ -11,7 +11,6 @@ public final class RootCommandsModule extends CommandsModule {
         addCommand(ColorCommand.class);
         addCommand(GuiTestCommand.class);
         addCommand(LGJoinCommand.class);
-        addCommand(LGQuitCommand.class);
         addCommand(LGReloadConfigCommand.class);
     }
 }

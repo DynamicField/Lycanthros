@@ -16,6 +16,7 @@ import me.lucko.helper.Commands;
 import me.lucko.helper.command.Command;
 import me.lucko.helper.command.CommandInterruptException;
 import me.lucko.helper.command.context.CommandContext;
+import me.lucko.helper.command.functional.FunctionalCommandBuilder;
 import me.lucko.helper.command.functional.FunctionalCommandHandler;
 import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.ChatColor;
@@ -23,11 +24,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Consumer;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -38,15 +41,19 @@ public final class PickableCommandBuilder<T extends PickableProvider> {
     private final LGGameManager gameManager;
     private final Class<T> pickableClass;
     private final LoupsGarous plugin;
+    private final InGameHandlerCondition inGameHandlerCondition;
 
+    private final List<Consumer<FunctionalCommandBuilder<Player>>> commandConfigurators = new ArrayList<>();
     private String cannotPickErrorMessage = "Vous ne pouvez pas faire ça maintenant.";
 
     @SuppressWarnings("unchecked")
     @Inject
-    public PickableCommandBuilder(LGGameManager gameManager, TypeLiteral<T> literal, LoupsGarous plugin) {
+    public PickableCommandBuilder(LGGameManager gameManager, TypeLiteral<T> literal, LoupsGarous plugin,
+                                  InGameHandlerCondition inGameHandlerCondition) {
         this.gameManager = gameManager;
         this.pickableClass = (Class<T>) literal.getRawType(); // It's safe almost everytime.
         this.plugin = plugin;
+        this.inGameHandlerCondition = inGameHandlerCondition;
     }
 
     public PickableCommandBuilder<T> withCannotPickErrorMessage(String errorMessage) {
@@ -54,56 +61,60 @@ public final class PickableCommandBuilder<T extends PickableProvider> {
         return this;
     }
 
+    public PickableCommandBuilder<T> configure(Consumer<FunctionalCommandBuilder<Player>> commandConfigurator) {
+        commandConfigurators.add(commandConfigurator);
+        return this;
+    }
+
     public Command buildCommand() {
-        return new CommandTabCompleterDecorator(Commands.create()
+        FunctionalCommandBuilder<Player> builder = Commands.create()
                 .assertPlayer()
-                .assertUsage("<player>", "C'est pas comme ça que ça marche ! {usage}")
-                .handler(buildHandler()));
+                .assertUsage("<player>", "C'est pas comme ça que ça marche ! {usage}");
+
+        for (Consumer<FunctionalCommandBuilder<Player>> configurator : commandConfigurators) {
+            configurator.accept(builder);
+        }
+
+        return new CommandTabCompleterDecorator(builder.handler(buildHandler()));
     }
 
     public FunctionalCommandHandler<Player> buildHandler() {
-        return c -> {
-            Optional<LGPlayerAndGame> game = gameManager.getPlayerInGame(c.sender());
-            if (!game.isPresent()) {
-                c.reply(LGMessages.NOT_IN_GAME);
+        return inGameHandlerCondition.wrap(this::handle);
+    }
+
+    private void handle(CommandContext<Player> c, LGPlayer lgPlayer, LGGameOrchestrator orchestrator) {
+        LGGameStage stage = orchestrator.stages().current();
+
+        String targetName = c.arg(0).value().orElseThrow(AssertionError::new);
+
+        Optional<SafeResult<T>> maybePickable
+                = stage.getSafeComponent(pickableClass, x -> x.providePickable().canPlayerPick(lgPlayer));
+
+        String errorMessage = maybePickable
+                .flatMap(SafeResult::getErrorMessageOptional)
+                .orElse(cannotPickErrorMessage);
+
+        Pickable pickable = maybePickable
+                .flatMap(SafeResult::getValueOptional)
+                .map(PickableProvider::providePickable)
+                .orElse(null);
+
+        if (pickable == null) {
+            c.sender().sendMessage(ChatColor.RED + errorMessage);
+            return;
+        }
+
+        Optional<LGPlayer> maybeTarget = orchestrator.getGame().findByName(targetName);
+
+        maybeTarget.ifPresent(target -> {
+            if (pickable.canPick(lgPlayer, target).sendMessageOnError(c.sender()))
                 return;
-            }
 
-            LGGameOrchestrator orchestrator = game.get().getOrchestrator();
-            LGPlayer lgPlayer = game.get().getPlayer();
-            LGGameStage stage = orchestrator.stages().current();
+            pickable.pick(lgPlayer, target);
+        });
 
-            String targetName = c.arg(0).value().orElseThrow(AssertionError::new);
-
-            Optional<SafeResult<T>> maybePickable
-                    = stage.getSafeComponent(pickableClass, x -> x.providePickable().canPlayerPick(lgPlayer));
-
-            String errorMessage = maybePickable
-                    .flatMap(SafeResult::getErrorMessageOptional)
-                    .orElse(cannotPickErrorMessage);
-
-            Pickable pickable = maybePickable
-                    .flatMap(SafeResult::getValueOptional)
-                    .map(PickableProvider::providePickable)
-                    .orElse(null);
-
-            if (pickable == null) {
-                c.sender().sendMessage(ChatColor.RED + errorMessage);
-                return;
-            }
-
-            Optional<LGPlayer> maybeTarget = orchestrator.getGame().findByName(targetName);
-
-            maybeTarget.ifPresent(target -> {
-                if (pickable.canPick(lgPlayer, target).sendMessageOnError(c.sender()))
-                    return;
-
-                pickable.pick(lgPlayer, target);
-            });
-
-            if (!maybeTarget.isPresent())
-                c.reply(LGMessages.cannotFindPlayer(targetName));
-        };
+        if (!maybeTarget.isPresent())
+            c.reply(LGMessages.cannotFindPlayer(targetName));
     }
 
     private class CommandTabCompleterDecorator implements Command {

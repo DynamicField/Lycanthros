@@ -24,7 +24,7 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 public class CupidonCoupleStage extends AsyncLGGameStage implements CountdownTimedStage {
     private final Random random;
     private final LoupsGarous plugin;
-    private final TickEventCountdown countdown;
+    private final Countdown countdown;
 
     private final Map<LGPlayer, Couple> couplePicks = new HashMap<>();
 
@@ -34,7 +34,10 @@ public class CupidonCoupleStage extends AsyncLGGameStage implements CountdownTim
         this.random = random;
         this.plugin = plugin;
 
-        countdown = new TickEventCountdown(this, 30);
+        countdown = Countdown.builder(30)
+                .apply(this::addTickEvents)
+                .finished(this::createRandomCouples)
+                .build(orchestrator);
     }
 
     @Override
@@ -46,7 +49,7 @@ public class CupidonCoupleStage extends AsyncLGGameStage implements CountdownTim
     public CompletableFuture<Void> run() {
         getEligibleCupidons().forEach(this::sendTipNotification);
 
-        return cancelRoot(countdown.start(), f -> f.thenRun(this::createRandomCouples));
+        return countdown.start();
     }
 
     private void createRandomCouples() {

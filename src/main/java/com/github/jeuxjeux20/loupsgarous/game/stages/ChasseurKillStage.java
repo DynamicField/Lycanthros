@@ -11,7 +11,6 @@ import com.github.jeuxjeux20.loupsgarous.game.winconditions.PostponesWinConditio
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -23,7 +22,7 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 @PostponesWinConditions
 public class ChasseurKillStage extends AsyncLGGameStage implements CountdownTimedStage, Killable {
     private final LGPlayer chasseur;
-    private final TickEventCountdown countdown;
+    private final Countdown countdown;
     private boolean killed;
 
     @Inject
@@ -31,7 +30,10 @@ public class ChasseurKillStage extends AsyncLGGameStage implements CountdownTime
         super(orchestrator);
         this.chasseur = chasseur;
 
-        countdown = createCountdown();
+        countdown = Countdown.builder(30)
+                .apply(this::addTickEvents)
+                .finished(this::sendInfoMessage)
+                .build(orchestrator);
     }
 
     @Override
@@ -44,12 +46,7 @@ public class ChasseurKillStage extends AsyncLGGameStage implements CountdownTime
             LGSoundStuff.ding(player);
         });
 
-        return cancelRoot(countdown.start(), f -> f.thenRun(this::sendInfoMessage));
-    }
-
-    @NotNull
-    private TickEventCountdown createCountdown() {
-        return new TickEventCountdown(this, 30);
+        return countdown.start();
     }
 
     private void sendInfoMessage() {

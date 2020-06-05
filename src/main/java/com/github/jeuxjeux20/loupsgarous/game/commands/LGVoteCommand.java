@@ -1,15 +1,11 @@
 package com.github.jeuxjeux20.loupsgarous.game.commands;
 
-import com.github.jeuxjeux20.guicybukkit.command.AnnotatedCommandConfigurator;
-import com.github.jeuxjeux20.guicybukkit.command.CommandName;
+import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import org.bukkit.command.PluginCommand;
-import org.jetbrains.annotations.NotNull;
 
-@CommandName("lgvote")
-public class LGVoteCommand implements AnnotatedCommandConfigurator {
+public class LGVoteCommand implements HelperCommandRegisterer {
     private final Provider<PickableCommandBuilder<Votable>> commandBuilderProvider;
 
     @Inject
@@ -18,10 +14,10 @@ public class LGVoteCommand implements AnnotatedCommandConfigurator {
     }
 
     @Override
-    public void configureCommand(@NotNull PluginCommand command) {
+    public void register() {
         commandBuilderProvider.get()
                 .withCannotPickErrorMessage("Ce n'est pas l'heure de voter !")
                 .buildCommand()
-                .register(getCommandName());
+                .register("lgvote", "lg vote");
     }
 }

@@ -24,7 +24,7 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Votable, DualCountdownStage {
     private final VoteState currentState;
     private final Countdown unmodifiedCountdown;
-    private final TickEventCountdown countdown;
+    private final Countdown countdown;
 
     private final LoupsGarousVoteChatChannel voteChannel;
 
@@ -36,8 +36,13 @@ public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Vot
         this.voteChannel = voteChannel;
 
         currentState = createVoteState();
-        unmodifiedCountdown = new Countdown(orchestrator.getPlugin(), 30);
-        countdown = new TickEventCountdown(this, unmodifiedCountdown.getTimer());
+        unmodifiedCountdown = Countdown.builder(30).build(orchestrator);
+        countdown = Countdown.builder()
+                .apply(this::addTickEvents)
+                .apply(Countdown.syncWith(unmodifiedCountdown))
+                .finished(this::computeVoteOutcome)
+                .finished(this::howl)
+                .build(orchestrator);
     }
 
     @Override
@@ -47,8 +52,7 @@ public class LoupGarouNightKillVoteStage extends AsyncLGGameStage implements Vot
 
     @Override
     public CompletableFuture<Void> run() {
-        unmodifiedCountdown.start();
-        return cancelRoot(countdown.start(), f -> f.thenRun(this::computeVoteOutcome).thenRun(this::howl));
+        return countdown.start();
     }
 
     @NotNull

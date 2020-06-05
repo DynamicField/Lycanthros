@@ -9,6 +9,7 @@ import com.onarandombox.MultiverseCore.api.MVWorldManager;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import com.onarandombox.MultiverseCore.event.MVWorldDeleteEvent;
 import me.lucko.helper.Events;
+import org.bukkit.entity.Player;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -64,6 +65,13 @@ class MinecraftMultiverseWorldPool implements MultiverseWorldPool {
         }
 
         return new PooledWrapper(availableWorld);
+    }
+
+    @Override
+    public synchronized boolean isInLobbyWorld(Player player) {
+        String name = player.getWorld().getName();
+
+        return allWorlds.stream().anyMatch(x -> x.getName().equals(name));
     }
 
     private synchronized MultiverseWorld createWorld() throws CannotCloneWorldException, MaximumWorldCountReachedException {

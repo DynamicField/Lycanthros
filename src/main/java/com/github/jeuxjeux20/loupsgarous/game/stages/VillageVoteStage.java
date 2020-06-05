@@ -19,15 +19,20 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 public class VillageVoteStage extends AsyncLGGameStage implements Votable, DualCountdownStage {
     private final VoteState currentState;
     private final Countdown unmodifiedCountdown;
-    private final TickEventCountdown countdown;
+    private final Countdown countdown;
 
     @Inject
     VillageVoteStage(@Assisted LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
         currentState = new VoteState(orchestrator, this);
-        unmodifiedCountdown = new Countdown(orchestrator.getPlugin(), 90);
-        countdown = new TickEventCountdown(this, unmodifiedCountdown.getTimer());
+
+        unmodifiedCountdown = Countdown.builder(90).build(orchestrator);
+        countdown = Countdown.builder()
+                .apply(this::addTickEvents)
+                .apply(Countdown.syncWith(unmodifiedCountdown))
+                .finished(this::computeVoteOutcome)
+                .build(orchestrator);
     }
 
     @Override
@@ -44,8 +49,7 @@ public class VillageVoteStage extends AsyncLGGameStage implements Votable, DualC
             countdown.resetBiggestTimerValue();
         }
 
-        unmodifiedCountdown.start();
-        return cancelRoot(countdown.start(), f -> f.thenRun(this::computeVoteOutcome));
+        return countdown.start();
     }
 
     private void computeVoteOutcome() {

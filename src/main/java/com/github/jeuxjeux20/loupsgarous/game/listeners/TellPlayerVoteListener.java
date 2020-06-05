@@ -1,10 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
-import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatManager;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
-import com.google.inject.Inject;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 

@@ -1,91 +1,85 @@
 package com.github.jeuxjeux20.loupsgarous.game.commands;
 
-import com.github.jeuxjeux20.guicybukkit.command.AnnotatedCommandConfigurator;
 import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.loupsgarous.LGMessages;
+import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
 import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.cards.revealers.CardRevealer;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.github.jeuxjeux20.loupsgarous.game.teams.revealers.TeamRevealer;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
+import me.lucko.helper.command.context.CommandContext;
 import org.bukkit.ChatColor;
-import org.bukkit.command.PluginCommand;
-import org.jetbrains.annotations.NotNull;
+import org.bukkit.entity.Player;
 
 import java.util.Optional;
 import java.util.Set;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.banner;
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.role;
 
-@CommandName("lgplayers")
-public class LGPlayersCommand implements AnnotatedCommandConfigurator {
-    private final LGGameManager gameManager;
+public class LGPlayersCommand implements HelperCommandRegisterer {
     private final CardRevealer cardRevealer;
     private final TeamRevealer teamRevealer;
+    private final InGameHandlerCondition inGameHandlerCondition;
 
     @Inject
-    LGPlayersCommand(LGGameManager gameManager, CardRevealer cardRevealer, TeamRevealer teamRevealer) {
-        this.gameManager = gameManager;
+    LGPlayersCommand(CardRevealer cardRevealer, TeamRevealer teamRevealer,
+                     InGameHandlerCondition inGameHandlerCondition) {
         this.cardRevealer = cardRevealer;
         this.teamRevealer = teamRevealer;
+        this.inGameHandlerCondition = inGameHandlerCondition;
     }
 
     @Override
-    public void configureCommand(@NotNull PluginCommand command) {
+    public void register() {
         Commands.create()
                 .assertPlayer()
-                .handler(c -> {
-                    Optional<LGPlayerAndGame> game = gameManager.getPlayerInGame(c.sender());
-                    if (!game.isPresent()) {
-                        c.reply(LGMessages.NOT_IN_GAME);
-                        return;
-                    }
-                    LGPlayer sender = game.get().getPlayer();
-                    LGGameOrchestrator orchestrator = game.get().getOrchestrator();
-                    Set<LGPlayer> players = orchestrator.getGame().getPlayers();
+                .handler(inGameHandlerCondition.wrap(this::handle))
+                .register("lgplayers", "lg players");
+    }
 
-                    StringBuilder messageBuilder = new StringBuilder()
-                            .append(banner("Liste des joueurs"))
-                            .append('\n');
+    private void handle(CommandContext<Player> context, LGPlayer sender, LGGameOrchestrator orchestrator) {
+        Set<LGPlayer> players = orchestrator.getGame().getPlayers();
 
-                    for (LGPlayer player : players) {
-                        messageBuilder.append(ChatColor.RESET);
+        StringBuilder messageBuilder = new StringBuilder()
+                .append(banner("Liste des joueurs"))
+                .append('\n');
 
-                        messageBuilder.append(ChatColor.DARK_AQUA);
+        for (LGPlayer player : players) {
+            messageBuilder.append(ChatColor.RESET);
 
-                        if (player.isDead())
-                            messageBuilder.append(ChatColor.STRIKETHROUGH);
+            messageBuilder.append(ChatColor.DARK_AQUA);
 
-                        messageBuilder.append(player.getName());
+            if (player.isDead())
+                messageBuilder.append(ChatColor.STRIKETHROUGH);
 
-                        messageBuilder.append(ChatColor.DARK_AQUA);
+            messageBuilder.append(player.getName());
 
-                        if (cardRevealer.willReveal(player, sender, orchestrator)) {
-                            messageBuilder.append(" (")
-                                    .append(player.getCard().getColor())
-                                    .append(player.getCard().getName())
-                                    .append(ChatColor.DARK_AQUA)
-                                    .append(")");
-                        }
+            messageBuilder.append(ChatColor.DARK_AQUA);
 
-                        for (LGTeam team : teamRevealer.getTeamsRevealed(player, sender, orchestrator)) {
-                            messageBuilder.append(ChatColor.YELLOW)
-                                    .append(" [")
-                                    .append(team.getColor())
-                                    .append(team.getName())
-                                    .append(ChatColor.YELLOW)
-                                    .append("]");
-                        }
+            if (cardRevealer.willReveal(player, sender, orchestrator)) {
+                messageBuilder.append(" (")
+                        .append(player.getCard().getColor())
+                        .append(player.getCard().getName())
+                        .append(ChatColor.DARK_AQUA)
+                        .append(")");
+            }
 
-                        messageBuilder.append('\n');
-                    }
+            for (LGTeam team : teamRevealer.getTeamsRevealed(player, sender, orchestrator)) {
+                messageBuilder.append(ChatColor.YELLOW)
+                        .append(" [")
+                        .append(team.getColor())
+                        .append(team.getName())
+                        .append(ChatColor.YELLOW)
+                        .append("]");
+            }
 
-                    messageBuilder.deleteCharAt(messageBuilder.length() - 1); // Remove the last new line
+            messageBuilder.append('\n');
+        }
 
-                    c.reply(messageBuilder.toString());
-                })
-                .register(getCommandName());
+        messageBuilder.deleteCharAt(messageBuilder.length() - 1); // Remove the last new line
+
+        context.reply(messageBuilder.toString());
     }
 }

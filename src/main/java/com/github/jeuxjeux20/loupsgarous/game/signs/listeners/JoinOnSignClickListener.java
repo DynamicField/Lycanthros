@@ -6,6 +6,7 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.composition.util.DefaultComp
 import com.github.jeuxjeux20.loupsgarous.game.signs.GameJoinSignManager;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.inject.Inject;
+import me.lucko.helper.Schedulers;
 import me.lucko.helper.cooldown.Cooldown;
 import me.lucko.helper.cooldown.CooldownMap;
 import org.bukkit.ChatColor;
@@ -44,26 +45,31 @@ public class JoinOnSignClickListener implements Listener {
 
         Optional<String> name = signManager.getSignGameName(sign);
 
-        if (name.isPresent() && !cooldownMap.test(player.getUniqueId())) {
+        if (!name.isPresent() || !cooldownMap.test(player.getUniqueId())) {
             return;
         }
 
-        Optional<LGGameOrchestrator> maybeGame = OptionalUtils.or(
-                () -> name.flatMap(gameManager::getGameById),
-                () -> name.flatMap(n ->
-                        gameManager.startGame(
-                                Collections.singleton(player),
-                                DefaultCompositions.villagerComposition(8), n).getValueOptional())
-        );
+        Schedulers.sync().runLater(() -> {
+            Optional<LGGameOrchestrator> maybeGame = OptionalUtils.or(
+                    () -> name.flatMap(gameManager::getGameById),
+                    () -> name.flatMap(n ->
+                            gameManager.startGame(
+                                    Collections.singleton(player),
+                                    DefaultCompositions.villagerComposition(8), n).getValueOptional())
+            );
 
-        if (gameManager.getPlayerInGame(player).isPresent()) {
-            // The player is in a game? great!
-            return;
-        }
+            boolean joined;
+            if (gameManager.getPlayerInGame(player).isPresent()) {
+                // The player is in a game? great!
+                joined = true;
+            }
+            else {
+                joined = maybeGame.map(x -> x.lobby().addPlayer(player)).orElse(false);
+            }
 
-        boolean joined = maybeGame.map(x -> x.lobby().addPlayer(player)).orElse(false);
-        if (!joined) {
-            player.sendMessage(ChatColor.RED + "Impossible de rejoindre la partie.");
-        }
+            if (!joined) {
+                player.sendMessage(ChatColor.RED + "Impossible de rejoindre la partie.");
+            }
+        }, 4); // Wait 4 ticks so the click action doesn't occur again.
     }
 }

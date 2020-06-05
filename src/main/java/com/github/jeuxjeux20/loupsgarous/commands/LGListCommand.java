@@ -1,7 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.commands;
 
-import com.github.jeuxjeux20.guicybukkit.command.AnnotatedCommandConfigurator;
-import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.loupsgarous.game.LGGame;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
@@ -9,13 +7,10 @@ import com.github.jeuxjeux20.loupsgarous.util.PaginationUtils;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
 import org.bukkit.ChatColor;
-import org.bukkit.command.PluginCommand;
-import org.jetbrains.annotations.NotNull;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.banner;
 
-@CommandName("lglist")
-public class LGListCommand implements AnnotatedCommandConfigurator {
+public class LGListCommand implements HelperCommandRegisterer {
     private final LGGameManager gameManager;
 
     @Inject
@@ -24,7 +19,7 @@ public class LGListCommand implements AnnotatedCommandConfigurator {
     }
 
     @Override
-    public void configureCommand(@NotNull PluginCommand command) {
+    public void register() {
         Commands.create()
                 .assertPermission("loupsgarous.game.list",
                         ChatColor.RED + "Vous n'avez pas la permission de voir les parties :(")
@@ -76,6 +71,6 @@ public class LGListCommand implements AnnotatedCommandConfigurator {
 
                     c.reply(messageBuilder.toString());
                 })
-                .register(getCommandName());
+                .register("lglist", "lg list");
     }
 }

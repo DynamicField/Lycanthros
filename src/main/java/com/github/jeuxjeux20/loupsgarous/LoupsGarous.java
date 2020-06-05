@@ -2,6 +2,8 @@ package com.github.jeuxjeux20.loupsgarous;
 
 import com.github.jeuxjeux20.guicybukkit.PluginDependencies;
 import com.github.jeuxjeux20.guicybukkit.command.CommandConfigurator;
+import com.github.jeuxjeux20.guicybukkit.command.CommandNotFoundException;
+import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
 import com.github.jeuxjeux20.loupsgarous.config.RootConfiguration;
 import com.github.jeuxjeux20.loupsgarous.config.WorldPoolConfiguration;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.MultiverseLobbiesModule;
@@ -9,8 +11,10 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import me.lucko.helper.plugin.ExtendedJavaPlugin;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.event.Listener;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
@@ -43,6 +47,23 @@ public final class LoupsGarous extends ExtendedJavaPlugin {
         @Inject
         public LGPluginDependencies(Set<Listener> listeners, Set<CommandConfigurator> commands) {
             super(listeners, commands);
+        }
+
+        @Override
+        public void registerCommands(@NotNull CommandConfigurator.CommandFinder commandFinder) {
+            for (CommandConfigurator configurator : getCommandsConfigurators()) {
+                if (configurator instanceof HelperCommandRegisterer) {
+                    ((HelperCommandRegisterer) configurator).register();
+                }
+                else {
+                    String commandName = configurator.getCommandName();
+                    PluginCommand pluginCommand = commandFinder.find(commandName);
+                    if (pluginCommand == null) {
+                        throw new CommandNotFoundException("Couldn't find the command " + commandName + ".");
+                    }
+                    configurator.configureCommand(pluginCommand);
+                }
+            }
         }
     }
 }

@@ -1,23 +1,19 @@
 package com.github.jeuxjeux20.loupsgarous.game.commands;
 
-import com.github.jeuxjeux20.guicybukkit.command.AnnotatedCommandConfigurator;
-import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.loupsgarous.LGMessages;
+import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.util.CompositionFormatUtil;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
-import org.bukkit.command.PluginCommand;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.banner;
 
-@CommandName("lgcomposition")
-public class LGCompositionCommand implements AnnotatedCommandConfigurator {
+public class LGCompositionCommand implements HelperCommandRegisterer {
     private final LGGameManager gameManager;
 
     @Inject
@@ -26,7 +22,7 @@ public class LGCompositionCommand implements AnnotatedCommandConfigurator {
     }
 
     @Override
-    public void configureCommand(@NotNull PluginCommand command) {
+    public void register() {
         Commands.create()
                 .assertPlayer()
                 .handler(c -> {
@@ -42,6 +38,6 @@ public class LGCompositionCommand implements AnnotatedCommandConfigurator {
 
                     c.reply(message);
                 })
-                .register(getCommandName());
+                .register("lgcomposition", "lg composition");
     }
 }

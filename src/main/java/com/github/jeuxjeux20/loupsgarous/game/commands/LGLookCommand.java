@@ -1,15 +1,11 @@
 package com.github.jeuxjeux20.loupsgarous.game.commands;
 
-import com.github.jeuxjeux20.guicybukkit.command.AnnotatedCommandConfigurator;
-import com.github.jeuxjeux20.guicybukkit.command.CommandName;
+import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Lookable;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import org.bukkit.command.PluginCommand;
-import org.jetbrains.annotations.NotNull;
 
-@CommandName("lglook")
-public class LGLookCommand implements AnnotatedCommandConfigurator {
+public class LGLookCommand implements HelperCommandRegisterer {
     private final Provider<PickableCommandBuilder<Lookable>> commandBuilderProvider;
 
     @Inject
@@ -18,9 +14,9 @@ public class LGLookCommand implements AnnotatedCommandConfigurator {
     }
 
     @Override
-    public void configureCommand(@NotNull PluginCommand command) {
+    public void register() {
         commandBuilderProvider.get()
                 .buildCommand()
-                .register(getCommandName());
+                .register("lglook", "lg look");
     }
 }

@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
+import com.github.jeuxjeux20.loupsgarous.game.actionbar.LGActionBarManager;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.chat.AnonymizedChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatManager;
@@ -39,29 +40,15 @@ import java.util.function.*;
 import java.util.stream.Collectors;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
-import static com.github.jeuxjeux20.loupsgarous.game.MinecraftLGGameOrchestrator.FunctionalEventAdapters.consumer;
-import static com.github.jeuxjeux20.loupsgarous.game.MinecraftLGGameOrchestrator.FunctionalEventAdapters.predicate;
 import static com.github.jeuxjeux20.loupsgarous.game.MinecraftLGGameOrchestrator.OrchestratorState.*;
 
 class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
-    static {
-        Events.subscribe(LGPlayerQuitEvent.class)
-                .handler(consumer(MinecraftLGGameOrchestrator::handlePlayerQuit));
-
-        Events.subscribe(LGPlayerJoinEvent.class)
-                .handler(consumer(MinecraftLGGameOrchestrator::handlePlayerJoin));
-
-        Events.merge(LGEvent.class, LGPlayerJoinEvent.class, LGPlayerQuitEvent.class, LGLobbyCompositionChangeEvent.class)
-                .filter(predicate(o -> !o.lobby.isLocked() && o.state != LGGameState.UNINITIALIZED))
-                .handler(consumer(MinecraftLGGameOrchestrator::updateLobbyState));
-    }
-
     // Terminables
     private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
     // Base dependencies
     private final LoupsGarous plugin;
     // Game state
-    private final ArrayList<LGKill> pendingKills = new ArrayList<>();
+    private final Set<LGKill> pendingKills = new HashSet<>();
     private final HashMap<AnonymizedChatChannel, List<String>> anonymizedNames = new HashMap<>();
     private final MutableLGGame game;
     private LGGameState state = LGGameState.UNINITIALIZED;
@@ -98,6 +85,8 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         this.chatManager = chatManagerFactory.create(this);
 
         this.bind(Schedulers.sync().runRepeating(this::updateActionBars, 20, 20));
+        registerLobbyEvents();
+
         scoreboardManager.registerEvents();
         inventoryManager.registerEvents();
     }
@@ -136,7 +125,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     }
 
     @Override
-    public ArrayList<LGKill> getPendingKills() {
+    public Set<LGKill> getPendingKills() {
         ensureState(STARTED);
 
         return pendingKills;
@@ -255,6 +244,24 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         }
     }
 
+    private void registerLobbyEvents() {
+        Events.subscribe(LGPlayerQuitEvent.class)
+                .filter(this::isMyEvent)
+                .handler(this::handlePlayerQuit)
+                .bindWith(this);
+
+        Events.subscribe(LGPlayerJoinEvent.class)
+                .filter(this::isMyEvent)
+                .handler(this::handlePlayerJoin)
+                .bindWith(this);
+
+        Events.merge(LGEvent.class, LGPlayerJoinEvent.class, LGPlayerQuitEvent.class, LGLobbyCompositionChangeEvent.class)
+                .filter(this::isMyEvent)
+                .filter(o -> !lobby.isLocked() && state != LGGameState.UNINITIALIZED)
+                .handler(e -> updateLobbyState())
+                .bindWith(this);
+    }
+
     private void handlePlayerJoin(LGPlayerJoinEvent event) {
         sendToEveryone(player(event.getPlayer().getName()) + lobbyMessage(" a rejoint la partie ! ") +
                        slots(lobby.getSlotsDisplay()));
@@ -274,6 +281,10 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         if (getGame().isEmpty() && state.isEnabled()) {
             delete();
         }
+    }
+
+    private boolean isMyEvent(LGEvent event) {
+        return event.getOrchestrator() == this;
     }
 
     @Override
@@ -423,35 +434,5 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         }
 
         static abstract class NullEvent extends Event {}
-    }
-
-    static final class FunctionalEventAdapters {
-        private FunctionalEventAdapters() {
-        }
-
-        static <T extends LGEvent> Consumer<T> consumer(Consumer<MinecraftLGGameOrchestrator> consumer) {
-            return consumer((o, e) -> consumer.accept(o));
-        }
-
-        static <T extends LGEvent> Consumer<T> consumer(BiConsumer<MinecraftLGGameOrchestrator, ? super T> consumer) {
-            return e -> {
-                if (e.getOrchestrator() instanceof MinecraftLGGameOrchestrator) {
-                    consumer.accept((MinecraftLGGameOrchestrator) e.getOrchestrator(), e);
-                }
-            };
-        }
-
-        static <T extends LGEvent> Predicate<T> predicate(Predicate<MinecraftLGGameOrchestrator> predicate) {
-            return predicate((o, e) -> predicate.test(o));
-        }
-
-        static <T extends LGEvent> Predicate<T> predicate(BiPredicate<MinecraftLGGameOrchestrator, ? super T> predicate) {
-            return e -> {
-                if (e.getOrchestrator() instanceof MinecraftLGGameOrchestrator) {
-                    return predicate.test((MinecraftLGGameOrchestrator) e.getOrchestrator(), e);
-                }
-                return false;
-            };
-        }
     }
 }

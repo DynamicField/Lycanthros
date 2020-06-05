@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
+import com.github.jeuxjeux20.loupsgarous.game.actionbar.LGActionBarModule;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardsModule;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatModule;
 import com.github.jeuxjeux20.loupsgarous.game.commands.LGCommandsModule;
@@ -35,6 +36,6 @@ public final class LGGameModule extends AbstractModule {
                 .implement(LGGameOrchestrator.class, MinecraftLGGameOrchestrator.class)
                 .build(LGGameOrchestrator.Factory.class));
 
-        bind(LGActionBarManager.class).to(MinecraftLGActionBarManager.class);
+        install(new LGActionBarModule());
     }
 }

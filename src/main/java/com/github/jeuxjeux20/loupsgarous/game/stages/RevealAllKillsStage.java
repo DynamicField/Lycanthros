@@ -17,7 +17,7 @@ public class RevealAllKillsStage extends LogicLGGameStage {
     public void runSync() {
         if (orchestrator.getPendingKills().isEmpty()) {
             orchestrator.sendToEveryone(
-                    ChatColor.BOLD + killMessage(SKULL_SYMBOL + " Le village se lève... et personne n'est mort !")
+                    killMessage(SKULL_SYMBOL + " Le village se lève... et personne n'est mort !")
             );
         }
         orchestrator.revealAllPendingKills();

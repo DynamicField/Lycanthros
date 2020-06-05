@@ -31,8 +31,6 @@ public interface LGGameLobby {
 
     boolean isLocked();
 
-    Optional<MutableComposition> getMutableComposition();
-
     void openOwnerGui();
 
     Composition getComposition();

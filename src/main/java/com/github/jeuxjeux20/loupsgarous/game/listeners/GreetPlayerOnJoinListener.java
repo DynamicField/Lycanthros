@@ -5,7 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-public class PlayerJoinGameListener implements Listener {
+public class GreetPlayerOnJoinListener implements Listener {
     @EventHandler
     public void onPlayerJoin(LGPlayerJoinEvent event) {
         event.getPlayer().sendTitle(ChatColor.YELLOW + "Loups-Garous",

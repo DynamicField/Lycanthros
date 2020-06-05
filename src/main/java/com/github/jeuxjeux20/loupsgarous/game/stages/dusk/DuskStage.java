@@ -19,13 +19,16 @@ import java.util.stream.Collectors;
 
 public class DuskStage extends AsyncLGGameStage implements CountdownTimedStage, ComponentBased {
     private final List<Action> actionsToRun;
-    private final TickEventCountdown countdown;
+    private final Countdown countdown;
 
     @Inject
     DuskStage(@Assisted LGGameOrchestrator orchestrator, Set<Action> allActions) {
         super(orchestrator);
 
-        countdown = new TickEventCountdown(this, 20);
+        countdown = Countdown.builder(20)
+                .apply(this::addTickEvents)
+                .finished(this::runActionsEnd)
+                .build(orchestrator);
 
         for (Action action : allActions) {
             action.initialize(orchestrator);
@@ -46,7 +49,7 @@ public class DuskStage extends AsyncLGGameStage implements CountdownTimedStage, 
             action.onDuskStart(orchestrator);
         }
 
-        return cancelRoot(countdown.start(), f -> f.thenRun(this::runActionsEnd));
+        return countdown.start();
     }
 
     private void runActionsEnd() {

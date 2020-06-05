@@ -22,22 +22,21 @@ public class ShortenVoteCountdownListener implements Listener {
     }
 
     private void updateStageCountdown(LGGameStage stage) {
-        if (stage instanceof DualCountdownStage && stage instanceof Votable) {
-            MajorityVoteShortensCountdown annotation = stage.getClass().getAnnotation(MajorityVoteShortensCountdown.class);
-            if (annotation == null) return;
+        Votable votable = stage.getComponent(Votable.class).orElse(null);
+        DualCountdownStage dualCountdown = stage.getComponent(DualCountdownStage.class).orElse(null);
 
-            Votable votable = (Votable) stage;
-            DualCountdownStage dualCountdown = (DualCountdownStage) stage;
+        if (votable == null || dualCountdown == null) return;
 
-            // Nothing will change anyway, we're under the time left.
-            if (dualCountdown.getUnmodifiedCountdown().getTimer() <= annotation.timeLeft()) return;
+        MajorityVoteShortensCountdown annotation = stage.getClass().getAnnotation(MajorityVoteShortensCountdown.class);
+        if (annotation == null) return;
 
-            if (shouldShorten(annotation, votable)) {
-                shortenTime(annotation, dualCountdown);
-            }
-            else {
-                cancelShortenedTime(annotation, dualCountdown);
-            }
+        // Nothing will change anyway, we're under the time left.
+        if (dualCountdown.getUnmodifiedCountdown().getTimer() <= annotation.timeLeft()) return;
+
+        if (shouldShorten(annotation, votable)) {
+            shortenTime(annotation, dualCountdown);
+        } else {
+            cancelShortenedTime(annotation, dualCountdown);
         }
     }
 
@@ -52,7 +51,7 @@ public class ShortenVoteCountdownListener implements Listener {
         int playerVoteCount = state.getPlayersVoteCount().get(playerWithMostVotes);
         int totalVoteCount = state.getTotalVoteCount();
 
-        int percentage = (int)(((float)playerVoteCount / totalVoteCount) * 100);
+        int percentage = (int) (((float) playerVoteCount / totalVoteCount) * 100);
 
         // For example, we have a majority percentage of 75%,
         // the player has 9 votes and there are 12 votes in total:

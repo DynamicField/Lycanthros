@@ -13,15 +13,18 @@ import org.bukkit.entity.Player;
 class MultiverseLobbyTeleporter implements LobbyTeleporter {
     private final MultiverseCore multiverse;
     private final TerminableMultiverseWorld terminableWorld;
+    private final SpawnTeleporter spawnTeleporter;
     private final MultiverseWorld world;
     private final MVDestination worldDestination;
 
     @Inject
-    MultiverseLobbyTeleporter(MultiverseCore multiverse, MultiverseWorldProvider multiverseWorldProvider)
+    MultiverseLobbyTeleporter(MultiverseCore multiverse, MultiverseWorldProvider multiverseWorldProvider,
+                              SpawnTeleporter spawnTeleporter)
             throws CannotCreateWorldException {
         this.multiverse = multiverse;
 
         this.terminableWorld = multiverseWorldProvider.get();
+        this.spawnTeleporter = spawnTeleporter;
         this.world = terminableWorld.get();
         this.worldDestination = multiverse.getDestFactory().getDestination(world.getName());
 
@@ -41,11 +44,7 @@ class MultiverseLobbyTeleporter implements LobbyTeleporter {
 
     @Override
     public void teleportPlayerOut(Player player) {
-        MultiverseWorld spawnWorld = multiverse.getMVWorldManager().getSpawnWorld();
-
-        MVDestination destination = multiverse.getDestFactory().getDestination(spawnWorld.getName());
-
-        multiverse.getSafeTTeleporter().teleport(player, player, destination);
+        spawnTeleporter.teleportToSpawn(player);
     }
 
     @Override

@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -90,7 +91,7 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     void nextTimeOfDay();
 
 
-    List<LGKill> getPendingKills();
+    Set<LGKill> getPendingKills();
 
     void revealAllPendingKills();
 

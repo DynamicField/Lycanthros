@@ -4,6 +4,11 @@ import com.github.jeuxjeux20.loupsgarous.CommandsModule;
 
 public final class LGCommandsModule extends CommandsModule {
     @Override
+    protected void configureBindings() {
+        bind(InGameHandlerCondition.class);
+    }
+
+    @Override
     protected void configureCommands() {
         addCommand(LGLookCommand.class);
         addCommand(LGVoteCommand.class);
@@ -15,5 +20,6 @@ public final class LGCommandsModule extends CommandsModule {
         addCommand(LGHealCommand.class);
         addCommand(LGCoupleCommand.class);
         addCommand(LGLobbyCommand.class);
+        addCommand(LGQuitCommand.class);
     }
 }
