@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
 @MajorityVoteShortensCountdown(timeLeft = 10)
-public class LoupGarouNightKillVoteStage extends RunnableLGGameStage implements Votable, DualCountdownStage {
+public class LoupGarouNightKillVoteStage extends RunnableLGGameStage implements Votable, UnmodifiedCountdownTimedStage {
     private final VoteState currentState;
     private final Countdown unmodifiedCountdown;
     private final Countdown countdown;

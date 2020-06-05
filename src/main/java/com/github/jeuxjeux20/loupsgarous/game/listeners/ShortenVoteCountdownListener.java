@@ -3,7 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game.listeners;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGPickRemovedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.stages.DualCountdownStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.UnmodifiedCountdownTimedStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGGameStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.MajorityVoteShortensCountdown;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
@@ -23,7 +23,7 @@ public class ShortenVoteCountdownListener implements Listener {
 
     private void updateStageCountdown(LGGameStage stage) {
         Votable votable = stage.getComponent(Votable.class).orElse(null);
-        DualCountdownStage dualCountdown = stage.getComponent(DualCountdownStage.class).orElse(null);
+        UnmodifiedCountdownTimedStage dualCountdown = stage.getComponent(UnmodifiedCountdownTimedStage.class).orElse(null);
 
         if (votable == null || dualCountdown == null) return;
 
@@ -60,7 +60,7 @@ public class ShortenVoteCountdownListener implements Listener {
         return percentage >= annotation.majorityPercentage();
     }
 
-    private void shortenTime(MajorityVoteShortensCountdown annotation, DualCountdownStage dualCountdown) {
+    private void shortenTime(MajorityVoteShortensCountdown annotation, UnmodifiedCountdownTimedStage dualCountdown) {
         // The unmodified countdown represents the real time without any modification.
         int timeLeft = Math.min(annotation.timeLeft(), dualCountdown.getUnmodifiedCountdown().getTimer());
 
@@ -68,7 +68,7 @@ public class ShortenVoteCountdownListener implements Listener {
         dualCountdown.getCountdown().setTimer(timeLeft);
     }
 
-    private void cancelShortenedTime(MajorityVoteShortensCountdown annotation, DualCountdownStage dualCountdown) {
+    private void cancelShortenedTime(MajorityVoteShortensCountdown annotation, UnmodifiedCountdownTimedStage dualCountdown) {
         int unmodifiedTime = dualCountdown.getUnmodifiedCountdown().getTimer();
 
         dualCountdown.getCountdown().setTimer(unmodifiedTime);
