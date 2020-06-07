@@ -21,6 +21,6 @@ public class LGReloadConfigCommand implements HelperCommandRegisterer {
                     plugin.reloadConfig();
                     c.reply(ChatColor.GREEN + "Configuration rechargée !");
                 })
-                .register("lgreloadconfig", "lg reload config");
+                .register("lgreloadconfig", "lg reloadconfig");
     }
 }
