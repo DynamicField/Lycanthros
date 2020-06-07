@@ -38,13 +38,13 @@ public class DuskStage extends RunnableLGGameStage implements CountdownTimedStag
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.getTurn().getTime() == LGGameTurnTime.NIGHT && !actionsToRun.isEmpty();
+        return orchestrator.turn().getTime() == LGGameTurnTime.NIGHT && !actionsToRun.isEmpty();
     }
 
     @Override
     public CompletableFuture<Void> run() {
         for (Action action : actionsToRun) {
-            orchestrator.sendToEveryone(LGChatStuff.importantInfo(action.getMessage()));
+            orchestrator.chat().sendToEveryone(LGChatStuff.importantInfo(action.getMessage()));
 
             action.onDuskStart(orchestrator);
         }

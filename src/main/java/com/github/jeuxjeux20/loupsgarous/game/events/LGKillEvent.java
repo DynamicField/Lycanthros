@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.events;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGKill;
+import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;

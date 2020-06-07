@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public final class CoupleWinCondition implements WinCondition {
     @Override
     public Optional<LGEnding> check(LGGameOrchestrator orchestrator) {
-        List<LGPlayer> alivePlayers = orchestrator.getGame().getAlivePlayers().collect(Collectors.toList());
+        List<LGPlayer> alivePlayers = orchestrator.game().getAlivePlayers().collect(Collectors.toList());
         CoupleTeam couple = null;
 
         // Note that this approach will not work if there are

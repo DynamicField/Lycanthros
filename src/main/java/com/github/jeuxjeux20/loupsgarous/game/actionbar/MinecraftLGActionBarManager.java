@@ -38,11 +38,11 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
     private List<BaseComponent> createStateComponents(LGGameOrchestrator orchestrator, LGPlayer player) {
         List<BaseComponent> components = new ArrayList<>();
 
-        if (orchestrator.getState() == LGGameState.WAITING_FOR_PLAYERS) {
+        if (orchestrator.state() == LGGameState.WAITING_FOR_PLAYERS) {
             components.add(new TextComponent("En attente"));
 
             addCompositionProblemComponent(orchestrator, components);
-        } else if (orchestrator.getState() == LGGameState.READY_TO_START) {
+        } else if (orchestrator.state() == LGGameState.READY_TO_START) {
             components.add(new TextComponent("Départ dans "));
 
             Optional<TimedStage> maybeTimedStage = orchestrator.stages().current().getComponent(TimedStage.class);
@@ -57,7 +57,7 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
             components.add(new TextComponent(" secondes"));
 
             addCompositionProblemComponent(orchestrator, components);
-        } else if (orchestrator.getState() == LGGameState.STARTED) {
+        } else if (orchestrator.state() == LGGameState.STARTED) {
             components.add(new TextComponent("Vous êtes : "));
 
             LGCard card = player.getCard();
@@ -67,8 +67,8 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
             cardComponent.setBold(true);
 
             components.add(cardComponent);
-        } else if (orchestrator.getState() == LGGameState.FINISHED) {
-            LGEnding ending = orchestrator.getEnding()
+        } else if (orchestrator.state() == LGGameState.FINISHED) {
+            LGEnding ending = orchestrator.game().getEnding()
                     .orElseThrow(() -> new AssertionError("How is the ending null? The game's finished."));
 
             switch (ending.getOutcomeFor(player)) {
@@ -108,7 +108,7 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
             slotsComponent.setColor(ChatColor.GREEN);
 
             components.add(slotsComponent);
-        } else if (orchestrator.getState() == LGGameState.STARTED) {
+        } else if (orchestrator.state() == LGGameState.STARTED) {
             orchestrator.stages().current().getComponent(TimedStage.class).ifPresent(timedStage -> {
                 Duration secondsLeftDuration = Duration.ofSeconds(timedStage.getSecondsLeft());
                 String formattedDuration = DurationFormatter.CONCISE.format(secondsLeftDuration);

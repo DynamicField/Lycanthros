@@ -53,12 +53,12 @@ public class GameStartStage extends RunnableLGGameStage implements CountdownTime
 
     private class GameStartCountdown extends Countdown {
         public GameStartCountdown() {
-            super(orchestrator.getPlugin(), 15);
+            super(orchestrator.plugin(), 15);
         }
 
         @Override
         protected void onTick() {
-            if (orchestrator.getState() != LGGameState.READY_TO_START) {
+            if (orchestrator.state() != LGGameState.READY_TO_START) {
                 setTimer(getBiggestTimerValue());
             } else if (getTimer() != 0 && getTimer() < 5) {
                 orchestrator.getAllMinecraftPlayers().forEach(this::displayCountdown);

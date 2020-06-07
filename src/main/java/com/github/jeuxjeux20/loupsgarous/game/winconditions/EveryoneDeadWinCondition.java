@@ -9,7 +9,7 @@ import java.util.Optional;
 public final class EveryoneDeadWinCondition implements WinCondition {
     @Override
     public Optional<LGEnding> check(LGGameOrchestrator orchestrator) {
-        boolean isSomeoneAlive = orchestrator.getGame().getAlivePlayers().findAny().isPresent();
+        boolean isSomeoneAlive = orchestrator.game().getAlivePlayers().findAny().isPresent();
         if (!isSomeoneAlive) {
             return Optional.of(new EveryoneDeadEnding());
         }

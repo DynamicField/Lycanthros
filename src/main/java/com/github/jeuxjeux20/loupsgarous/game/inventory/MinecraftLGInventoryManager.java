@@ -92,7 +92,7 @@ public class MinecraftLGInventoryManager implements LGInventoryManager {
 
         Events.merge(LGEvent.class, (Class<? extends LGEvent>[]) classes)
                 .handler(e -> {
-                    for (LGPlayer player : e.getOrchestrator().getGame().getPlayers()) {
+                    for (LGPlayer player : e.getOrchestrator().game().getPlayers()) {
                         update(player, e.getOrchestrator());
                     }
                 });

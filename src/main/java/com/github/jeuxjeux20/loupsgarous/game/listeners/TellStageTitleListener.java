@@ -13,7 +13,7 @@ public class TellStageTitleListener implements Listener {
         LGGameOrchestrator orchestrator = event.getOrchestrator();
 
         event.getStage().getTitle().ifPresent(title -> {
-            orchestrator.sendToEveryone(importantInfo(title));
+            orchestrator.chat().sendToEveryone(importantInfo(title));
 
             orchestrator.showSubtitle(title);
         });

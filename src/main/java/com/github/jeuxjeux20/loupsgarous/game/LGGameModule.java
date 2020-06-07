@@ -5,6 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardsModule;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatModule;
 import com.github.jeuxjeux20.loupsgarous.game.commands.LGCommandsModule;
 import com.github.jeuxjeux20.loupsgarous.game.inventory.LGInventoryModule;
+import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillModule;
 import com.github.jeuxjeux20.loupsgarous.game.listeners.LGListenersModule;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobbyModule;
 import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardModule;
@@ -29,13 +30,13 @@ public final class LGGameModule extends AbstractModule {
         install(new LGTeamsModule());
         install(new LGSignsModule());
         install(new LGInventoryModule());
+        install(new LGKillModule());
+        install(new LGActionBarModule());
 
         bind(LGGameManager.class).to(MinecraftLGGameManager.class);
 
         install(new FactoryModuleBuilder()
                 .implement(LGGameOrchestrator.class, MinecraftLGGameOrchestrator.class)
                 .build(LGGameOrchestrator.Factory.class));
-
-        install(new LGActionBarModule());
     }
 }

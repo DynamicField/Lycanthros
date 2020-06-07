@@ -15,7 +15,7 @@ public class GameEndStageOverride extends AbstractStageOverride<GameEndStage> {
 
     @Override
     public boolean shouldOverride(LGGameOrchestrator orchestrator) {
-        return orchestrator.getState() == LGGameState.FINISHED;
+        return orchestrator.state() == LGGameState.FINISHED;
     }
 
     @Override

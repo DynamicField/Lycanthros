@@ -104,7 +104,7 @@ public final class PickableCommandBuilder<T extends PickableProvider> {
             return;
         }
 
-        Optional<LGPlayer> maybeTarget = orchestrator.getGame().findByName(targetName);
+        Optional<LGPlayer> maybeTarget = orchestrator.game().findByName(targetName);
 
         maybeTarget.ifPresent(target -> {
             if (pickable.canPick(lgPlayer, target).sendMessageOnError(c.sender()))
@@ -173,7 +173,7 @@ public final class PickableCommandBuilder<T extends PickableProvider> {
                             .map(PickableProvider::providePickable).orElse(null);
 
             if (pickable != null && args.length == 1) { // Name
-                Stream<LGPlayer> players = orchestrator.getGame().getPlayers().stream();
+                Stream<LGPlayer> players = orchestrator.game().getPlayers().stream();
                 return players
                         .filter(target -> pickable.canPick(lgPlayer, target).isSuccess())
                         .map(LGPlayer::getName)

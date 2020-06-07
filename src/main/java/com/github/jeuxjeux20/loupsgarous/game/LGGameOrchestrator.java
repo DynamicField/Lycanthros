@@ -1,12 +1,14 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
+import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardsOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.chat.AnonymizedChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatManager;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
-import com.github.jeuxjeux20.loupsgarous.game.killreasons.LGKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
+import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.LGKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.CannotCreateLobbyException;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobby;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobbyInfo;
@@ -15,68 +17,60 @@ import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.*;
+
 /**
  * Manages a Loups-Garous game instance.
  * <p>
- * Orchestrators contain additional state apart from {@link #getGame()} to ensure that the game runs correctly,
- * with {@link #getState()} and {@link #stages()}.
+ * Orchestrators contain additional state apart from the {@link #game()} to ensure that the game runs correctly,
+ * with the {@link #state()} and {@link #stages()}.
  * <p>
  * The {@linkplain LGGameState game state} can be changed using the appropriate methods:
  * {@link #initialize()}, {@link #start()}, {@link #finish(LGEnding)} and {@link #delete()}.
  * <p>
- * While the game is running (this can be checked using {@link #isGameRunning()}),
- * people can be killed using methods such as {@link #getPendingKills()}, {@link #revealAllPendingKills()}
- * and {@link #killInstantly(LGKill)}.
- * <p>
  * This also implements {@link TerminableConsumer}, where all the bound terminables get terminated
  * as soon as the orchestrator is in the {@link LGGameState#DELETING} state.
  * <p>
- * Other aspects of the game can be used using components that break up features into multiple objects:
+ * Other aspects of the game can be used using components that break up features into multiple methods:
  * <ul>
  *     <li>{@link #chat()}: Send messages using channels. ({@link LGChatManager}) </li>
  *     <li>{@link #stages()}: Manages the stages of the game. ({@link LGStagesOrchestrator})</li>
  *     <li>{@link #cards()}: Manages cards and their teams. ({@link LGCardsOrchestrator})</li>
  *     <li>{@link #lobby()}: Manages the lobby and the composition of the game. ({@link LGGameLobby})</li>
+ *     <li>{@link #kills()}: Kill people instantly, or at a later time. ({@link LGKillsOrchestrator})</li>
  * </ul>
  *
+ * @author jeuxjeux20
  * @see LGChatManager
  * @see LGStagesOrchestrator
  * @see LGCardsOrchestrator
+ * @see LGKillsOrchestrator
  * @see LGGameLobby
  * @see LGGameState
- * @author jeuxjeux20
  */
 public interface LGGameOrchestrator extends TerminableConsumer {
-    Plugin getPlugin();
+    LGGame game();
 
-    World getWorld();
+    LGGameState state();
 
-    LGGame getGame();
+    LoupsGarous plugin();
 
-    String getId();
-
-    LGGameState getState();
-
-    Optional<LGEnding> getEnding();
-
-    HashMap<AnonymizedChatChannel, List<String>> getAnonymizedNames();
-
-    default boolean isGameRunning() {
-        return getState() == LGGameState.STARTED;
+    default LGGameTurn turn() {
+        return game().getTurn();
     }
 
-    default LGGameTurn getTurn() {
-        return getGame().getTurn();
+    default World world() {
+        return lobby().getWorld();
+    }
+
+    default boolean isGameRunning() {
+        return state() == STARTED;
     }
 
 
@@ -91,28 +85,11 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     void nextTimeOfDay();
 
 
-    Set<LGKill> getPendingKills();
-
-    void revealAllPendingKills();
-
-    void killInstantly(LGKill lgKill);
-
-    default void killInstantly(LGPlayer player, LGKillReason reason) {
-        killInstantly(LGKill.of(player, reason));
-    }
-
-    default void killInstantly(LGPlayer player, Supplier<LGKillReason> reasonSupplier) {
-        killInstantly(LGKill.of(player, reasonSupplier));
-    }
-
     void callEvent(LGEvent event);
 
-    default Stream<@NotNull Player> getAllMinecraftPlayers() {
-        return getGame().getPlayers().stream().map(LGPlayer::getMinecraftPlayer).flatMap(OptionalUtils::stream);
-    }
 
-    default void sendToEveryone(String message) {
-        getAllMinecraftPlayers().forEach(player -> player.sendMessage(message));
+    default Stream<@NotNull Player> getAllMinecraftPlayers() {
+        return game().getPlayers().stream().map(LGPlayer::getMinecraftPlayer).flatMap(OptionalUtils::stream);
     }
 
     default void showSubtitle(String subtitle) {
@@ -120,10 +97,10 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     }
 
     default Stream<LGCard> getCurrentComposition() {
-        if (getState() == LGGameState.WAITING_FOR_PLAYERS || getState() == LGGameState.READY_TO_START) {
+        if (state() == LGGameState.WAITING_FOR_PLAYERS || state() == READY_TO_START) {
             return lobby().getComposition().getCards().stream();
         } else {
-            return getGame().getAlivePlayers().map(LGPlayer::getCard);
+            return game().getAlivePlayers().map(LGPlayer::getCard);
         }
     }
 
@@ -132,6 +109,8 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     LGStagesOrchestrator stages();
 
     LGCardsOrchestrator cards();
+
+    LGKillsOrchestrator kills();
 
     LGGameLobby lobby();
 

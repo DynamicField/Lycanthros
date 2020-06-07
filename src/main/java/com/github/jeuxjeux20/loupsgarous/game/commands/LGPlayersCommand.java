@@ -1,7 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.game.commands;
 
-import com.github.jeuxjeux20.guicybukkit.command.CommandName;
-import com.github.jeuxjeux20.loupsgarous.LGMessages;
 import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
 import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.cards.revealers.CardRevealer;
@@ -13,7 +11,6 @@ import me.lucko.helper.command.context.CommandContext;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import java.util.Optional;
 import java.util.Set;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.banner;
@@ -40,7 +37,7 @@ public class LGPlayersCommand implements HelperCommandRegisterer {
     }
 
     private void handle(CommandContext<Player> context, LGPlayer sender, LGGameOrchestrator orchestrator) {
-        Set<LGPlayer> players = orchestrator.getGame().getPlayers();
+        Set<LGPlayer> players = orchestrator.game().getPlayers();
 
         StringBuilder messageBuilder = new StringBuilder()
                 .append(banner("Liste des joueurs"))

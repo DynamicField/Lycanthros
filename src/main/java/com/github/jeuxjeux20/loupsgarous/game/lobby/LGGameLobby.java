@@ -42,7 +42,7 @@ public interface LGGameLobby {
     LGGameOrchestrator gameOrchestrator();
 
     default int getSlotsTaken() {
-        return (int) gameOrchestrator().getGame().getPresentPlayers().count();
+        return (int) gameOrchestrator().game().getPresentPlayers().count();
     }
 
     default int getTotalSlotCount() {

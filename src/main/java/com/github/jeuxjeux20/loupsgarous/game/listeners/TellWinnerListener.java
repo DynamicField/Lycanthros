@@ -16,6 +16,6 @@ public class TellWinnerListener implements Listener {
                          ChatColor.GOLD + ChatColor.BOLD + endingMessage + "\n" +
                          LGChatStuff.BANNER;
 
-        event.getOrchestrator().sendToEveryone(message);
+        event.getOrchestrator().chat().sendToEveryone(message);
     }
 }

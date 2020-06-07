@@ -70,7 +70,7 @@ class MinecraftLGChatManager implements LGChatManager {
 
     @Override
     public void sendMessage(LGChatChannel channel, Function<? super LGPlayer, String> messageFunction) {
-        for (LGPlayer player : orchestrator.getGame().getPlayers()) {
+        for (LGPlayer player : orchestrator.game().getPlayers()) {
             player.getMinecraftPlayer().ifPresent(minecraftPlayer -> {
                 if (!channel.areMessagesVisibleTo(player, orchestrator)) return;
 

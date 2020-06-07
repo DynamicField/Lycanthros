@@ -1,9 +1,12 @@
 package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
+import com.comphenix.protocol.PacketType;
+import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.google.inject.Inject;
+import me.lucko.helper.protocol.Protocol;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,7 +17,7 @@ public class PreventNightPlayerMovementListener implements Listener {
     private final LGGameManager gameManager;
 
     @Inject
-    PreventNightPlayerMovementListener(LGGameManager gameManager) {
+    PreventNightPlayerMovementListener(LGGameManager gameManager, LoupsGarous plugin) {
         this.gameManager = gameManager;
     }
 
@@ -25,7 +28,7 @@ public class PreventNightPlayerMovementListener implements Listener {
         gameManager.getPlayerInGame(player).ifPresent(pg -> {
             LGGameOrchestrator orchestrator = pg.getOrchestrator();
 
-            if (orchestrator.isGameRunning() && orchestrator.getTurn().getTime() == LGGameTurnTime.NIGHT) {
+            if (orchestrator.isGameRunning() && orchestrator.turn().getTime() == LGGameTurnTime.NIGHT) {
                 Location to = event.getTo();
                 Location from = event.getFrom();
 
@@ -38,4 +41,5 @@ public class PreventNightPlayerMovementListener implements Listener {
             }
         });
     }
+
 }

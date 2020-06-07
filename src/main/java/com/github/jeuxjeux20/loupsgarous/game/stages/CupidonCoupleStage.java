@@ -138,11 +138,11 @@ public class CupidonCoupleStage extends RunnableLGGameStage implements Countdown
     }
 
     private Stream<LGPlayer> getEligibleCupidons() {
-        return orchestrator.getGame().getPlayers().stream().filter(Check.predicate(this::canPlayerCreateCouple));
+        return orchestrator.game().getPlayers().stream().filter(Check.predicate(this::canPlayerCreateCouple));
     }
 
     private Stream<LGPlayer> getEligiblePartners() {
-        return orchestrator.getGame().getPlayers().stream()
+        return orchestrator.game().getPlayers().stream()
                 .filter(Check.predicate(this::partnerCheck));
     }
 

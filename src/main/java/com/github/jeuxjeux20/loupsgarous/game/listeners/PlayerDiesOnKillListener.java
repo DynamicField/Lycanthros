@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGKill;
+import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGKillEvent;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -14,7 +14,7 @@ import java.util.Optional;
 public class PlayerDiesOnKillListener implements Listener {
     @EventHandler
     public void onLGKill(LGKillEvent event) {
-        World world = event.getOrchestrator().getWorld();
+        World world = event.getOrchestrator().world();
         for (LGKill kill : event.getKills()) {
             Optional<Player> maybePlayer = kill.getWhoDied().getMinecraftPlayer();
 

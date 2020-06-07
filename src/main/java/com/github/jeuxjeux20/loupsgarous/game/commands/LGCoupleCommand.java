@@ -5,7 +5,6 @@ import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
 import com.github.jeuxjeux20.loupsgarous.game.stages.CupidonCoupleStage;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.google.inject.Inject;
@@ -64,13 +63,13 @@ public class LGCoupleCommand implements HelperCommandRegisterer {
 
     private Optional<CupidonCoupleStage.Couple> createCouple(String partner1Name, String partner2Name,
                                                              LGGameOrchestrator orchestrator, Player sender) {
-        Optional<LGPlayer> partner1 = orchestrator.getGame().findByName(partner1Name);
+        Optional<LGPlayer> partner1 = orchestrator.game().findByName(partner1Name);
         if (!partner1.isPresent()) {
             sender.sendMessage(LGMessages.cannotFindPlayer(partner1Name));
             return Optional.empty();
         }
 
-        Optional<LGPlayer> partner2 = orchestrator.getGame().findByName(partner2Name);
+        Optional<LGPlayer> partner2 = orchestrator.game().findByName(partner2Name);
         if (!partner2.isPresent()) {
             sender.sendMessage(LGMessages.cannotFindPlayer(partner2Name));
             return Optional.empty();

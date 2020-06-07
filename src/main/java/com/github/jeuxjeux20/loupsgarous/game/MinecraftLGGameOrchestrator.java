@@ -3,7 +3,6 @@ package com.github.jeuxjeux20.loupsgarous.game;
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.actionbar.LGActionBarManager;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardsOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.chat.AnonymizedChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatManager;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.events.*;
@@ -11,7 +10,9 @@ import com.github.jeuxjeux20.loupsgarous.game.events.lobby.LGLobbyCompositionCha
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.game.inventory.LGInventoryManager;
-import com.github.jeuxjeux20.loupsgarous.game.killreasons.PlayerQuitKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
+import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.PlayerQuitKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.CannotCreateLobbyException;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobby;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobbyInfo;
@@ -19,7 +20,6 @@ import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardManager;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGGameStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -29,18 +29,14 @@ import me.lucko.helper.terminable.composite.CompositeTerminable;
 import me.lucko.helper.terminable.module.TerminableModule;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.*;
-import java.util.stream.Collectors;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
-import static com.github.jeuxjeux20.loupsgarous.game.MinecraftLGGameOrchestrator.OrchestratorState.*;
+import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.*;
 
 class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     // Terminables
@@ -48,19 +44,16 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     // Base dependencies
     private final LoupsGarous plugin;
     // Game state
-    private final Set<LGKill> pendingKills = new HashSet<>();
-    private final HashMap<AnonymizedChatChannel, List<String>> anonymizedNames = new HashMap<>();
     private final MutableLGGame game;
     private LGGameState state = LGGameState.UNINITIALIZED;
-    private @Nullable LGEnding ending;
     // Metadata
-    private final String id;
     private final ImmutableSet<Player> initialPlayers;
     // Components
     private final LGGameLobby lobby;
     private final LGCardsOrchestrator cardOrchestrator;
     private final LGStagesOrchestrator stagesOrchestrator;
     private final LGChatManager chatManager;
+    private final LGKillsOrchestrator killsOrchestrator;
     // UI & All
     private final LGActionBarManager actionBarManager;
 
@@ -73,16 +66,17 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
                                 LGChatManager.Factory chatManagerFactory,
                                 LGGameLobby.Factory lobbyFactory,
                                 LGCardsOrchestrator.Factory cardOrchestratorFactory,
-                                LGStagesOrchestrator.Factory stagesOrchestratorFactory) throws CannotCreateLobbyException {
-        this.id = lobbyInfo.getId();
+                                LGStagesOrchestrator.Factory stagesOrchestratorFactory,
+                                LGKillsOrchestrator.Factory killsOrchestratorFactory) throws CannotCreateLobbyException {
         this.initialPlayers = lobbyInfo.getPlayers();
         this.plugin = plugin;
         this.actionBarManager = actionBarManager;
-        this.game = new MutableLGGame();
+        this.game = new MutableLGGame(lobbyInfo.getId());
         this.lobby = lobbyFactory.create(lobbyInfo, this);
         this.cardOrchestrator = cardOrchestratorFactory.create(this);
         this.stagesOrchestrator = stagesOrchestratorFactory.create(this);
         this.chatManager = chatManagerFactory.create(this);
+        this.killsOrchestrator = killsOrchestratorFactory.create(this);
 
         this.bind(Schedulers.sync().runRepeating(this::updateActionBars, 20, 20));
         registerLobbyEvents();
@@ -92,74 +86,79 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     }
 
     private void updateActionBars() {
-        getGame().getPlayers().forEach(player -> actionBarManager.update(player, this));
+        game().getPlayers().forEach(player -> actionBarManager.update(player, this));
     }
 
     @Override
-    public MutableLGGame getGame() {
+    public MutableLGGame game() {
         return game;
     }
 
     @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public World getWorld() {
-        return lobby.getWorld();
-    }
-
-    @Override
-    public LGGameState getState() {
+    public LGGameState state() {
         return state;
     }
 
     @Override
-    public void killInstantly(LGKill kill) {
-        ensureState(STARTED);
+    public void initialize() {
+        state.mustBe(UNINITIALIZED);
 
-        killPlayer(kill);
+        changeStateTo(WAITING_FOR_PLAYERS, LGGameWaitingForPlayersEvent::new);
 
-        callEvent(new LGKillEvent(this, kill));
-    }
+        initialPlayers.forEach(lobby::addPlayer);
 
-    @Override
-    public Set<LGKill> getPendingKills() {
-        ensureState(STARTED);
-
-        return pendingKills;
-    }
-
-    @Override
-    public void revealAllPendingKills() {
-        ensureState(STARTED);
-
-        ImmutableList<LGKill> kills = ImmutableList.copyOf(pendingKills);
-        pendingKills.clear();
-
-        for (LGKill kill : kills) {
-            killPlayer(kill);
+        if (game().getPlayers().isEmpty()) {
+            delete(); // No online players have been added, so bye!
+            return;
         }
 
-        callEvent(new LGKillEvent(this, kills));
+        if (stages().current() instanceof LGGameStage.Null) {
+            stages().next();
+        }
     }
 
-    private void killPlayer(LGKill kill) {
-        MutableLGPlayer whoDied = game.getPlayer(kill.getWhoDied())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "The player" + kill.getWhoDied().getName() + " is not present in the game's players."
-                ));
+    @Override
+    public void start() {
+        state.mustBe(READY_TO_START);
 
-        Preconditions.checkArgument(whoDied.isAlive(),
-                "Cannot kill player " + whoDied.getName() + " because they are dead.");
+        game.distributeCards(lobby.getComposition());
+        changeStateTo(STARTED, LGGameStartEvent::new);
 
-        whoDied.setDead(true);
+        callEvent(new LGTurnChangeEvent(this));
+
+        stages().next();
+    }
+
+    @Override
+    public void finish(LGEnding ending) {
+        // A game can be finished at any state except when it's already finished or deleted.
+        state.mustNotBe(FINISHED, DELETING, DELETED);
+
+        game.setEnding(ending);
+
+        changeStateTo(FINISHED, o -> new LGGameFinishedEvent(o, ending));
+
+        stages().next();
+    }
+
+    @Override
+    public void delete() {
+        state.mustNotBe(DELETING, DELETED);
+
+        changeStateTo(DELETING, LGGameDeletingEvent::new);
+
+        terminableRegistry.closeAndReportException();
+
+        game().getPlayers().stream()
+                .map(LGPlayer::getPlayerUUID)
+                .forEach(lobby::removePlayer);
+
+        changeStateTo(DELETED, LGGameDeletedEvent::new);
     }
 
     @Override
     public void nextTimeOfDay() {
-        ensureState(STARTED);
+        state.mustBe(STARTED);
 
         MutableLGGameTurn turn = game.getTurn();
         if (turn.getTime() == LGGameTurnTime.DAY) {
@@ -172,75 +171,13 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         callEvent(new LGTurnChangeEvent(this));
     }
 
-    @Override
-    public void start() {
-        ensureState(READY_TO_START);
-
-        game.distributeCards(lobby.getComposition());
-        changeStateTo(STARTED, LGGameStartEvent::new);
-
-        callEvent(new LGTurnChangeEvent(this));
-
-        stages().next();
-    }
-
     private void updateLobbyState() {
-        ensureState(UNINITIALIZED, WAITING_FOR_PLAYERS, READY_TO_START);
+        state.mustBe(UNINITIALIZED, WAITING_FOR_PLAYERS, READY_TO_START);
 
         if (lobby.isFull() && lobby.isCompositionValid()) {
             changeStateTo(READY_TO_START, LGGameReadyToStartEvent::new);
         } else {
             changeStateTo(WAITING_FOR_PLAYERS, LGGameWaitingForPlayersEvent::new);
-        }
-    }
-
-    @Override
-    public void finish(LGEnding ending) {
-        // A game can be finished at any state except when it's already finished or deleted.
-        ensureNotState(FINISHED, DELETING, DELETED);
-
-        this.ending = ending;
-
-        changeStateTo(FINISHED, o -> new LGGameFinishedEvent(o, ending));
-
-        stages().next();
-    }
-
-    @Override
-    public Optional<LGEnding> getEnding() {
-        return Optional.ofNullable(ending);
-    }
-
-    @Override
-    public void delete() {
-        ensureNotState(DELETING, DELETED);
-
-        changeStateTo(DELETING, LGGameDeletingEvent::new);
-
-        terminableRegistry.closeAndReportException();
-
-        getGame().getPlayers().stream()
-                .map(LGPlayer::getPlayerUUID)
-                .forEach(lobby::removePlayer);
-
-        changeStateTo(DELETED, LGGameDeletedEvent::new);
-    }
-
-    @Override
-    public void initialize() {
-        ensureState(UNINITIALIZED);
-
-        changeStateTo(WAITING_FOR_PLAYERS, LGGameWaitingForPlayersEvent::new);
-
-        initialPlayers.forEach(lobby::addPlayer);
-
-        if (getGame().getPlayers().isEmpty()) {
-            delete(); // No online players have been added, so bye!
-            return;
-        }
-
-        if (stages().current() instanceof LGGameStage.Null) {
-            stages().next();
         }
     }
 
@@ -263,7 +200,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     }
 
     private void handlePlayerJoin(LGPlayerJoinEvent event) {
-        sendToEveryone(player(event.getPlayer().getName()) + lobbyMessage(" a rejoint la partie ! ") +
+        chat().sendToEveryone(player(event.getPlayer().getName()) + lobbyMessage(" a rejoint la partie ! ") +
                        slots(lobby.getSlotsDisplay()));
     }
 
@@ -271,14 +208,14 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(e.getPlayerUUID());
 
         if (isGameRunning() && e.getLGPlayer().isAlive()) {
-            killInstantly(LGKill.of(e.getLGPlayer(), PlayerQuitKillReason::new));
+            kills().instantly(e.getLGPlayer(), PlayerQuitKillReason::new);
         } else if (state.isEnabled()) { // Let's not write quit messages while deleting.
-            sendToEveryone(player(offlinePlayer.getName()) + lobbyMessage(" a quitté la partie ! ") +
+            chat().sendToEveryone(player(offlinePlayer.getName()) + lobbyMessage(" a quitté la partie ! ") +
                            slots(lobby.getSlotsDisplay()));
         }
 
         // Are they all gone?
-        if (getGame().isEmpty() && state.isEnabled()) {
+        if (game().isEmpty() && state.isEnabled()) {
             delete();
         }
     }
@@ -288,17 +225,12 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     }
 
     @Override
-    public final LoupsGarous getPlugin() {
+    public final LoupsGarous plugin() {
         return plugin;
     }
 
     public void callEvent(LGEvent event) {
         plugin.getServer().getPluginManager().callEvent(event);
-    }
-
-    @Override
-    public HashMap<AnonymizedChatChannel, List<String>> getAnonymizedNames() {
-        return anonymizedNames;
     }
 
     @Override
@@ -317,11 +249,14 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     }
 
     @Override
+    public LGKillsOrchestrator kills() {
+        return killsOrchestrator;
+    }
+
+    @Override
     public LGGameLobby lobby() {
         return lobby;
     }
-
-    // State stuff
 
     /**
      * Changes the current state to the specified {@code state}, and calls the event created using the given
@@ -332,51 +267,13 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
      * @param <E>           the type of the event
      * @throws IllegalStateException when the state's game type is not the same as the current one
      */
-    private <E extends LGEvent> void changeStateTo(OrchestratorState<E> state,
+    private <E extends LGEvent> void changeStateTo(LGGameState state,
                                                    Function<? super LGGameOrchestrator, E> eventFunction) {
-        if (this.state == state.value) return;
+        if (this.state == state) return;
 
-        this.state = state.value;
+        this.state = state;
 
         callEvent(eventFunction.apply(this));
-    }
-
-    private void ensureNotState(OrchestratorState<?>... states) {
-        for (OrchestratorState<?> state : states) {
-            if (this.state == state.value) {
-                throw new IllegalStateException(
-                        "The game state (" + this.state + ") must NOT be in [" +
-                        Arrays.stream(states).map(Object::toString).collect(Collectors.joining(", ")) +
-                        "].");
-            }
-        }
-    }
-
-    private void ensureNotState(OrchestratorState<?> state) {
-        Preconditions.checkState(this.state != state.value,
-                "The game state must NOT be: " + this.state.toString());
-    }
-
-    /**
-     * Ensures that the current state is the same as the specified one, if it isn't, throws an exception.
-     *
-     * @param state the state to check
-     * @throws IllegalStateException when the current state is not the same as the given one
-     */
-    private void ensureState(OrchestratorState<?> state) {
-        Preconditions.checkState(this.state == state.value,
-                "The game state must be: " + state.toString());
-    }
-
-    private void ensureState(OrchestratorState<?>... states) {
-        for (OrchestratorState<?> state : states) {
-            if (this.state == state.value) return;
-        }
-
-        throw new IllegalStateException(
-                "The game state (" + this.state + ") must be in [" +
-                Arrays.stream(states).map(Object::toString).collect(Collectors.joining(", ")) +
-                "].");
     }
 
     @Nonnull
@@ -389,50 +286,5 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     @Override
     public <T extends TerminableModule> T bindModule(@Nonnull T module) {
         return terminableRegistry.bindModule(module);
-    }
-
-    /**
-     * Represents the game state of the orchestrator, which wraps a {@link LGGameState} {@linkplain #value}, with some
-     * the type of the event to call when changing to this state ({@code <E>}).<br>
-     * <i>Example:</i> The {@link #FINISHED} state has an event type of {@link LGGameFinishedEvent}.<br>
-     * <i>Note:</i> Do not use wildcards for events (such as {@code ? extends E}), since
-     * events listeners only listens for concrete types and not subclasses.
-     *
-     * @param <E> the type of the event to call
-     */
-    static class OrchestratorState<E extends Event> {
-        public static final OrchestratorState<NullEvent> UNINITIALIZED
-                = new OrchestratorState<>(LGGameState.UNINITIALIZED);
-
-        public static final OrchestratorState<LGGameWaitingForPlayersEvent> WAITING_FOR_PLAYERS
-                = new OrchestratorState<>(LGGameState.WAITING_FOR_PLAYERS);
-
-        public static final OrchestratorState<LGGameReadyToStartEvent> READY_TO_START
-                = new OrchestratorState<>(LGGameState.READY_TO_START);
-
-        public static final OrchestratorState<LGGameStartEvent> STARTED
-                = new OrchestratorState<>(LGGameState.STARTED);
-
-        public static final OrchestratorState<LGGameFinishedEvent> FINISHED
-                = new OrchestratorState<>(LGGameState.FINISHED);
-
-        public static final OrchestratorState<LGGameDeletingEvent> DELETING
-                = new OrchestratorState<>(LGGameState.DELETING);
-
-        public static final OrchestratorState<LGGameDeletedEvent> DELETED
-                = new OrchestratorState<>(LGGameState.DELETED);
-
-        public final LGGameState value;
-
-        private OrchestratorState(LGGameState value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value.toString();
-        }
-
-        static abstract class NullEvent extends Event {}
     }
 }

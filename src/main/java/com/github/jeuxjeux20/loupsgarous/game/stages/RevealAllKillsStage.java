@@ -15,11 +15,11 @@ public class RevealAllKillsStage extends LogicLGGameStage {
 
     @Override
     public void runSync() {
-        if (orchestrator.getPendingKills().isEmpty()) {
-            orchestrator.sendToEveryone(
+        if (orchestrator.kills().pending().isEmpty()) {
+            orchestrator.chat().sendToEveryone(
                     killMessage(SKULL_SYMBOL + " Le village se lève... et personne n'est mort !")
             );
         }
-        orchestrator.revealAllPendingKills();
+        orchestrator.kills().revealPending();
     }
 }

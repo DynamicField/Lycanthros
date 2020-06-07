@@ -16,6 +16,6 @@ public abstract class LGEvent extends Event {
     }
 
     public LGGame getGame() {
-        return orchestrator.getGame();
+        return orchestrator.game();
     }
 }

@@ -51,6 +51,10 @@ public interface LGChatManager extends LGGameOrchestratorComponent {
         sendMessage(votable.getInfoMessagesChannel(), VOTE_TIP_MESSAGE);
     }
 
+    default void sendToEveryone(String message) {
+        gameOrchestrator().getAllMinecraftPlayers().forEach(player -> player.sendMessage(message));
+    }
+
     interface Factory {
         LGChatManager create(LGGameOrchestrator orchestrator);
     }

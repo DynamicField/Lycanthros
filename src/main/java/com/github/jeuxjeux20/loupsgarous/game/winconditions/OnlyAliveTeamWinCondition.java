@@ -19,7 +19,7 @@ public class OnlyAliveTeamWinCondition implements WinCondition {
 
     @Override
     public Optional<LGEnding> check(LGGameOrchestrator orchestrator) {
-        if (orchestrator.getGame().getAlivePlayers().allMatch(this::allSameTeam)) {
+        if (orchestrator.game().getAlivePlayers().allMatch(this::allSameTeam)) {
             LGEnding ending = endingSupplier.get();
             return Optional.of(ending);
         }

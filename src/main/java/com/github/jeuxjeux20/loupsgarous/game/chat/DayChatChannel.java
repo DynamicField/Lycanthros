@@ -18,7 +18,7 @@ public final class DayChatChannel implements LGChatChannel {
     @Override
     public boolean canBeUsedByPlayer(LGGameOrchestrator orchestrator) {
         return orchestrator.isGameRunning() &&
-               orchestrator.getGame().getTurn().getTime() == LGGameTurnTime.DAY;
+               orchestrator.game().getTurn().getTime() == LGGameTurnTime.DAY;
     }
 
     @Override

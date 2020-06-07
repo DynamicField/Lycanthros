@@ -4,7 +4,8 @@ import com.github.jeuxjeux20.loupsgarous.ComponentStyles;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.cards.SorciereCard;
-import com.github.jeuxjeux20.loupsgarous.game.killreasons.NightKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
+import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.NightKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Healable;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Killable;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.PickableProvider;
@@ -44,13 +45,13 @@ public class SorcierePotionStage extends RunnableLGGameStage implements Countdow
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.getGame().getAlivePlayers().anyMatch(Check.predicate(this::canAct))
-               && orchestrator.getGame().getTurn().getTime() == LGGameTurnTime.NIGHT;
+        return orchestrator.game().getAlivePlayers().anyMatch(Check.predicate(this::canAct)) &&
+               orchestrator.game().getTurn().getTime() == LGGameTurnTime.NIGHT;
     }
 
     @Override
     public CompletableFuture<Void> run() {
-        orchestrator.getGame().getAlivePlayers()
+        orchestrator.game().getAlivePlayers()
                 .filter(Check.predicate(this::canAct))
                 .forEach(this::sendNotification);
 
@@ -95,7 +96,7 @@ public class SorcierePotionStage extends RunnableLGGameStage implements Countdow
                         .decoration(BOLD, true));
 
         if (card.hasHealPotion()) {
-            Set<LGKill> pendingKills = orchestrator.getPendingKills();
+            Set<LGKill> pendingKills = orchestrator.kills().pending();
 
             builder.append(TextComponent.of("\n" + HEAL_SYMBOL + " ").color(GREEN));
 
@@ -127,19 +128,6 @@ public class SorcierePotionStage extends RunnableLGGameStage implements Countdow
                         builder.append(TextComponent.of(i == endSeparator ? " et " : ",", WHITE));
                     }
                 }
-
-                String commandUsageTip;
-
-                if (pendingKills.size() > 1) {
-                    builder.append(TextComponent.of(" vont mourir cette nuit."));
-                    commandUsageTip = "Faites /lgheal <joueur> pour soigner un de ces joueurs";
-                } else {
-                    builder.append(TextComponent.of(" va mourir cette nuit."));
-                    commandUsageTip = "Faites /lgheal " + pendingKills.iterator().next().getWhoDied().getName() +
-                                      " pour soigner ce joueur.";
-                }
-
-                builder.append(TextComponent.of("\n" + commandUsageTip).color(GRAY).decoration(ITALIC, true));
             }
         }
 
@@ -181,7 +169,7 @@ public class SorcierePotionStage extends RunnableLGGameStage implements Countdow
         @Override
         public Check canHeal(LGPlayer healer, LGPlayer target) {
             return canPlayerHeal(healer)
-                    .and(() -> orchestrator.getPendingKills().stream().anyMatch(x -> x.getWhoDied() == target),
+                    .and(() -> orchestrator.kills().pending().stream().anyMatch(x -> x.getWhoDied() == target),
                             "Ce joueur ne va pas mourir ce tour ci.");
         }
 
@@ -194,7 +182,7 @@ public class SorcierePotionStage extends RunnableLGGameStage implements Countdow
             SorciereCard card = (SorciereCard) healer.getCard();
 
             card.useHealPotion();
-            orchestrator.getPendingKills().removeIf(x -> x.getWhoDied() == target);
+            orchestrator.kills().pending().removeIf(x -> x.getWhoDied() == target);
 
             healer.getMinecraftPlayer().ifPresent(player ->
                     player.sendMessage(
@@ -225,7 +213,7 @@ public class SorcierePotionStage extends RunnableLGGameStage implements Countdow
             SorciereCard card = (SorciereCard) killer.getCard();
 
             card.useKillPotion();
-            orchestrator.getPendingKills().add(LGKill.of(target, NightKillReason::new));
+            orchestrator.kills().pending().add(LGKill.of(target, NightKillReason::new));
 
             killer.getMinecraftPlayer().ifPresent(player ->
                     player.sendMessage(

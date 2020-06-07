@@ -4,7 +4,8 @@ import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LoupsGarousVoteChatChannel;
-import com.github.jeuxjeux20.loupsgarous.game.killreasons.NightKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
+import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.NightKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
@@ -47,7 +48,7 @@ public class LoupGarouNightKillVoteStage extends RunnableLGGameStage implements 
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.getTurn().getTime() == LGGameTurnTime.NIGHT;
+        return orchestrator.turn().getTime() == LGGameTurnTime.NIGHT;
     }
 
     @Override
@@ -70,7 +71,7 @@ public class LoupGarouNightKillVoteStage extends RunnableLGGameStage implements 
     private void computeVoteOutcome() {
         LGPlayer playerWithMostVotes = currentState.getPlayerWithMostVotes();
         if (playerWithMostVotes != null) {
-            orchestrator.getPendingKills().add(LGKill.of(playerWithMostVotes, NightKillReason::new));
+            orchestrator.kills().pending().add(LGKill.of(playerWithMostVotes, NightKillReason::new));
             orchestrator.chat().sendMessage(voteChannel,
                     ChatColor.AQUA + "Les loups ont décidé de tuer " +
                     player(playerWithMostVotes.getName()) + ChatColor.AQUA + "."
@@ -83,7 +84,7 @@ public class LoupGarouNightKillVoteStage extends RunnableLGGameStage implements 
     }
 
     private void howl() {
-        orchestrator.getGame().getPlayers().stream()
+        orchestrator.game().getPlayers().stream()
                 .filter(p -> voteChannel.areMessagesVisibleTo(p, orchestrator))
                 .map(LGPlayer::getMinecraftPlayer)
                 .flatMap(OptionalUtils::stream)
@@ -97,6 +98,11 @@ public class LoupGarouNightKillVoteStage extends RunnableLGGameStage implements 
     @Override
     public Countdown getCountdown() {
         return countdown;
+    }
+
+    @Override
+    public Countdown getUnmodifiedCountdown() {
+        return unmodifiedCountdown;
     }
 
     @Override
@@ -122,10 +128,5 @@ public class LoupGarouNightKillVoteStage extends RunnableLGGameStage implements 
     @Override
     public String getIndicator() {
         return "vote pour tuer";
-    }
-
-    @Override
-    public Countdown getUnmodifiedCountdown() {
-        return unmodifiedCountdown;
     }
 }

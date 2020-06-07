@@ -24,7 +24,7 @@ public abstract class RunnableLGGameStage implements LGGameStage {
 
         withOperations.whenComplete((r, t) -> {
             if (t != null) {
-                orchestrator.getPlugin().getLogger().log(Level.WARNING, "Some exception", t);
+                orchestrator.plugin().getLogger().log(Level.WARNING, "Some exception", t);
             }
             root.cancel(true);
         });

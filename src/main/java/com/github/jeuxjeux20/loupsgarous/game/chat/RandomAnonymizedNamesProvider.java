@@ -17,7 +17,7 @@ class RandomAnonymizedNamesProvider implements AnonymizedNamesProvider {
         if (anonymousNameHolder.getAnonymizedName() != null)
             return anonymousNameHolder.getAnonymizedName();
 
-        List<String> availableNames = orchestrator.getAnonymizedNames().computeIfAbsent(chatChannel,
+        List<String> availableNames = orchestrator.game().getAnonymizedNames().computeIfAbsent(chatChannel,
                 k -> new ArrayList<>(Arrays.asList(names)));
 
         String name;

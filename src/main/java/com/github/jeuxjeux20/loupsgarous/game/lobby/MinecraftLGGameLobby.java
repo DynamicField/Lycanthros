@@ -112,7 +112,7 @@ class MinecraftLGGameLobby implements LGGameLobby {
         @Nullable MutableLGPlayer lgPlayer = getGame().getPlayer(playerUUID).orElse(null);
         if (lgPlayer == null) return false;
 
-        if (orchestrator.getState().wentThrough(LGGameState.STARTED)) {
+        if (orchestrator.state().wentThrough(LGGameState.STARTED)) {
             lgPlayer.setAway(true);
         } else {
             getGame().removePlayer(playerUUID);
@@ -125,7 +125,7 @@ class MinecraftLGGameLobby implements LGGameLobby {
             lobbyTeleporter.teleportPlayerOut(onlinePlayer);
         }
 
-        if (playerUUID.equals(owner.getUniqueId()) && orchestrator.getState().isEnabled()) {
+        if (playerUUID.equals(owner.getUniqueId()) && orchestrator.state().isEnabled()) {
             putRandomOwner();
         }
 
@@ -179,8 +179,8 @@ class MinecraftLGGameLobby implements LGGameLobby {
 
     @Override
     public boolean isLocked() {
-        return orchestrator.getState() != LGGameState.WAITING_FOR_PLAYERS &&
-               orchestrator.getState() != LGGameState.READY_TO_START;
+        return orchestrator.state() != LGGameState.WAITING_FOR_PLAYERS &&
+               orchestrator.state() != LGGameState.READY_TO_START;
     }
 
     @Override
@@ -203,19 +203,19 @@ class MinecraftLGGameLobby implements LGGameLobby {
 
     private void registerPlayerQuitEvents() {
         Events.merge(PlayerEvent.class, PlayerQuitEvent.class, PlayerKickEvent.class)
-                .expireIf(e -> orchestrator.getState().isDisabled())
+                .expireIf(e -> orchestrator.state().isDisabled())
                 .handler(e -> removePlayer(e.getPlayer()))
                 .bindWith(orchestrator);
 
         Events.subscribe(PlayerChangedWorldEvent.class)
-                .expireIf(e -> orchestrator.getState().isDisabled())
-                .filter(e -> e.getFrom() == orchestrator.getWorld())
+                .expireIf(e -> orchestrator.state().isDisabled())
+                .filter(e -> e.getFrom() == orchestrator.world())
                 .handler(e -> removePlayer(e.getPlayer()))
                 .bindWith(orchestrator);
     }
 
     private MutableLGGame getGame() {
-        return orchestrator.getGame();
+        return orchestrator.game();
     }
 
     private final class LobbyComposition extends MutableComposition {

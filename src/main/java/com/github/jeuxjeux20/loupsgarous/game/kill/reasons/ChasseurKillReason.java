@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game.killreasons;
+package com.github.jeuxjeux20.loupsgarous.game.kill.reasons;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 

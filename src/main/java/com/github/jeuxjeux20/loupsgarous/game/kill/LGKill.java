@@ -1,6 +1,7 @@
-package com.github.jeuxjeux20.loupsgarous.game;
+package com.github.jeuxjeux20.loupsgarous.game.kill;
 
-import com.github.jeuxjeux20.loupsgarous.game.killreasons.LGKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.LGKillReason;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 

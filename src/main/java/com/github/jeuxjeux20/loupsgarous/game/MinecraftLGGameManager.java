@@ -32,7 +32,6 @@ class MinecraftLGGameManager implements LGGameManager {
     private final Logger logger;
     private final LGGameOrchestrator.Factory orchestratorFactory;
 
-    private final CopyOnWriteArraySet<Player> playersLocked = new CopyOnWriteArraySet<>();
     private final CopyOnWriteArrayList<LGGameOrchestrator> ongoingGames = new CopyOnWriteArrayList<>();
 
     private final Hashtable<String, LGGameOrchestrator> gamesById = new Hashtable<>();
@@ -55,15 +54,6 @@ class MinecraftLGGameManager implements LGGameManager {
 
     @Override
     public synchronized SafeResult<LGGameOrchestrator> startGame(Set<Player> players, Composition composition, @Nullable String id) {
-        List<Player> playersLockedWhileStarting = playersLocked.stream().filter(players::contains).collect(Collectors.toList());
-        if (!playersLockedWhileStarting.isEmpty()) {
-            return SafeResult.error(playersLockedWhileStarting.size() > 1 ?
-                    "Les joueurs " + WordingUtils.joiningCommaAnd(playersLocked.stream(), Player::getName) +
-                    " sont en train d'accéder à une partie." :
-                    "Le joueur " + playersLockedWhileStarting.get(0).getName() + " est en train d'accéder à une partie.");
-        }
-
-        playersLocked.addAll(players);
         try {
             Set<Player> presentPlayers = findPresentPlayers(players);
 
@@ -98,8 +88,6 @@ class MinecraftLGGameManager implements LGGameManager {
         } catch (CannotCreateLobbyException e) {
             logWorldError(Level.WARNING, e);
             return SafeResult.error(e.getMessage());
-        } finally {
-            playersLocked.removeAll(players);
         }
     }
 
@@ -108,7 +96,7 @@ class MinecraftLGGameManager implements LGGameManager {
     }
 
     private Set<Player> findPresentPlayers(Set<Player> players) {
-        return ongoingGames.stream().flatMap(x -> x.getGame().getPlayers().stream())
+        return ongoingGames.stream().flatMap(x -> x.game().getPlayers().stream())
                 .map(LGPlayer::getMinecraftPlayer)
                 .flatMap(OptionalUtils::stream)
                 .filter(players::contains)
@@ -121,21 +109,21 @@ class MinecraftLGGameManager implements LGGameManager {
     }
 
     @Override
-    public Optional<LGPlayerAndGame> getPlayerInGame(UUID playerUUID) {
+    public synchronized Optional<LGPlayerAndGame> getPlayerInGame(UUID playerUUID) {
         LGGameOrchestrator orchestrator = gamesByPlayerUUID.get(playerUUID);
         if (orchestrator == null) return Optional.empty();
 
-        return orchestrator.getGame().getPlayer(playerUUID).map(p -> new LGPlayerAndGame(p, orchestrator));
+        return orchestrator.game().getPlayer(playerUUID).map(p -> new LGPlayerAndGame(p, orchestrator));
     }
 
     @Override
-    public Optional<LGGameOrchestrator> getGameById(String id) {
+    public synchronized Optional<LGGameOrchestrator> getGameById(String id) {
         return Optional.ofNullable(gamesById.get(id));
     }
 
     private synchronized void removeDeletedGame(LGGameOrchestrator orchestrator) {
-        Preconditions.checkArgument(orchestrator.getState() == LGGameState.DELETED, "The game must have been deleted.");
+        Preconditions.checkArgument(orchestrator.state() == LGGameState.DELETED, "The game must have been deleted.");
         ongoingGames.remove(orchestrator);
-        gamesById.remove(orchestrator.getId());
+        gamesById.remove(orchestrator.game().getId());
     }
 }

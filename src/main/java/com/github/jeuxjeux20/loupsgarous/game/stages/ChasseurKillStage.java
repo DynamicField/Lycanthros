@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.ChasseurCard;
-import com.github.jeuxjeux20.loupsgarous.game.killreasons.ChasseurKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.ChasseurKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Killable;
 import com.github.jeuxjeux20.loupsgarous.game.winconditions.PostponesWinConditions;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
@@ -51,7 +51,7 @@ public class ChasseurKillStage extends RunnableLGGameStage implements CountdownT
 
     private void sendInfoMessage() {
         if (!killed) {
-            orchestrator.sendToEveryone(info("Le chasseur n'a pas tiré."));
+            orchestrator.chat().sendToEveryone(info("Le chasseur n'a pas tiré."));
         }
     }
 
@@ -89,7 +89,7 @@ public class ChasseurKillStage extends RunnableLGGameStage implements CountdownT
             throw new IllegalArgumentException("Cannot kill player " + target.getName() + " : " + error);
         });
         killed = true;
-        orchestrator.killInstantly(target, ChasseurKillReason::new);
+        orchestrator.kills().instantly(target, ChasseurKillReason::new);
         countdown.interrupt();
     }
 

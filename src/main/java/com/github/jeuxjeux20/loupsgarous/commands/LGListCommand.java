@@ -45,10 +45,10 @@ public class LGListCommand implements HelperCommandRegisterer {
 
                     PaginationUtils.in(gameManager.getOngoingGames(), page, itemsPerPage).forEach(x -> {
                         LGGameOrchestrator orchestrator = x.getValue();
-                        LGGame game = orchestrator.getGame();
+                        LGGame game = orchestrator.game();
 
                         long gameNumber = x.getIndex() + 1;
-                        String gameId = orchestrator.getId();
+                        String gameId = orchestrator.game().getId();
 
                         messageBuilder.append(ChatColor.RESET)
                                 .append(gameNumber)

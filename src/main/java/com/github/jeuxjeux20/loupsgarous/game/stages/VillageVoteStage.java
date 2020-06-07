@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.killreasons.VillageVoteKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.VillageVoteKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -37,13 +37,13 @@ public class VillageVoteStage extends RunnableLGGameStage implements Votable, Un
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.getTurn().getTime() == LGGameTurnTime.DAY;
+        return orchestrator.turn().getTime() == LGGameTurnTime.DAY;
     }
 
     @Override
     public CompletableFuture<Void> run() {
         // Only two players? They'll vote each other and that's it.
-        if (orchestrator.getGame().getAlivePlayers().count() <= 2) {
+        if (orchestrator.game().getAlivePlayers().count() <= 2) {
             unmodifiedCountdown.setTimer(30);
             countdown.setTimer(30);
             countdown.resetBiggestTimerValue();
@@ -55,9 +55,9 @@ public class VillageVoteStage extends RunnableLGGameStage implements Votable, Un
     private void computeVoteOutcome() {
         LGPlayer playerWithMostVotes = currentState.getPlayerWithMostVotes();
         if (playerWithMostVotes != null) {
-            orchestrator.killInstantly(playerWithMostVotes, VillageVoteKillReason::new);
+            orchestrator.kills().instantly(playerWithMostVotes, VillageVoteKillReason::new);
         } else {
-            orchestrator.sendToEveryone(info("Le village n'a pas pu se décider !"));
+            orchestrator.chat().sendToEveryone(info("Le village n'a pas pu se décider !"));
         }
     }
 

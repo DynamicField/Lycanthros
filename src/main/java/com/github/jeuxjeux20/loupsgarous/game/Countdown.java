@@ -159,7 +159,7 @@ public class Countdown {
         }
 
         public Countdown build(LGGameOrchestrator orchestrator) {
-            return build(orchestrator.getPlugin());
+            return build(orchestrator.plugin());
         }
 
         public Countdown build(Plugin plugin) {

@@ -21,12 +21,12 @@ public class VoyanteDuskAction extends DuskStage.Action implements Lookable {
 
     @Override
     protected boolean shouldRun(LGGameOrchestrator orchestrator) {
-        return orchestrator.getGame().getAlivePlayers().anyMatch(x -> canPlayerLook(x).isSuccess());
+        return orchestrator.game().getAlivePlayers().anyMatch(x -> canPlayerLook(x).isSuccess());
     }
 
     @Override
     protected void onDuskStart(LGGameOrchestrator orchestrator) {
-        orchestrator.getGame().getPlayers().stream()
+        orchestrator.game().getPlayers().stream()
                 .filter(Check.predicate(this::canPlayerLook))
                 .map(LGPlayer::getMinecraftPlayer)
                 .flatMap(OptionalUtils::stream)

@@ -2,9 +2,10 @@ package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
+import com.github.jeuxjeux20.loupsgarous.game.chat.AnonymizedChatChannel;
+import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -14,8 +15,15 @@ import java.util.*;
 public final class MutableLGGame implements LGGame {
     private static final Random random = new Random();
 
+    private final String id;
     private final Map<UUID, MutableLGPlayer> playersByUUID = new HashMap<>();
     private final MutableLGGameTurn turn = new MutableLGGameTurn();
+    private final Map<AnonymizedChatChannel, List<String>> anonymizedNames = new HashMap<>();
+    private @Nullable LGEnding ending;
+
+    public MutableLGGame(String id) {
+        this.id = id;
+    }
 
     private static LGCard getRandomCardAndRemove(List<LGCard> cards) {
         int index = random.nextInt(cards.size());
@@ -39,13 +47,13 @@ public final class MutableLGGame implements LGGame {
     }
 
     @Override
-    public ImmutableSet<LGPlayer> getPlayers() {
-        return ImmutableSet.copyOf(playersByUUID.values());
+    public String getId() {
+        return id;
     }
 
     @Override
-    public ImmutableMap<UUID, LGPlayer> getPlayerByUUIDMap() {
-        return ImmutableMap.copyOf(playersByUUID);
+    public ImmutableSet<LGPlayer> getPlayers() {
+        return ImmutableSet.copyOf(playersByUUID.values());
     }
 
     @Override
@@ -78,5 +86,19 @@ public final class MutableLGGame implements LGGame {
     @Override
     public MutableLGGameTurn getTurn() {
         return turn;
+    }
+
+    @Override
+    public Map<AnonymizedChatChannel, List<String>> getAnonymizedNames() {
+        return anonymizedNames;
+    }
+
+    @Override
+    public Optional<LGEnding> getEnding() {
+        return Optional.ofNullable(ending);
+    }
+
+    public void setEnding(@Nullable LGEnding ending) {
+        this.ending = ending;
     }
 }
