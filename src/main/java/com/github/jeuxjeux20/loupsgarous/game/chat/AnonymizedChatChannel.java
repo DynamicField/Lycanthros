@@ -12,8 +12,7 @@ public interface AnonymizedChatChannel extends LGChatChannel {
     default String formatUsername(LGPlayer sender, LGPlayer recipient, LGGameOrchestrator orchestrator) {
         if (shouldAnonymizeTo(recipient, orchestrator)) {
             return anonymizeName(sender, orchestrator);
-        }
-        else {
+        } else {
             return sender.getName();
         }
     }

@@ -10,7 +10,6 @@ import com.github.jeuxjeux20.loupsgarous.game.events.lobby.LGLobbyCompositionCha
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.game.inventory.LGInventoryManager;
-import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.PlayerQuitKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.CannotCreateLobbyException;
@@ -19,7 +18,6 @@ import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobbyInfo;
 import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardManager;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGGameStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -32,8 +30,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
-import java.util.*;
-import java.util.function.*;
+import java.util.function.Function;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.*;
@@ -201,7 +198,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
     private void handlePlayerJoin(LGPlayerJoinEvent event) {
         chat().sendToEveryone(player(event.getPlayer().getName()) + lobbyMessage(" a rejoint la partie ! ") +
-                       slots(lobby.getSlotsDisplay()));
+                              slots(lobby.getSlotsDisplay()));
     }
 
     private void handlePlayerQuit(LGPlayerQuitEvent e) {
@@ -211,7 +208,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
             kills().instantly(e.getLGPlayer(), PlayerQuitKillReason::new);
         } else if (state.isEnabled()) { // Let's not write quit messages while deleting.
             chat().sendToEveryone(player(offlinePlayer.getName()) + lobbyMessage(" a quitté la partie ! ") +
-                           slots(lobby.getSlotsDisplay()));
+                                  slots(lobby.getSlotsDisplay()));
         }
 
         // Are they all gone?

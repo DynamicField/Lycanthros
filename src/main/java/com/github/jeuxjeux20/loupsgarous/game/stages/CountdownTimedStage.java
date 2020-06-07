@@ -22,7 +22,7 @@ public interface CountdownTimedStage extends TimedStage {
         PluginManager pluginManager = Bukkit.getServer().getPluginManager();
 
         builder.tick(() ->
-            pluginManager.callEvent(new LGTimedStageTickEvent(this.getOrchestrator(), this))
+                pluginManager.callEvent(new LGTimedStageTickEvent(this.getOrchestrator(), this))
         );
     }
 

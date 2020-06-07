@@ -2,10 +2,10 @@ package com.github.jeuxjeux20.loupsgarous.game.chat;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.game.cards.AnonymousNameHolder;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LoupGarouNightSpy;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LoupGarouNightKillVoteStage;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 

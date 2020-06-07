@@ -3,9 +3,9 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import org.bukkit.ChatColor;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
+import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.SKULL_SYMBOL;
+import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.killMessage;
 
 public class RevealAllKillsStage extends LogicLGGameStage {
     @Inject

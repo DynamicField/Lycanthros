@@ -1,7 +1,10 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
-import com.github.jeuxjeux20.loupsgarous.game.*;
+import com.github.jeuxjeux20.loupsgarous.game.Countdown;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LoupsGarousVoteChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;

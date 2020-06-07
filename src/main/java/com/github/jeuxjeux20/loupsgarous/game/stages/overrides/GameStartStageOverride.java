@@ -2,8 +2,8 @@ package com.github.jeuxjeux20.loupsgarous.game.stages.overrides;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
-import com.github.jeuxjeux20.loupsgarous.game.stages.RunnableLGGameStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.GameStartStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.RunnableLGGameStage;
 import com.google.inject.Inject;
 import com.google.inject.TypeLiteral;
 

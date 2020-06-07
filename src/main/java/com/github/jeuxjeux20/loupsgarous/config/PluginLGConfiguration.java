@@ -52,8 +52,7 @@ public class PluginLGConfiguration implements LGConfiguration {
         Object configuration = plugin.getConfig().get(CONFIG_PATH);
         if (configuration instanceof RootConfiguration) {
             return ((RootConfiguration) configuration);
-        }
-        else {
+        } else {
             RootConfiguration rootConfiguration = new RootConfiguration();
             updateRootConfig(rootConfiguration);
             return rootConfiguration;

@@ -13,6 +13,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @BindingAnnotation
 @Retention(RUNTIME)
-@Target({ TYPE, PARAMETER, FIELD })
+@Target({TYPE, PARAMETER, FIELD})
 public @interface Plugin {
 }

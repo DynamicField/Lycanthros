@@ -6,9 +6,7 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatManager;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
-import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.LGKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.CannotCreateLobbyException;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobby;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobbyInfo;
@@ -19,11 +17,10 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.*;
+import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.READY_TO_START;
+import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.STARTED;
 
 /**
  * Manages a Loups-Garous game instance.

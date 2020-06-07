@@ -1,6 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.game.kill;
 
-import com.github.jeuxjeux20.loupsgarous.game.*;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.MutableLGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.MutableLGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGKillEvent;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;

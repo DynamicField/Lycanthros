@@ -16,5 +16,6 @@ import static me.lucko.helper.text.format.TextDecoration.UNDERLINE;
 public final class ComponentStyles {
     public static final TextComponent CLICKABLE = TextComponent.of("").decoration(UNDERLINE, true);
 
-    private ComponentStyles() {}
+    private ComponentStyles() {
+    }
 }

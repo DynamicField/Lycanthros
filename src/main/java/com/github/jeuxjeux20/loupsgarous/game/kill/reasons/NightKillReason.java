@@ -1,8 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.game.kill.reasons;
 
 import com.github.jeuxjeux20.loupsgarous.LGChatStuff;
-import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.util.WordingUtils;
 
 import java.util.List;

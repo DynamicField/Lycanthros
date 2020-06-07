@@ -2,8 +2,8 @@ package com.github.jeuxjeux20.loupsgarous.game.cards.revealers;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 
 import java.util.Collections;
 import java.util.List;

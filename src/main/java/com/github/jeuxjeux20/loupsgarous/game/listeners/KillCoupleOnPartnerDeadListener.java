@@ -1,11 +1,11 @@
 package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
-import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGKillEvent;
+import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.CouplePartnerKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 

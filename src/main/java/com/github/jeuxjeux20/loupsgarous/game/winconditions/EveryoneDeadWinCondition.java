@@ -12,8 +12,7 @@ public final class EveryoneDeadWinCondition implements WinCondition {
         boolean isSomeoneAlive = orchestrator.game().getAlivePlayers().findAny().isPresent();
         if (!isSomeoneAlive) {
             return Optional.of(new EveryoneDeadEnding());
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }

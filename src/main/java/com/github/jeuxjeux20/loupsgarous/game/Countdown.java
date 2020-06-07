@@ -24,6 +24,21 @@ public class Countdown {
         this.biggestTimerValue = timerSeconds;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static Builder builder(int time) {
+        return new Builder().time(time);
+    }
+
+    public static Consumer<Builder> syncWith(Countdown countdown) {
+        return builder -> builder
+                .time(countdown.getTimer())
+                .start(countdown::start)
+                .finished(countdown::interrupt);
+    }
+
     public boolean hasBeenRan() {
         return hasBeenRan;
     }
@@ -110,21 +125,6 @@ public class Countdown {
 
     public void resetBiggestTimerValue() {
         this.biggestTimerValue = this.timer;
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static Builder builder(int time) {
-        return new Builder().time(time);
-    }
-
-    public static Consumer<Builder> syncWith(Countdown countdown) {
-        return builder -> builder
-                .time(countdown.getTimer())
-                .start(countdown::start)
-                .finished(countdown::interrupt);
     }
 
     public static final class Builder {

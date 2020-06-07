@@ -10,7 +10,6 @@ import com.github.jeuxjeux20.loupsgarous.game.lobby.MultiverseLobbiesModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.matcher.Matchers;
 import me.lucko.helper.plugin.ExtendedJavaPlugin;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -55,8 +54,7 @@ public final class LoupsGarous extends ExtendedJavaPlugin {
             for (CommandConfigurator configurator : getCommandsConfigurators()) {
                 if (configurator instanceof HelperCommandRegisterer) {
                     ((HelperCommandRegisterer) configurator).register();
-                }
-                else {
+                } else {
                     String commandName = configurator.getCommandName();
                     PluginCommand pluginCommand = commandFinder.find(commandName);
                     if (pluginCommand == null) {

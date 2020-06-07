@@ -62,8 +62,7 @@ public class JoinOnSignClickListener implements Listener {
             if (gameManager.getPlayerInGame(player).isPresent()) {
                 // The player is in a game? great!
                 joined = true;
-            }
-            else {
+            } else {
                 joined = maybeGame.map(x -> x.lobby().addPlayer(player)).orElse(false);
             }
 

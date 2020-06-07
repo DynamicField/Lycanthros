@@ -1,12 +1,10 @@
 package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
-import com.comphenix.protocol.PacketType;
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.google.inject.Inject;
-import me.lucko.helper.protocol.Protocol;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

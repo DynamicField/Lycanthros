@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
-import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGKillEvent;
+import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.LGKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.MultiLGKillReason;
 import org.bukkit.ChatColor;

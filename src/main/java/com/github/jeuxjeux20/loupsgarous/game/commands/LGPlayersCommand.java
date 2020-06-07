@@ -1,7 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.game.commands;
 
 import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
-import com.github.jeuxjeux20.loupsgarous.game.*;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.revealers.CardRevealer;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.github.jeuxjeux20.loupsgarous.game.teams.revealers.TeamRevealer;

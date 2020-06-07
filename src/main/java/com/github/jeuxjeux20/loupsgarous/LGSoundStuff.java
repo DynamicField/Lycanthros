@@ -35,6 +35,7 @@ public final class LGSoundStuff {
 
     /**
      * The noteblock "pling" sound you have heard at least once while playing on Minecraft servers.
+     *
      * @param player the player to play the sound for
      */
     public static void pling(Player player) {
@@ -43,6 +44,7 @@ public final class LGSoundStuff {
 
     /**
      * HOWWWWWWWWWWWWWWWL!
+     *
      * @param player the player to play the sound for
      */
     public static void howl(Player player) {

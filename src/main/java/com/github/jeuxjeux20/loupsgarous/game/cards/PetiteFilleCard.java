@@ -1,8 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
-import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.annotations.Unique;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import me.lucko.helper.item.ItemStackBuilder;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;

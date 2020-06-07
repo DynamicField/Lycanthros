@@ -26,8 +26,7 @@ public class UpdateGameJoinSignListener implements Listener {
         if (gameName == null) {
             event.getPlayer().sendMessage(ChatColor.AQUA + "Panneau supprimé !");
             signManager.deleteSignData(sign);
-        }
-        else {
+        } else {
             event.setLine(0, ChatColor.AQUA.toString() + ChatColor.BOLD + "[LoupsGarous]");
             signManager.updateSignData(sign, gameName);
             event.getPlayer().sendMessage(ChatColor.GREEN + "Panneau mis à jour : " + gameName);

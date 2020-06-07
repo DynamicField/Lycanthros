@@ -2,11 +2,11 @@ package com.github.jeuxjeux20.loupsgarous.game.winconditions;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.game.endings.CoupleWonEnding;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.teams.CoupleTeam;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 
 import java.util.List;
 import java.util.Optional;
