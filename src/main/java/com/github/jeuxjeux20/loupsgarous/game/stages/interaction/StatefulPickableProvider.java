@@ -4,8 +4,8 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGKillEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.LGPickEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.LGPickRemovedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.interaction.LGPickEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.interaction.LGPickRemovedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.github.jeuxjeux20.loupsgarous.util.ClassArrayUtils;
@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableMap;
 import me.lucko.helper.Events;
 import me.lucko.helper.event.MergedSubscription;
 import me.lucko.helper.terminable.Terminable;
-import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

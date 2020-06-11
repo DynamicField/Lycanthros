@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game.events;
+package com.github.jeuxjeux20.loupsgarous.game.events.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;

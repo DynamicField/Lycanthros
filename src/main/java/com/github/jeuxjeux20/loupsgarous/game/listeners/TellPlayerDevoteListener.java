@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
-import com.github.jeuxjeux20.loupsgarous.game.events.LGPickRemovedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.interaction.LGPickRemovedEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

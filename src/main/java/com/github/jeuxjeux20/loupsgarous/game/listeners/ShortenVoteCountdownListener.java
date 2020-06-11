@@ -2,8 +2,8 @@ package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.Plugin;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.events.LGPickEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.LGPickRemovedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.interaction.LGPickEvent;
+import com.github.jeuxjeux20.loupsgarous.game.events.interaction.LGPickRemovedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.MajorityVoteShortensCountdown;
 import com.github.jeuxjeux20.loupsgarous.game.stages.UnmodifiedCountdownTimedStage;

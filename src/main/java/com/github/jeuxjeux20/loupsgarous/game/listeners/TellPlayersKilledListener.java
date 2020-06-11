@@ -22,7 +22,6 @@ public class TellPlayersKilledListener implements Listener {
         Map<? extends Class<? extends LGKillReason>, List<LGKill>> killsPerReason
                 = event.getKills().stream().collect(Collectors.groupingBy(x -> x.getReason().getClass()));
 
-
         for (List<LGKill> killGroup : killsPerReason.values()) {
             LGKillReason reason = killGroup.get(0).getReason(); // Similar reason for all
             if (reason instanceof MultiLGKillReason) {
