@@ -7,7 +7,6 @@ import org.bukkit.boss.BarColor;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
 
 /**
  * Stages are a fundamental aspect of the game, they split the game into multiple parts
@@ -90,10 +89,14 @@ public interface LGStage extends ComponentBased, TerminableConsumer {
 
     /**
      * This is the null object for a stage.
-     * <p>
-     * It returns a null name, and a null orchestrator.
      */
     class Null implements LGStage {
+        private final LGGameOrchestrator orchestrator;
+
+        public Null(LGGameOrchestrator orchestrator) {
+            this.orchestrator = orchestrator;
+        }
+
         @Override
         public String getName() {
             return null;
@@ -106,7 +109,7 @@ public interface LGStage extends ComponentBased, TerminableConsumer {
 
         @Override
         public LGGameOrchestrator getOrchestrator() {
-            return null;
+            return orchestrator;
         }
 
         @Nonnull

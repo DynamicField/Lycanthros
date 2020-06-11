@@ -150,7 +150,7 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
 
     @Override
     public @NotNull LGStage current() {
-        return currentStage == null ? new LGStage.Null() : currentStage;
+        return currentStage == null ? new LGStage.Null(gameOrchestrator) : currentStage;
     }
 
     @Override
