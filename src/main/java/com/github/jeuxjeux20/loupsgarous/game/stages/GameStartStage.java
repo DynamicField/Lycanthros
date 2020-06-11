@@ -65,7 +65,7 @@ public class GameStartStage extends RunnableLGStage implements CountdownTimedSta
         protected void onTick() {
             if (orchestrator.state() != LGGameState.READY_TO_START) {
                 setTimer(getBiggestTimerValue());
-            } else if (getTimer() != 0 && getTimer() < 5) {
+            } else if (getTimer() != 0 && getTimer() <= 5) {
                 orchestrator.getAllMinecraftPlayers().forEach(this::displayCountdown);
             }
         }

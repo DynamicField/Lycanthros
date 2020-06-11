@@ -40,10 +40,9 @@ public interface LGStage extends ComponentBased, TerminableConsumer {
      * Defines if the stage is considered as being used for game logic only,
      * and do not require any user interaction.
      * <p>
-     * One example of a game logic would be {@link RevealAllKillsStage}, all it does is
-     * just reveal the kills.
+     * One example of a game logic would be {@link RevealAllKillsStage}.
      * <p>
-     * Note: No boss bar is shown at all for game logic stages.
+     * Note: No boss bar is shown for game logic stages.
      *
      * @return whether or not this game is used for game logic only
      */

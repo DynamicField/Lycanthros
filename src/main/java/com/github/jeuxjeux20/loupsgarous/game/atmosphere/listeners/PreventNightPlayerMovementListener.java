@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game.listeners.atmosphere;
+package com.github.jeuxjeux20.loupsgarous.game.atmosphere.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;

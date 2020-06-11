@@ -133,8 +133,6 @@ public class VoteStructure implements Structure {
 
     public TerminableModule createInteractionModule() {
         return consumer -> {
-            ((Terminable) () -> logger.info("vote interactions: closed!")).bindWith(consumer);
-
             Events.merge(LGPickEvent.class, LGPickEvent.class, LGPickRemovedEvent.class)
                     .filter(votable::isMyEvent)
                     .handler(e -> build())
@@ -154,7 +152,16 @@ public class VoteStructure implements Structure {
                         Entity rightClicked = e.getRightClicked();
 
                         Metadata.provideForEntity(rightClicked).get(ARMOR_STAND_PLAYER_KEY)
-                                .ifPresent(target -> votable.getCurrentState().togglePick(player, target));
+                                .ifPresent(target -> {
+                                    Votable.VoteState voteState = votable.getCurrentState();
+                                    Check check = voteState.canPick(player, target);
+
+                                    if (check.isSuccess()) {
+                                        voteState.togglePick(player, target);
+                                    } else {
+                                        e.getPlayer().sendMessage(ChatColor.RED + check.getErrorMessage());
+                                    }
+                                });
                     })
                     .bindWith(consumer);
         };

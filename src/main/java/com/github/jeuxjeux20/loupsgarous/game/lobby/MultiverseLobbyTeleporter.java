@@ -44,6 +44,9 @@ class MultiverseLobbyTeleporter implements LobbyTeleporter {
 
     @Override
     public void teleportPlayerOut(Player player) {
+        if (player.isDead()) {
+            player.spigot().respawn();
+        }
         spawnTeleporter.teleportToSpawn(player);
     }
 

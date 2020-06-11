@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
+import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.Plugin;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGGameDeletedEvent;
@@ -17,6 +18,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import me.lucko.helper.Events;
 import org.bukkit.entity.Player;
+import org.bukkit.event.server.PluginDisableEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Hashtable;
@@ -51,6 +53,10 @@ class MinecraftLGGameManager implements LGGameManager {
 
         Events.subscribe(LGPlayerQuitEvent.class)
                 .handler(e -> gamesByPlayerUUID.remove(e.getPlayerUUID()));
+
+        Events.subscribe(PluginDisableEvent.class)
+                .filter(e -> e.getPlugin() instanceof LoupsGarous)
+                .handler(e -> getOngoingGames().forEach(LGGameOrchestrator::delete));
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game.listeners.atmosphere;
+package com.github.jeuxjeux20.loupsgarous.game.atmosphere.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.ListenersModule;
 
@@ -8,5 +8,7 @@ public final class LGAtmosphereListenersModule extends ListenersModule {
         addListener(DeadPlayerAsSpectatorListener.class);
         addListener(PlayerDiesOnKillListener.class);
         addListener(PreventNightPlayerMovementListener.class);
+        addListener(PutPlayerOnSpawnListener.class);
+        addListener(SwitchTimeOfDayListener.class);
     }
 }

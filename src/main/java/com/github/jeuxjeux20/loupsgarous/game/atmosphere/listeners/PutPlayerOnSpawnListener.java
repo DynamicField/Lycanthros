@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game.listeners;
+package com.github.jeuxjeux20.loupsgarous.game.atmosphere.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LobbyPresenceChecker;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.SpawnTeleporter;

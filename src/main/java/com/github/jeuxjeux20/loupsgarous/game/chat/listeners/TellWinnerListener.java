@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game.listeners;
+package com.github.jeuxjeux20.loupsgarous.game.chat.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.LGChatStuff;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGGameFinishedEvent;
