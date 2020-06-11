@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.MutableLGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
@@ -12,7 +13,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public interface LGGameLobby {
+/**
+ * Manages players entering in and out of a game, as well as the {@link Composition} of the game.
+ */
+public interface LGLobby extends LGGameOrchestratorComponent {
     World getWorld();
 
     boolean addPlayer(Player player);
@@ -39,8 +43,6 @@ public interface LGGameLobby {
         return getWorstCompositionProblemType() != CompositionValidator.Problem.Type.IMPOSSIBLE;
     }
 
-    LGGameOrchestrator gameOrchestrator();
-
     default int getSlotsTaken() {
         return (int) gameOrchestrator().game().getPresentPlayers().count();
     }
@@ -62,7 +64,7 @@ public interface LGGameLobby {
     void setOwner(Player owner);
 
     interface Factory {
-        LGGameLobby create(LGGameLobbyInfo lobbyInfo, MutableLGGameOrchestrator orchestrator)
+        LGLobby create(LGGameLobbyInfo lobbyInfo, MutableLGGameOrchestrator orchestrator)
                 throws CannotCreateLobbyException;
     }
 }

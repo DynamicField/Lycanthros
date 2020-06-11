@@ -9,15 +9,15 @@ import org.jetbrains.annotations.NotNull;
 public class LGPickEvent extends LGEvent {
     private static final HandlerList handlerList = new HandlerList();
     private final PickableProvider pickableProvider;
-    private final LGPlayer from;
-    private final LGPlayer to;
+    private final LGPlayer picker;
+    private final LGPlayer target;
 
     public LGPickEvent(LGGameOrchestrator orchestrator, PickableProvider pickableProvider,
-                       LGPlayer from, LGPlayer to) {
+                       LGPlayer picker, LGPlayer target) {
         super(orchestrator);
         this.pickableProvider = pickableProvider;
-        this.from = from;
-        this.to = to;
+        this.picker = picker;
+        this.target = target;
     }
 
     public static @NotNull HandlerList getHandlerList() {
@@ -33,11 +33,11 @@ public class LGPickEvent extends LGEvent {
         return pickableProvider;
     }
 
-    public LGPlayer getFrom() {
-        return from;
+    public LGPlayer getPicker() {
+        return picker;
     }
 
-    public LGPlayer getTo() {
-        return to;
+    public LGPlayer getTarget() {
+        return target;
     }
 }

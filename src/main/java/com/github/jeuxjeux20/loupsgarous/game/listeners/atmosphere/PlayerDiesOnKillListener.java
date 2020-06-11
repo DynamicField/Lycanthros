@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game.listeners;
+package com.github.jeuxjeux20.loupsgarous.game.listeners.atmosphere;
 
 import com.github.jeuxjeux20.loupsgarous.game.events.LGKillEvent;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;

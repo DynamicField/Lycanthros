@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-public class NextTimeOfDayStage extends LogicLGGameStage {
+public class NextTimeOfDayStage extends LogicLGStage {
     @Inject
     NextTimeOfDayStage(@Assisted LGGameOrchestrator orchestrator) {
         super(orchestrator);

@@ -10,7 +10,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * When annotated on a {@link LGGameStage} implementing {@link UnmodifiedCountdownTimedStage} and {@link Votable},
+ * When annotated on a {@link LGStage} implementing {@link UnmodifiedCountdownTimedStage} and {@link Votable},
  * changes the timer of the {@linkplain UnmodifiedCountdownTimedStage#getCountdown() countdown} to
  * {@link #timeLeft()} when {@linkplain VoteState#getPlayerWithMostVotes() the player with the most votes}
  * holds the same or more vote share than the {@link #majorityPercentage()}.

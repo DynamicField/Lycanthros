@@ -2,9 +2,11 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.ComponentBased;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.boss.BarColor;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import java.util.Optional;
 
 /**
@@ -12,15 +14,18 @@ import java.util.Optional;
  * (like in the real tabletop game) and are ran sequentially, in a loop, until
  * something ends the game (like a team winning, for example).
  * <p>
- * The runnable implementation of this interface is {@link RunnableLGGameStage}, or
- * its synchronous counterpart, {@link LogicLGGameStage}.
+ * The runnable implementation of this interface is {@link RunnableLGStage}, or
+ * its synchronous counterpart, {@link LogicLGStage}.
+ * <p>
+ * They implement {@link TerminableConsumer} to terminate objects when
+ * the stage finishes executing.
  * <p>
  * They can be used with a {@link StagesModule}, or by
- * using {@link LGStagesOrchestrator#add(RunnableLGGameStage.Factory)}.
+ * using {@link LGStagesOrchestrator#add(RunnableLGStage.Factory)}.
  * <p>
  * The {@link LGStagesModule} contains all the stages of the classic game.
  */
-public interface LGGameStage extends ComponentBased {
+public interface LGStage extends ComponentBased, TerminableConsumer {
     /**
      * Determines whether or not this stage should be deleted after it has been ran.
      * <p>
@@ -51,13 +56,11 @@ public interface LGGameStage extends ComponentBased {
      * Gets the title of the stage, which is shown in the chat and as a subtitle
      * when the stage starts.
      * <p>
-     * If the returned optional is empty, no title and subtitle will be shown.
+     * If the returned string is {@code null}, no title will be shown.
      *
-     * @return an optional containing the title
+     * @return the title, or {@code null} if there isn't
      */
-    default Optional<String> getTitle() {
-        return Optional.empty();
-    }
+     @Nullable String getTitle();
 
     /**
      * Gets the name of this stage, which is shown on the boss bar.
@@ -90,15 +93,26 @@ public interface LGGameStage extends ComponentBased {
      * <p>
      * It returns a null name, and a null orchestrator.
      */
-    class Null implements LGGameStage {
+    class Null implements LGStage {
         @Override
-        public @Nullable String getName() {
+        public String getName() {
+            return null;
+        }
+
+        @Override
+        public String getTitle() {
             return null;
         }
 
         @Override
         public LGGameOrchestrator getOrchestrator() {
             return null;
+        }
+
+        @Nonnull
+        @Override
+        public <T extends AutoCloseable> T bind(@Nonnull T terminable) {
+            return terminable;
         }
     }
 }

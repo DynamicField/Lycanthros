@@ -21,7 +21,6 @@ public final class LoupsGarousModule extends PluginModule {
     @Override
     protected void configureBindings() {
         install(new RootCommandsModule());
-        install(new ConfigurationModule());
         install(new LGGameModule());
 
         bind(MultiverseCore.class).toInstance(getMultiverseCore());

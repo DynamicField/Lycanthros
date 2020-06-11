@@ -6,7 +6,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
-import com.github.jeuxjeux20.loupsgarous.game.stages.LGGameStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Pickable;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.PickableProvider;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
@@ -83,7 +83,7 @@ public final class PickableCommandBuilder<T extends PickableProvider> {
     }
 
     private void handle(CommandContext<Player> c, LGPlayer lgPlayer, LGGameOrchestrator orchestrator) {
-        LGGameStage stage = orchestrator.stages().current();
+        LGStage stage = orchestrator.stages().current();
 
         String targetName = c.arg(0).value().orElseThrow(AssertionError::new);
 
@@ -166,7 +166,7 @@ public final class PickableCommandBuilder<T extends PickableProvider> {
             LGPlayer lgPlayer = playerInGame.get().getPlayer();
             LGGameOrchestrator orchestrator = playerInGame.get().getOrchestrator();
 
-            LGGameStage stage = orchestrator.stages().current();
+            LGStage stage = orchestrator.stages().current();
 
             Pickable pickable =
                     stage.getComponent(pickableClass, x -> x.providePickable().canPlayerPick(lgPlayer).isSuccess())

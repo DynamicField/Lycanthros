@@ -27,14 +27,14 @@ public final class LGStagesModule extends StagesModule {
     protected void configureStages() {
         addStage(CupidonCoupleStage.class);
         install(new LGStagesDuskModule());
-        addStage(LoupGarouNightKillVoteStage.class);
+        addStage(LoupGarouVoteStage.class);
         addStage(SorcierePotionStage.class);
         addStage(NextTimeOfDayStage.class);
         addStage(RevealAllKillsStage.class);
         addStage(VillageVoteStage.class);
 
         install(new FactoryModuleBuilder().build(ChasseurKillStage.Factory.class));
-        install(new FactoryModuleBuilder().build(new TypeLiteral<RunnableLGGameStage.Factory<GameStartStage>>() {}));
-        install(new FactoryModuleBuilder().build(new TypeLiteral<RunnableLGGameStage.Factory<GameEndStage>>() {}));
+        install(new FactoryModuleBuilder().build(new TypeLiteral<RunnableLGStage.Factory<GameStartStage>>() {}));
+        install(new FactoryModuleBuilder().build(new TypeLiteral<RunnableLGStage.Factory<GameEndStage>>() {}));
     }
 }

@@ -1,11 +1,13 @@
 package com.github.jeuxjeux20.loupsgarous.game.scoreboard;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
+import com.github.jeuxjeux20.loupsgarous.game.HasTriggers;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitEvent;
+import com.github.jeuxjeux20.loupsgarous.util.ClassArrayUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import me.lucko.helper.Events;
@@ -42,16 +44,12 @@ class MinecraftLGScoreboardManager implements LGScoreboardManager {
         this.plugin = plugin;
     }
 
-    @SuppressWarnings({"unchecked"})
     public void registerEvents() {
         if (hasEvents) return;
 
-        Class<?>[] classes = components.stream()
-                .flatMap(x -> x.getUpdateTriggers().stream())
-                .distinct()
-                .toArray(Class[]::new);
+        Class<? extends LGEvent>[] classes = ClassArrayUtils.merge(components.stream().map(HasTriggers::getUpdateTriggers));
 
-        Events.merge(LGEvent.class, (Class<? extends LGEvent>[]) classes) // Safe because of getUpdateTriggers().
+        Events.merge(LGEvent.class, classes) // Safe because of getUpdateTriggers().
                 .handler(e -> {
                     for (LGPlayer player : e.getGame().getPlayers()) {
                         updatePlayer(player, e.getOrchestrator());

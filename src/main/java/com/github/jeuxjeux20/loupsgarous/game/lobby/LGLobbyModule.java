@@ -7,7 +7,7 @@ public final class LGLobbyModule extends AbstractModule {
     @Override
     protected void configure() {
         install(new FactoryModuleBuilder()
-                .implement(LGGameLobby.class, MinecraftLGGameLobby.class)
-                .build(LGGameLobby.Factory.class));
+                .implement(LGLobby.class, MinecraftLGLobby.class)
+                .build(LGLobby.Factory.class));
     }
 }

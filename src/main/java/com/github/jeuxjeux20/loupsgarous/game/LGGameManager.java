@@ -11,8 +11,6 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface LGGameManager {
-    String WORLD_PREFIX = "lg_game_";
-
     SafeResult<LGGameOrchestrator> startGame(Set<Player> players, Composition composition, @Nullable String id);
 
     default SafeResult<LGGameOrchestrator> startGame(Set<Player> players, Composition composition) {

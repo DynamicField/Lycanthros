@@ -4,9 +4,13 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 
 public interface Pickable extends PickableProvider {
+    Check canPickTarget(LGPlayer target);
+
     Check canPlayerPick(LGPlayer picker);
 
-    Check canPick(LGPlayer picker, LGPlayer target);
+    default Check canPick(LGPlayer picker, LGPlayer target) {
+        return canPlayerPick(picker).and(() -> canPickTarget(target));
+    }
 
     void pick(LGPlayer picker, LGPlayer target);
 

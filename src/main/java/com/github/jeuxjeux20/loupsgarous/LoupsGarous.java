@@ -4,12 +4,13 @@ import com.github.jeuxjeux20.guicybukkit.PluginDependencies;
 import com.github.jeuxjeux20.guicybukkit.command.CommandConfigurator;
 import com.github.jeuxjeux20.guicybukkit.command.CommandNotFoundException;
 import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
-import com.github.jeuxjeux20.loupsgarous.config.RootConfiguration;
-import com.github.jeuxjeux20.loupsgarous.config.WorldPoolConfiguration;
+import com.github.jeuxjeux20.loupsgarous.config.*;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.MultiverseLobbiesModule;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import me.lucko.helper.plugin.ExtendedJavaPlugin;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -29,18 +30,35 @@ public final class LoupsGarous extends ExtendedJavaPlugin {
 
     @Override
     public void enable() {
-        getConfig();
-
-        Injector injector = Guice.createInjector(new LoupsGarousModule(this), new MultiverseLobbiesModule());
+        Injector injector = Guice.createInjector(getModules());
 
         LGPluginDependencies pluginDependencies = injector.getInstance(LGPluginDependencies.class);
         pluginDependencies.registerAll(this);
     }
 
+    private ImmutableList<Module> getModules() {
+        PluginLGConfiguration configuration = new PluginLGConfiguration(this);
+
+        ImmutableList.Builder<Module> modulesBuilder = ImmutableList.<Module>builder()
+                .add(new LoupsGarousModule(this))
+                .add(new MultiverseLobbiesModule())
+                .add(new ConfigurationModule() {
+                    @Override
+                    protected void bindConfiguration() {
+                        bind(LGConfiguration.class).toInstance(configuration);
+                    }
+                });
+
+        if (configuration.get().isDebug()) {
+            modulesBuilder.add(new DebugModule());
+        }
+
+        return modulesBuilder.build();
+    }
+
     @Override
     public void disable() {
-        // No need to save, it's saving once the config gets changed.
-        // saveConfig();
+        // Some stuff. Maybe.
     }
 
     private static final class LGPluginDependencies extends PluginDependencies {

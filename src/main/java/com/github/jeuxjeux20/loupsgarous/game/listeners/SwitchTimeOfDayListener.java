@@ -44,7 +44,7 @@ public class SwitchTimeOfDayListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onLGPlayerQuit(LGPlayerQuitEvent event) {
-        event.getLGPlayer().getMinecraftPlayer().ifPresent(this::removeAllEffects);
+        event.getLGPlayer().getMinecraftPlayerNoContext().ifPresent(this::removeAllEffects);
     }
 
     @EventHandler(ignoreCancelled = true)

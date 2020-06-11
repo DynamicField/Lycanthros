@@ -3,7 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game;
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.actionbar.LGActionBarManager;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardsOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatManager;
+import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.events.*;
 import com.github.jeuxjeux20.loupsgarous.game.events.lobby.LGLobbyCompositionChangeEvent;
@@ -13,10 +13,10 @@ import com.github.jeuxjeux20.loupsgarous.game.inventory.LGInventoryManager;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.PlayerQuitKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.CannotCreateLobbyException;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobby;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobbyInfo;
 import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardManager;
-import com.github.jeuxjeux20.loupsgarous.game.stages.LGGameStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
@@ -24,7 +24,7 @@ import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
 import me.lucko.helper.Schedulers;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
-import me.lucko.helper.terminable.module.TerminableModule;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -46,10 +46,10 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     // Metadata
     private final ImmutableSet<Player> initialPlayers;
     // Components
-    private final LGGameLobby lobby;
+    private final LGLobby lobby;
     private final LGCardsOrchestrator cardOrchestrator;
     private final LGStagesOrchestrator stagesOrchestrator;
-    private final LGChatManager chatManager;
+    private final LGChatOrchestrator chatManager;
     private final LGKillsOrchestrator killsOrchestrator;
     // UI & All
     private final LGActionBarManager actionBarManager;
@@ -60,8 +60,8 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
                                 LGActionBarManager actionBarManager,
                                 LGScoreboardManager scoreboardManager,
                                 LGInventoryManager inventoryManager,
-                                LGChatManager.Factory chatManagerFactory,
-                                LGGameLobby.Factory lobbyFactory,
+                                LGChatOrchestrator.Factory chatManagerFactory,
+                                LGLobby.Factory lobbyFactory,
                                 LGCardsOrchestrator.Factory cardOrchestratorFactory,
                                 LGStagesOrchestrator.Factory stagesOrchestratorFactory,
                                 LGKillsOrchestrator.Factory killsOrchestratorFactory) throws CannotCreateLobbyException {
@@ -109,7 +109,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
             return;
         }
 
-        if (stages().current() instanceof LGGameStage.Null) {
+        if (stages().current() instanceof LGStage.Null) {
             stages().next();
         }
     }
@@ -217,21 +217,31 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         }
     }
 
-    private boolean isMyEvent(LGEvent event) {
-        return event.getOrchestrator() == this;
-    }
-
-    @Override
-    public final LoupsGarous plugin() {
-        return plugin;
-    }
-
     public void callEvent(LGEvent event) {
         plugin.getServer().getPluginManager().callEvent(event);
     }
 
+    @Nonnull
     @Override
-    public LGChatManager chat() {
+    public <T extends AutoCloseable> T bind(@Nonnull T terminable) {
+        return terminableRegistry.bind(terminable);
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("id", game.getId())
+                .append("state", state)
+                .toString();
+    }
+
+    @Override
+    public LoupsGarous plugin() {
+        return plugin;
+    }
+
+    @Override
+    public LGChatOrchestrator chat() {
         return chatManager;
     }
 
@@ -251,7 +261,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     }
 
     @Override
-    public LGGameLobby lobby() {
+    public LGLobby lobby() {
         return lobby;
     }
 
@@ -271,17 +281,5 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         this.state = state;
 
         callEvent(eventFunction.apply(this));
-    }
-
-    @Nonnull
-    @Override
-    public <T extends AutoCloseable> T bind(@Nonnull T terminable) {
-        return terminableRegistry.bind(terminable);
-    }
-
-    @Nonnull
-    @Override
-    public <T extends TerminableModule> T bindModule(@Nonnull T module) {
-        return terminableRegistry.bindModule(module);
     }
 }

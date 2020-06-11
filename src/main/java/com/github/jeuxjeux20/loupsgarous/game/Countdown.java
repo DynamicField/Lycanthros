@@ -1,27 +1,36 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
+import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.google.common.base.Preconditions;
+import me.lucko.helper.terminable.TerminableConsumer;
+import me.lucko.helper.terminable.composite.CompositeTerminable;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-public class Countdown {
+public class Countdown implements TerminableConsumer {
     protected final Plugin plugin;
+    private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
     private final CompletableFuture<Void> future = new CompletableFuture<>();
     private int countdownTaskId = -1;
     private int timer;
     private int biggestTimerValue;
     private boolean hasBeenRan;
 
-    public Countdown(Plugin plugin, int timerSeconds) {
+    public Countdown(LoupsGarous plugin, int timerSeconds) {
         this.plugin = plugin;
         this.timer = timerSeconds;
         this.biggestTimerValue = timerSeconds;
+
+        // Just in case the plugin gets reloaded and for some obscure reason
+        // the countdown doesn't get cancelled.
+        terminableRegistry.bindWith(plugin);
     }
 
     public static Builder builder() {
@@ -81,6 +90,7 @@ public class Countdown {
     private void complete(boolean cancelled) {
         Bukkit.getServer().getScheduler().cancelTask(countdownTaskId);
 
+        terminableRegistry.closeAndReportException();
         if (!cancelled) {
             onFinish();
             future.complete(null);
@@ -127,6 +137,12 @@ public class Countdown {
         this.biggestTimerValue = this.timer;
     }
 
+    @Nonnull
+    @Override
+    public <T extends AutoCloseable> T bind(@Nonnull T terminable) {
+        return terminableRegistry.bind(terminable);
+    }
+
     public static final class Builder {
         private final List<Runnable> tickActions = new ArrayList<>(1);
         private final List<Runnable> finishedActions = new ArrayList<>(1);
@@ -162,7 +178,7 @@ public class Countdown {
             return build(orchestrator.plugin());
         }
 
-        public Countdown build(Plugin plugin) {
+        public Countdown build(LoupsGarous plugin) {
             return new Countdown(plugin, time) {
                 @Override
                 protected void onStart() {

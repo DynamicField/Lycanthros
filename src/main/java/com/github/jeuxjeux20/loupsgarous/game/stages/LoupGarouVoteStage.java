@@ -25,21 +25,24 @@ import java.util.concurrent.CompletableFuture;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
 @MajorityVoteShortensCountdown(timeLeft = 10)
-public class LoupGarouNightKillVoteStage extends RunnableLGGameStage implements Votable, UnmodifiedCountdownTimedStage {
+public class LoupGarouVoteStage extends RunnableLGStage implements Votable, UnmodifiedCountdownTimedStage {
     private final VoteState currentState;
     private final Countdown unmodifiedCountdown;
     private final Countdown countdown;
 
     private final LoupsGarousVoteChatChannel voteChannel;
 
+    private boolean isVoteSuccessful;
+
     @Inject
-    LoupGarouNightKillVoteStage(@Assisted LGGameOrchestrator orchestrator,
-                                LoupsGarousVoteChatChannel voteChannel) {
+    LoupGarouVoteStage(@Assisted LGGameOrchestrator orchestrator,
+                       LoupsGarousVoteChatChannel voteChannel) {
         super(orchestrator);
 
         this.voteChannel = voteChannel;
 
         currentState = createVoteState();
+
         unmodifiedCountdown = Countdown.builder(30).build(orchestrator);
         countdown = Countdown.builder()
                 .apply(this::addTickEvents)
@@ -47,6 +50,8 @@ public class LoupGarouNightKillVoteStage extends RunnableLGGameStage implements 
                 .finished(this::computeVoteOutcome)
                 .finished(this::howl)
                 .build(orchestrator);
+
+        bind(currentState);
     }
 
     @Override
@@ -55,7 +60,7 @@ public class LoupGarouNightKillVoteStage extends RunnableLGGameStage implements 
     }
 
     @Override
-    public CompletableFuture<Void> run() {
+    public CompletableFuture<Void> execute() {
         return countdown.start();
     }
 
@@ -79,14 +84,18 @@ public class LoupGarouNightKillVoteStage extends RunnableLGGameStage implements 
                     ChatColor.AQUA + "Les loups ont décidé de tuer " +
                     player(playerWithMostVotes.getName()) + ChatColor.AQUA + "."
             );
+            isVoteSuccessful = true;
         } else {
             orchestrator.chat().sendMessage(voteChannel,
                     ChatColor.AQUA + "Les loups n'ont pas pu se décider !"
             );
+            isVoteSuccessful = false;
         }
     }
 
     private void howl() {
+        if (!isVoteSuccessful) return;
+
         orchestrator.game().getPlayers().stream()
                 .filter(p -> voteChannel.areMessagesVisibleTo(p, orchestrator))
                 .map(LGPlayer::getMinecraftPlayer)
@@ -109,13 +118,13 @@ public class LoupGarouNightKillVoteStage extends RunnableLGGameStage implements 
     }
 
     @Override
-    public @NotNull String getName() {
+    public String getName() {
         return "Loups-Garous";
     }
 
     @Override
-    public Optional<String> getTitle() {
-        return Optional.of("Les loups vont dévorer un innocent...");
+    public String getTitle() {
+        return "Les loups vont dévorer un innocent...";
     }
 
     @Override

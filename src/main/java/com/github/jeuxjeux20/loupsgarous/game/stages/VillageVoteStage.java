@@ -4,6 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.atmosphere.VoteStructure;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.VillageVoteKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
 import com.google.inject.Inject;
@@ -16,16 +17,19 @@ import java.util.concurrent.CompletableFuture;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
 @MajorityVoteShortensCountdown
-public class VillageVoteStage extends RunnableLGGameStage implements Votable, UnmodifiedCountdownTimedStage {
+public class VillageVoteStage extends RunnableLGStage implements Votable, UnmodifiedCountdownTimedStage {
     private final VoteState currentState;
     private final Countdown unmodifiedCountdown;
     private final Countdown countdown;
+    private final VoteStructure voteStructure;
 
     @Inject
-    VillageVoteStage(@Assisted LGGameOrchestrator orchestrator) {
+    VillageVoteStage(@Assisted LGGameOrchestrator orchestrator, VoteStructure.Factory voteStructureFactory) {
         super(orchestrator);
 
         currentState = new VoteState(orchestrator, this);
+        voteStructure =
+                voteStructureFactory.create(orchestrator, orchestrator.world().getSpawnLocation().add(0, 2, 0), this);
 
         unmodifiedCountdown = Countdown.builder(90).build(orchestrator);
         countdown = Countdown.builder()
@@ -33,6 +37,10 @@ public class VillageVoteStage extends RunnableLGGameStage implements Votable, Un
                 .apply(Countdown.syncWith(unmodifiedCountdown))
                 .finished(this::computeVoteOutcome)
                 .build(orchestrator);
+
+        bind(currentState);
+        bind(voteStructure);
+        bindModule(voteStructure.createInteractionModule());
     }
 
     @Override
@@ -41,7 +49,9 @@ public class VillageVoteStage extends RunnableLGGameStage implements Votable, Un
     }
 
     @Override
-    public CompletableFuture<Void> run() {
+    public CompletableFuture<Void> execute() {
+        voteStructure.build();
+
         // Only two players? They'll vote each other and that's it.
         if (orchestrator.game().getAlivePlayers().count() <= 2) {
             unmodifiedCountdown.setTimer(30);
@@ -67,13 +77,13 @@ public class VillageVoteStage extends RunnableLGGameStage implements Votable, Un
     }
 
     @Override
-    public @NotNull String getName() {
+    public String getName() {
         return "Vote du village";
     }
 
     @Override
-    public Optional<String> getTitle() {
-        return Optional.of("Le village va voter");
+    public String getTitle() {
+        return "Le village va voter";
     }
 
     @Override

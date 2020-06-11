@@ -18,9 +18,9 @@ public class TellPlayerVoteListener implements Listener {
         Votable votable = ((Votable) event.getPickableProvider());
 
         LGChatChannel channel = votable.getInfoMessagesChannel();
-        String message = vote(player(event.getFrom().getName())) +
+        String message = vote(player(event.getPicker().getName())) +
                          vote(" " + votable.getIndicator() + " ") +
-                         vote(player(event.getTo().getName()));
+                         vote(player(event.getTarget().getName()));
 
         event.getOrchestrator().chat().sendMessage(channel, message);
     }

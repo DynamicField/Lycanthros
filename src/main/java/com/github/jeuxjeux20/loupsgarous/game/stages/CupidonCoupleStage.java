@@ -6,7 +6,7 @@ import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.CupidonCard;
-import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
+import com.github.jeuxjeux20.loupsgarous.game.teams.CoupleTeam;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 
-public class CupidonCoupleStage extends RunnableLGGameStage implements CountdownTimedStage {
+public class CupidonCoupleStage extends RunnableLGStage implements CountdownTimedStage {
     private final Random random;
     private final LoupsGarous plugin;
     private final Countdown countdown;
@@ -46,7 +46,7 @@ public class CupidonCoupleStage extends RunnableLGGameStage implements Countdown
     }
 
     @Override
-    public CompletableFuture<Void> run() {
+    public CompletableFuture<Void> execute() {
         getEligibleCupidons().forEach(this::sendTipNotification);
 
         return countdown.start();
@@ -83,7 +83,7 @@ public class CupidonCoupleStage extends RunnableLGGameStage implements Countdown
 
         couplePicks.put(cupidon, couple);
 
-        LGTeam coupleTeam = LGTeams.newCouple();
+        CoupleTeam coupleTeam = LGTeams.newCouple();
 
         for (LGPlayer partner : couple.partners) {
             orchestrator.cards().addTeam(partner.getCard(), coupleTeam);
@@ -161,13 +161,13 @@ public class CupidonCoupleStage extends RunnableLGGameStage implements Countdown
     }
 
     @Override
-    public @Nullable String getName() {
+    public String getName() {
         return "Cupidon";
     }
 
     @Override
-    public Optional<String> getTitle() {
-        return Optional.of("Cupidon va tirer sa flèche et former un couple.");
+    public String getTitle() {
+        return "Cupidon va tirer sa flèche et former un couple.";
     }
 
     @Override

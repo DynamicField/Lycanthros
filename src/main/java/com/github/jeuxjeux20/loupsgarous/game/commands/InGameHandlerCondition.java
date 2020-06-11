@@ -38,7 +38,7 @@ public final class InGameHandlerCondition implements HandlerCondition<Player, In
     }
 
     @FunctionalInterface
-    interface Handler {
+    public interface Handler {
         void handle(CommandContext<Player> context, LGPlayer player, LGGameOrchestrator orchestrator)
                 throws CommandInterruptException;
     }

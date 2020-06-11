@@ -3,11 +3,12 @@ package com.github.jeuxjeux20.loupsgarous.game.cards.composition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import java.util.List;
 
 public final class SnapshotComposition implements Composition {
-    private final ImmutableList<LGCard> cards;
+    private final ImmutableSet<LGCard> cards;
     private final ImmutableMap<Class<? extends LGCard>, List<LGCard>> cardGroups;
 
     public SnapshotComposition(Composition composition) {
@@ -16,7 +17,7 @@ public final class SnapshotComposition implements Composition {
     }
 
     @Override
-    public ImmutableList<LGCard> getCards() {
+    public ImmutableSet<LGCard> getCards() {
         return cards;
     }
 

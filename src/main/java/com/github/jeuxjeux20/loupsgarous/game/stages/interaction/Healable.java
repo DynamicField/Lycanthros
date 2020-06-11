@@ -4,15 +4,24 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 
 public interface Healable extends PickableProvider {
+    Check canHealTarget(LGPlayer target);
+
     Check canPlayerHeal(LGPlayer healer);
 
-    Check canHeal(LGPlayer healer, LGPlayer target);
+    default Check canHeal(LGPlayer healer, LGPlayer target) {
+        return canPlayerHeal(healer).and(() -> canHealTarget(target));
+    }
 
     void heal(LGPlayer healer, LGPlayer target);
 
     @Override
     default Pickable providePickable() {
         return new Pickable() {
+            @Override
+            public Check canPickTarget(LGPlayer target) {
+                return canHealTarget(target);
+            }
+
             @Override
             public Check canPlayerPick(LGPlayer picker) {
                 return canPlayerHeal(picker);

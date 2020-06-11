@@ -33,7 +33,7 @@ public final class MutableLGGame implements LGGame {
     }
 
     public void distributeCards(Composition composition) {
-        ImmutableList<LGCard> cards = composition.getCards();
+        ImmutableSet<LGCard> cards = composition.getCards();
 
         Preconditions.checkArgument(playersByUUID.size() == cards.size(),
                 "There isn't as much players as cards.");

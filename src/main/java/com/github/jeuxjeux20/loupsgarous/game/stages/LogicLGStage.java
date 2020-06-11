@@ -5,15 +5,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
-public abstract class LogicLGGameStage extends RunnableLGGameStage {
-    public LogicLGGameStage(LGGameOrchestrator orchestrator) {
+public abstract class LogicLGStage extends RunnableLGStage {
+    public LogicLGStage(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }
 
     @Override
-    public final CompletableFuture<Void> run() {
+    public final CompletableFuture<Void> execute() {
         runSync();
-        return COMPLETED;
+        return CompletableFuture.completedFuture(null);
     }
 
     public abstract void runSync();
@@ -24,7 +24,12 @@ public abstract class LogicLGGameStage extends RunnableLGGameStage {
     }
 
     @Override
-    public @Nullable String getName() {
+    public String getName() {
+        return null;
+    }
+
+    @Override
+    public String getTitle() {
         return null;
     }
 }

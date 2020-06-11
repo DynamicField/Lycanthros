@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 import java.util.UUID;
 
-class MinecraftLGGameLobby implements LGGameLobby {
+class MinecraftLGLobby implements LGLobby {
     private final MutableLGGameOrchestrator orchestrator;
     private final MutableComposition composition;
     private final LobbyTeleporter lobbyTeleporter;
@@ -40,12 +40,12 @@ class MinecraftLGGameLobby implements LGGameLobby {
     private final CompositionGui.Factory compositionGuiFactory;
 
     @Inject
-    MinecraftLGGameLobby(@Assisted LGGameLobbyInfo lobbyInfo,
-                         @Assisted MutableLGGameOrchestrator orchestrator,
-                         LobbyTeleporter.Factory lobbyTeleporterFactory,
-                         LGGameManager gameManager,
-                         CompositionValidator compositionValidator,
-                         CompositionGui.Factory compositionGuiFactory) throws CannotCreateLobbyException {
+    MinecraftLGLobby(@Assisted LGGameLobbyInfo lobbyInfo,
+                     @Assisted MutableLGGameOrchestrator orchestrator,
+                     LobbyTeleporter.Factory lobbyTeleporterFactory,
+                     LGGameManager gameManager,
+                     CompositionValidator compositionValidator,
+                     CompositionGui.Factory compositionGuiFactory) throws CannotCreateLobbyException {
 
         Preconditions.checkArgument(lobbyInfo.getPlayers().size() <= lobbyInfo.getComposition().getPlayerCount(),
                 "There are more players than the given composition is supposed to have.");
@@ -227,7 +227,7 @@ class MinecraftLGGameLobby implements LGGameLobby {
         protected void checkPlayerCount(int playerCount) throws IllegalPlayerCountException {
             super.checkPlayerCount(playerCount);
 
-            if (MinecraftLGGameLobby.this.getGame().getPlayers().size() > playerCount) {
+            if (MinecraftLGLobby.this.getGame().getPlayers().size() > playerCount) {
                 throw new IllegalPlayerCountException(getPlayerCount() - 1 == playerCount ?
                         "Impossible de retirer un joueur, car cela excluerait quelqu'un." :
                         "Impossible de retirer autant de joueurs, car cela excluerait quelqu'un.");

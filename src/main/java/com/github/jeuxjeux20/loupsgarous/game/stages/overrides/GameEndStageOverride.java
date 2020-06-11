@@ -3,13 +3,13 @@ package com.github.jeuxjeux20.loupsgarous.game.stages.overrides;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
 import com.github.jeuxjeux20.loupsgarous.game.stages.GameEndStage;
-import com.github.jeuxjeux20.loupsgarous.game.stages.RunnableLGGameStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.RunnableLGStage;
 import com.google.inject.Inject;
 import com.google.inject.TypeLiteral;
 
 public class GameEndStageOverride extends AbstractStageOverride<GameEndStage> {
     @Inject
-    GameEndStageOverride(RunnableLGGameStage.Factory<GameEndStage> factory, TypeLiteral<GameEndStage> typeLiteral) {
+    GameEndStageOverride(RunnableLGStage.Factory<GameEndStage> factory, TypeLiteral<GameEndStage> typeLiteral) {
         super(factory, typeLiteral);
     }
 

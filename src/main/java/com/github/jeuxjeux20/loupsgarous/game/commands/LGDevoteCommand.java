@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.stages.LGGameStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
 import com.google.inject.Inject;
 import org.bukkit.ChatColor;
@@ -23,7 +23,7 @@ public class LGDevoteCommand extends LGGameCommand {
                           Player player, Command command, String label, String[] args) {
         if (args.length != 0) return false;
 
-        LGGameStage stage = orchestrator.stages().current();
+        LGStage stage = orchestrator.stages().current();
 
         Votable votable = stage.getComponent(Votable.class).orElse(null);
         if (votable == null) {

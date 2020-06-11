@@ -5,11 +5,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 public interface LGConfiguration {
-    Optional<String> getDefaultWorld();
+    RootConfiguration get();
 
-    void setDefaultWorld(@Nullable String defaultWorld);
+    void save();
 
-    WorldPoolConfiguration getWorldPool();
-
-    void setWorldPool(WorldPoolConfiguration worldPool);
+    void reload();
 }

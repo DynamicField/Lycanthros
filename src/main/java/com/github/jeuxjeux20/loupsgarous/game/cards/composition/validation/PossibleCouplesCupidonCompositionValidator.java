@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableSet;
 public final class PossibleCouplesCupidonCompositionValidator implements CompositionValidator {
     @Override
     public ImmutableSet<Problem> validate(Composition composition) {
-        ImmutableList<LGCard> cards = composition.getCards();
+        ImmutableSet<LGCard> cards = composition.getCards();
 
         int playerCount = cards.size();
         long cupidonCount = cards.stream().filter(card -> card.getClass() == CupidonCard.class).count();

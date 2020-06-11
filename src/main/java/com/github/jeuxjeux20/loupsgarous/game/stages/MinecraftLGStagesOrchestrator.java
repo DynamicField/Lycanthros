@@ -24,17 +24,16 @@ import java.util.logging.Logger;
 public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     private final LGGameOrchestrator gameOrchestrator;
 
-    private final LinkedList<RunnableLGGameStage.Factory<?>> stageFactories;
-    private @Nullable ListIterator<RunnableLGGameStage.Factory<?>> stageIterator = null;
-    private @Nullable RunnableLGGameStage currentStage = null;
-    private @Nullable CompletableFuture<Void> currentStageFuture = null;
+    private final LinkedList<RunnableLGStage.Factory<?>> stageFactories;
+    private @Nullable ListIterator<RunnableLGStage.Factory<?>> stageIterator = null;
+    private @Nullable RunnableLGStage currentStage = null;
     private @Nullable LGStageChangeEvent currentStageEvent = null;
     private final Set<StageOverride> stageOverrides;
     private final Logger logger;
 
     @Inject
     MinecraftLGStagesOrchestrator(@Assisted LGGameOrchestrator gameOrchestrator,
-                                  Set<RunnableLGGameStage.Factory<?>> stageFactories,
+                                  Set<RunnableLGStage.Factory<?>> stageFactories,
                                   Set<StageOverride> stageOverrides,
                                   LoupsGarous plugin) {
         this.gameOrchestrator = gameOrchestrator;
@@ -46,7 +45,7 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     }
 
     @Override
-    public void add(RunnableLGGameStage.Factory<?> stage) {
+    public void add(RunnableLGStage.Factory<?> stage) {
         if (stageIterator == null) {
             stageFactories.add(stage);
         } else {
@@ -65,15 +64,26 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
         if (stageIterator == null || !stageIterator.hasNext())
             stageIterator = stageFactories.listIterator(); // Reset the iterator
 
-        RunnableLGGameStage.Factory<?> factory = stageIterator.next();
-        RunnableLGGameStage stage = factory.create(gameOrchestrator);
+        RunnableLGStage.Factory<?> factory = stageIterator.next();
+        RunnableLGStage stage = factory.create(gameOrchestrator);
 
         if (stage.isTemporary())
             stageIterator.remove();
 
         if (stage.shouldRun()) {
-            updateAndRunCurrentStage(stage).thenRun(this::next).exceptionally(this::handleFutureException);
+            runStage(stage).thenRun(this::next).exceptionally(this::handlePostStageException);
         } else {
+            // Close the stage because we didn't run it.
+            //
+            // NOTE: That's one of the problems of having close() and shouldRun() together,
+            // you might forget to close it when it shouldn't run, and also create
+            // unnecessary objects in the constructor.
+            // I can't really think of an alternative that is nearly as pleasant to use
+            // as the shouldRun() method.
+            // While something such as StageOverride somewhat fixes the whole issue,
+            // requiring an extra class just for a condition seems really annoying.
+            // For now, this works. Let's not complain :D
+            stage.closeAndReportException();
             next();
         }
     }
@@ -86,18 +96,18 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
         activeStageOverride.ifPresent(stageOverride -> {
             if (stageOverride.getStageClass().isInstance(currentStage)) return;
 
-            RunnableLGGameStage stage = stageOverride.getStageFactory().create(gameOrchestrator);
+            RunnableLGStage stage = stageOverride.getStageFactory().create(gameOrchestrator);
 
-            updateAndRunCurrentStage(stage)
+            runStage(stage)
                     .thenRun(() -> stageOverride.onceComplete(gameOrchestrator))
-                    .exceptionally(this::handleFutureException);
+                    .exceptionally(this::handlePostStageException);
         });
 
         return activeStageOverride.isPresent();
     }
 
-    private CompletionStage<Void> updateAndRunCurrentStage(RunnableLGGameStage stage) {
-        CompletableFuture<Void> lastFuture = currentStageFuture;
+    private CompletionStage<Void> runStage(RunnableLGStage stage) {
+        RunnableLGStage lastStage = currentStage;
         LGStageChangeEvent lastEvent = currentStageEvent;
 
         LGStageChangeEvent event = new LGStageChangeEvent(gameOrchestrator, stage);
@@ -107,23 +117,20 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
 
         if (event.isCancelled()) {
             // Some listeners cancelled the event
-            // or changed the stage, don't run the initial one,
+            // or changed the stage, don't execute the initial one,
             // and return a cancelled future.
             CompletableFuture<Void> future = new CompletableFuture<>();
             future.cancel(true);
             return future;
         }
 
-        // Cancel the previous stage stuff before running the new one
-        if (lastFuture != null && !lastFuture.isDone()) lastFuture.cancel(true);
+        // Cancel the previous stage and its event before running the new one.
+        if (lastStage != null && !lastStage.isClosed()) lastStage.closeAndReportException();
         if (lastEvent != null) lastEvent.setCancelled(true);
 
         currentStage = stage;
 
-        CompletableFuture<Void> future = stage.run();
-        currentStageFuture = future;
-
-        return future.exceptionally(this::handleStageException);
+        return stage.run().exceptionally(this::handleStageException);
     }
 
     private Void handleStageException(Throwable ex) {
@@ -135,15 +142,15 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
                 (CompletionException) ex : new CompletionException(ex);
     }
 
-    private Void handleFutureException(Throwable ex) {
+    private Void handlePostStageException(Throwable ex) {
         if (ex.getCause() instanceof CancellationException) return null;
         logger.log(Level.SEVERE, "Unhandled exception while the game was running the next stage.", ex);
         return null;
     }
 
     @Override
-    public @NotNull LGGameStage current() {
-        return currentStage == null ? new LGGameStage.Null() : currentStage;
+    public @NotNull LGStage current() {
+        return currentStage == null ? new LGStage.Null() : currentStage;
     }
 
     @Override
@@ -154,8 +161,8 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     private final class CurrentStageTerminable implements Terminable {
         @Override
         public void close() {
-            if (currentStageFuture != null && !currentStageFuture.isDone())
-                currentStageFuture.cancel(true);
+            if (currentStage != null && !currentStage.isClosed())
+                currentStage.closeAndReportException();
         }
     }
 }

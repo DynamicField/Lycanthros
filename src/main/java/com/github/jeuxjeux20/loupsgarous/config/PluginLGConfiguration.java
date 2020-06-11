@@ -15,32 +15,24 @@ public class PluginLGConfiguration implements LGConfiguration {
     @Inject
     public PluginLGConfiguration(LoupsGarous plugin) {
         this.plugin = plugin;
+
+        reload();
+        getRootConfig();
     }
 
     @Override
-    public Optional<String> getDefaultWorld() {
-        return Optional.ofNullable(getRootConfig().getDefaultWorld());
+    public RootConfiguration get() {
+        return getRootConfig();
     }
 
     @Override
-    public void setDefaultWorld(@Nullable String defaultWorld) {
-        updateRootConfig(c -> c.withDefaultWorld(defaultWorld));
+    public void reload() {
+        plugin.reloadConfig();
     }
 
     @Override
-    public WorldPoolConfiguration getWorldPool() {
-        return getRootConfig().getWorldPool();
-    }
-
-    @Override
-    public void setWorldPool(WorldPoolConfiguration worldPool) {
-        updateRootConfig(c -> c.withWorldPool(worldPool));
-    }
-
-    // Root stuff
-
-    private void updateRootConfig(Function<RootConfiguration, RootConfiguration> updater) {
-        updateRootConfig(updater.apply(getRootConfig()));
+    public void save() {
+        plugin.saveConfig();
     }
 
     private void updateRootConfig(RootConfiguration configuration) {

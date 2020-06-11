@@ -4,15 +4,24 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 
 public interface Lookable extends PickableProvider {
+    Check canLookTarget(LGPlayer target);
+
     Check canPlayerLook(LGPlayer looker);
 
-    Check canLook(LGPlayer looker, LGPlayer target);
+    default Check canLook(LGPlayer looker, LGPlayer target) {
+        return canPlayerLook(looker).and(() -> canLookTarget(target));
+    }
 
     void look(LGPlayer looker, LGPlayer target);
 
     @Override
     default Pickable providePickable() {
         return new Pickable() {
+            @Override
+            public Check canPickTarget(LGPlayer target) {
+                return canLookTarget(target);
+            }
+
             @Override
             public Check canPlayerPick(LGPlayer picker) {
                 return canPlayerLook(picker);

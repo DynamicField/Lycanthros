@@ -10,8 +10,8 @@ public class LGPickRemovedEvent extends LGPickEvent {
     private static final HandlerList handlerList = new HandlerList();
 
     public LGPickRemovedEvent(LGGameOrchestrator orchestrator, PickableProvider pickableProvider,
-                              LGPlayer from, LGPlayer to) {
-        super(orchestrator, pickableProvider, from, to);
+                              LGPlayer picker, LGPlayer target) {
+        super(orchestrator, pickableProvider, picker, target);
     }
 
     public static @NotNull HandlerList getHandlerList() {

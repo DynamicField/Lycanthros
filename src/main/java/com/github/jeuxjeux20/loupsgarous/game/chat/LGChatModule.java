@@ -6,8 +6,8 @@ public final class LGChatModule extends ChatChannelsModule {
     @Override
     protected void configureBindings() {
         install(new FactoryModuleBuilder()
-                .implement(LGChatManager.class, MinecraftLGChatManager.class)
-                .build(LGChatManager.Factory.class));
+                .implement(LGChatOrchestrator.class, MinecraftLGChatOrchestrator.class)
+                .build(LGChatOrchestrator.Factory.class));
 
         bind(AnonymizedNamesProvider.class).to(RandomAnonymizedNamesProvider.class);
     }

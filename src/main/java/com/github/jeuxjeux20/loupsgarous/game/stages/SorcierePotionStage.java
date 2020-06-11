@@ -32,7 +32,7 @@ import static me.lucko.helper.text.format.TextColor.*;
 import static me.lucko.helper.text.format.TextDecoration.BOLD;
 import static me.lucko.helper.text.format.TextDecoration.ITALIC;
 
-public class SorcierePotionStage extends RunnableLGGameStage implements CountdownTimedStage {
+public class SorcierePotionStage extends RunnableLGStage implements CountdownTimedStage {
     private final Countdown countdown;
     private final Healable healable;
     private final Killable killable;
@@ -53,7 +53,7 @@ public class SorcierePotionStage extends RunnableLGGameStage implements Countdow
     }
 
     @Override
-    public CompletableFuture<Void> run() {
+    public CompletableFuture<Void> execute() {
         orchestrator.game().getAlivePlayers()
                 .filter(Check.predicate(this::canAct))
                 .forEach(this::sendNotification);
@@ -62,13 +62,13 @@ public class SorcierePotionStage extends RunnableLGGameStage implements Countdow
     }
 
     @Override
-    public @NotNull String getName() {
+    public String getName() {
         return "Sorcière";
     }
 
     @Override
-    public Optional<String> getTitle() {
-        return Optional.of("La sorcière va utiliser ses potions...");
+    public String getTitle() {
+        return "La sorcière va utiliser ses potions...";
     }
 
     @Override
@@ -170,10 +170,9 @@ public class SorcierePotionStage extends RunnableLGGameStage implements Countdow
         }
 
         @Override
-        public Check canHeal(LGPlayer healer, LGPlayer target) {
-            return canPlayerHeal(healer)
-                    .and(() -> orchestrator.kills().pending().stream().anyMatch(x -> x.getWhoDied() == target),
-                            "Ce joueur ne va pas mourir ce tour ci.");
+        public Check canHealTarget(LGPlayer target) {
+            return Check.ensure(orchestrator.kills().pending().stream().anyMatch(x -> x.getWhoDied() == target),
+                    "Ce joueur ne va pas mourir ce tour ci.");
         }
 
         @Override

@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.VOTE_TIP_MESSAGE;
 
-public interface LGChatManager extends LGGameOrchestratorComponent {
+public interface LGChatOrchestrator extends LGGameOrchestratorComponent {
     void redirectMessage(LGPlayer sender, String message);
 
     default void sendMessage(LGChatChannel channel, String message) {
@@ -56,6 +56,6 @@ public interface LGChatManager extends LGGameOrchestratorComponent {
     }
 
     interface Factory {
-        LGChatManager create(LGGameOrchestrator orchestrator);
+        LGChatOrchestrator create(LGGameOrchestrator orchestrator);
     }
 }

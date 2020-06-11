@@ -1,16 +1,27 @@
 package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
+import com.github.jeuxjeux20.loupsgarous.Plugin;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGPickRemovedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.stages.LGGameStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.MajorityVoteShortensCountdown;
 import com.github.jeuxjeux20.loupsgarous.game.stages.UnmodifiedCountdownTimedStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
+import com.google.inject.Inject;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import java.util.logging.Logger;
+
 public class ShortenVoteCountdownListener implements Listener {
+    private final Logger logger;
+
+    @Inject
+    ShortenVoteCountdownListener(@Plugin Logger logger) {
+        this.logger = logger;
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void onLGPick(LGPickEvent event) {
         updateStageCountdown(event.getOrchestrator().stages().current());
@@ -21,13 +32,20 @@ public class ShortenVoteCountdownListener implements Listener {
         updateStageCountdown(event.getOrchestrator().stages().current());
     }
 
-    private void updateStageCountdown(LGGameStage stage) {
+    private void updateStageCountdown(LGStage stage) {
         Votable votable = stage.getComponent(Votable.class).orElse(null);
         UnmodifiedCountdownTimedStage dualCountdown = stage.getComponent(UnmodifiedCountdownTimedStage.class).orElse(null);
-
-        if (votable == null || dualCountdown == null) return;
-
         MajorityVoteShortensCountdown annotation = stage.getClass().getAnnotation(MajorityVoteShortensCountdown.class);
+
+        if (votable == null || dualCountdown == null) {
+            if (annotation != null) {
+                logger.warning("Stage " + stage.getClass().getName() + " is annotated with " +
+                               "MajorityVoteShortensCountdown but doesn't implement Votable and " +
+                               "UnmodifiedCountdownTimedStage");
+            }
+            return;
+        }
+
         if (annotation == null) return;
 
         // Nothing will change anyway, we're under the time left.

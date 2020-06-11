@@ -1,63 +1,59 @@
 package com.github.jeuxjeux20.loupsgarous.config;
 
-import com.github.jeuxjeux20.loupsgarous.config.serialization.BukkitDeserialize;
-import com.github.jeuxjeux20.loupsgarous.config.serialization.SimpleYamlMapper;
-import com.github.jeuxjeux20.loupsgarous.config.serialization.YamlProperty;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @SerializableAs("Root")
 public final class RootConfiguration implements ConfigurationSerializable {
-    @YamlProperty("world-pool")
-    private WorldPoolConfiguration worldPool;
-
-    @YamlProperty("default-world")
-    private @Nullable String defaultWorld;
-
-    public RootConfiguration(WorldPoolConfiguration worldPool, @Nullable String defaultWorld) {
-        this.worldPool = worldPool;
-        this.defaultWorld = defaultWorld;
-
-        checkData();
-    }
+    private WorldPoolConfiguration worldPool = new WorldPoolConfiguration();
+    private @Nullable String defaultWorld = "loups_garous";
+    private boolean debug = false;
 
     public RootConfiguration() {
-        this(new WorldPoolConfiguration(), "loups_garous");
     }
 
-    @BukkitDeserialize
     public RootConfiguration(Map<String, Object> data) {
-        SimpleYamlMapper.deserializeFields(data, this);
+        Object worldPool = data.get("world-pool");
+        if (worldPool instanceof WorldPoolConfiguration) {
+            this.worldPool = ((WorldPoolConfiguration) worldPool);
+        }
 
-        checkData();
-    }
+        Object defaultWorld = data.get("default-world");
+        if (defaultWorld != null) {
+            this.defaultWorld = defaultWorld.toString();
+        }
 
-    private void checkData() {
-        if (worldPool == null) worldPool = new WorldPoolConfiguration();
+        Object debug = data.get("debug");
+        if (debug instanceof Boolean) {
+            this.debug = (Boolean) debug;
+        }
     }
 
     public WorldPoolConfiguration getWorldPool() {
         return worldPool;
     }
 
-    public RootConfiguration withWorldPool(WorldPoolConfiguration worldPool) {
-        return new RootConfiguration(worldPool, defaultWorld);
-    }
-
     public @Nullable String getDefaultWorld() {
         return defaultWorld;
     }
 
-    public RootConfiguration withDefaultWorld(String defaultWorld) {
-        return new RootConfiguration(worldPool, defaultWorld);
+    public boolean isDebug() {
+        return debug;
     }
 
     @Override
     public @NotNull Map<String, Object> serialize() {
-        return SimpleYamlMapper.serialize(this);
+        Map<String, Object> data = new HashMap<>();
+
+        data.put("world-pool", worldPool);
+        data.put("default-world", debug);
+        data.put("debug", debug);
+
+        return data;
     }
 }

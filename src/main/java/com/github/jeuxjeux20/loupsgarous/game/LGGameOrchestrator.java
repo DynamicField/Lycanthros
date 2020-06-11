@@ -3,12 +3,12 @@ package com.github.jeuxjeux20.loupsgarous.game;
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardsOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatManager;
+import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.CannotCreateLobbyException;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobby;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobbyInfo;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
@@ -28,7 +28,7 @@ import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.STARTED;
  * Orchestrators contain additional state apart from the {@link #game()} to ensure that the game runs correctly,
  * with the {@link #state()} and {@link #stages()}.
  * <p>
- * The {@linkplain LGGameState game state} can be changed using the appropriate methods:
+ * The game {@link #state()} can be changed using the appropriate methods:
  * {@link #initialize()}, {@link #start()}, {@link #finish(LGEnding)} and {@link #delete()}.
  * <p>
  * This also implements {@link TerminableConsumer}, where all the bound terminables get terminated
@@ -36,19 +36,19 @@ import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.STARTED;
  * <p>
  * Other aspects of the game can be used using components that break up features into multiple methods:
  * <ul>
- *     <li>{@link #chat()}: Send messages using channels. ({@link LGChatManager}) </li>
+ *     <li>{@link #chat()}: Send messages using channels. ({@link LGChatOrchestrator}) </li>
  *     <li>{@link #stages()}: Manages the stages of the game. ({@link LGStagesOrchestrator})</li>
  *     <li>{@link #cards()}: Manages cards and their teams. ({@link LGCardsOrchestrator})</li>
- *     <li>{@link #lobby()}: Manages the lobby and the composition of the game. ({@link LGGameLobby})</li>
+ *     <li>{@link #lobby()}: Manages the lobby and the composition of the game. ({@link LGLobby})</li>
  *     <li>{@link #kills()}: Kill people instantly, or at a later time. ({@link LGKillsOrchestrator})</li>
  * </ul>
  *
  * @author jeuxjeux20
- * @see LGChatManager
+ * @see LGChatOrchestrator
  * @see LGStagesOrchestrator
  * @see LGCardsOrchestrator
  * @see LGKillsOrchestrator
- * @see LGGameLobby
+ * @see LGLobby
  * @see LGGameState
  */
 public interface LGGameOrchestrator extends TerminableConsumer {
@@ -84,6 +84,10 @@ public interface LGGameOrchestrator extends TerminableConsumer {
 
     void callEvent(LGEvent event);
 
+    default boolean isMyEvent(LGEvent event) {
+        return event.getOrchestrator() == this;
+    }
+
 
     default Stream<@NotNull Player> getAllMinecraftPlayers() {
         return game().getPlayers().stream().map(LGPlayer::getMinecraftPlayer).flatMap(OptionalUtils::stream);
@@ -101,7 +105,7 @@ public interface LGGameOrchestrator extends TerminableConsumer {
         }
     }
 
-    LGChatManager chat();
+    LGChatOrchestrator chat();
 
     LGStagesOrchestrator stages();
 
@@ -109,7 +113,7 @@ public interface LGGameOrchestrator extends TerminableConsumer {
 
     LGKillsOrchestrator kills();
 
-    LGGameLobby lobby();
+    LGLobby lobby();
 
     interface Factory {
         LGGameOrchestrator create(LGGameLobbyInfo lobbyInfo) throws CannotCreateLobbyException;

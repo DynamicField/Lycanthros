@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
-public class GameStartStage extends RunnableLGGameStage implements CountdownTimedStage {
+public class GameStartStage extends RunnableLGStage implements CountdownTimedStage {
     private final Countdown countdown;
 
     @Inject
@@ -26,12 +26,17 @@ public class GameStartStage extends RunnableLGGameStage implements CountdownTime
     }
 
     @Override
-    public CompletableFuture<Void> run() {
+    public CompletableFuture<Void> execute() {
         return countdown.start();
     }
 
     @Override
-    public @Nullable String getName() {
+    public String getName() {
+        return null;
+    }
+
+    @Override
+    public String getTitle() {
         return null;
     }
 
@@ -43,7 +48,7 @@ public class GameStartStage extends RunnableLGGameStage implements CountdownTime
     static class ResetTimerListener implements Listener {
         @EventHandler(ignoreCancelled = true)
         public void onLGLobbyCompositionChange(LGLobbyCompositionChangeEvent event) {
-            LGGameStage currentStage = event.getOrchestrator().stages().current();
+            LGStage currentStage = event.getOrchestrator().stages().current();
             if (currentStage instanceof GameStartStage) {
                 GameStartStage stage = (GameStartStage) currentStage;
                 stage.countdown.setTimer(stage.countdown.getBiggestTimerValue());

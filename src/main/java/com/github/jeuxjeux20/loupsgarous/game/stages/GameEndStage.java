@@ -6,10 +6,11 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.bukkit.boss.BarColor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
-public class GameEndStage extends RunnableLGGameStage implements CountdownTimedStage {
+public class GameEndStage extends RunnableLGStage implements CountdownTimedStage {
     private final Countdown countdown;
 
     @Inject
@@ -19,13 +20,18 @@ public class GameEndStage extends RunnableLGGameStage implements CountdownTimedS
     }
 
     @Override
-    public CompletableFuture<Void> run() {
+    public CompletableFuture<Void> execute() {
         return countdown.start();
     }
 
     @Override
-    public @NotNull String getName() {
+    public String getName() {
         return "Fin !";
+    }
+
+    @Override
+    public String getTitle() {
+        return null;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.commands;
+package com.github.jeuxjeux20.loupsgarous.commands.debug;
 
 import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.guicybukkit.command.SelfConfiguredCommandExecutor;

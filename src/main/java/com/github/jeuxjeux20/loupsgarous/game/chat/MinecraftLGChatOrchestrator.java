@@ -13,13 +13,13 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-class MinecraftLGChatManager implements LGChatManager {
+class MinecraftLGChatOrchestrator implements LGChatOrchestrator {
     private final LGGameOrchestrator orchestrator;
     private final Set<LGChatChannel> channels;
     private final LoupsGarous plugin;
 
     @Inject
-    MinecraftLGChatManager(@Assisted LGGameOrchestrator orchestrator, Set<LGChatChannel> channels, LoupsGarous plugin) {
+    MinecraftLGChatOrchestrator(@Assisted LGGameOrchestrator orchestrator, Set<LGChatChannel> channels, LoupsGarous plugin) {
         this.orchestrator = orchestrator;
         this.channels = new HashSet<>(channels);
         this.plugin = plugin;
@@ -44,11 +44,10 @@ class MinecraftLGChatManager implements LGChatManager {
         }
         LGChatChannel channel = writableChannels.iterator().next();
 
-        sendMessage(channel, recipient -> buildMessage(sender, message, orchestrator, channel, recipient));
+        sendMessage(channel, recipient -> buildMessage(sender, message, channel, recipient));
     }
 
-    private String buildMessage(LGPlayer sender, String message, LGGameOrchestrator orchestrator,
-                                LGChatChannel channel, LGPlayer recipient) {
+    private String buildMessage(LGPlayer sender, String message, LGChatChannel channel, LGPlayer recipient) {
         StringBuilder messageBuilder = new StringBuilder();
 
         if (channel.isNameDisplayed()) {

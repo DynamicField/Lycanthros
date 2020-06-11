@@ -76,3 +76,17 @@ commands:
   guitest:
     usage: /guitest
     description: i like to test
+
+permissions:
+  loupsgarous.game.list:
+    description: Permet de lister les parties
+    default: op
+  loupsgarous.game.start:
+    description: Permet de commencer une partie
+    default: true
+  loupsgarous.game.join:
+    description: Permet de rejoindre une partie
+    default: true
+  loupsgarous.debug.skipstage:
+    description: Allows you to skip a stage.
+    default: op

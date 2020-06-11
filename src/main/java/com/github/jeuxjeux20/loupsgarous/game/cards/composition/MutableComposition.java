@@ -6,28 +6,27 @@ import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.github.jeuxjeux20.loupsgarous.util.ThrowingFunction;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class MutableComposition implements Composition {
-    private final List<LGCard> cards;
+    private final Set<LGCard> cards;
     private int playerCount;
 
     public MutableComposition(Composition composition) {
         this(composition.getPlayerCount(), composition.getCards());
     }
 
-    public MutableComposition(int playerCount, List<LGCard> cards) {
+    public MutableComposition(int playerCount, Set<LGCard> cards) {
         this.playerCount = playerCount;
-        this.cards = new ArrayList<>(cards);
+        this.cards = new HashSet<>(cards);
         adaptCompositionSize();
     }
 
     @Override
-    public ImmutableList<LGCard> getCards() {
-        return ImmutableList.copyOf(cards);
+    public ImmutableSet<LGCard> getCards() {
+        return ImmutableSet.copyOf(cards);
     }
 
     // Players
@@ -95,7 +94,7 @@ public class MutableComposition implements Composition {
     private void adaptCompositionSize() {
         while (cards.size() != playerCount) {
             if (cards.size() > playerCount) {
-                cards.remove(cards.size() - 1);
+                cards.remove(cards.iterator().next()); // Remove a random card.
             } else {
                 cards.add(new VillageoisCard());
             }

@@ -1,64 +1,45 @@
 package com.github.jeuxjeux20.loupsgarous.config;
 
-import com.github.jeuxjeux20.loupsgarous.config.serialization.BukkitDeserialize;
-import com.github.jeuxjeux20.loupsgarous.config.serialization.SimpleYamlMapper;
-import com.github.jeuxjeux20.loupsgarous.config.serialization.YamlProperty;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
+import org.bukkit.util.NumberConversions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.OptionalInt;
 
 @SerializableAs("WorldPool")
 public final class WorldPoolConfiguration implements ConfigurationSerializable {
-    @YamlProperty("min-worlds")
-    private int minWorlds;
-
-    @YamlProperty("max-worlds")
-    private @Nullable Integer maxWorlds;
-
-    public WorldPoolConfiguration(int minWorlds, @Nullable Integer maxWorlds) {
-        this.minWorlds = minWorlds;
-        this.maxWorlds = maxWorlds;
-
-        checkData();
-    }
+    private int minWorlds = 8;
+    private @Nullable Integer maxWorlds = null;
 
     public WorldPoolConfiguration() {
-        this(8, null);
     }
 
-    @BukkitDeserialize
     public WorldPoolConfiguration(Map<String, Object> data) {
-        SimpleYamlMapper.deserializeFields(data, this);
+        this.minWorlds = NumberConversions.toInt(data.getOrDefault("min-worlds", minWorlds));
 
-        checkData();
-    }
-
-    private void checkData() {
-        if (minWorlds <= 0) minWorlds = 1;
-        if (maxWorlds != null && maxWorlds < minWorlds) maxWorlds = minWorlds;
+        this.maxWorlds = NumberConversions.toInt(data.getOrDefault("max-worlds", maxWorlds));
+        if (maxWorlds == 0) maxWorlds = null;
     }
 
     public int getMinWorlds() {
         return minWorlds;
     }
 
-    public WorldPoolConfiguration withMinWorlds(int minWorlds) {
-        return new WorldPoolConfiguration(minWorlds, maxWorlds);
-    }
-
-    public @Nullable Integer getMaxWorlds() {
-        return maxWorlds;
-    }
-
-    public WorldPoolConfiguration withMaxWorlds(@Nullable Integer maxWorlds) {
-        return new WorldPoolConfiguration(minWorlds, maxWorlds);
+    public OptionalInt getMaxWorlds() {
+        return maxWorlds == null ? OptionalInt.empty() : OptionalInt.of(maxWorlds);
     }
 
     @Override
     public @NotNull Map<String, Object> serialize() {
-        return SimpleYamlMapper.serialize(this);
+        Map<String, Object> data = new HashMap<>();
+
+        data.put("min-worlds", minWorlds);
+        data.put("max-worlds", maxWorlds);
+
+        return data;
     }
 }

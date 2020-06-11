@@ -2,7 +2,10 @@ package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
 import com.github.jeuxjeux20.loupsgarous.Plugin;
 import com.github.jeuxjeux20.loupsgarous.config.LGConfiguration;
+import com.github.jeuxjeux20.loupsgarous.config.annotations.DefaultWorld;
+import com.github.jeuxjeux20.loupsgarous.config.annotations.Pool;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.onarandombox.MultiverseCore.MultiverseCore;
 import com.onarandombox.MultiverseCore.api.MVWorldManager;
@@ -11,6 +14,7 @@ import com.onarandombox.MultiverseCore.event.MVWorldDeleteEvent;
 import me.lucko.helper.Events;
 import org.bukkit.entity.Player;
 
+import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -22,17 +26,23 @@ class MinecraftMultiverseWorldPool implements MultiverseWorldPool {
 
     private final MultiverseCore multiverse;
     private final String sourceWorld;
-    private final LGConfiguration configuration;
+    private final int minWorlds;
+    private final Provider<Integer> maxWorldsProvider;
     private final Logger logger;
 
     private final ConcurrentLinkedQueue<MultiverseWorld> availableWorlds = new ConcurrentLinkedQueue<>();
     private final CopyOnWriteArraySet<MultiverseWorld> allWorlds = new CopyOnWriteArraySet<>();
 
     @Inject
-    MinecraftMultiverseWorldPool(MultiverseCore multiverse, LGConfiguration configuration, @Plugin Logger logger) {
+    MinecraftMultiverseWorldPool(MultiverseCore multiverse,
+                                 @DefaultWorld String sourceWorld,
+                                 @Pool.MinWorlds int minWorlds,
+                                 @Pool.MaxWorlds Provider<Integer> maxWorldsProvider,
+                                 @Plugin Logger logger) {
         this.multiverse = multiverse;
-        this.sourceWorld = configuration.getDefaultWorld().orElse("loups_garous");
-        this.configuration = configuration;
+        this.sourceWorld = sourceWorld;
+        this.minWorlds = minWorlds;
+        this.maxWorldsProvider = maxWorldsProvider;
         this.logger = logger;
 
         try {
@@ -112,8 +122,6 @@ class MinecraftMultiverseWorldPool implements MultiverseWorldPool {
             }
         }
 
-        int minWorlds = configuration.getWorldPool().getMinWorlds();
-
         if (availableWorlds.size() < minWorlds) {
             logger.info("Creating a world pool, this might take a while...");
 
@@ -148,9 +156,7 @@ class MinecraftMultiverseWorldPool implements MultiverseWorldPool {
     }
 
     private int getMaxWorlds() {
-        Integer maxWorlds = configuration.getWorldPool().getMaxWorlds();
-        if (maxWorlds == null) return Integer.MAX_VALUE;
-        return maxWorlds;
+        return maxWorldsProvider.get();
     }
 
     private class PooledWrapper implements PooledMultiverseWorld {

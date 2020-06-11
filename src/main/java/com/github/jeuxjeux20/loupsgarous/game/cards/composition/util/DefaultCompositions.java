@@ -6,6 +6,7 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.VillageoisCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 public final class DefaultCompositions {
     private DefaultCompositions() {
@@ -14,7 +15,7 @@ public final class DefaultCompositions {
     public static Composition villagerComposition(int playerCount) {
         Preconditions.checkArgument(playerCount > 1, "The player count must be greater than 1.");
 
-        ImmutableList.Builder<LGCard> builder = ImmutableList.builder();
+        ImmutableSet.Builder<LGCard> builder = ImmutableSet.builder();
         builder.add(new LoupGarouCard());
         for (int i = 0; i < playerCount - 1; i++) {
             builder.add(new VillageoisCard());

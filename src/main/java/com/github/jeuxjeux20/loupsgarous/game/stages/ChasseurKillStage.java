@@ -20,7 +20,7 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.importantTip;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
 @PostponesWinConditions
-public class ChasseurKillStage extends RunnableLGGameStage implements CountdownTimedStage, Killable {
+public class ChasseurKillStage extends RunnableLGStage implements CountdownTimedStage, Killable {
     private final LGPlayer chasseur;
     private final Countdown countdown;
     private boolean killed;
@@ -37,7 +37,7 @@ public class ChasseurKillStage extends RunnableLGGameStage implements CountdownT
     }
 
     @Override
-    public CompletableFuture<Void> run() {
+    public CompletableFuture<Void> execute() {
         chasseur.getMinecraftPlayer().ifPresent(player -> {
             player.spigot().respawn();
             player.sendMessage(
@@ -56,13 +56,13 @@ public class ChasseurKillStage extends RunnableLGGameStage implements CountdownT
     }
 
     @Override
-    public @Nullable String getName() {
+    public String getName() {
         return "Tir du chasseur";
     }
 
     @Override
-    public Optional<String> getTitle() {
-        return Optional.of("Le chasseur va tirer sa balle (ou non) !");
+    public String getTitle() {
+        return "Le chasseur va tirer sa balle (ou non) !";
     }
 
     @Override

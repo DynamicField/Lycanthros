@@ -8,8 +8,6 @@ public final class RootCommandsModule extends CommandsModule {
         addCommand(LGStartCommand.class);
         addCommand(LGListCommand.class);
         addCommand(LGFinishCommand.class);
-        addCommand(ColorCommand.class);
-        addCommand(GuiTestCommand.class);
         addCommand(LGJoinCommand.class);
         addCommand(LGReloadConfigCommand.class);
     }

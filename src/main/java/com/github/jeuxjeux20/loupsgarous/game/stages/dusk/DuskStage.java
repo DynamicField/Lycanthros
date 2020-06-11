@@ -6,7 +6,7 @@ import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.stages.CountdownTimedStage;
-import com.github.jeuxjeux20.loupsgarous.game.stages.RunnableLGGameStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.RunnableLGStage;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.bukkit.boss.BarColor;
@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-public class DuskStage extends RunnableLGGameStage implements CountdownTimedStage, ComponentBased {
+public class DuskStage extends RunnableLGStage implements CountdownTimedStage, ComponentBased {
     private final List<Action> actionsToRun;
     private final Countdown countdown;
 
@@ -42,7 +42,7 @@ public class DuskStage extends RunnableLGGameStage implements CountdownTimedStag
     }
 
     @Override
-    public CompletableFuture<Void> run() {
+    public CompletableFuture<Void> execute() {
         for (Action action : actionsToRun) {
             orchestrator.chat().sendToEveryone(LGChatStuff.importantInfo(action.getMessage()));
 
@@ -59,8 +59,13 @@ public class DuskStage extends RunnableLGGameStage implements CountdownTimedStag
     }
 
     @Override
-    public @Nullable String getName() {
+    public String getName() {
         return "Crépuscule";
+    }
+
+    @Override
+    public String getTitle() {
+        return null;
     }
 
     @Override

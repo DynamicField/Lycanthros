@@ -52,9 +52,9 @@ public class VoyanteDuskAction extends DuskStage.Action implements Lookable {
     }
 
     @Override
-    public Check canLook(LGPlayer looker, LGPlayer target) {
-        return canPlayerLook(looker)
-                .and(target.isAlive(), target.getName() + " est déjà mort ! (Il est " + target.getCard().getName() + ")");
+    public Check canLookTarget(LGPlayer target) {
+        return Check.ensure(target.isAlive(),
+                target.getName() + " est déjà mort ! (Il est " + target.getCard().getName() + ")");
     }
 
     @Override

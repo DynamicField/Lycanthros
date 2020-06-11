@@ -10,12 +10,23 @@ import java.util.UUID;
 
 public interface LGPlayer {
     /**
-     * Gets the minecraft player this player is linked to.
+     * Gets the minecraft player this player is linked to, if the player is away,
+     * this returns {@link Optional#empty()}.
      *
      * @return the player
      */
     default Optional<Player> getMinecraftPlayer() {
         if (isAway()) return Optional.empty();
+        return Optional.ofNullable(Bukkit.getPlayer(getPlayerUUID()));
+    }
+
+    /**
+     * Gets the minecraft player this player is linked to, without taking account
+     * of the context (e.g. the player is away).
+     *
+     * @return the player
+     */
+    default Optional<Player> getMinecraftPlayerNoContext() {
         return Optional.ofNullable(Bukkit.getPlayer(getPlayerUUID()));
     }
 

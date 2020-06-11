@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.AnonymousNameHolder;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LoupGarouNightSpy;
-import com.github.jeuxjeux20.loupsgarous.game.stages.LoupGarouNightKillVoteStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.LoupGarouVoteStage;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -48,7 +48,7 @@ public class LoupsGarousChatChannel implements LGChatChannel, AnonymizedChatChan
     @Override
     public boolean canBeUsedByPlayer(LGGameOrchestrator orchestrator) {
         return orchestrator.isGameRunning() &&
-               orchestrator.stages().current() instanceof LoupGarouNightKillVoteStage;
+               orchestrator.stages().current() instanceof LoupGarouVoteStage;
     }
 
     @Override
