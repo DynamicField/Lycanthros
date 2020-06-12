@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.ChasseurCard;
-import com.github.jeuxjeux20.loupsgarous.game.events.LGKillEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.LGKillEvent;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.stages.ChasseurKillStage;
 import com.google.inject.Inject;

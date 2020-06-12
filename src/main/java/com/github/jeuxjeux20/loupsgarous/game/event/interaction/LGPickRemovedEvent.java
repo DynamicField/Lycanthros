@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game.events.interaction;
+package com.github.jeuxjeux20.loupsgarous.game.event.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
@@ -9,9 +9,12 @@ import org.jetbrains.annotations.NotNull;
 public class LGPickRemovedEvent extends LGPickEvent {
     private static final HandlerList handlerList = new HandlerList();
 
+    private final boolean isInvalidate;
+
     public LGPickRemovedEvent(LGGameOrchestrator orchestrator, PickableProvider pickableProvider,
                               LGPlayer picker, LGPlayer target) {
         super(orchestrator, pickableProvider, picker, target);
+        isInvalidate = !pickableProvider.providePickable().canPick(picker, target).isSuccess();
     }
 
     public static @NotNull HandlerList getHandlerList() {
@@ -21,5 +24,9 @@ public class LGPickRemovedEvent extends LGPickEvent {
     @Override
     public @NotNull HandlerList getHandlers() {
         return handlerList;
+    }
+
+    public boolean isInvalidate() {
+        return isInvalidate;
     }
 }

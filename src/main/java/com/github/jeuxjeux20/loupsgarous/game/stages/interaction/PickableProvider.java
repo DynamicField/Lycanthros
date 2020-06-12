@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.stages.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.chat.GenericPickChannel;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
-import com.github.jeuxjeux20.loupsgarous.game.events.interaction.LGPickEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 
 public interface PickableProvider {
     Pickable providePickable();

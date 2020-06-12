@@ -2,7 +2,10 @@ package com.github.jeuxjeux20.loupsgarous;
 
 import me.lucko.helper.text.Component;
 import me.lucko.helper.text.TextComponent;
+import me.lucko.helper.text.format.TextColor;
 
+import static me.lucko.helper.text.format.TextColor.GRAY;
+import static me.lucko.helper.text.format.TextDecoration.ITALIC;
 import static me.lucko.helper.text.format.TextDecoration.UNDERLINE;
 
 /**
@@ -15,6 +18,7 @@ import static me.lucko.helper.text.format.TextDecoration.UNDERLINE;
  */
 public final class ComponentStyles {
     public static final TextComponent CLICKABLE = TextComponent.of("").decoration(UNDERLINE, true);
+    public static final TextComponent TIP = TextComponent.of("").color(GRAY).decoration(ITALIC, true);
 
     private ComponentStyles() {
     }

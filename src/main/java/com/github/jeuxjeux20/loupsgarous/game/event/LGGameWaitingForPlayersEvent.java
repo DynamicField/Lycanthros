@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game.events;
+package com.github.jeuxjeux20.loupsgarous.game.event;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import org.bukkit.event.HandlerList;

@@ -1,36 +1,43 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
+import com.github.jeuxjeux20.loupsgarous.game.event.CountdownTickEvent;
 import com.google.common.base.Preconditions;
+import me.lucko.helper.Events;
+import me.lucko.helper.Helper;
+import me.lucko.helper.Schedulers;
+import me.lucko.helper.scheduler.Task;
+import me.lucko.helper.terminable.Terminable;
 import me.lucko.helper.terminable.TerminableConsumer;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-public class Countdown implements TerminableConsumer {
-    protected final Plugin plugin;
+public class Countdown implements Terminable, TerminableConsumer {
     private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
     private final CompletableFuture<Void> future = new CompletableFuture<>();
-    private int countdownTaskId = -1;
+    private @Nullable Task countdownTask;
     private int timer;
     private int biggestTimerValue;
-    private boolean hasBeenRan;
+    private State state = State.READY;
 
-    public Countdown(LoupsGarous plugin, int timerSeconds) {
-        this.plugin = plugin;
+    public Countdown(int timerSeconds) {
         this.timer = timerSeconds;
         this.biggestTimerValue = timerSeconds;
 
-        // Just in case the plugin gets reloaded and for some obscure reason
+        // Just in case the server gets reloaded and for some obscure reason
         // the countdown doesn't get cancelled.
-        terminableRegistry.bindWith(plugin);
+        terminableRegistry.bindWith(Helper.hostPlugin());
+    }
+
+    public static Countdown of(int seconds) {
+        return new Countdown(seconds);
     }
 
     public static Builder builder() {
@@ -48,54 +55,71 @@ public class Countdown implements TerminableConsumer {
                 .finished(countdown::interrupt);
     }
 
-    public boolean hasBeenRan() {
-        return hasBeenRan;
-    }
-
-    public boolean isRunning() {
-        return countdownTaskId != -1;
-    }
+    // Start & Interrupt
 
     public final CompletableFuture<Void> start() {
-        Preconditions.checkState(!hasBeenRan(), "The countdown has already been ran");
-        hasBeenRan = true;
+        Preconditions.checkState(state == State.READY, "The countdown must be ready");
+        state = State.RUNNING;
 
         onStart();
         startTask();
 
-        future.exceptionally(e -> {
+        future.whenComplete((r, e) -> {
             if (e instanceof CancellationException) {
-                complete(true);
+                finish(true);
             }
-            return null;
+            else if (state == State.RUNNING) {
+                // The future has somehow completed while it was running?
+                // That's like doing interrupt().
+                interrupt();
+            }
         });
         return future;
     }
 
-    private void startTask() {
-        countdownTaskId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-            int oldTimer = this.timer;
+    public final void interrupt() {
+        Preconditions.checkState(state != State.FINISHED, "The countdown must not be finished.");
 
-            onTick();
-
-            if (oldTimer == this.timer) {  // Do not decrement the timer if it has changed in onTick()
-                if (timer == 0) {
-                    complete(false);
-                }
-                timer--;
-            }
-        }, 0L, 20L);
+        timer = 0;
+        finish(false);
     }
 
-    private void complete(boolean cancelled) {
-        Bukkit.getServer().getScheduler().cancelTask(countdownTaskId);
+    // Internal stuff
+
+    private void startTask() {
+        handleTick();
+        countdownTask = Schedulers.sync().runRepeating(() -> {
+            timer--;
+
+            handleTick();
+        }, 20L, 20L);
+    }
+
+    private void handleTick() {
+        onTick();
+        Events.call(new CountdownTickEvent(this));
+
+        if (timer == 0 && state != State.FINISHED) {
+            finish(false);
+        }
+    }
+
+    private void finish(boolean cancelled) {
+        Preconditions.checkState(state != State.FINISHED, "The countdown must not be finished.");
+        state = State.FINISHED;
+
+        if (countdownTask != null)
+            countdownTask.stop();
 
         terminableRegistry.closeAndReportException();
+
         if (!cancelled) {
             onFinish();
             future.complete(null);
         }
     }
+
+    // Event methods
 
     protected void onStart() {
     }
@@ -106,12 +130,14 @@ public class Countdown implements TerminableConsumer {
     protected void onFinish() {
     }
 
+    // Properties & State
+
     public int getTimer() {
         return timer;
     }
 
     public void setTimer(int timer) {
-        Preconditions.checkState(!future.isDone(), "The countdown has already finished.");
+        Preconditions.checkState(state != State.FINISHED, "The countdown must not be finished.");
         Preconditions.checkArgument(timer >= 0, "The timer must not be negative.");
 
         if (timer == 0) {
@@ -124,9 +150,12 @@ public class Countdown implements TerminableConsumer {
         this.timer = timer;
     }
 
-    public final void interrupt() {
-        timer = 0;
-        complete(false);
+    public State getState() {
+        return state;
+    }
+
+    public boolean is(State state) {
+        return this.state == state;
     }
 
     public int getBiggestTimerValue() {
@@ -137,10 +166,30 @@ public class Countdown implements TerminableConsumer {
         this.biggestTimerValue = this.timer;
     }
 
+    // Terminables
+
     @Nonnull
     @Override
     public <T extends AutoCloseable> T bind(@Nonnull T terminable) {
         return terminableRegistry.bind(terminable);
+    }
+
+    @Override
+    public void close() {
+        if (state != State.FINISHED) {
+            finish(true);
+        }
+    }
+
+    @Override
+    public boolean isClosed() {
+        return state == State.FINISHED;
+    }
+
+    public enum State {
+        READY,
+        RUNNING,
+        FINISHED
     }
 
     public static final class Builder {
@@ -174,12 +223,8 @@ public class Countdown implements TerminableConsumer {
             return this;
         }
 
-        public Countdown build(LGGameOrchestrator orchestrator) {
-            return build(orchestrator.plugin());
-        }
-
-        public Countdown build(LoupsGarous plugin) {
-            return new Countdown(plugin, time) {
+        public Countdown build() {
+            return new Countdown(time) {
                 @Override
                 protected void onStart() {
                     startActions.forEach(Runnable::run);

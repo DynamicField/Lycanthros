@@ -5,8 +5,8 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
-import com.github.jeuxjeux20.loupsgarous.game.events.interaction.LGPickEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.interaction.LGPickRemovedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
@@ -15,7 +15,6 @@ import me.lucko.helper.Events;
 import me.lucko.helper.item.ItemStackBuilder;
 import me.lucko.helper.metadata.Metadata;
 import me.lucko.helper.metadata.MetadataKey;
-import me.lucko.helper.terminable.Terminable;
 import me.lucko.helper.terminable.module.TerminableModule;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -69,22 +68,37 @@ public class VoteStructure implements Structure {
                 .collect(Collectors.toList());
         @Nullable LGPlayer playerWithMostVotes = votable.getCurrentState().getPlayerWithMostVotes();
 
-        armorStands = new ArmorStand[players.size()];
-        blockLocations = new Location[players.size()];
+        BuildingContext buildingContext = new BuildingContext(players, playerWithMostVotes);
 
-        Location currentLocation = location.clone();
-        for (int i = 0; i < players.size(); i++) {
-            LGPlayer player = players.get(i);
+        placeBlocks(buildingContext);
+        placeArmorStands(buildingContext);
+    }
 
-            Block block = world.getBlockAt(currentLocation);
+    private void placeArmorStands(BuildingContext context) {
+        armorStands = new ArmorStand[context.players.size()];
+
+        Location armorStandLocation = location.clone();
+        for (int i = 0; i < context.players.size(); i++) {
+            LGPlayer player = context.players.get(i);
+
+            Location correctedLocation = armorStandLocation.clone().add(0, 1, 0);
+            ArmorStand armorStand = createArmorStand(player, correctedLocation, context.playerWithMostVotes);
+            armorStands[i] = armorStand;
+
+            armorStandLocation.add(2, 0, 0);
+        }
+    }
+
+    private void placeBlocks(BuildingContext context) {
+        blockLocations = new Location[context.players.size() * 2];
+
+        Location blockLocation = location.clone();
+        for (int i = 0; i < blockLocations.length; i++) {
+            Block block = world.getBlockAt(blockLocation);
             block.setType(Material.BIRCH_WOOD);
             blockLocations[i] = block.getLocation();
 
-            Location armorStandLocation = currentLocation.clone().add(0, 1, 0);
-            ArmorStand armorStand = createArmorStand(player, armorStandLocation, playerWithMostVotes);
-            armorStands[i] = armorStand;
-
-            currentLocation.add(1, 0, 0);
+            blockLocation.add(1, 0, 0);
         }
     }
 
@@ -165,6 +179,16 @@ public class VoteStructure implements Structure {
                     })
                     .bindWith(consumer);
         };
+    }
+
+    private static final class BuildingContext {
+        final List<LGPlayer> players;
+        final @Nullable LGPlayer playerWithMostVotes;
+
+        private BuildingContext(List<LGPlayer> players, @Nullable LGPlayer playerWithMostVotes) {
+            this.players = players;
+            this.playerWithMostVotes = playerWithMostVotes;
+        }
     }
 
     public interface Factory {

@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.chat.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
-import com.github.jeuxjeux20.loupsgarous.game.events.interaction.LGPickEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

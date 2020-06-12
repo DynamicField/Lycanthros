@@ -55,8 +55,7 @@ public abstract class RunnableLGStage implements LGStage, Terminable, Terminable
 
             // Close the terminables as we won't be able to start the stage.
             compositeTerminable.close();
-        }
-        else if (!currentFuture.isDone()) {
+        } else if (!currentFuture.isDone()) {
             currentFuture.cancel(true);
         }
         // Don't do anything if the stage has already ended.

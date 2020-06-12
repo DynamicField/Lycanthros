@@ -1,9 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.game.atmosphere.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.events.LGGameFinishedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.LGTurnChangeEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.LGGameFinishedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.LGTurnChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerQuitEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;

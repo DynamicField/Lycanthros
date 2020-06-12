@@ -1,13 +1,13 @@
-package com.github.jeuxjeux20.loupsgarous.game.events;
+package com.github.jeuxjeux20.loupsgarous.game.event;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class LGGameDeletedEvent extends LGEvent {
+public class LGGameStartEvent extends LGEvent {
     private static final HandlerList handlerList = new HandlerList();
 
-    public LGGameDeletedEvent(LGGameOrchestrator orchestrator) {
+    public LGGameStartEvent(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }
 

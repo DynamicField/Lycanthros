@@ -19,14 +19,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.boss.BarColor;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
 @MajorityVoteShortensCountdown(timeLeft = 10)
 public class LoupGarouVoteStage extends RunnableLGStage implements Votable, UnmodifiedCountdownTimedStage {
-    private final VoteState currentState;
+    private final VoteState voteState;
     private final Countdown unmodifiedCountdown;
     private final Countdown countdown;
 
@@ -41,17 +40,17 @@ public class LoupGarouVoteStage extends RunnableLGStage implements Votable, Unmo
 
         this.voteChannel = voteChannel;
 
-        currentState = createVoteState();
+        voteState = createVoteState();
 
-        unmodifiedCountdown = Countdown.builder(30).build(orchestrator);
+        unmodifiedCountdown = Countdown.builder(30).build();
         countdown = Countdown.builder()
-                .apply(this::addTickEvents)
                 .apply(Countdown.syncWith(unmodifiedCountdown))
+                .finished(voteState::close)
                 .finished(this::computeVoteOutcome)
                 .finished(this::howl)
-                .build(orchestrator);
+                .build();
 
-        bind(currentState);
+        bind(voteState);
     }
 
     @Override
@@ -77,7 +76,7 @@ public class LoupGarouVoteStage extends RunnableLGStage implements Votable, Unmo
     }
 
     private void computeVoteOutcome() {
-        LGPlayer playerWithMostVotes = currentState.getPlayerWithMostVotes();
+        LGPlayer playerWithMostVotes = voteState.getPlayerWithMostVotes();
         if (playerWithMostVotes != null) {
             orchestrator.kills().pending().add(LGKill.of(playerWithMostVotes, NightKillReason::new));
             orchestrator.chat().sendMessage(voteChannel,
@@ -104,7 +103,7 @@ public class LoupGarouVoteStage extends RunnableLGStage implements Votable, Unmo
     }
 
     public VoteState getCurrentState() {
-        return currentState;
+        return voteState;
     }
 
     @Override

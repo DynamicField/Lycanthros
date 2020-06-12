@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.events.stage.LGStageChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageChangingEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.overrides.StageOverride;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -27,7 +27,7 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     private final LinkedList<RunnableLGStage.Factory<?>> stageFactories;
     private @Nullable ListIterator<RunnableLGStage.Factory<?>> stageIterator = null;
     private @Nullable RunnableLGStage currentStage = null;
-    private @Nullable LGStageChangeEvent currentStageEvent = null;
+    private @Nullable LGStageChangingEvent currentStageEvent = null;
     private final Set<StageOverride> stageOverrides;
     private final Logger logger;
 
@@ -108,9 +108,9 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
 
     private CompletionStage<Void> runStage(RunnableLGStage stage) {
         RunnableLGStage lastStage = currentStage;
-        LGStageChangeEvent lastEvent = currentStageEvent;
+        LGStageChangingEvent lastEvent = currentStageEvent;
 
-        LGStageChangeEvent event = new LGStageChangeEvent(gameOrchestrator, stage);
+        LGStageChangingEvent event = new LGStageChangingEvent(gameOrchestrator, stage);
         currentStageEvent = event;
 
         gameOrchestrator.callEvent(event);

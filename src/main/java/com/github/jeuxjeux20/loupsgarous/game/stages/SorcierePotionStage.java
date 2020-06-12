@@ -22,9 +22,11 @@ import me.lucko.helper.text.event.HoverEvent;
 import me.lucko.helper.text.format.TextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
@@ -43,7 +45,7 @@ public class SorcierePotionStage extends RunnableLGStage implements CountdownTim
         healable = new SorciereHealable();
         killable = new SorciereKillable();
 
-        countdown = Countdown.builder(30).apply(this::addTickEvents).build(orchestrator);
+        countdown = Countdown.of(30);
     }
 
     @Override

@@ -2,13 +2,14 @@ package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.actionbar.LGActionBarManager;
+import com.github.jeuxjeux20.loupsgarous.game.bossbar.LGBossBarManager;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
-import com.github.jeuxjeux20.loupsgarous.game.events.*;
-import com.github.jeuxjeux20.loupsgarous.game.events.lobby.LGLobbyCompositionChangeEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerJoinEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.*;
+import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyCompositionChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerJoinEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.game.inventory.LGInventoryManager;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.PlayerQuitKillReason;
@@ -61,6 +62,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
                                 LGScoreboardManager scoreboardManager,
                                 LGInventoryManager inventoryManager,
                                 LGChatOrchestrator.Factory chatManagerFactory,
+                                LGBossBarManager.Factory bossBarManagerFactory,
                                 LGLobby.Factory lobbyFactory,
                                 LGCardsOrchestrator.Factory cardOrchestratorFactory,
                                 LGStagesOrchestrator.Factory stagesOrchestratorFactory,
@@ -74,10 +76,12 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         this.stagesOrchestrator = stagesOrchestratorFactory.create(this);
         this.chatManager = chatManagerFactory.create(this);
         this.killsOrchestrator = killsOrchestratorFactory.create(this);
+        LGBossBarManager bossBarManager = bossBarManagerFactory.create(this);
 
-        this.bind(Schedulers.sync().runRepeating(this::updateActionBars, 20, 20));
+        bind(Schedulers.sync().runRepeating(this::updateActionBars, 20, 5));
+        bindModule(bossBarManager.createUpdateModule());
+
         registerLobbyEvents();
-
         scoreboardManager.registerEvents();
         inventoryManager.registerEvents();
     }

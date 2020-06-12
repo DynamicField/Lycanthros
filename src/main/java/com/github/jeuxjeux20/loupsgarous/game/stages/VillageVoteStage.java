@@ -9,16 +9,14 @@ import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.VillageVoteKillReason
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
 @MajorityVoteShortensCountdown
 public class VillageVoteStage extends RunnableLGStage implements Votable, UnmodifiedCountdownTimedStage {
-    private final VoteState currentState;
+    private final VoteState voteState;
     private final Countdown unmodifiedCountdown;
     private final Countdown countdown;
     private final VoteStructure voteStructure;
@@ -27,18 +25,19 @@ public class VillageVoteStage extends RunnableLGStage implements Votable, Unmodi
     VillageVoteStage(@Assisted LGGameOrchestrator orchestrator, VoteStructure.Factory voteStructureFactory) {
         super(orchestrator);
 
-        currentState = new VoteState(orchestrator, this);
+        voteState = new VoteState(orchestrator, this);
         voteStructure =
                 voteStructureFactory.create(orchestrator, orchestrator.world().getSpawnLocation().add(0, 2, 0), this);
 
-        unmodifiedCountdown = Countdown.builder(90).build(orchestrator);
+        unmodifiedCountdown = Countdown.builder(90).build();
         countdown = Countdown.builder()
-                .apply(this::addTickEvents)
-                .apply(Countdown.syncWith(unmodifiedCountdown))
-                .finished(this::computeVoteOutcome)
-                .build(orchestrator);
 
-        bind(currentState);
+                .apply(Countdown.syncWith(unmodifiedCountdown))
+                .finished(voteState::close)
+                .finished(this::computeVoteOutcome)
+                .build();
+
+        bind(voteState);
         bind(voteStructure);
         bindModule(voteStructure.createInteractionModule());
     }
@@ -63,7 +62,7 @@ public class VillageVoteStage extends RunnableLGStage implements Votable, Unmodi
     }
 
     private void computeVoteOutcome() {
-        LGPlayer playerWithMostVotes = currentState.getPlayerWithMostVotes();
+        LGPlayer playerWithMostVotes = voteState.getPlayerWithMostVotes();
         if (playerWithMostVotes != null) {
             orchestrator.kills().instantly(playerWithMostVotes, VillageVoteKillReason::new);
         } else {
@@ -73,7 +72,7 @@ public class VillageVoteStage extends RunnableLGStage implements Votable, Unmodi
 
     @Override
     public VoteState getCurrentState() {
-        return currentState;
+        return voteState;
     }
 
     @Override

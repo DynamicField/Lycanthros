@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.atmosphere.listeners;
 
-import com.github.jeuxjeux20.loupsgarous.game.events.LGKillEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.LGKillEvent;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import org.bukkit.Location;
 import org.bukkit.World;

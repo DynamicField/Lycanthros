@@ -9,7 +9,6 @@ public final class LGListenersModule extends ListenersModule {
         addListener(GreetPlayerOnJoinListener.class);
         addListener(CheckWinConditionsListener.class);
         addListener(KillCoupleOnPartnerDeadListener.class);
-        addListener(UpdateBossBarListener.class);
         addListener(GreetPlayerOnJoinListener.class);
         addListener(ShortenVoteCountdownListener.class);
     }

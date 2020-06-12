@@ -1,13 +1,14 @@
-package com.github.jeuxjeux20.loupsgarous.game.events;
+package com.github.jeuxjeux20.loupsgarous.game.event.lobby;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class LGGameReadyToStartEvent extends LGEvent {
+public class LGLobbyCompositionChangeEvent extends LGEvent {
     private static final HandlerList handlerList = new HandlerList();
 
-    public LGGameReadyToStartEvent(LGGameOrchestrator orchestrator) {
+    public LGLobbyCompositionChangeEvent(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }
 

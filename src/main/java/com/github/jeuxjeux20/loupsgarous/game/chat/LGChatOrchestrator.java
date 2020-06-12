@@ -3,23 +3,26 @@ package com.github.jeuxjeux20.loupsgarous.game.chat;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
+import me.lucko.helper.text.Text;
+import me.lucko.helper.text.TextComponent;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.VOTE_TIP_MESSAGE;
-
 public interface LGChatOrchestrator extends LGGameOrchestratorComponent {
     void redirectMessage(LGPlayer sender, String message);
 
     default void sendMessage(LGChatChannel channel, String message) {
+        sendMessage(channel, Text.fromLegacy(message));
+    }
+
+    default void sendMessage(LGChatChannel channel, TextComponent message) {
         sendMessage(channel, p -> message);
     }
 
-    void sendMessage(LGChatChannel channel, Function<? super LGPlayer, String> messageFunction);
+    void sendMessage(LGChatChannel channel, Function<? super LGPlayer, ? extends TextComponent> messageFunction);
 
     Set<LGChatChannel> getChannels();
 
@@ -45,10 +48,6 @@ public interface LGChatOrchestrator extends LGGameOrchestratorComponent {
             }
         }
         return Collections.unmodifiableSet(channels);
-    }
-
-    default void sendVoteMessages(Votable votable) {
-        sendMessage(votable.getInfoMessagesChannel(), VOTE_TIP_MESSAGE);
     }
 
     default void sendToEveryone(String message) {

@@ -2,10 +2,10 @@ package com.github.jeuxjeux20.loupsgarous.game.scoreboard;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.interaction.LGPickEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.interaction.LGPickRemovedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.stage.LGStageChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageChangingEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.ChatColor;
@@ -41,6 +41,6 @@ public class CurrentVotesScoreboardComponent implements ScoreboardComponent {
 
     @Override
     public ImmutableList<Class<? extends LGEvent>> getUpdateTriggers() {
-        return ImmutableList.of(LGPickEvent.class, LGPickRemovedEvent.class, LGStageChangeEvent.class);
+        return ImmutableList.of(LGPickEvent.class, LGPickRemovedEvent.class, LGStageChangingEvent.class);
     }
 }

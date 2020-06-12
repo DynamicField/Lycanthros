@@ -2,9 +2,9 @@ package com.github.jeuxjeux20.loupsgarous.game.inventory;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.LGGameStartEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.lobby.LGLobbyOwnerChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.LGGameStartEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyOwnerChangeEvent;
 import com.google.common.collect.ImmutableList;
 import me.lucko.helper.item.ItemStackBuilder;
 import org.bukkit.ChatColor;

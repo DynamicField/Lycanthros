@@ -5,8 +5,6 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.bukkit.boss.BarColor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -16,7 +14,7 @@ public class GameEndStage extends RunnableLGStage implements CountdownTimedStage
     @Inject
     GameEndStage(@Assisted LGGameOrchestrator orchestrator) {
         super(orchestrator);
-        countdown = Countdown.builder(15).apply(this::addTickEvents).build(orchestrator);
+        countdown = Countdown.of(15);
     }
 
     @Override

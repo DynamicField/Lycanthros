@@ -5,6 +5,9 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import me.lucko.helper.text.Text;
+import me.lucko.helper.text.TextComponent;
+import me.lucko.helper.text.format.TextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -44,36 +47,33 @@ class MinecraftLGChatOrchestrator implements LGChatOrchestrator {
         }
         LGChatChannel channel = writableChannels.iterator().next();
 
-        sendMessage(channel, recipient -> buildMessage(sender, message, channel, recipient));
+        sendMessage(channel, recipient -> buildRedirectedMessage(sender, message, channel, recipient));
     }
 
-    private String buildMessage(LGPlayer sender, String message, LGChatChannel channel, LGPlayer recipient) {
-        StringBuilder messageBuilder = new StringBuilder();
+    private TextComponent buildRedirectedMessage(LGPlayer sender, String message, LGChatChannel channel, LGPlayer recipient) {
+        TextComponent.Builder builder = TextComponent.builder("");
 
         if (channel.isNameDisplayed()) {
-            messageBuilder.append(ChatColor.GRAY)
-                    .append('[')
-                    .append(channel.getName())
-                    .append(ChatColor.GRAY)
-                    .append(']')
-                    .append(ChatColor.RESET);
+            builder.append(TextComponent.of("[", TextColor.GRAY))
+                    .append(TextComponent.of(channel.getName()))
+                    .append(TextComponent.of("]", TextColor.GRAY));
         }
 
-        messageBuilder.append('<')
+        builder.append(TextComponent.of("<"))
                 .append(channel.formatUsername(sender, recipient, orchestrator))
-                .append("> ")
-                .append(message);
+                .append(TextComponent.of(">"))
+                .append(TextComponent.of(message));
 
-        return messageBuilder.toString();
+        return builder.build();
     }
 
     @Override
-    public void sendMessage(LGChatChannel channel, Function<? super LGPlayer, String> messageFunction) {
+    public void sendMessage(LGChatChannel channel, Function<? super LGPlayer, ? extends TextComponent> messageFunction) {
         for (LGPlayer player : orchestrator.game().getPlayers()) {
             player.getMinecraftPlayer().ifPresent(minecraftPlayer -> {
                 if (!channel.areMessagesVisibleTo(player, orchestrator)) return;
 
-                minecraftPlayer.sendMessage(messageFunction.apply(player));
+                Text.sendMessage(minecraftPlayer, messageFunction.apply(player));
             });
         }
     }

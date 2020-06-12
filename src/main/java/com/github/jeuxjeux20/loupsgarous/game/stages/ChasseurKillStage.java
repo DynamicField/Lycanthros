@@ -11,9 +11,7 @@ import com.github.jeuxjeux20.loupsgarous.game.winconditions.PostponesWinConditio
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.importantTip;
@@ -31,9 +29,9 @@ public class ChasseurKillStage extends RunnableLGStage implements CountdownTimed
         this.chasseur = chasseur;
 
         countdown = Countdown.builder(30)
-                .apply(this::addTickEvents)
+
                 .finished(this::sendInfoMessage)
-                .build(orchestrator);
+                .build();
     }
 
     @Override

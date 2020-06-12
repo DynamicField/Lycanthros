@@ -1,17 +1,14 @@
-package com.github.jeuxjeux20.loupsgarous.game.events;
+package com.github.jeuxjeux20.loupsgarous.game.event;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class LGGameFinishedEvent extends LGEvent {
+public class LGGameDeletedEvent extends LGEvent {
     private static final HandlerList handlerList = new HandlerList();
-    private final LGEnding ending;
 
-    public LGGameFinishedEvent(LGGameOrchestrator orchestrator, LGEnding ending) {
+    public LGGameDeletedEvent(LGGameOrchestrator orchestrator) {
         super(orchestrator);
-        this.ending = ending;
     }
 
     public static @NotNull HandlerList getHandlerList() {
@@ -21,9 +18,5 @@ public class LGGameFinishedEvent extends LGEvent {
     @Override
     public @NotNull HandlerList getHandlers() {
         return handlerList;
-    }
-
-    public LGEnding getEnding() {
-        return ending;
     }
 }

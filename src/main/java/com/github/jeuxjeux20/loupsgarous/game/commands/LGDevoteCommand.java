@@ -37,7 +37,6 @@ public class LGDevoteCommand extends LGGameCommand {
             player.sendMessage(ChatColor.RED + "Vous ne votez pour personne.");
         } else {
             currentState.removePick(lgPlayer);
-            player.sendMessage(ChatColor.DARK_GREEN + "Vous avez retiré votre vote.");
         }
         return true;
     }

@@ -2,11 +2,11 @@ package com.github.jeuxjeux20.loupsgarous.game.stages.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.events.LGEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.LGKillEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.interaction.LGPickEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.interaction.LGPickRemovedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.events.player.LGPlayerQuitEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.LGKillEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.github.jeuxjeux20.loupsgarous.util.ClassArrayUtils;
 import com.google.common.collect.ImmutableList;
@@ -79,8 +79,7 @@ public interface StatefulPickableProvider extends PickableProvider {
         public synchronized final void togglePick(@NotNull LGPlayer from, @NotNull LGPlayer to) {
             if (picks.get(from) == to) {
                 removePick(from);
-            }
-            else {
+            } else {
                 pick(from, to);
             }
         }

@@ -12,7 +12,6 @@ import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.bukkit.boss.BarColor;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -35,9 +34,9 @@ public class CupidonCoupleStage extends RunnableLGStage implements CountdownTime
         this.plugin = plugin;
 
         countdown = Countdown.builder(30)
-                .apply(this::addTickEvents)
+
                 .finished(this::createRandomCouples)
-                .build(orchestrator);
+                .build();
     }
 
     @Override
@@ -92,7 +91,7 @@ public class CupidonCoupleStage extends RunnableLGStage implements CountdownTime
         sendCoupleMessages(cupidon, couple);
 
         if (couplePicks.keySet().containsAll(getEligibleCupidons().collect(Collectors.toList())) &&
-            countdown.isRunning()) {
+            countdown.is(Countdown.State.RUNNING)) {
             countdown.interrupt(); // All cupidons have chosen their couples.
         }
     }

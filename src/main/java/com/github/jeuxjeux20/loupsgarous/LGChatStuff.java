@@ -1,5 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous;
 
+import me.lucko.helper.text.TextComponent;
+import me.lucko.helper.text.event.ClickEvent;
 import org.bukkit.ChatColor;
 
 public final class LGChatStuff {
@@ -9,11 +11,16 @@ public final class LGChatStuff {
     public static final char RIGHT_ARROWHEAD_SYMBOL = '\u27A4'; // Right arrowhead: ➤
     public static final char VOYANTE_SYMBOL = '\u2742'; // This thing: ❂
 
-    public static final String TIP_COLOR = ChatColor.GRAY.toString() + ChatColor.ITALIC;
     public static final String IMPORTANT_TIP_COLOR = ChatColor.LIGHT_PURPLE.toString();
     public static final String INFO_COLOR = ChatColor.AQUA.toString();
-    public static final String VOTE_TIP_MESSAGE = tip("Faites /lgvote <joueur> pour voter !");
     public static final String BANNER = ChatColor.AQUA + "=======================";
+
+    public static final TextComponent VOTE_TIP_COMPONENT =
+            TextComponent.of("Faites ").mergeStyle(ComponentStyles.TIP)
+                    .append(TextComponent.of("/lgvote <joueur>")
+                            .mergeStyle(ComponentStyles.CLICKABLE)
+                            .clickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/lgvote ")))
+                    .append(TextComponent.of(" pour voter !"));
 
     private LGChatStuff() {
     }
@@ -40,10 +47,6 @@ public final class LGChatStuff {
 
     public static String info(String text) {
         return INFO_COLOR + text;
-    }
-
-    public static String tip(String text) {
-        return TIP_COLOR + text;
     }
 
     public static String importantTip(String text) {

@@ -10,7 +10,6 @@ import com.github.jeuxjeux20.loupsgarous.game.stages.RunnableLGStage;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.bukkit.boss.BarColor;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
@@ -26,9 +25,9 @@ public class DuskStage extends RunnableLGStage implements CountdownTimedStage, C
         super(orchestrator);
 
         countdown = Countdown.builder(20)
-                .apply(this::addTickEvents)
+
                 .finished(this::runActionsEnd)
-                .build(orchestrator);
+                .build();
 
         for (Action action : allActions) {
             action.initialize(orchestrator);

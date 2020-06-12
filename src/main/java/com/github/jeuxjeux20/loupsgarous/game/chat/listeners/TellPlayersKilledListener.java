@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.chat.listeners;
 
-import com.github.jeuxjeux20.loupsgarous.game.events.LGKillEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.LGKillEvent;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.LGKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.MultiLGKillReason;

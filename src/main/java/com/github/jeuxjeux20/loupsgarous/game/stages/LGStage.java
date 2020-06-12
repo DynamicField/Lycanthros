@@ -58,7 +58,7 @@ public interface LGStage extends ComponentBased, TerminableConsumer {
      *
      * @return the title, or {@code null} if there isn't
      */
-     @Nullable String getTitle();
+    @Nullable String getTitle();
 
     /**
      * Gets the name of this stage, which is shown on the boss bar.
