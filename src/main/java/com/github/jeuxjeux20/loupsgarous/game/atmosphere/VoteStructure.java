@@ -46,22 +46,20 @@ public class VoteStructure implements Structure {
     private final World world;
     private final Votable votable;
     private final LGGameManager gameManager;
-    private final Logger logger;
 
     private final int spacing = 3;
     private final Material blockMaterial = Material.OAK_WOOD;
 
-    private BuildChanges buildChanges = BuildChanges.EMPTY;
+    private BackedStructure backedStructure = BackedStructure.EMPTY;
 
     @Inject
     VoteStructure(@Assisted LGGameOrchestrator orchestrator, @Assisted Location location, @Assisted Votable votable,
-                  LGGameManager gameManager, @Plugin Logger logger) {
+                  LGGameManager gameManager) {
         this.orchestrator = orchestrator;
         this.location = location;
         this.world = location.getWorld();
         this.votable = votable;
         this.gameManager = gameManager;
-        this.logger = logger;
     }
 
     public void build() {
@@ -72,7 +70,8 @@ public class VoteStructure implements Structure {
         placeBlocks(buildingContext);
         placeArmorStands(buildingContext);
 
-        buildChanges = buildingContext.changesBuilder.build();
+        backedStructure = buildingContext.structureBuilder.build();
+        backedStructure.build();
     }
 
     private BuildingContext createBuildingContext() {
@@ -83,7 +82,16 @@ public class VoteStructure implements Structure {
                 .collect(Collectors.toList());
         LGPlayer playerWithMostVotes = voteState.getPlayerWithMostVotes();
 
-        return new BuildingContext(players, playerWithMostVotes, BuildChanges.builder());
+        return new BuildingContext(players, playerWithMostVotes);
+    }
+
+    private void placeBlocks(BuildingContext context) {
+        Location blockLocation = location.clone();
+        for (int i = 0; i < context.blockCount; i++) {
+            context.structureBuilder.transformBlock(blockLocation, block -> block.setType(blockMaterial));
+
+            blockLocation.add(1, 0, 0);
+        }
     }
 
     private void placeArmorStands(BuildingContext context) {
@@ -91,22 +99,9 @@ public class VoteStructure implements Structure {
         for (LGPlayer player : context.players) {
             Location correctedLocation = armorStandLocation.clone().add(0.5, 1, 0.5);
 
-            ArmorStand armorStand = createArmorStand(player, correctedLocation, context);
-            context.changesBuilder.addEntity(armorStand);
+            context.structureBuilder.spawnEntity(() -> createArmorStand(player, correctedLocation, context));
 
             armorStandLocation.add(spacing, 0, 0);
-        }
-    }
-
-    private void placeBlocks(BuildingContext context) {
-        Location blockLocation = location.clone();
-        for (int i = 0; i < context.blockCount; i++) {
-            Block block = world.getBlockAt(blockLocation);
-            context.changesBuilder.takeBlockSnapshot(block);
-
-            block.setType(blockMaterial);
-
-            blockLocation.add(1, 0, 0);
         }
     }
 
@@ -143,8 +138,8 @@ public class VoteStructure implements Structure {
     }
 
     public void remove() {
-        buildChanges.restore();
-        buildChanges = BuildChanges.EMPTY;
+        backedStructure.remove();
+        backedStructure = BackedStructure.EMPTY;
     }
 
     public TerminableModule createInteractionModule() {
@@ -193,13 +188,12 @@ public class VoteStructure implements Structure {
     private final class BuildingContext {
         final List<LGPlayer> players;
         final @Nullable LGPlayer playerWithMostVotes;
-        final BuildChanges.Builder changesBuilder;
+        final BackedStructure.Builder structureBuilder = BackedStructure.builder();
         final int blockCount;
 
-        BuildingContext(List<LGPlayer> players, @Nullable LGPlayer playerWithMostVotes, BuildChanges.Builder changesBuilder) {
+        BuildingContext(List<LGPlayer> players, @Nullable LGPlayer playerWithMostVotes) {
             this.players = players;
             this.playerWithMostVotes = playerWithMostVotes;
-            this.changesBuilder = changesBuilder;
 
             blockCount = 1 + spacing * (players.size() - 1);
         }
