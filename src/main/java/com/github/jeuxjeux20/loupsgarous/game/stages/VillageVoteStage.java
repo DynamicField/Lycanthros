@@ -31,7 +31,6 @@ public class VillageVoteStage extends RunnableLGStage implements Votable, Unmodi
 
         unmodifiedCountdown = Countdown.builder(90).build();
         countdown = Countdown.builder()
-
                 .apply(Countdown.syncWith(unmodifiedCountdown))
                 .finished(voteState::close)
                 .finished(this::computeVoteOutcome)

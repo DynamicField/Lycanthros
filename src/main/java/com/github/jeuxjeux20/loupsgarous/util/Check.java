@@ -56,15 +56,6 @@ public final class Check {
         return Optional.ofNullable(errorMessage);
     }
 
-    public void ifSuccess(Runnable runnable) {
-        if (success) runnable.run();
-    }
-
-    public void ifSuccessOrElse(Runnable successRunnable, Consumer<String> errorConsumer) {
-        if (success) successRunnable.run();
-        else errorConsumer.accept(errorMessage);
-    }
-
     public Check and(boolean success, String errorMessage) {
         return and(Check.ensure(success, errorMessage));
     }

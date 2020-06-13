@@ -16,15 +16,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class Countdown implements Terminable, TerminableConsumer {
     private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
+
     private final CompletableFuture<Void> future = new CompletableFuture<>();
     private @Nullable Task countdownTask;
+
     private int timer;
     private int biggestTimerValue;
+
     private State state = State.READY;
 
     public Countdown(int timerSeconds) {
@@ -44,15 +46,15 @@ public class Countdown implements Terminable, TerminableConsumer {
         return new Builder();
     }
 
-    public static Builder builder(int time) {
-        return new Builder().time(time);
+    public static Builder builder(int seconds) {
+        return new Builder().time(seconds);
     }
 
     public static Consumer<Builder> syncWith(Countdown countdown) {
         return builder -> builder
                 .time(countdown.getTimer())
                 .start(countdown::start)
-                .finished(countdown::interrupt);
+                .finished(countdown::tryInterrupt);
     }
 
     // Start & Interrupt
@@ -67,14 +69,19 @@ public class Countdown implements Terminable, TerminableConsumer {
         future.whenComplete((r, e) -> {
             if (e instanceof CancellationException) {
                 finish(true);
-            }
-            else if (state == State.RUNNING) {
+            } else if (state == State.RUNNING) {
                 // The future has somehow completed while it was running?
                 // That's like doing interrupt().
                 interrupt();
             }
         });
         return future;
+    }
+
+    public final void tryInterrupt() {
+        if (state != State.FINISHED) {
+            interrupt();
+        }
     }
 
     public final void interrupt() {
@@ -114,8 +121,13 @@ public class Countdown implements Terminable, TerminableConsumer {
         terminableRegistry.closeAndReportException();
 
         if (!cancelled) {
-            onFinish();
-            future.complete(null);
+            try {
+                onFinish();
+                future.complete(null);
+            }
+            catch (Throwable e) {
+                future.completeExceptionally(e);
+            }
         }
     }
 
@@ -218,8 +230,8 @@ public class Countdown implements Terminable, TerminableConsumer {
             return this;
         }
 
-        public Builder time(int time) {
-            this.time = time;
+        public Builder time(int seconds) {
+            this.time = seconds;
             return this;
         }
 

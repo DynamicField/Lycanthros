@@ -15,6 +15,8 @@ import me.lucko.helper.Events;
 import me.lucko.helper.item.ItemStackBuilder;
 import me.lucko.helper.metadata.Metadata;
 import me.lucko.helper.metadata.MetadataKey;
+import me.lucko.helper.metadata.TransientValue;
+import me.lucko.helper.terminable.TerminableConsumer;
 import me.lucko.helper.terminable.module.TerminableModule;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -29,7 +31,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -44,8 +48,10 @@ public class VoteStructure implements Structure {
     private final LGGameManager gameManager;
     private final Logger logger;
 
-    private ArmorStand @Nullable [] armorStands;
-    private Location @Nullable [] blockLocations;
+    private final int spacing = 3;
+    private final Material blockMaterial = Material.OAK_WOOD;
+
+    private BuildChanges buildChanges = BuildChanges.EMPTY;
 
     @Inject
     VoteStructure(@Assisted LGGameOrchestrator orchestrator, @Assisted Location location, @Assisted Votable votable,
@@ -61,133 +67,141 @@ public class VoteStructure implements Structure {
     public void build() {
         remove();
 
+        BuildingContext buildingContext = createBuildingContext();
+
+        placeBlocks(buildingContext);
+        placeArmorStands(buildingContext);
+
+        buildChanges = buildingContext.changesBuilder.build();
+    }
+
+    private BuildingContext createBuildingContext() {
         Votable.VoteState voteState = votable.getCurrentState();
 
         List<LGPlayer> players = orchestrator.game().getPlayers().stream()
                 .filter(Check.predicate(voteState::canPickTarget))
                 .collect(Collectors.toList());
-        @Nullable LGPlayer playerWithMostVotes = votable.getCurrentState().getPlayerWithMostVotes();
+        LGPlayer playerWithMostVotes = voteState.getPlayerWithMostVotes();
 
-        BuildingContext buildingContext = new BuildingContext(players, playerWithMostVotes);
-
-        placeBlocks(buildingContext);
-        placeArmorStands(buildingContext);
+        return new BuildingContext(players, playerWithMostVotes, BuildChanges.builder());
     }
 
     private void placeArmorStands(BuildingContext context) {
-        armorStands = new ArmorStand[context.players.size()];
-
         Location armorStandLocation = location.clone();
-        for (int i = 0; i < context.players.size(); i++) {
-            LGPlayer player = context.players.get(i);
+        for (LGPlayer player : context.players) {
+            Location correctedLocation = armorStandLocation.clone().add(0.5, 1, 0.5);
 
-            Location correctedLocation = armorStandLocation.clone().add(0, 1, 0);
-            ArmorStand armorStand = createArmorStand(player, correctedLocation, context.playerWithMostVotes);
-            armorStands[i] = armorStand;
+            ArmorStand armorStand = createArmorStand(player, correctedLocation, context);
+            context.changesBuilder.addEntity(armorStand);
 
-            armorStandLocation.add(2, 0, 0);
+            armorStandLocation.add(spacing, 0, 0);
         }
     }
 
     private void placeBlocks(BuildingContext context) {
-        blockLocations = new Location[context.players.size() * 2];
-
         Location blockLocation = location.clone();
-        for (int i = 0; i < blockLocations.length; i++) {
+        for (int i = 0; i < context.blockCount; i++) {
             Block block = world.getBlockAt(blockLocation);
-            block.setType(Material.BIRCH_WOOD);
-            blockLocations[i] = block.getLocation();
+            context.changesBuilder.takeBlockSnapshot(block);
+
+            block.setType(blockMaterial);
 
             blockLocation.add(1, 0, 0);
         }
     }
 
-    private ArmorStand createArmorStand(LGPlayer player, Location armorStandLocation,
-                                        @Nullable LGPlayer playerWithMostVotes) {
+    private ArmorStand createArmorStand(LGPlayer player, Location armorStandLocation, BuildingContext context) {
         int voteCount = votable.getCurrentState().getPlayersVoteCount().getOrDefault(player, 0);
-        String color = playerWithMostVotes == player ? ChatColor.RED.toString() + ChatColor.BOLD : "";
+        String color = context.playerWithMostVotes == player ? ChatColor.RED.toString() + ChatColor.BOLD : "";
 
         ArmorStand armorStand = world.spawn(armorStandLocation, ArmorStand.class);
+
         armorStand.setCustomName(color + player.getName() + "(" + voteCount + ")");
         armorStand.setCustomNameVisible(true);
 
-        EntityEquipment equipment = armorStand.getEquipment();
-        if (equipment != null) {
-            ItemStack head = ItemStackBuilder.of(Material.PLAYER_HEAD).transformMeta(meta -> {
-                SkullMeta skullMeta = (SkullMeta) meta;
+        EntityEquipment equipment = Objects.requireNonNull(armorStand.getEquipment());
+        ItemStack head = ItemStackBuilder.of(Material.PLAYER_HEAD).transformMeta(meta -> {
+            SkullMeta skullMeta = (SkullMeta) meta;
 
-                skullMeta.setOwningPlayer(player.getOfflineMinecraftPlayer());
-            }).build();
+            skullMeta.setOwningPlayer(player.getOfflineMinecraftPlayer());
+        }).build();
+        equipment.setHelmet(head);
 
-            equipment.setHelmet(head);
-        } else {
-            logger.warning("What? The EntityEquipment on VoteStructure's armor stand is null??");
-        }
+        Metadata.provideForEntity(armorStand).put(ARMOR_STAND_PLAYER_KEY, new TransientValue<LGPlayer>() {
+            @Override
+            public LGPlayer getOrNull() {
+                return player;
+            }
 
-        Metadata.provideForEntity(armorStand).put(ARMOR_STAND_PLAYER_KEY, player);
+            @Override
+            public boolean shouldExpire() {
+                return armorStand.isDead();
+            }
+        });
 
         return armorStand;
     }
 
     public void remove() {
-        if (armorStands != null) {
-            for (ArmorStand armorStand : armorStands) {
-                armorStand.remove();
-                Metadata.provideForEntity(armorStand).remove(ARMOR_STAND_PLAYER_KEY);
-            }
-            armorStands = null;
-        }
-        if (blockLocations != null) {
-            for (Location blockLocation : blockLocations) {
-                blockLocation.getBlock().setType(Material.AIR);
-            }
-            blockLocations = null;
-        }
+        buildChanges.restore();
+        buildChanges = BuildChanges.EMPTY;
     }
 
     public TerminableModule createInteractionModule() {
-        return consumer -> {
+        return new InteractionModule();
+    }
+
+    private class InteractionModule implements TerminableModule {
+        @Override
+        public void setup(@Nonnull TerminableConsumer consumer) {
             Events.merge(LGPickEvent.class, LGPickEvent.class, LGPickRemovedEvent.class)
                     .filter(votable::isMyEvent)
                     .handler(e -> build())
                     .bindWith(consumer);
 
             Events.subscribe(PlayerInteractAtEntityEvent.class)
-                    .handler(e -> {
-                        LGPlayer player = gameManager.getPlayerInGame(e.getPlayer())
-                                .filter(x -> x.getOrchestrator() == orchestrator)
-                                .map(LGPlayerAndGame::getPlayer)
-                                .orElse(null);
-
-                        if (player == null) {
-                            return;
-                        }
-
-                        Entity rightClicked = e.getRightClicked();
-
-                        Metadata.provideForEntity(rightClicked).get(ARMOR_STAND_PLAYER_KEY)
-                                .ifPresent(target -> {
-                                    Votable.VoteState voteState = votable.getCurrentState();
-                                    Check check = voteState.canPick(player, target);
-
-                                    if (check.isSuccess()) {
-                                        voteState.togglePick(player, target);
-                                    } else {
-                                        e.getPlayer().sendMessage(ChatColor.RED + check.getErrorMessage());
-                                    }
-                                });
-                    })
+                    .handler(this::handleEntityInteraction)
                     .bindWith(consumer);
-        };
+        }
+
+        private void handleEntityInteraction(PlayerInteractAtEntityEvent e) {
+            LGPlayer player = gameManager.getPlayerInGame(e.getPlayer())
+                    .filter(x -> x.getOrchestrator() == orchestrator)
+                    .map(LGPlayerAndGame::getPlayer)
+                    .orElse(null);
+
+            if (player == null) {
+                return;
+            }
+
+            Entity rightClicked = e.getRightClicked();
+
+            Metadata.provideForEntity(rightClicked).get(ARMOR_STAND_PLAYER_KEY)
+                    .ifPresent(target -> {
+                        Votable.VoteState voteState = votable.getCurrentState();
+                        Check check = voteState.canPick(player, target);
+
+                        if (check.isSuccess()) {
+                            voteState.togglePick(player, target);
+                        } else {
+                            e.getPlayer().sendMessage(ChatColor.RED + check.getErrorMessage());
+                        }
+                    });
+        }
     }
 
-    private static final class BuildingContext {
+    private final class BuildingContext {
         final List<LGPlayer> players;
         final @Nullable LGPlayer playerWithMostVotes;
+        final BuildChanges.Builder changesBuilder;
+        final int blockCount;
 
-        private BuildingContext(List<LGPlayer> players, @Nullable LGPlayer playerWithMostVotes) {
+        BuildingContext(List<LGPlayer> players, @Nullable LGPlayer playerWithMostVotes, BuildChanges.Builder changesBuilder) {
             this.players = players;
             this.playerWithMostVotes = playerWithMostVotes;
+            this.changesBuilder = changesBuilder;
+
+            blockCount = 1 + spacing * (players.size() - 1);
         }
     }
 

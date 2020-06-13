@@ -16,7 +16,7 @@ public class RevealAllKillsStage extends LogicLGStage {
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.turn().getTime() == LGGameTurnTime.NIGHT;
+        return orchestrator.turn().getTime() == LGGameTurnTime.DAY;
     }
 
     @Override
