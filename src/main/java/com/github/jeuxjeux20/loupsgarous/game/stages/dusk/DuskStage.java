@@ -1,12 +1,10 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages.dusk;
 
-import com.github.jeuxjeux20.loupsgarous.ComponentBased;
 import com.github.jeuxjeux20.loupsgarous.LGChatStuff;
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
-import com.github.jeuxjeux20.loupsgarous.game.stages.CountdownTimedStage;
-import com.github.jeuxjeux20.loupsgarous.game.stages.RunnableLGStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.CountdownLGStage;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.bukkit.boss.BarColor;
@@ -16,18 +14,12 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-public class DuskStage extends RunnableLGStage implements CountdownTimedStage, ComponentBased {
+public class DuskStage extends CountdownLGStage {
     private final List<Action> actionsToRun;
-    private final Countdown countdown;
 
     @Inject
     DuskStage(@Assisted LGGameOrchestrator orchestrator, Set<Action> allActions) {
         super(orchestrator);
-
-        countdown = Countdown.builder(20)
-
-                .finished(this::runActionsEnd)
-                .build();
 
         for (Action action : allActions) {
             action.initialize(orchestrator);
@@ -36,24 +28,23 @@ public class DuskStage extends RunnableLGStage implements CountdownTimedStage, C
     }
 
     @Override
+    protected Countdown createCountdown() {
+        return Countdown.builder(30)
+                .finished(this::runActionsEnd)
+                .build();
+    }
+
+    @Override
     public boolean shouldRun() {
         return orchestrator.turn().getTime() == LGGameTurnTime.NIGHT && !actionsToRun.isEmpty();
     }
 
     @Override
-    public CompletableFuture<Void> execute() {
+    protected void start() {
         for (Action action : actionsToRun) {
             orchestrator.chat().sendToEveryone(LGChatStuff.importantInfo(action.getMessage()));
 
             action.onDuskStart(orchestrator);
-        }
-
-        return countdown.start();
-    }
-
-    private void runActionsEnd() {
-        for (Action action : actionsToRun) {
-            action.onDuskEnd(orchestrator);
         }
     }
 
@@ -72,9 +63,10 @@ public class DuskStage extends RunnableLGStage implements CountdownTimedStage, C
         return BarColor.PURPLE;
     }
 
-    @Override
-    public Countdown getCountdown() {
-        return countdown;
+    private void runActionsEnd() {
+        for (Action action : actionsToRun) {
+            action.onDuskEnd(orchestrator);
+        }
     }
 
     @Override

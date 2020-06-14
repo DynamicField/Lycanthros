@@ -15,10 +15,9 @@ import java.util.concurrent.CompletableFuture;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
 @MajorityVoteShortensCountdown
-public class VillageVoteStage extends RunnableLGStage implements Votable, UnmodifiedCountdownTimedStage {
+public class VillageVoteStage extends CountdownLGStage implements Votable, UnmodifiedCountdownTimedStage {
     private final VoteState voteState;
     private final Countdown unmodifiedCountdown;
-    private final Countdown countdown;
     private final VoteStructure voteStructure;
 
     @Inject
@@ -27,18 +26,22 @@ public class VillageVoteStage extends RunnableLGStage implements Votable, Unmodi
 
         voteState = new VoteState(orchestrator, this);
         voteStructure =
-                voteStructureFactory.create(orchestrator, orchestrator.world().getSpawnLocation().add(0, 2, 0), this);
+                voteStructureFactory.create(orchestrator, orchestrator.world().getSpawnLocation(), this);
 
         unmodifiedCountdown = Countdown.builder(90).build();
-        countdown = Countdown.builder()
-                .apply(Countdown.syncWith(unmodifiedCountdown))
-                .finished(voteState::close)
-                .finished(this::computeVoteOutcome)
-                .build();
 
         bind(voteState);
         bind(voteStructure);
         bindModule(voteStructure.createInteractionModule());
+    }
+
+    @Override
+    protected Countdown createCountdown() {
+        return Countdown.builder()
+                .apply(Countdown.syncWith(unmodifiedCountdown))
+                .finished(voteState::close)
+                .finished(this::computeVoteOutcome)
+                .build();
     }
 
     @Override
@@ -47,17 +50,30 @@ public class VillageVoteStage extends RunnableLGStage implements Votable, Unmodi
     }
 
     @Override
-    public CompletableFuture<Void> execute() {
+    protected void start() {
         voteStructure.build();
 
         // Only two players? They'll vote each other and that's it.
         if (orchestrator.game().getAlivePlayers().count() <= 2) {
             unmodifiedCountdown.setTimer(30);
-            countdown.setTimer(30);
-            countdown.resetBiggestTimerValue();
+            getCountdown().setTimer(30);
+            getCountdown().resetBiggestTimerValue();
         }
+    }
 
-        return countdown.start();
+    @Override
+    public String getName() {
+        return "Vote du village";
+    }
+
+    @Override
+    public String getTitle() {
+        return "Le village va voter";
+    }
+
+    @Override
+    public String getIndicator() {
+        return "vote pour tuer";
     }
 
     private void computeVoteOutcome() {
@@ -75,27 +91,7 @@ public class VillageVoteStage extends RunnableLGStage implements Votable, Unmodi
     }
 
     @Override
-    public String getName() {
-        return "Vote du village";
-    }
-
-    @Override
-    public String getTitle() {
-        return "Le village va voter";
-    }
-
-    @Override
-    public Countdown getCountdown() {
-        return countdown;
-    }
-
-    @Override
     public Countdown getUnmodifiedCountdown() {
         return unmodifiedCountdown;
-    }
-
-    @Override
-    public String getIndicator() {
-        return "vote pour tuer";
     }
 }

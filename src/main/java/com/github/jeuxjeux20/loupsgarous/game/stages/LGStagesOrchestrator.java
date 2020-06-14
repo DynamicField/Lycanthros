@@ -12,13 +12,11 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface LGStagesOrchestrator extends LGGameOrchestratorComponent {
     /**
-     * Adds a stage to the current game.
-     * If the game has started, the stage added will be executed as soon as possible (LIFO),
-     * else, it will be added at the end.
+     * Insert a stage to the current game that will be executed as soon as possible (LIFO).
      *
-     * @param stage the stage to add
+     * @param stage the stage to insert
      */
-    void add(RunnableLGStage.Factory<?> stage);
+    void insert(RunnableLGStage.Factory<?> stage);
 
     /**
      * Cancels the current stages, if any, and runs the next one.

@@ -182,6 +182,8 @@ public class VoteStructure implements Structure {
 
             Metadata.provideForEntity(rightClicked).get(ARMOR_STAND_PLAYER_KEY)
                     .ifPresent(target -> {
+                        e.setCancelled(true);
+
                         Votable.VoteState voteState = votable.getCurrentState();
                         Check check = voteState.canPick(player, target);
 

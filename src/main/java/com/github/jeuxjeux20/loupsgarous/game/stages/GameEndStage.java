@@ -8,18 +8,15 @@ import org.bukkit.boss.BarColor;
 
 import java.util.concurrent.CompletableFuture;
 
-public class GameEndStage extends RunnableLGStage implements CountdownTimedStage {
-    private final Countdown countdown;
-
+public class GameEndStage extends CountdownLGStage {
     @Inject
     GameEndStage(@Assisted LGGameOrchestrator orchestrator) {
         super(orchestrator);
-        countdown = Countdown.of(15);
     }
 
     @Override
-    public CompletableFuture<Void> execute() {
-        return countdown.start();
+    protected Countdown createCountdown() {
+        return Countdown.of(15);
     }
 
     @Override
@@ -30,11 +27,6 @@ public class GameEndStage extends RunnableLGStage implements CountdownTimedStage
     @Override
     public String getTitle() {
         return null;
-    }
-
-    @Override
-    public Countdown getCountdown() {
-        return countdown;
     }
 
     @Override

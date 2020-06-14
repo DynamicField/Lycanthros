@@ -21,7 +21,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
+class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     private final LGGameOrchestrator gameOrchestrator;
 
     private final LinkedList<RunnableLGStage.Factory<?>> stageFactories;
@@ -45,9 +45,9 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     }
 
     @Override
-    public void add(RunnableLGStage.Factory<?> stage) {
+    public void insert(RunnableLGStage.Factory<?> stage) {
         if (stageIterator == null) {
-            stageFactories.add(stage);
+            stageFactories.addFirst(stage);
         } else {
             stageIterator.add(stage);
             stageIterator.previous();
@@ -86,6 +86,11 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
             stage.closeAndReportException();
             next();
         }
+    }
+
+    @Override
+    public @NotNull LGStage current() {
+        return currentStage == null ? new LGStage.Null(gameOrchestrator) : currentStage;
     }
 
     private boolean callStageOverride() {
@@ -146,11 +151,6 @@ public class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
         if (ex.getCause() instanceof CancellationException) return null;
         logger.log(Level.SEVERE, "Unhandled exception while the game was running the next stage.", ex);
         return null;
-    }
-
-    @Override
-    public @NotNull LGStage current() {
-        return currentStage == null ? new LGStage.Null(gameOrchestrator) : currentStage;
     }
 
     @Override

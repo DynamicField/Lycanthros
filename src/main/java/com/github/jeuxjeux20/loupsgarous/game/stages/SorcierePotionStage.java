@@ -34,8 +34,7 @@ import static me.lucko.helper.text.format.TextColor.*;
 import static me.lucko.helper.text.format.TextDecoration.BOLD;
 import static me.lucko.helper.text.format.TextDecoration.ITALIC;
 
-public class SorcierePotionStage extends RunnableLGStage implements CountdownTimedStage {
-    private final Countdown countdown;
+public class SorcierePotionStage extends CountdownLGStage {
     private final Healable healable;
     private final Killable killable;
 
@@ -44,23 +43,24 @@ public class SorcierePotionStage extends RunnableLGStage implements CountdownTim
         super(orchestrator);
         healable = new SorciereHealable();
         killable = new SorciereKillable();
+    }
 
-        countdown = Countdown.of(30);
+    @Override
+    protected Countdown createCountdown() {
+        return Countdown.of(30);
     }
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.game().getAlivePlayers().anyMatch(Check.predicate(this::canAct)) &&
+        return orchestrator.game().getPlayers().stream().anyMatch(Check.predicate(this::canAct)) &&
                orchestrator.game().getTurn().getTime() == LGGameTurnTime.NIGHT;
     }
 
     @Override
-    public CompletableFuture<Void> execute() {
+    protected void start() {
         orchestrator.game().getAlivePlayers()
                 .filter(Check.predicate(this::canAct))
                 .forEach(this::sendNotification);
-
-        return countdown.start();
     }
 
     @Override
@@ -71,11 +71,6 @@ public class SorcierePotionStage extends RunnableLGStage implements CountdownTim
     @Override
     public String getTitle() {
         return "La sorcière va utiliser ses potions...";
-    }
-
-    @Override
-    public Countdown getCountdown() {
-        return countdown;
     }
 
     @Override

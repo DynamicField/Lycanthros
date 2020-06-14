@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
  * the stage finishes executing.
  * <p>
  * They can be used with a {@link StagesModule}, or by
- * using {@link LGStagesOrchestrator#add(RunnableLGStage.Factory)}.
+ * using {@link LGStagesOrchestrator#insert(RunnableLGStage.Factory)}.
  * <p>
  * The {@link LGStagesModule} contains all the stages of the classic game.
  */

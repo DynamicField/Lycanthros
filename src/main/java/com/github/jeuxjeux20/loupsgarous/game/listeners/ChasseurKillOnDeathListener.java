@@ -25,7 +25,7 @@ public class ChasseurKillOnDeathListener implements Listener {
 
             if (!(whoDied.getCard() instanceof ChasseurCard)) return;
 
-            event.getOrchestrator().stages().add(o -> chasseurStageFactory.create(o, whoDied));
+            event.getOrchestrator().stages().insert(o -> chasseurStageFactory.create(o, whoDied));
         }
     }
 }

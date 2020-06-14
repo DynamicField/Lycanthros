@@ -18,24 +18,25 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.importantTip;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
 @PostponesWinConditions
-public class ChasseurKillStage extends RunnableLGStage implements CountdownTimedStage, Killable {
+public class ChasseurKillStage extends CountdownLGStage implements Killable {
     private final LGPlayer chasseur;
-    private final Countdown countdown;
     private boolean killed;
 
     @Inject
     ChasseurKillStage(@Assisted LGGameOrchestrator orchestrator, @Assisted LGPlayer chasseur) {
         super(orchestrator);
         this.chasseur = chasseur;
+    }
 
-        countdown = Countdown.builder(30)
-
+    @Override
+    protected Countdown createCountdown() {
+        return Countdown.builder(30)
                 .finished(this::sendInfoMessage)
                 .build();
     }
 
     @Override
-    public CompletableFuture<Void> execute() {
+    protected void start() {
         chasseur.getMinecraftPlayer().ifPresent(player -> {
             player.spigot().respawn();
             player.sendMessage(
@@ -43,14 +44,6 @@ public class ChasseurKillStage extends RunnableLGStage implements CountdownTimed
             );
             LGSoundStuff.ding(player);
         });
-
-        return countdown.start();
-    }
-
-    private void sendInfoMessage() {
-        if (!killed) {
-            orchestrator.chat().sendToEveryone(info("Le chasseur n'a pas tiré."));
-        }
     }
 
     @Override
@@ -64,13 +57,14 @@ public class ChasseurKillStage extends RunnableLGStage implements CountdownTimed
     }
 
     @Override
-    public Countdown getCountdown() {
-        return countdown;
-    }
-
-    @Override
     public boolean isTemporary() {
         return true;
+    }
+
+    private void sendInfoMessage() {
+        if (!killed) {
+            orchestrator.chat().sendToEveryone(info("Le chasseur n'a pas tiré."));
+        }
     }
 
     @Override
@@ -88,7 +82,7 @@ public class ChasseurKillStage extends RunnableLGStage implements CountdownTimed
         });
         killed = true;
         orchestrator.kills().instantly(target, ChasseurKillReason::new);
-        countdown.interrupt();
+        getCountdown().interrupt();
     }
 
     public interface Factory {

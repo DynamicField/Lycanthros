@@ -14,19 +14,15 @@ import org.bukkit.event.Listener;
 
 import java.util.concurrent.CompletableFuture;
 
-public class GameStartStage extends RunnableLGStage implements CountdownTimedStage {
-    private final Countdown countdown;
-
+public class GameStartStage extends CountdownLGStage {
     @Inject
     GameStartStage(@Assisted LGGameOrchestrator orchestrator) {
         super(orchestrator);
-
-        this.countdown = new GameStartCountdown();
     }
 
     @Override
-    public CompletableFuture<Void> execute() {
-        return countdown.start();
+    protected Countdown createCountdown() {
+        return new GameStartCountdown();
     }
 
     @Override
@@ -39,18 +35,13 @@ public class GameStartStage extends RunnableLGStage implements CountdownTimedSta
         return null;
     }
 
-    @Override
-    public Countdown getCountdown() {
-        return countdown;
-    }
-
     static class ResetTimerListener implements Listener {
         @EventHandler(ignoreCancelled = true)
         public void onLGLobbyCompositionChange(LGLobbyCompositionChangeEvent event) {
             LGStage currentStage = event.getOrchestrator().stages().current();
             if (currentStage instanceof GameStartStage) {
                 GameStartStage stage = (GameStartStage) currentStage;
-                stage.countdown.setTimer(stage.countdown.getBiggestTimerValue());
+                stage.getCountdown().setTimer(stage.getCountdown().getBiggestTimerValue());
             }
         }
     }

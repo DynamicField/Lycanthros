@@ -14,16 +14,14 @@ import com.google.inject.assistedinject.Assisted;
 import org.bukkit.boss.BarColor;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 
-public class CupidonCoupleStage extends RunnableLGStage implements CountdownTimedStage {
+public class CupidonCoupleStage extends CountdownLGStage {
     private final Random random;
     private final LoupsGarous plugin;
-    private final Countdown countdown;
 
     private final Map<LGPlayer, Couple> couplePicks = new HashMap<>();
 
@@ -32,9 +30,11 @@ public class CupidonCoupleStage extends RunnableLGStage implements CountdownTime
         super(orchestrator);
         this.random = random;
         this.plugin = plugin;
+    }
 
-        countdown = Countdown.builder(30)
-
+    @Override
+    protected Countdown createCountdown() {
+        return Countdown.builder(30)
                 .finished(this::createRandomCouples)
                 .build();
     }
@@ -45,10 +45,28 @@ public class CupidonCoupleStage extends RunnableLGStage implements CountdownTime
     }
 
     @Override
-    public CompletableFuture<Void> execute() {
+    protected void start() {
         getEligibleCupidons().forEach(this::sendTipNotification);
+    }
 
-        return countdown.start();
+    @Override
+    public String getName() {
+        return "Cupidon";
+    }
+
+    @Override
+    public String getTitle() {
+        return "Cupidon va tirer sa flèche et former un couple.";
+    }
+
+    @Override
+    public boolean isTemporary() {
+        return true;
+    }
+
+    @Override
+    public BarColor getBarColor() {
+        return BarColor.BLUE;
     }
 
     private void createRandomCouples() {
@@ -91,8 +109,8 @@ public class CupidonCoupleStage extends RunnableLGStage implements CountdownTime
         sendCoupleMessages(cupidon, couple);
 
         if (couplePicks.keySet().containsAll(getEligibleCupidons().collect(Collectors.toList())) &&
-            countdown.is(Countdown.State.RUNNING)) {
-            countdown.interrupt(); // All cupidons have chosen their couples.
+            getCountdown().is(Countdown.State.RUNNING)) {
+            getCountdown().interrupt(); // All cupidons have chosen their couples.
         }
     }
 
@@ -157,31 +175,6 @@ public class CupidonCoupleStage extends RunnableLGStage implements CountdownTime
         LGPlayer partner2 = eligiblePartners.get(random.nextInt(eligiblePartners.size()));
 
         return Optional.of(new Couple(partner1, partner2));
-    }
-
-    @Override
-    public String getName() {
-        return "Cupidon";
-    }
-
-    @Override
-    public String getTitle() {
-        return "Cupidon va tirer sa flèche et former un couple.";
-    }
-
-    @Override
-    public boolean isTemporary() {
-        return true;
-    }
-
-    @Override
-    public BarColor getBarColor() {
-        return BarColor.BLUE;
-    }
-
-    @Override
-    public Countdown getCountdown() {
-        return countdown;
     }
 
     public static class Couple {

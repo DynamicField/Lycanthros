@@ -24,10 +24,9 @@ import java.util.concurrent.CompletableFuture;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
 @MajorityVoteShortensCountdown(timeLeft = 10)
-public class LoupGarouVoteStage extends RunnableLGStage implements Votable, UnmodifiedCountdownTimedStage {
+public class LoupGarouVoteStage extends CountdownLGStage implements Votable, UnmodifiedCountdownTimedStage {
     private final VoteState voteState;
     private final Countdown unmodifiedCountdown;
-    private final Countdown countdown;
 
     private final LoupsGarousVoteChatChannel voteChannel;
 
@@ -43,14 +42,18 @@ public class LoupGarouVoteStage extends RunnableLGStage implements Votable, Unmo
         voteState = createVoteState();
 
         unmodifiedCountdown = Countdown.builder(30).build();
-        countdown = Countdown.builder()
+
+        bind(voteState);
+    }
+
+    @Override
+    protected Countdown createCountdown() {
+        return Countdown.builder()
                 .apply(Countdown.syncWith(unmodifiedCountdown))
                 .finished(voteState::close)
                 .finished(this::computeVoteOutcome)
                 .finished(this::howl)
                 .build();
-
-        bind(voteState);
     }
 
     @Override
@@ -59,8 +62,28 @@ public class LoupGarouVoteStage extends RunnableLGStage implements Votable, Unmo
     }
 
     @Override
-    public CompletableFuture<Void> execute() {
-        return countdown.start();
+    public String getName() {
+        return "Loups-Garous";
+    }
+
+    @Override
+    public String getTitle() {
+        return "Les loups vont dévorer un innocent...";
+    }
+
+    @Override
+    public BarColor getBarColor() {
+        return BarColor.RED;
+    }
+
+    @Override
+    public LGChatChannel getInfoMessagesChannel() {
+        return voteChannel;
+    }
+
+    @Override
+    public String getIndicator() {
+        return "vote pour tuer";
     }
 
     @NotNull
@@ -107,37 +130,7 @@ public class LoupGarouVoteStage extends RunnableLGStage implements Votable, Unmo
     }
 
     @Override
-    public Countdown getCountdown() {
-        return countdown;
-    }
-
-    @Override
     public Countdown getUnmodifiedCountdown() {
         return unmodifiedCountdown;
-    }
-
-    @Override
-    public String getName() {
-        return "Loups-Garous";
-    }
-
-    @Override
-    public String getTitle() {
-        return "Les loups vont dévorer un innocent...";
-    }
-
-    @Override
-    public BarColor getBarColor() {
-        return BarColor.RED;
-    }
-
-    @Override
-    public LGChatChannel getInfoMessagesChannel() {
-        return voteChannel;
-    }
-
-    @Override
-    public String getIndicator() {
-        return "vote pour tuer";
     }
 }
