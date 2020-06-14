@@ -20,7 +20,7 @@ public class RevealAllKillsStage extends LogicLGStage {
     }
 
     @Override
-    public void runSync() {
+    public void start() {
         if (orchestrator.kills().pending().isEmpty()) {
             orchestrator.chat().sendToEveryone(
                     killMessage(SKULL_SYMBOL + " Le village se lève... et personne n'est mort !")

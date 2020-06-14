@@ -11,11 +11,11 @@ public abstract class LogicLGStage extends RunnableLGStage {
 
     @Override
     public final CompletableFuture<Void> execute() {
-        runSync();
+        start();
         return CompletableFuture.completedFuture(null);
     }
 
-    public abstract void runSync();
+    public abstract void start();
 
     @Override
     public boolean isLogic() {

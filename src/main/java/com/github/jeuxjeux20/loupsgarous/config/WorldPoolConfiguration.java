@@ -12,7 +12,7 @@ import java.util.OptionalInt;
 
 @SerializableAs("WorldPool")
 public final class WorldPoolConfiguration implements ConfigurationSerializable {
-    private int minWorlds = 8;
+    private int minWorlds = 4;
     private @Nullable Integer maxWorlds = null;
 
     public WorldPoolConfiguration() {

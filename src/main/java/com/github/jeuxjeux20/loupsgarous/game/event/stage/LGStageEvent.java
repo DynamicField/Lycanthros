@@ -3,28 +3,21 @@ package com.github.jeuxjeux20.loupsgarous.game.event.stage;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class LGStageChangingEvent extends LGStageEvent implements Cancellable {
+public abstract class LGStageEvent extends LGEvent {
     private static final HandlerList handlerList = new HandlerList();
-    private boolean isCancelled;
+    private final LGStage stage;
 
-    public LGStageChangingEvent(LGGameOrchestrator orchestrator, LGStage stage) {
-        super(orchestrator, stage);
+    public LGStageEvent(LGGameOrchestrator orchestrator, LGStage stage) {
+        super(orchestrator);
+        this.stage = stage;
     }
 
-    @Override
-    public boolean isCancelled() {
-        return isCancelled;
+    public LGStage getStage() {
+        return stage;
     }
-
-    @Override
-    public void setCancelled(boolean cancel) {
-        isCancelled = cancel;
-    }
-
 
     public static @NotNull HandlerList getHandlerList() {
         return handlerList;

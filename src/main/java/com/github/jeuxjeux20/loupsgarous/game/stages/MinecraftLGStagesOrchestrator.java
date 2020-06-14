@@ -3,9 +3,11 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageChangingEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageEndedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.overrides.StageOverride;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import me.lucko.helper.Events;
 import me.lucko.helper.terminable.Terminable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -118,7 +120,7 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
         LGStageChangingEvent event = new LGStageChangingEvent(gameOrchestrator, stage);
         currentStageEvent = event;
 
-        gameOrchestrator.callEvent(event);
+        Events.call(event);
 
         if (event.isCancelled()) {
             // Some listeners cancelled the event
@@ -134,6 +136,7 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
         if (lastEvent != null) lastEvent.setCancelled(true);
 
         currentStage = stage;
+        stage.bind(() -> Events.call(new LGStageEndedEvent(gameOrchestrator, stage)));
 
         return stage.run().exceptionally(this::handleStageException);
     }

@@ -11,7 +11,7 @@ public class NextTimeOfDayStage extends LogicLGStage {
     }
 
     @Override
-    public void runSync() {
+    public void start() {
         orchestrator.nextTimeOfDay();
     }
 }
