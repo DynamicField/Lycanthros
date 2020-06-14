@@ -1,6 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.game.atmosphere;
 
-import com.github.jeuxjeux20.loupsgarous.Plugin;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
@@ -111,16 +110,11 @@ public class VoteStructure implements Structure {
 
         ArmorStand armorStand = world.spawn(armorStandLocation, ArmorStand.class);
 
-        armorStand.setCustomName(color + player.getName() + "(" + voteCount + ")");
+        armorStand.setCustomName(color + player.getName() + " (" + voteCount + ")");
         armorStand.setCustomNameVisible(true);
+        armorStand.setArms(true);
 
-        EntityEquipment equipment = Objects.requireNonNull(armorStand.getEquipment());
-        ItemStack head = ItemStackBuilder.of(Material.PLAYER_HEAD).transformMeta(meta -> {
-            SkullMeta skullMeta = (SkullMeta) meta;
-
-            skullMeta.setOwningPlayer(player.getOfflineMinecraftPlayer());
-        }).build();
-        equipment.setHelmet(head);
+        dressUpArmorStand(player, armorStand);
 
         Metadata.provideForEntity(armorStand).put(ARMOR_STAND_PLAYER_KEY, new TransientValue<LGPlayer>() {
             @Override
@@ -135,6 +129,21 @@ public class VoteStructure implements Structure {
         });
 
         return armorStand;
+    }
+
+    private void dressUpArmorStand(LGPlayer player, ArmorStand armorStand) {
+        EntityEquipment equipment = Objects.requireNonNull(armorStand.getEquipment());
+
+        ItemStack head = ItemStackBuilder.of(Material.PLAYER_HEAD).transformMeta(meta -> {
+            SkullMeta skullMeta = (SkullMeta) meta;
+
+            skullMeta.setOwningPlayer(player.getOfflineMinecraftPlayer());
+        }).build();
+        equipment.setHelmet(head);
+
+        equipment.setChestplate(new ItemStack(Material.LEATHER_CHESTPLATE));
+        equipment.setLeggings(new ItemStack(Material.LEATHER_LEGGINGS));
+        equipment.setBoots(new ItemStack(Material.LEATHER_BOOTS));
     }
 
     public void remove() {

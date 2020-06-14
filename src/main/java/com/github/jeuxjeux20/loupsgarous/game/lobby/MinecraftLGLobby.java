@@ -109,7 +109,7 @@ class MinecraftLGLobby implements LGLobby {
     public boolean removePlayer(UUID playerUUID) {
         if (!canRemovePlayer(playerUUID)) return false;
 
-        @Nullable MutableLGPlayer lgPlayer = getGame().getPlayer(playerUUID).orElse(null);
+        MutableLGPlayer lgPlayer = getGame().getPlayer(playerUUID).orElse(null);
         if (lgPlayer == null) return false;
 
         if (orchestrator.state().wentThrough(LGGameState.STARTED)) {
@@ -152,7 +152,7 @@ class MinecraftLGLobby implements LGLobby {
                 .expireIf(x -> !gui.isValid())
                 .filter(x -> x.getOrchestrator() == orchestrator)
                 .handler(e -> gui.close())
-                .bindWith(orchestrator);
+                .bindWith(gui);
     }
 
     @Override

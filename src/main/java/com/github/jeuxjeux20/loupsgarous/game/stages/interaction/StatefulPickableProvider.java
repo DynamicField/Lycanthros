@@ -54,11 +54,13 @@ public interface StatefulPickableProvider extends PickableProvider {
             return ImmutableMap.copyOf(picks);
         }
 
+        @Override
         public Check canPickTarget(LGPlayer target) {
             if (target.isDead() && !canTargetBeDead()) return Check.error(getTargetDeadError(target));
             return Check.success();
         }
 
+        @Override
         public Check canPlayerPick(@NotNull LGPlayer player) {
             if (player.isDead()) return Check.error(getPickerDeadError());
             return Check.success();
@@ -84,6 +86,7 @@ public interface StatefulPickableProvider extends PickableProvider {
             }
         }
 
+        @Override
         public synchronized final void pick(@NotNull LGPlayer from, @NotNull LGPlayer to) {
             canPick(from, to).ifError(error -> {
                 throw new IllegalArgumentException("Cannot pick player " + to.getName() + ", :" + error);
