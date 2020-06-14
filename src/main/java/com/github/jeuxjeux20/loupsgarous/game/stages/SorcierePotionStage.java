@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.ComponentStyles;
+import com.github.jeuxjeux20.loupsgarous.ComponentTemplates;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
@@ -27,12 +28,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 import static me.lucko.helper.text.format.TextColor.*;
 import static me.lucko.helper.text.format.TextDecoration.BOLD;
-import static me.lucko.helper.text.format.TextDecoration.ITALIC;
 
 public class SorcierePotionStage extends CountdownLGStage {
     private final Healable healable;
@@ -115,7 +114,6 @@ public class SorcierePotionStage extends CountdownLGStage {
                     String command = "/lgheal " + victimName;
 
                     TextComponent hoverHeal = TextComponent.of("Cliquez ici pour soigner " + victimName + " !");
-
                     TextComponent healButton = TextComponent.of("[Soigner]")
                             .mergeStyle(ComponentStyles.CLICKABLE)
                             .color(GREEN)
@@ -125,9 +123,12 @@ public class SorcierePotionStage extends CountdownLGStage {
                     builder.append(healButton);
 
                     if (iterator.hasNext()) {
-                        builder.append(TextComponent.of(i == endSeparator ? " et " : ",", WHITE));
+                        builder.append(TextComponent.of(i == endSeparator ? " et " : ", ", WHITE));
                     }
                 }
+
+                String finalText = pendingKills.size() > 1 ? " vont mourir cette nuit !" : " va mourir cette nuit !";
+                builder.append(TextComponent.of(finalText, WHITE));
             }
         }
 
@@ -135,11 +136,13 @@ public class SorcierePotionStage extends CountdownLGStage {
             TextComponent poison = TextComponent.of("\n" + SKULL_SYMBOL + " Vous avez votre potion de poison !")
                     .color(RED);
 
-            TextComponent tip = TextComponent.of("\nFaites /lgkill <joueur> pour l'utiliser et tuer quelqu'un !")
-                    .color(GRAY)
-                    .decoration(ITALIC, true);
+            TextComponent.Builder tipBuilder = TextComponent.builder("\n").mergeStyle(ComponentStyles.TIP);
 
-            builder.append(poison).append(tip);
+            tipBuilder.append(TextComponent.of("Faites "))
+                    .append(ComponentTemplates.command("/lgkill", "<joueur>"))
+                    .append(TextComponent.of(" pour l'utiliser et tuer quelqu'un !"));
+
+            builder.append(poison).append(tipBuilder.build());
         }
 
         if (!card.hasKillPotion() && !card.hasHealPotion()) {

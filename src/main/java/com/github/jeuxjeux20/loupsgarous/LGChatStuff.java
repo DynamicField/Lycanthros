@@ -1,7 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous;
 
-import me.lucko.helper.text.TextComponent;
-import me.lucko.helper.text.event.ClickEvent;
 import org.bukkit.ChatColor;
 
 public final class LGChatStuff {
@@ -14,13 +12,6 @@ public final class LGChatStuff {
     public static final String IMPORTANT_TIP_COLOR = ChatColor.LIGHT_PURPLE.toString();
     public static final String INFO_COLOR = ChatColor.AQUA.toString();
     public static final String BANNER = ChatColor.AQUA + "=======================";
-
-    public static final TextComponent VOTE_TIP_COMPONENT =
-            TextComponent.of("Faites ").mergeStyle(ComponentStyles.TIP)
-                    .append(TextComponent.of("/lgvote <joueur>")
-                            .mergeStyle(ComponentStyles.CLICKABLE)
-                            .clickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/lgvote ")))
-                    .append(TextComponent.of(" pour voter !"));
 
     private LGChatStuff() {
     }

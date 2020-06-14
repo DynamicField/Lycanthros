@@ -2,9 +2,11 @@ package com.github.jeuxjeux20.loupsgarous.game.bossbar;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.event.CountdownTickEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageChangedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageChangingEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.CountdownTimedStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.StageEventUtils;
 import com.github.jeuxjeux20.loupsgarous.game.stages.TimedStage;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -70,23 +72,16 @@ public class MinecraftLGBossBarManager implements LGBossBarManager {
         @Override
         public void setup(@Nonnull TerminableConsumer consumer) {
             Events.subscribe(CountdownTickEvent.class)
-                    .filter(this::isCurrentStageCountdownEvent)
+                    .filter(e -> StageEventUtils.isCurrentStageCountdownEvent(orchestrator, e))
                     .handler(e -> update())
                     .bindWith(consumer);
 
-            Events.subscribe(LGStageChangingEvent.class)
+            Events.subscribe(LGStageChangedEvent.class)
                     .filter(orchestrator::isMyEvent)
                     .handler(e -> update())
                     .bindWith(consumer);
 
             consumer.bind(MinecraftLGBossBarManager.this);
-        }
-
-        private boolean isCurrentStageCountdownEvent(CountdownTickEvent event) {
-            LGStage current = orchestrator.stages().current();
-
-            return current instanceof CountdownTimedStage &&
-                   ((CountdownTimedStage) current).getCountdown() == event.getCountdown();
         }
     }
 }

@@ -8,6 +8,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import me.lucko.helper.Events;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -42,7 +43,7 @@ public class MinecraftLGKillsOrchestrator implements LGKillsOrchestrator {
             killPlayer(kill);
         }
 
-        gameOrchestrator.callEvent(new LGKillEvent(gameOrchestrator, kills));
+        Events.call(new LGKillEvent(gameOrchestrator, kills));
     }
 
     @Override
@@ -51,7 +52,7 @@ public class MinecraftLGKillsOrchestrator implements LGKillsOrchestrator {
 
         killPlayer(kill);
 
-        gameOrchestrator.callEvent(new LGKillEvent(gameOrchestrator, kill));
+        Events.call(new LGKillEvent(gameOrchestrator, kill));
     }
 
     @Override

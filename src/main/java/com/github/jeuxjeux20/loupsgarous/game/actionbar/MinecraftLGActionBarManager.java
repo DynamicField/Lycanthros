@@ -7,25 +7,53 @@ import com.github.jeuxjeux20.loupsgarous.game.PlayerGameOutcome;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator.Problem;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
+import com.github.jeuxjeux20.loupsgarous.game.event.CountdownTickEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageChangedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.stages.StageEventUtils;
 import com.github.jeuxjeux20.loupsgarous.game.stages.TimedStage;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+import me.lucko.helper.Events;
+import me.lucko.helper.Schedulers;
+import me.lucko.helper.terminable.TerminableConsumer;
+import me.lucko.helper.terminable.module.TerminableModule;
 import me.lucko.helper.time.DurationFormatter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
+import javax.annotation.Nonnull;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 class MinecraftLGActionBarManager implements LGActionBarManager {
+    private final LGGameOrchestrator orchestrator;
+
+    @Inject
+    MinecraftLGActionBarManager(@Assisted LGGameOrchestrator orchestrator) {
+        this.orchestrator = orchestrator;
+    }
+
     @Override
-    public void update(LGPlayer player, LGGameOrchestrator orchestrator) {
+    public void update() {
+        for (LGPlayer player : orchestrator.game().getPlayers()) {
+            update(player);
+        }
+    }
+
+    @Override
+    public TerminableModule createUpdateModule() {
+        return new UpdateModule();
+    }
+
+    private void update(LGPlayer player) {
         player.getMinecraftPlayer().ifPresent(minecraftPlayer -> {
             List<BaseComponent> components = new ArrayList<>();
 
-            renderParts(orchestrator, components, player,
+            renderParts(components, player,
                     this::createStateComponents,
                     this::createTimeComponents);
 
@@ -35,13 +63,13 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
         });
     }
 
-    private List<BaseComponent> createStateComponents(LGGameOrchestrator orchestrator, LGPlayer player) {
+    private List<BaseComponent> createStateComponents(LGPlayer player) {
         List<BaseComponent> components = new ArrayList<>();
 
         if (orchestrator.state() == LGGameState.WAITING_FOR_PLAYERS) {
             components.add(new TextComponent("En attente"));
 
-            addCompositionProblemComponent(orchestrator, components);
+            addCompositionProblemComponent(components);
         } else if (orchestrator.state() == LGGameState.READY_TO_START) {
             components.add(new TextComponent("Départ dans "));
 
@@ -56,7 +84,7 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
 
             components.add(new TextComponent(" secondes"));
 
-            addCompositionProblemComponent(orchestrator, components);
+            addCompositionProblemComponent(components);
         } else if (orchestrator.state() == LGGameState.STARTED) {
             components.add(new TextComponent("Vous êtes : "));
 
@@ -87,7 +115,7 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
         return components;
     }
 
-    private void addCompositionProblemComponent(LGGameOrchestrator orchestrator, List<BaseComponent> components) {
+    private void addCompositionProblemComponent(List<BaseComponent> components) {
         if (orchestrator.lobby().getWorstCompositionProblemType() == Problem.Type.IMPOSSIBLE) {
             TextComponent component = new TextComponent(" (Composition invalide !)");
             component.setColor(ChatColor.RED);
@@ -99,7 +127,7 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
         }
     }
 
-    private List<BaseComponent> createTimeComponents(LGGameOrchestrator orchestrator, LGPlayer player) {
+    private List<BaseComponent> createTimeComponents(LGPlayer player) {
         List<BaseComponent> components = new ArrayList<>();
 
         if (!orchestrator.lobby().isLocked()) {
@@ -128,12 +156,11 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
         components.add(new TextComponent(" - "));
     }
 
-    private void renderParts(LGGameOrchestrator orchestrator, List<BaseComponent> components, LGPlayer player,
-                             Part... parts) {
+    private void renderParts(List<BaseComponent> components, LGPlayer player, Part... parts) {
         for (int i = 0; i < parts.length; i++) {
             Part part = parts[i];
 
-            List<BaseComponent> partComponents = part.render(orchestrator, player);
+            List<BaseComponent> partComponents = part.render(player);
 
             if (i != 0 && !partComponents.isEmpty()) {
                 addHyphen(components);
@@ -149,6 +176,21 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
 
     @FunctionalInterface
     private interface Part {
-        List<BaseComponent> render(LGGameOrchestrator orchestrator, LGPlayer player);
+        List<BaseComponent> render(LGPlayer player);
+    }
+
+    private final class UpdateModule implements TerminableModule {
+        @Override
+        public void setup(@Nonnull TerminableConsumer consumer) {
+            Events.subscribe(CountdownTickEvent.class)
+                    .filter(e -> StageEventUtils.isCurrentStageCountdownEvent(orchestrator, e))
+                    .handler(e -> update())
+                    .bindWith(consumer);
+
+            Events.subscribe(LGStageChangedEvent.class)
+                    .filter(orchestrator::isMyEvent)
+                    .handler(e -> update())
+                    .bindWith(consumer);
+        }
     }
 }

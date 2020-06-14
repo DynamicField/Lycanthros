@@ -98,7 +98,7 @@ class MinecraftLGLobby implements LGLobby {
 
         boolean added = getGame().addPlayerIfAbsent(lgPlayer) == null;
         if (added) {
-            orchestrator.callEvent(new LGPlayerJoinEvent(orchestrator, player, lgPlayer));
+            Events.call(new LGPlayerJoinEvent(orchestrator, player, lgPlayer));
 
             lobbyTeleporter.teleportPlayerIn(player);
         }
@@ -118,7 +118,7 @@ class MinecraftLGLobby implements LGLobby {
             getGame().removePlayer(playerUUID);
         }
 
-        orchestrator.callEvent(new LGPlayerQuitEvent(orchestrator, playerUUID, lgPlayer));
+        Events.call(new LGPlayerQuitEvent(orchestrator, playerUUID, lgPlayer));
 
         Player onlinePlayer = lgPlayer.getOfflineMinecraftPlayer().getPlayer();
         if (onlinePlayer != null) {
@@ -198,7 +198,7 @@ class MinecraftLGLobby implements LGLobby {
         Player oldOwner = this.owner;
         this.owner = owner;
 
-        orchestrator.callEvent(new LGLobbyOwnerChangeEvent(orchestrator, oldOwner, owner));
+        Events.call(new LGLobbyOwnerChangeEvent(orchestrator, oldOwner, owner));
     }
 
     private void registerPlayerQuitEvents() {
@@ -237,7 +237,7 @@ class MinecraftLGLobby implements LGLobby {
         @Override
         protected void onChange() {
             updateCompositionProblemType();
-            orchestrator.callEvent(new LGLobbyCompositionChangeEvent(orchestrator));
+            Events.call(new LGLobbyCompositionChangeEvent(orchestrator));
         }
     }
 }

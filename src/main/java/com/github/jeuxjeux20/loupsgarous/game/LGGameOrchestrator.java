@@ -82,12 +82,20 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     void nextTimeOfDay();
 
 
-    void callEvent(LGEvent event);
+    LGChatOrchestrator chat();
+
+    LGStagesOrchestrator stages();
+
+    LGCardsOrchestrator cards();
+
+    LGKillsOrchestrator kills();
+
+    LGLobby lobby();
+
 
     default boolean isMyEvent(LGEvent event) {
         return event.getOrchestrator() == this;
     }
-
 
     default Stream<@NotNull Player> getAllMinecraftPlayers() {
         return game().getPlayers().stream().map(LGPlayer::getMinecraftPlayer).flatMap(OptionalUtils::stream);
@@ -104,16 +112,6 @@ public interface LGGameOrchestrator extends TerminableConsumer {
             return game().getAlivePlayers().map(LGPlayer::getCard);
         }
     }
-
-    LGChatOrchestrator chat();
-
-    LGStagesOrchestrator stages();
-
-    LGCardsOrchestrator cards();
-
-    LGKillsOrchestrator kills();
-
-    LGLobby lobby();
 
     interface Factory {
         LGGameOrchestrator create(LGGameLobbyInfo lobbyInfo) throws CannotCreateLobbyException;

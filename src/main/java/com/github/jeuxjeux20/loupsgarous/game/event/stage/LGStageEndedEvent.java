@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
 public class LGStageEndedEvent extends LGStageEvent {
     private static final HandlerList handlerList = new HandlerList();
 
-    public LGStageEndedEvent(LGGameOrchestrator orchestrator, LGStage stage) {
-        super(orchestrator, stage);
+    public LGStageEndedEvent(LGStage stage) {
+        super(stage);
     }
 
     public static @NotNull HandlerList getHandlerList() {

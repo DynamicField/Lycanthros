@@ -92,13 +92,13 @@ public interface StatefulPickableProvider extends PickableProvider {
                 throw new IllegalArgumentException("Cannot pick player " + to.getName() + ", :" + error);
             });
             picks.put(from, to);
-            orchestrator.callEvent(new LGPickEvent(orchestrator, me, from, to));
+            Events.call(new LGPickEvent(orchestrator, me, from, to));
         }
 
         public synchronized final void removePick(@NotNull LGPlayer from) {
             LGPlayer removed = picks.remove(from);
             if (removed != null) {
-                orchestrator.callEvent(new LGPickRemovedEvent(orchestrator, me, from, removed));
+                Events.call(new LGPickRemovedEvent(orchestrator, me, from, removed));
             }
         }
 

@@ -7,10 +7,13 @@ import com.github.jeuxjeux20.loupsgarous.game.event.LGGameWaitingForPlayersEvent
 import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageChangingEvent;
 import com.google.common.collect.ImmutableList;
+import me.lucko.helper.Events;
+import me.lucko.helper.event.functional.SubscriptionBuilder;
 import me.lucko.helper.item.ItemStackBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 public class QuitGameItem implements InventoryItem {
     @Override

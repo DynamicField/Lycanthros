@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.ComponentBased;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.event.CountdownTickEvent;
 import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.boss.BarColor;
 import org.jetbrains.annotations.Nullable;
@@ -87,7 +88,7 @@ public interface LGStage extends ComponentBased, TerminableConsumer {
     LGGameOrchestrator getOrchestrator();
 
     /**
-     * This is the null object for a stage.
+     * The null object for a stage.
      */
     class Null implements LGStage {
         private final LGGameOrchestrator orchestrator;

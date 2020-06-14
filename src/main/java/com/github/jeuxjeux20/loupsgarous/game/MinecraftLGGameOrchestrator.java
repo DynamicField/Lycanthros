@@ -14,8 +14,8 @@ import com.github.jeuxjeux20.loupsgarous.game.inventory.LGInventoryManager;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.PlayerQuitKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.CannotCreateLobbyException;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobbyInfo;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardManager;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
-import me.lucko.helper.Schedulers;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.bukkit.Bukkit;
@@ -52,24 +51,21 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     private final LGStagesOrchestrator stagesOrchestrator;
     private final LGChatOrchestrator chatManager;
     private final LGKillsOrchestrator killsOrchestrator;
-    // UI & All
-    private final LGActionBarManager actionBarManager;
 
     @Inject
     MinecraftLGGameOrchestrator(@Assisted LGGameLobbyInfo lobbyInfo,
                                 LoupsGarous plugin,
-                                LGActionBarManager actionBarManager,
                                 LGScoreboardManager scoreboardManager,
                                 LGInventoryManager inventoryManager,
                                 LGChatOrchestrator.Factory chatManagerFactory,
                                 LGBossBarManager.Factory bossBarManagerFactory,
+                                LGActionBarManager.Factory actionBarManagerFactory,
                                 LGLobby.Factory lobbyFactory,
                                 LGCardsOrchestrator.Factory cardOrchestratorFactory,
                                 LGStagesOrchestrator.Factory stagesOrchestratorFactory,
                                 LGKillsOrchestrator.Factory killsOrchestratorFactory) throws CannotCreateLobbyException {
         this.initialPlayers = lobbyInfo.getPlayers();
         this.plugin = plugin;
-        this.actionBarManager = actionBarManager;
         this.game = new MutableLGGame(lobbyInfo.getId());
         this.lobby = lobbyFactory.create(lobbyInfo, this);
         this.cardOrchestrator = cardOrchestratorFactory.create(this);
@@ -77,17 +73,14 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         this.chatManager = chatManagerFactory.create(this);
         this.killsOrchestrator = killsOrchestratorFactory.create(this);
         LGBossBarManager bossBarManager = bossBarManagerFactory.create(this);
+        LGActionBarManager actionBarManager = actionBarManagerFactory.create(this);
 
-        bind(Schedulers.sync().runRepeating(this::updateActionBars, 20, 5));
+        bindModule(actionBarManager.createUpdateModule());
         bindModule(bossBarManager.createUpdateModule());
 
         registerLobbyEvents();
         scoreboardManager.registerEvents();
         inventoryManager.registerEvents();
-    }
-
-    private void updateActionBars() {
-        game().getPlayers().forEach(player -> actionBarManager.update(player, this));
     }
 
     @Override
@@ -125,7 +118,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         game.distributeCards(lobby.getComposition());
         changeStateTo(STARTED, LGGameStartEvent::new);
 
-        callEvent(new LGTurnChangeEvent(this));
+        Events.call(new LGTurnChangeEvent(this));
 
         stages().next();
     }
@@ -169,7 +162,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
             turn.setTime(LGGameTurnTime.DAY);
         }
 
-        callEvent(new LGTurnChangeEvent(this));
+        Events.call(new LGTurnChangeEvent(this));
     }
 
     private void updateLobbyState() {
@@ -219,10 +212,6 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         if (game().isEmpty() && state.isEnabled()) {
             delete();
         }
-    }
-
-    public void callEvent(LGEvent event) {
-        plugin.getServer().getPluginManager().callEvent(event);
     }
 
     @Nonnull
@@ -275,15 +264,14 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
      *
      * @param state         the state to change to
      * @param eventFunction the function that creates the event to call
-     * @param <E>           the type of the event
      * @throws IllegalStateException when the state's game type is not the same as the current one
      */
-    private <E extends LGEvent> void changeStateTo(LGGameState state,
-                                                   Function<? super LGGameOrchestrator, E> eventFunction) {
+    private void changeStateTo(LGGameState state,
+                               Function<? super LGGameOrchestrator, ? extends LGEvent> eventFunction) {
         if (this.state == state) return;
 
         this.state = state;
 
-        callEvent(eventFunction.apply(this));
+        Events.call(eventFunction.apply(this));
     }
 }

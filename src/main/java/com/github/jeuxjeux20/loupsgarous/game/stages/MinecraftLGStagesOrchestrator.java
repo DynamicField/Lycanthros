@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageChangedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageChangingEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageEndedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.overrides.StageOverride;
@@ -117,7 +118,7 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
         RunnableLGStage lastStage = currentStage;
         LGStageChangingEvent lastEvent = currentStageEvent;
 
-        LGStageChangingEvent event = new LGStageChangingEvent(gameOrchestrator, stage);
+        LGStageChangingEvent event = new LGStageChangingEvent(stage);
         currentStageEvent = event;
 
         Events.call(event);
@@ -136,7 +137,9 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
         if (lastEvent != null) lastEvent.setCancelled(true);
 
         currentStage = stage;
-        stage.bind(() -> Events.call(new LGStageEndedEvent(gameOrchestrator, stage)));
+        stage.bind(() -> Events.call(new LGStageEndedEvent(stage)));
+
+        Events.call(new LGStageChangedEvent(stage));
 
         return stage.run().exceptionally(this::handleStageException);
     }
