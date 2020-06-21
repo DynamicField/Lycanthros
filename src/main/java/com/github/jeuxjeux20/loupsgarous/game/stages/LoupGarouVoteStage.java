@@ -22,10 +22,8 @@ import org.jetbrains.annotations.NotNull;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
 @MajorityVoteShortensCountdown(timeLeft = 10)
-public class LoupGarouVoteStage extends CountdownLGStage implements Votable, UnmodifiedCountdownTimedStage {
+public class LoupGarouVoteStage extends CountdownLGStage implements Votable {
     private final VoteState voteState;
-    private final Countdown unmodifiedCountdown;
-
     private final LoupsGarousVoteChatChannel voteChannel;
 
     private boolean isVoteSuccessful;
@@ -39,16 +37,12 @@ public class LoupGarouVoteStage extends CountdownLGStage implements Votable, Unm
 
         voteState = createVoteState();
 
-        unmodifiedCountdown = Countdown.builder(30).build();
-
         bind(voteState);
     }
 
     @Override
     protected Countdown createCountdown() {
-        return Countdown.builder()
-                .apply(Countdown.syncWith(unmodifiedCountdown))
-                .build();
+        return Countdown.of(30);
     }
 
     @Override
@@ -129,10 +123,5 @@ public class LoupGarouVoteStage extends CountdownLGStage implements Votable, Unm
 
     public VoteState getCurrentState() {
         return voteState;
-    }
-
-    @Override
-    public Countdown getUnmodifiedCountdown() {
-        return unmodifiedCountdown;
     }
 }

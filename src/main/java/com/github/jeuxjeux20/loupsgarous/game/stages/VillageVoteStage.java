@@ -13,9 +13,8 @@ import com.google.inject.assistedinject.Assisted;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
 @MajorityVoteShortensCountdown
-public class VillageVoteStage extends CountdownLGStage implements Votable, UnmodifiedCountdownTimedStage {
+public class VillageVoteStage extends CountdownLGStage implements Votable {
     private final VoteState voteState;
-    private final Countdown unmodifiedCountdown;
     private final VoteStructure voteStructure;
 
     @Inject
@@ -26,8 +25,6 @@ public class VillageVoteStage extends CountdownLGStage implements Votable, Unmod
         voteStructure =
                 voteStructureFactory.create(orchestrator, orchestrator.world().getSpawnLocation(), this);
 
-        unmodifiedCountdown = Countdown.builder(90).build();
-
         bind(voteState);
         bind(voteStructure);
         bindModule(voteStructure.createInteractionModule());
@@ -35,9 +32,12 @@ public class VillageVoteStage extends CountdownLGStage implements Votable, Unmod
 
     @Override
     protected Countdown createCountdown() {
-        return Countdown.builder()
-                .apply(Countdown.syncWith(unmodifiedCountdown))
-                .build();
+        if (orchestrator.game().getAlivePlayers().count() <= 2) {
+            // Only two players? They'll vote each other and that's it.
+            return Countdown.of(30);
+        } else {
+            return Countdown.of(90);
+        }
     }
 
     @Override
@@ -48,13 +48,6 @@ public class VillageVoteStage extends CountdownLGStage implements Votable, Unmod
     @Override
     protected void start() {
         voteStructure.build();
-
-        // Only two players? They'll vote each other and that's it.
-        if (orchestrator.game().getAlivePlayers().count() <= 2) {
-            unmodifiedCountdown.setTimer(30);
-            getCountdown().setTimer(30);
-            getCountdown().resetBiggestTimerValue();
-        }
     }
 
     @Override
@@ -90,10 +83,5 @@ public class VillageVoteStage extends CountdownLGStage implements Votable, Unmod
     @Override
     public VoteState getCurrentState() {
         return voteState;
-    }
-
-    @Override
-    public Countdown getUnmodifiedCountdown() {
-        return unmodifiedCountdown;
     }
 }

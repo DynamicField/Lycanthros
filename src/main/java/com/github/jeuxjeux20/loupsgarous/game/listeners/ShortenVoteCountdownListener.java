@@ -4,9 +4,9 @@ import com.github.jeuxjeux20.loupsgarous.Plugin;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.stages.CountdownTimedStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.MajorityVoteShortensCountdown;
-import com.github.jeuxjeux20.loupsgarous.game.stages.UnmodifiedCountdownTimedStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
 import com.google.inject.Inject;
 import org.bukkit.event.EventHandler;
@@ -34,14 +34,14 @@ public class ShortenVoteCountdownListener implements Listener {
 
     private void updateStageCountdown(LGStage stage) {
         Votable votable = stage.getComponent(Votable.class).orElse(null);
-        UnmodifiedCountdownTimedStage dualCountdown = stage.getComponent(UnmodifiedCountdownTimedStage.class).orElse(null);
+        CountdownTimedStage countdownStage = stage.getComponent(CountdownTimedStage.class).orElse(null);
         MajorityVoteShortensCountdown annotation = stage.getClass().getAnnotation(MajorityVoteShortensCountdown.class);
 
-        if (votable == null || dualCountdown == null) {
+        if (votable == null || countdownStage == null) {
             if (annotation != null) {
                 logger.warning("Stage " + stage.getClass().getName() + " is annotated with " +
                                "MajorityVoteShortensCountdown but doesn't implement Votable and " +
-                               "UnmodifiedCountdownTimedStage");
+                               "CountdownTimedStage");
             }
             return;
         }
@@ -49,12 +49,12 @@ public class ShortenVoteCountdownListener implements Listener {
         if (annotation == null) return;
 
         // Nothing will change anyway, we're under the time left.
-        if (dualCountdown.getUnmodifiedCountdown().getTimer() <= annotation.timeLeft()) return;
+        if (countdownStage.getCountdown().getStartSnapshot().getTimerNow() <= annotation.timeLeft()) return;
 
         if (shouldShorten(annotation, votable)) {
-            shortenTime(annotation, dualCountdown);
+            shortenTime(annotation, countdownStage);
         } else {
-            cancelShortenedTime(annotation, dualCountdown);
+            cancelShortenedTime(countdownStage);
         }
     }
 
@@ -78,17 +78,17 @@ public class ShortenVoteCountdownListener implements Listener {
         return percentage >= annotation.majorityPercentage();
     }
 
-    private void shortenTime(MajorityVoteShortensCountdown annotation, UnmodifiedCountdownTimedStage dualCountdown) {
+    private void shortenTime(MajorityVoteShortensCountdown annotation, CountdownTimedStage stage) {
         // The unmodified countdown represents the real time without any modification.
-        int timeLeft = Math.min(annotation.timeLeft(), dualCountdown.getUnmodifiedCountdown().getTimer());
+        int timeLeft = Math.min(annotation.timeLeft(), stage.getCountdown().getStartSnapshot().getTimerNow());
 
         // So we shorten this one.
-        dualCountdown.getCountdown().setTimer(timeLeft);
+        stage.getCountdown().setTimer(timeLeft);
     }
 
-    private void cancelShortenedTime(MajorityVoteShortensCountdown annotation, UnmodifiedCountdownTimedStage dualCountdown) {
-        int unmodifiedTime = dualCountdown.getUnmodifiedCountdown().getTimer();
+    private void cancelShortenedTime(CountdownTimedStage stage) {
+        int unmodifiedTime = stage.getCountdown().getStartSnapshot().getTimerNow();
 
-        dualCountdown.getCountdown().setTimer(unmodifiedTime);
+        stage.getCountdown().setTimer(unmodifiedTime);
     }
 }

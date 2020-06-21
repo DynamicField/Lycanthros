@@ -27,6 +27,8 @@ public class Countdown implements Terminable, TerminableConsumer {
     private int timer;
     private int biggestTimerValue;
 
+    private Snapshot startSnapshot;
+
     private State state = State.READY;
 
     public Countdown(int timerSeconds) {
@@ -62,6 +64,7 @@ public class Countdown implements Terminable, TerminableConsumer {
     public final CompletableFuture<Void> start() {
         Preconditions.checkState(state == State.READY, "The countdown must be ready");
         state = State.RUNNING;
+        startSnapshot = takeSnapshot();
 
         onStart();
         startTask();
@@ -124,8 +127,7 @@ public class Countdown implements Terminable, TerminableConsumer {
             try {
                 onFinish();
                 future.complete(null);
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                 future.completeExceptionally(e);
             }
         }
@@ -176,6 +178,14 @@ public class Countdown implements Terminable, TerminableConsumer {
 
     public void resetBiggestTimerValue() {
         this.biggestTimerValue = this.timer;
+    }
+
+    public Snapshot takeSnapshot() {
+        return new Snapshot(timer);
+    }
+
+    public Snapshot getStartSnapshot() {
+        return startSnapshot;
     }
 
     // Terminables
@@ -252,6 +262,32 @@ public class Countdown implements Terminable, TerminableConsumer {
                     finishedActions.forEach(Runnable::run);
                 }
             };
+        }
+    }
+
+    public static final class Snapshot {
+        private final long timeMillis;
+        private final int timer;
+
+        public Snapshot(int timer) {
+            this(System.currentTimeMillis(), timer);
+        }
+
+        public Snapshot(long timeMillis, int timer) {
+            this.timeMillis = timeMillis;
+            this.timer = timer;
+        }
+
+        public long getTimeMillis() {
+            return timeMillis;
+        }
+
+        public int getTimer() {
+            return timer;
+        }
+
+        public int getTimerNow() {
+            return Math.max(0, timer - (int) ((System.currentTimeMillis() - timeMillis) / 1000f));
         }
     }
 }
