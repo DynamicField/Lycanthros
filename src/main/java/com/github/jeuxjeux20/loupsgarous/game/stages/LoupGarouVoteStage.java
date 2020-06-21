@@ -19,8 +19,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.boss.BarColor;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.CompletableFuture;
-
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
 @MajorityVoteShortensCountdown(timeLeft = 10)
@@ -50,15 +48,19 @@ public class LoupGarouVoteStage extends CountdownLGStage implements Votable, Unm
     protected Countdown createCountdown() {
         return Countdown.builder()
                 .apply(Countdown.syncWith(unmodifiedCountdown))
-                .finished(voteState::close)
-                .finished(this::computeVoteOutcome)
-                .finished(this::howl)
                 .build();
     }
 
     @Override
     public boolean shouldRun() {
         return orchestrator.turn().getTime() == LGGameTurnTime.NIGHT;
+    }
+
+    @Override
+    protected void finish() {
+        voteState.close();
+        computeVoteOutcome();
+        howl();
     }
 
     @Override

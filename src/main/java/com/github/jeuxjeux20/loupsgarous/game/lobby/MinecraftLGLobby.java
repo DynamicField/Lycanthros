@@ -66,11 +66,7 @@ class MinecraftLGLobby implements LGLobby {
     }
 
     private boolean canAddPlayer() {
-        return composition.getPlayerCount() != getGame().getPlayers().size() && !isLocked();
-    }
-
-    private boolean canRemovePlayer(UUID playerUUID) {
-        return !isLocked() || getGame().getPlayer(playerUUID).map(LGPlayer::isPresent).orElse(false);
+        return getSlotsTaken() < getTotalSlotCount() && !isLocked();
     }
 
     @Override
@@ -107,23 +103,18 @@ class MinecraftLGLobby implements LGLobby {
 
     @Override
     public boolean removePlayer(UUID playerUUID) {
-        if (!canRemovePlayer(playerUUID)) return false;
+        MutableLGPlayer player = getGame().getPlayer(playerUUID).filter(LGPlayer::isPresent).orElse(null);
+        if (player == null) return false;
 
-        MutableLGPlayer lgPlayer = getGame().getPlayer(playerUUID).orElse(null);
-        if (lgPlayer == null) return false;
-
-        if (orchestrator.state().wentThrough(LGGameState.STARTED)) {
-            lgPlayer.setAway(true);
+        if (isLocked()) {
+            player.setAway(true);
         } else {
             getGame().removePlayer(playerUUID);
         }
 
-        Events.call(new LGPlayerQuitEvent(orchestrator, playerUUID, lgPlayer));
+        Events.call(new LGPlayerQuitEvent(orchestrator, playerUUID, player));
 
-        Player onlinePlayer = lgPlayer.getOfflineMinecraftPlayer().getPlayer();
-        if (onlinePlayer != null) {
-            lobbyTeleporter.teleportPlayerOut(onlinePlayer);
-        }
+        player.getMinecraftPlayerNoContext().ifPresent(lobbyTeleporter::teleportPlayerOut);
 
         if (playerUUID.equals(owner.getUniqueId()) && orchestrator.state().isEnabled()) {
             putRandomOwner();

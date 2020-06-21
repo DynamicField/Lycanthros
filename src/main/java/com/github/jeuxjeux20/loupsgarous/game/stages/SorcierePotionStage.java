@@ -151,7 +151,6 @@ public class SorcierePotionStage extends CountdownLGStage {
 
         builder.append(TextComponent.of("\n====").color(LIGHT_PURPLE).decoration(BOLD, true));
 
-
         TextComponent message = builder.build();
         Text.sendMessage(minecraftPlayer, message);
 

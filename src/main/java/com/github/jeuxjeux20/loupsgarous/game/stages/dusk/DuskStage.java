@@ -11,7 +11,6 @@ import org.bukkit.boss.BarColor;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class DuskStage extends CountdownLGStage {
@@ -29,9 +28,7 @@ public class DuskStage extends CountdownLGStage {
 
     @Override
     protected Countdown createCountdown() {
-        return Countdown.builder(30)
-                .finished(this::runActionsEnd)
-                .build();
+        return Countdown.of(30);
     }
 
     @Override
@@ -49,6 +46,13 @@ public class DuskStage extends CountdownLGStage {
     }
 
     @Override
+    protected void finish() {
+        for (Action action : actionsToRun) {
+            action.onDuskEnd(orchestrator);
+        }
+    }
+
+    @Override
     public String getName() {
         return "Crépuscule";
     }
@@ -61,12 +65,6 @@ public class DuskStage extends CountdownLGStage {
     @Override
     public BarColor getBarColor() {
         return BarColor.PURPLE;
-    }
-
-    private void runActionsEnd() {
-        for (Action action : actionsToRun) {
-            action.onDuskEnd(orchestrator);
-        }
     }
 
     @Override

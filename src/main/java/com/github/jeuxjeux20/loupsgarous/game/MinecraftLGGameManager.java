@@ -18,6 +18,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import me.lucko.helper.Events;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,10 +49,10 @@ class MinecraftLGGameManager implements LGGameManager {
         Events.subscribe(LGGameDeletedEvent.class)
                 .handler(e -> removeDeletedGame(e.getOrchestrator()));
 
-        Events.subscribe(LGPlayerJoinEvent.class)
+        Events.subscribe(LGPlayerJoinEvent.class, EventPriority.LOWEST)
                 .handler(e -> gamesByPlayerUUID.put(e.getPlayer().getUniqueId(), e.getOrchestrator()));
 
-        Events.subscribe(LGPlayerQuitEvent.class)
+        Events.subscribe(LGPlayerQuitEvent.class, EventPriority.LOWEST)
                 .handler(e -> gamesByPlayerUUID.remove(e.getPlayerUUID()));
 
         Events.subscribe(PluginDisableEvent.class)

@@ -19,12 +19,12 @@ import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardManager;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -143,9 +143,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
         terminableRegistry.closeAndReportException();
 
-        game().getPlayers().stream()
-                .map(LGPlayer::getPlayerUUID)
-                .forEach(lobby::removePlayer);
+        game.getPlayers().forEach(lobby::removePlayer);
 
         changeStateTo(DELETED, LGGameDeletedEvent::new);
     }
@@ -222,9 +220,9 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("id", game.getId())
-                .append("state", state)
+        return MoreObjects.toStringHelper(this)
+                .add("id", game.getId())
+                .add("state", state)
                 .toString();
     }
 

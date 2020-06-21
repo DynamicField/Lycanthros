@@ -8,13 +8,12 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator.Problem;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.event.CountdownTickEvent;
-import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageChangedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.StageEventUtils;
 import com.github.jeuxjeux20.loupsgarous.game.stages.TimedStage;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
-import me.lucko.helper.Schedulers;
 import me.lucko.helper.terminable.TerminableConsumer;
 import me.lucko.helper.terminable.module.TerminableModule;
 import me.lucko.helper.time.DurationFormatter;
@@ -187,7 +186,7 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
                     .handler(e -> update())
                     .bindWith(consumer);
 
-            Events.subscribe(LGStageChangedEvent.class)
+            Events.subscribe(LGStageStartedEvent.class)
                     .filter(orchestrator::isMyEvent)
                     .handler(e -> update())
                     .bindWith(consumer);

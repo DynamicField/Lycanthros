@@ -2,24 +2,23 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageChangedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageChangingEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageEndedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageEndingEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartingEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.overrides.StageOverride;
+import com.github.jeuxjeux20.loupsgarous.util.FutureExceptionUtils;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
 import me.lucko.helper.terminable.Terminable;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,7 +29,7 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     private final LinkedList<RunnableLGStage.Factory<?>> stageFactories;
     private @Nullable ListIterator<RunnableLGStage.Factory<?>> stageIterator = null;
     private @Nullable RunnableLGStage currentStage = null;
-    private @Nullable LGStageChangingEvent currentStageEvent = null;
+    private @Nullable LGStageStartingEvent currentStageEvent = null;
     private final Set<StageOverride> stageOverrides;
     private final Logger logger;
 
@@ -92,7 +91,7 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     }
 
     @Override
-    public @NotNull LGStage current() {
+    public LGStage current() {
         return currentStage == null ? new LGStage.Null(gameOrchestrator) : currentStage;
     }
 
@@ -115,10 +114,28 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     }
 
     private CompletionStage<Void> runStage(RunnableLGStage stage) {
-        RunnableLGStage lastStage = currentStage;
-        LGStageChangingEvent lastEvent = currentStageEvent;
+        CompletionStage<Void> future = tryChangeStage(stage);
+        if (future != null) return future; // If it isn't null, it's a cancelled future!
 
-        LGStageChangingEvent event = new LGStageChangingEvent(stage);
+        currentStage = stage;
+
+        RunnableLGStage.Task stageTask = stage.run();
+        Events.call(new LGStageStartedEvent(stage));
+
+        // Call the LGStageEndingEvent just before finish() gets executed.
+        stageTask.beforeFinish().thenRun(() -> Events.call(new LGStageEndingEvent(stage)));
+
+        // And then call LGStageEndedEvent after the whole stage ended.
+        return stageTask.main()
+                .thenRun(() -> Events.call(new LGStageEndedEvent(stage)))
+                .exceptionally(this::handleStageException);
+    }
+
+    private CompletionStage<Void> tryChangeStage(RunnableLGStage stage) {
+        RunnableLGStage lastStage = currentStage;
+        LGStageStartingEvent lastEvent = currentStageEvent;
+
+        LGStageStartingEvent event = new LGStageStartingEvent(stage);
         currentStageEvent = event;
 
         Events.call(event);
@@ -135,27 +152,27 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
         // Cancel the previous stage and its event before running the new one.
         if (lastStage != null && !lastStage.isClosed()) lastStage.closeAndReportException();
         if (lastEvent != null) lastEvent.setCancelled(true);
-
-        currentStage = stage;
-        stage.bind(() -> Events.call(new LGStageEndedEvent(stage)));
-
-        Events.call(new LGStageChangedEvent(stage));
-
-        return stage.run().exceptionally(this::handleStageException);
+        return null;
     }
 
     private Void handleStageException(Throwable ex) {
-        // We cancelled it, no need to log.
-        if (!(ex instanceof CancellationException)) {
+        if (FutureExceptionUtils.isCancellation(ex)) {
+            // That's cancelled, rethrow to avoid executing further actions.
+
+            throw FutureExceptionUtils.asCompletionException(ex);
+        } else {
+            // If something wrong happens, let's just log and continue.
+            // We still want the game to continue!
+
             logger.log(Level.SEVERE, "Unhandled exception while running stage: " + currentStage, ex);
+            return null;
         }
-        throw ex instanceof CompletionException ?
-                (CompletionException) ex : new CompletionException(ex);
     }
 
     private Void handlePostStageException(Throwable ex) {
-        if (ex.getCause() instanceof CancellationException) return null;
-        logger.log(Level.SEVERE, "Unhandled exception while the game was running the next stage.", ex);
+        if (!FutureExceptionUtils.isCancellation(ex)) {
+            logger.log(Level.SEVERE, "Unhandled exception while the game was running the next stage.", ex);
+        }
         return null;
     }
 

@@ -12,8 +12,6 @@ import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import java.util.concurrent.CompletableFuture;
-
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.importantTip;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
@@ -30,9 +28,7 @@ public class ChasseurKillStage extends CountdownLGStage implements Killable {
 
     @Override
     protected Countdown createCountdown() {
-        return Countdown.builder(30)
-                .finished(this::sendInfoMessage)
-                .build();
+        return Countdown.of(30);
     }
 
     @Override
@@ -44,6 +40,13 @@ public class ChasseurKillStage extends CountdownLGStage implements Killable {
             );
             LGSoundStuff.ding(player);
         });
+    }
+
+    @Override
+    protected void finish() {
+        if (!killed) {
+            orchestrator.chat().sendToEveryone(info("Le chasseur n'a pas tiré."));
+        }
     }
 
     @Override
@@ -59,12 +62,6 @@ public class ChasseurKillStage extends CountdownLGStage implements Killable {
     @Override
     public boolean isTemporary() {
         return true;
-    }
-
-    private void sendInfoMessage() {
-        if (!killed) {
-            orchestrator.chat().sendToEveryone(info("Le chasseur n'a pas tiré."));
-        }
     }
 
     @Override

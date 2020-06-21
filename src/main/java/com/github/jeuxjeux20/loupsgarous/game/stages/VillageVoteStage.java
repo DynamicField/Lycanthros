@@ -10,8 +10,6 @@ import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import java.util.concurrent.CompletableFuture;
-
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
 @MajorityVoteShortensCountdown
@@ -39,8 +37,6 @@ public class VillageVoteStage extends CountdownLGStage implements Votable, Unmod
     protected Countdown createCountdown() {
         return Countdown.builder()
                 .apply(Countdown.syncWith(unmodifiedCountdown))
-                .finished(voteState::close)
-                .finished(this::computeVoteOutcome)
                 .build();
     }
 
@@ -59,6 +55,12 @@ public class VillageVoteStage extends CountdownLGStage implements Votable, Unmod
             getCountdown().setTimer(30);
             getCountdown().resetBiggestTimerValue();
         }
+    }
+
+    @Override
+    protected void finish() {
+        voteState.close();
+        computeVoteOutcome();
     }
 
     @Override

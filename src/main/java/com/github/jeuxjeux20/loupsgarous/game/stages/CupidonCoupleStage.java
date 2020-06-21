@@ -34,9 +34,7 @@ public class CupidonCoupleStage extends CountdownLGStage {
 
     @Override
     protected Countdown createCountdown() {
-        return Countdown.builder(30)
-                .finished(this::createRandomCouples)
-                .build();
+        return Countdown.of(30);
     }
 
     @Override
@@ -47,6 +45,11 @@ public class CupidonCoupleStage extends CountdownLGStage {
     @Override
     protected void start() {
         getEligibleCupidons().forEach(this::sendTipNotification);
+    }
+
+    @Override
+    protected void finish() {
+        createRandomCouples();
     }
 
     @Override

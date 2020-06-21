@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
-import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageChangingEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartingEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.winconditions.PostponesWinConditions;
 import com.github.jeuxjeux20.loupsgarous.game.winconditions.WinCondition;
@@ -23,7 +23,7 @@ public final class CheckWinConditionsListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public void onLGStageChange(LGStageChangingEvent event) {
+    public void onLGStageChange(LGStageStartingEvent event) {
         LGGameOrchestrator orchestrator = event.getOrchestrator();
         LGStage stage = event.getStage();
 

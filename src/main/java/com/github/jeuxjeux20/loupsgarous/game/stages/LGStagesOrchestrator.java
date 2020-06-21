@@ -4,7 +4,6 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
 import com.github.jeuxjeux20.loupsgarous.game.stages.overrides.StageOverride;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * This is a component of {@link LGGameOrchestrator} managing the {@linkplain LGStage stages}
@@ -33,7 +32,7 @@ public interface LGStagesOrchestrator extends LGGameOrchestratorComponent {
      *
      * @return the current stage, or {@link LGStage.Null}
      */
-    @NotNull LGStage current();
+    LGStage current();
 
     interface Factory {
         LGStagesOrchestrator create(LGGameOrchestrator gameOrchestrator);

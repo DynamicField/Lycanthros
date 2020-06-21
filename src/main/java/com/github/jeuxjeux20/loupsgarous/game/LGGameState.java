@@ -18,10 +18,6 @@ public enum LGGameState {
         return this.compareTo(state) >= 0;
     }
 
-    public boolean didNotPass(LGGameState state) {
-        return this.compareTo(state) < 0;
-    }
-
     public boolean isEnabled() {
         return !isDisabled();
     }

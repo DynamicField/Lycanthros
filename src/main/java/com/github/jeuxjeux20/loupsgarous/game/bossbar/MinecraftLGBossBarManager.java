@@ -2,9 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.bossbar;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.event.CountdownTickEvent;
-import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageChangedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageChangingEvent;
-import com.github.jeuxjeux20.loupsgarous.game.stages.CountdownTimedStage;
+import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.StageEventUtils;
 import com.github.jeuxjeux20.loupsgarous.game.stages.TimedStage;
@@ -76,7 +74,7 @@ public class MinecraftLGBossBarManager implements LGBossBarManager {
                     .handler(e -> update())
                     .bindWith(consumer);
 
-            Events.subscribe(LGStageChangedEvent.class)
+            Events.subscribe(LGStageStartedEvent.class)
                     .filter(orchestrator::isMyEvent)
                     .handler(e -> update())
                     .bindWith(consumer);
