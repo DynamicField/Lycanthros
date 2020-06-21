@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
+import me.lucko.helper.metadata.MetadataMap;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -50,5 +51,10 @@ public final class MutableLGPlayer implements LGPlayer {
 
     public void setAway(boolean isAway) {
         this.isAway = isAway;
+    }
+
+    @Override
+    public MetadataMap metadata() {
+        return LGMetadata.provideForPlayer(this);
     }
 }

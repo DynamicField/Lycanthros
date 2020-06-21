@@ -34,8 +34,7 @@ public class LoupGarouVoteStage extends CountdownLGStage implements Votable {
         super(orchestrator);
 
         this.voteChannel = voteChannel;
-
-        voteState = createVoteState();
+        this.voteState = createVoteState();
 
         bind(voteState);
     }

@@ -3,7 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game.stages.interaction;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 
-public interface Healable extends PickableProvider {
+public interface Healable extends PickableProvider<PlayerPickable> {
     Check canHealTarget(LGPlayer target);
 
     Check canPlayerHeal(LGPlayer healer);
@@ -15,8 +15,8 @@ public interface Healable extends PickableProvider {
     void heal(LGPlayer healer, LGPlayer target);
 
     @Override
-    default Pickable providePickable() {
-        return new Pickable() {
+    default PlayerPickable providePickable() {
+        return new PlayerPickable() {
             @Override
             public Check canPickTarget(LGPlayer target) {
                 return canHealTarget(target);

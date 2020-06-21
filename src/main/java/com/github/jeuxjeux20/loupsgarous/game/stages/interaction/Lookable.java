@@ -3,7 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game.stages.interaction;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 
-public interface Lookable extends PickableProvider {
+public interface Lookable extends PickableProvider<PlayerPickable> {
     Check canLookTarget(LGPlayer target);
 
     Check canPlayerLook(LGPlayer looker);
@@ -15,8 +15,8 @@ public interface Lookable extends PickableProvider {
     void look(LGPlayer looker, LGPlayer target);
 
     @Override
-    default Pickable providePickable() {
-        return new Pickable() {
+    default PlayerPickable providePickable() {
+        return new PlayerPickable() {
             @Override
             public Check canPickTarget(LGPlayer target) {
                 return canLookTarget(target);

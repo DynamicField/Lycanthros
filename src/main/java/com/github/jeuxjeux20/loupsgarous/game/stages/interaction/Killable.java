@@ -3,7 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game.stages.interaction;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 
-public interface Killable extends PickableProvider {
+public interface Killable extends PickableProvider<PlayerPickable> {
     default Check canKillTarget(LGPlayer target) {
         return Check.ensure(target.isAlive(), "Impossible de tuer un joueur mort.");
     }
@@ -18,8 +18,8 @@ public interface Killable extends PickableProvider {
     void kill(LGPlayer killer, LGPlayer target);
 
     @Override
-    default Pickable providePickable() {
-        return new Pickable() {
+    default PlayerPickable providePickable() {
+        return new PlayerPickable() {
             @Override
             public Check canPickTarget(LGPlayer target) {
                 return canKillTarget(target);

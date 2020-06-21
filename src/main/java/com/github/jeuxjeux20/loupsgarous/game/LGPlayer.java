@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
+import me.lucko.helper.metadata.MetadataMap;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -45,6 +46,8 @@ public interface LGPlayer {
     LGCard getCard();
 
     boolean isDead();
+
+    MetadataMap metadata();
 
     default boolean isAlive() {
         return !isDead();

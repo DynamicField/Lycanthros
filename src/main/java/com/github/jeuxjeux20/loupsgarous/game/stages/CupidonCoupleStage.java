@@ -1,11 +1,13 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
-import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
+import com.github.jeuxjeux20.loupsgarous.Plugin;
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.CupidonCard;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Couple;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.CoupleCreator;
 import com.github.jeuxjeux20.loupsgarous.game.teams.CoupleTeam;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
@@ -14,22 +16,23 @@ import com.google.inject.assistedinject.Assisted;
 import org.bukkit.boss.BarColor;
 
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 
-public class CupidonCoupleStage extends CountdownLGStage {
+public class CupidonCoupleStage extends CountdownLGStage implements CoupleCreator {
     private final Random random;
-    private final LoupsGarous plugin;
+    private final Logger logger;
 
     private final Map<LGPlayer, Couple> couplePicks = new HashMap<>();
 
     @Inject
-    CupidonCoupleStage(@Assisted LGGameOrchestrator orchestrator, Random random, LoupsGarous plugin) {
+    CupidonCoupleStage(@Assisted LGGameOrchestrator orchestrator, Random random, @Plugin Logger logger) {
         super(orchestrator);
         this.random = random;
-        this.plugin = plugin;
+        this.logger = logger;
     }
 
     @Override
@@ -88,12 +91,11 @@ public class CupidonCoupleStage extends CountdownLGStage {
                 .and(!couplePicks.containsKey(cupidon), "Vous avez déjà formé un couple !");
     }
 
-    public Check canCreateCouple(LGPlayer cupidon, Couple couple) {
-        return canPlayerCreateCouple(cupidon)
-                .and(couple.partner1 != couple.partner2, "Impossible de faire un couple avec deux mêmes partenaires.")
-                .and(partnerCheck(couple.partner1))
-                .and(partnerCheck(couple.partner2));
-
+    @Override
+    public Check canCreateThatCouple(Couple couple) {
+        return Check.ensure(couple.getPartner1() != couple.getPartner2(), "Impossible de faire un couple avec deux mêmes partenaires.")
+                .and(partnerCheck(couple.getPartner1()))
+                .and(partnerCheck(couple.getPartner2()));
     }
 
     public void createCouple(LGPlayer cupidon, Couple couple) {
@@ -105,38 +107,39 @@ public class CupidonCoupleStage extends CountdownLGStage {
 
         CoupleTeam coupleTeam = LGTeams.newCouple();
 
-        for (LGPlayer partner : couple.partners) {
+        for (LGPlayer partner : couple.getPartners()) {
             orchestrator.cards().addTeam(partner.getCard(), coupleTeam);
         }
 
         sendCoupleMessages(cupidon, couple);
 
-        if (couplePicks.keySet().containsAll(getEligibleCupidons().collect(Collectors.toList())) &&
-            getCountdown().is(Countdown.State.RUNNING)) {
-            getCountdown().interrupt(); // All cupidons have chosen their couples.
+        if (couplePicks.keySet().containsAll(getEligibleCupidons().collect(Collectors.toList()))) {
+            getCountdown().tryInterrupt(); // All cupidons have chosen their couples.
         }
     }
 
     private void sendCoupleMessages(LGPlayer cupidon, Couple couple) {
         cupidon.getMinecraftPlayer().ifPresent(player -> {
             String message = info(HEART_SYMBOL + " ") +
-                             player(couple.partner1.getName()) + info(" et ") + player(couple.partner2.getName()) +
+                             player(couple.getPartner1().getName()) + info(" et ") + player(couple.getPartner2().getName()) +
                              info(" sont maintenant en couple !");
             player.sendMessage(message);
 
             LGSoundStuff.ding(player);
         });
 
-        for (LGPlayer partner : couple.partners) {
+        for (LGPlayer partner : couple.getPartners()) {
             partner.getMinecraftPlayer().ifPresent(player -> {
-                LGPlayer otherPartner = couple.partner1 == partner ? couple.partner2 : couple.partner1;
+                LGPlayer otherPartner = couple.getOtherPartner(partner);
 
                 String message = info(HEART_SYMBOL + " Vous êtes maintenant en couple avec ") +
                                  player(otherPartner.getName()) + info("!");
                 player.sendMessage(message);
 
-                if (partner != cupidon) // Avoid double DING
+                // Avoid double DING
+                if (partner != cupidon) {
                     LGSoundStuff.ding(player);
+                }
             });
         }
     }
@@ -169,7 +172,7 @@ public class CupidonCoupleStage extends CountdownLGStage {
     private Optional<Couple> createRandomCouple() {
         List<LGPlayer> eligiblePartners = getEligiblePartners().collect(Collectors.toCollection(ArrayList::new));
         if (eligiblePartners.size() < 2) {
-            plugin.getLogger().warning("Not enough eligible partners! (" + eligiblePartners.size() + ")");
+            logger.warning("Not enough eligible partners! (" + eligiblePartners.size() + ")");
             return Optional.empty();
         }
 
@@ -180,15 +183,4 @@ public class CupidonCoupleStage extends CountdownLGStage {
         return Optional.of(new Couple(partner1, partner2));
     }
 
-    public static class Couple {
-        public final LGPlayer partner1;
-        public final LGPlayer partner2;
-        public final LGPlayer[] partners;
-
-        public Couple(LGPlayer partner1, LGPlayer partner2) {
-            this.partner1 = Objects.requireNonNull(partner1);
-            this.partner2 = Objects.requireNonNull(partner2);
-            partners = new LGPlayer[]{partner1, partner2};
-        }
-    }
 }

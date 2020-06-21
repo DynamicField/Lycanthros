@@ -24,15 +24,15 @@ import java.util.Map;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.error;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
-public interface StatefulPickableProvider extends PickableProvider {
+public interface StatefulPickableProvider extends PickableProvider<PlayerPickable> {
     PickState getCurrentState();
 
     @Override
-    default Pickable providePickable() {
+    default PlayerPickable providePickable() {
         return getCurrentState();
     }
 
-    class PickState implements Pickable, Terminable {
+    class PickState implements PlayerPickable, Terminable {
         protected final Map<LGPlayer, LGPlayer> picks = new Hashtable<>();
 
         private final LGGameOrchestrator orchestrator;
@@ -64,6 +64,11 @@ public interface StatefulPickableProvider extends PickableProvider {
         public Check canPlayerPick(@NotNull LGPlayer player) {
             if (player.isDead()) return Check.error(getPickerDeadError());
             return Check.success();
+        }
+
+        @Override
+        public Check canPick(LGPlayer picker, LGPlayer target) {
+            return canPlayerPick(picker).and(() -> canPickTarget(target));
         }
 
         protected boolean canTargetBeDead() {

@@ -8,10 +8,11 @@ import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.CannotCreateLobbyException;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobbyInfo;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
+import me.lucko.helper.metadata.MetadataMap;
 import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -91,6 +92,8 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     LGKillsOrchestrator kills();
 
     LGLobby lobby();
+
+    MetadataMap metadata();
 
 
     default boolean isMyEvent(LGEvent event) {

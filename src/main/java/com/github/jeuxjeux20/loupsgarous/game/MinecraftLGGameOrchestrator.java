@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
+import me.lucko.helper.metadata.MetadataMap;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -254,6 +255,11 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     @Override
     public LGLobby lobby() {
         return lobby;
+    }
+
+    @Override
+    public MetadataMap metadata() {
+        return LGMetadata.games().provide(this);
     }
 
     /**
