@@ -3,6 +3,7 @@ package com.github.jeuxjeux20.loupsgarous;
 import com.github.jeuxjeux20.loupsgarous.commands.debug.ColorCommand;
 import com.github.jeuxjeux20.loupsgarous.commands.debug.GuiTestCommand;
 import com.github.jeuxjeux20.loupsgarous.game.commands.debug.LGSkipStageCommand;
+import com.github.jeuxjeux20.loupsgarous.game.stages.debug.LogStageEventsListener;
 import com.google.inject.AbstractModule;
 
 public final class DebugModule extends AbstractModule {
@@ -14,6 +15,12 @@ public final class DebugModule extends AbstractModule {
                 addCommand(LGSkipStageCommand.class);
                 addCommand(ColorCommand.class);
                 addCommand(GuiTestCommand.class);
+            }
+        });
+        install(new ListenersModule() {
+            @Override
+            protected void configureListeners() {
+                addListener(LogStageEventsListener.class);
             }
         });
     }

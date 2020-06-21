@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class DuskStage extends CountdownLGStage {
+public class    DuskStage extends CountdownLGStage {
     private final List<Action> actionsToRun;
 
     @Inject

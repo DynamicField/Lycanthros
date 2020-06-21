@@ -73,7 +73,7 @@ public class SorcierePotionStage extends CountdownLGStage {
     }
 
     @Override
-    public Iterable<? extends PickableProvider> getAllComponents() {
+    public Iterable<? extends PickableProvider<?>> getAllComponents() {
         return Arrays.asList(healable, killable);
     }
 

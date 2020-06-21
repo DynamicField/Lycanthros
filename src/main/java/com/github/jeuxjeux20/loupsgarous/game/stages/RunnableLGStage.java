@@ -1,10 +1,16 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageEndedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageEndingEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartingEvent;
+import com.github.jeuxjeux20.loupsgarous.util.CompletableFutures;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import me.lucko.helper.Events;
 import me.lucko.helper.terminable.Terminable;
 import me.lucko.helper.terminable.TerminableConsumer;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
@@ -21,28 +27,48 @@ public abstract class RunnableLGStage implements LGStage, Terminable, Terminable
     private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
 
     private @Nullable CompletableFuture<Void> currentFuture;
+    private @Nullable LGStageStartingEvent currentStartingEvent;
+    private boolean isClosed;
 
     @Inject
     public RunnableLGStage(@Assisted LGGameOrchestrator orchestrator) {
         this.orchestrator = orchestrator;
     }
 
-    public final Task run() {
-        Preconditions.checkState(currentFuture == null, "This stage has already been ran, or it has closed.");
+    public final CompletableFuture<Void> run() {
+        Preconditions.checkState(!isClosed, "This stage has already been ran, or it has closed.");
 
-        currentFuture = execute();
+        currentStartingEvent = Events.callAndReturn(new LGStageStartingEvent(this));
+        isClosed |= currentStartingEvent.isCancelled(); // OR assignment so we don't un-cancel.
 
-        CompletableFuture<Void> beforeFinish = currentFuture;
+        // The event has been cancelled OR the stage has been cancelled
+        // in either case: ensure we close the stage and return a cancelled future.
+        if (isClosed) {
+            closeAndReportException();
+            return CompletableFutures.cancelledFuture();
+        }
 
-        CompletableFuture<Void> main = beforeFinish
+        // We don't need the event anymore.
+        currentStartingEvent = null;
+
+        // Now, start the stage!
+
+        CompletableFuture<Void> initialFuture = execute();
+        currentFuture = initialFuture;
+
+        Events.call(new LGStageStartedEvent(this));
+
+        CompletableFuture<Void> future = initialFuture
+                .thenRun(() -> Events.call(new LGStageEndingEvent(this)))
                 .thenRun(this::finish)
-                .whenComplete((r, u) -> terminableRegistry.closeAndReportException());
+                .whenComplete((r, u) -> closeAndReportException())
+                .thenRun(() -> Events.call(new LGStageEndedEvent(this)));
 
         // Cancel the real future if something manually completes the given future
         // (cancelling, for example)
-        main.whenComplete((r, u) -> currentFuture.cancel(true));
+        future.whenComplete((r, u) -> initialFuture.cancel(true));
 
-        return new Task(main, beforeFinish);
+        return future;
     }
 
     protected abstract CompletableFuture<Void> execute();
@@ -55,23 +81,26 @@ public abstract class RunnableLGStage implements LGStage, Terminable, Terminable
 
     @Override
     public final void close() throws Exception {
-        if (currentFuture == null) {
-            // Create a cancelled future.
-            CompletableFuture<Void> cancelledFuture = new CompletableFuture<>();
-            cancelledFuture.cancel(false);
-            currentFuture = cancelledFuture;
+        if (isClosed) {
+            return;
+        }
 
-            // Close the terminables as we won't be able to start the stage.
-            terminableRegistry.close();
-        } else if (!currentFuture.isDone()) {
+        if (currentFuture != null) {
             currentFuture.cancel(true);
         }
-        // Don't do anything if the stage has already ended.
+
+        if (currentStartingEvent != null) {
+            currentStartingEvent.setCancelled(true);
+        }
+
+        terminableRegistry.close();
+
+        isClosed = true;
     }
 
     @Override
     public final boolean isClosed() {
-        return currentFuture != null && currentFuture.isDone();
+        return isClosed;
     }
 
     @Override
@@ -95,26 +124,5 @@ public abstract class RunnableLGStage implements LGStage, Terminable, Terminable
 
     public interface Factory<T extends RunnableLGStage> {
         T create(LGGameOrchestrator gameOrchestrator);
-    }
-
-    /**
-     * An execution of a stage, regrouping multiple {@link CompletableFuture}s.
-     */
-    public static class Task {
-        private final CompletableFuture<Void> main;
-        private final CompletableFuture<Void> beforeFinish;
-
-        private Task(CompletableFuture<Void> main, CompletableFuture<Void> beforeFinish) {
-            this.main = main;
-            this.beforeFinish = beforeFinish;
-        }
-
-        public CompletableFuture<Void> main() {
-            return main;
-        }
-
-        public CompletableFuture<Void> beforeFinish() {
-            return beforeFinish;
-        }
     }
 }
