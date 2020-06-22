@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class CompositionFormatUtil {
     private static final Collator FR_COLLATOR = Collator.getInstance(Locale.FRENCH);
@@ -18,12 +17,8 @@ public final class CompositionFormatUtil {
     }
 
     public static String format(Composition composition) {
-        return format(composition.getCards().stream());
-    }
-
-    public static String format(Stream<LGCard> composition) {
         Map<Class<? extends LGCard>, List<LGCard>> cardsByType
-                = composition.collect(Collectors.groupingBy(LGCard::getClass));
+                = composition.getCards().stream().collect(Collectors.groupingBy(LGCard::getClass));
 
         if (cardsByType.isEmpty()) return ChatColor.GOLD.toString() + ChatColor.BOLD + "[Rien]";
 

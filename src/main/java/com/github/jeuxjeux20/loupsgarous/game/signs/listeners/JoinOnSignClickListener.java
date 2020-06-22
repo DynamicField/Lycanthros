@@ -4,7 +4,6 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.util.DefaultCompositions;
 import com.github.jeuxjeux20.loupsgarous.game.signs.GameJoinSignManager;
-import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.inject.Inject;
 import me.lucko.helper.Schedulers;
 import me.lucko.helper.cooldown.Cooldown;
@@ -17,7 +16,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -50,21 +48,10 @@ public class JoinOnSignClickListener implements Listener {
         }
 
         Schedulers.sync().runLater(() -> {
-            Optional<LGGameOrchestrator> maybeGame = OptionalUtils.or(
-                    () -> name.flatMap(gameManager::getGameById),
-                    () -> name.flatMap(n ->
-                            gameManager.startGame(
-                                    Collections.singleton(player),
-                                    DefaultCompositions.villagerComposition(8), n).getValueOptional())
-            );
+            Optional<LGGameOrchestrator> maybeGame =
+                    gameManager.getOrStart(DefaultCompositions.villagerComposition(8), name.get());
 
-            boolean joined;
-            if (gameManager.getPlayerInGame(player).isPresent()) {
-                // The player is in a game? great!
-                joined = true;
-            } else {
-                joined = maybeGame.map(x -> x.lobby().addPlayer(player)).orElse(false);
-            }
+            boolean joined = maybeGame.map(x -> x.lobby().addPlayer(player)).orElse(false);
 
             if (!joined) {
                 player.sendMessage(ChatColor.RED + "Impossible de rejoindre la partie.");

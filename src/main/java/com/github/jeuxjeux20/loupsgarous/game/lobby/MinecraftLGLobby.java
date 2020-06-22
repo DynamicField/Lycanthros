@@ -2,7 +2,6 @@ package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
 import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.IllegalPlayerCountException;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.SnapshotComposition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.gui.CompositionGui;
@@ -24,6 +23,7 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
@@ -33,7 +33,7 @@ class MinecraftLGLobby implements LGLobby {
     private final MutableLGGameOrchestrator orchestrator;
     private final MutableComposition composition;
     private final LobbyTeleporter lobbyTeleporter;
-    private Player owner;
+    private @MonotonicNonNull Player owner;
     private final LGGameManager gameManager;
     private final CompositionValidator compositionValidator;
     private @Nullable CompositionValidator.Problem.Type worseCompositionProblemType;
@@ -46,14 +46,9 @@ class MinecraftLGLobby implements LGLobby {
                      LGGameManager gameManager,
                      CompositionValidator compositionValidator,
                      CompositionGui.Factory compositionGuiFactory) throws CannotCreateLobbyException {
-
-        Preconditions.checkArgument(lobbyInfo.getPlayers().size() <= lobbyInfo.getComposition().getPlayerCount(),
-                "There are more players than the given composition is supposed to have.");
-
         this.gameManager = gameManager;
         this.orchestrator = orchestrator;
 
-        this.owner = lobbyInfo.getOwner();
         this.composition = new LobbyComposition(lobbyInfo.getComposition());
         this.lobbyTeleporter = lobbyTeleporterFactory.create();
         this.compositionValidator = compositionValidator;
@@ -94,6 +89,10 @@ class MinecraftLGLobby implements LGLobby {
 
         boolean added = getGame().addPlayerIfAbsent(lgPlayer) == null;
         if (added) {
+            if (owner == null) {
+                owner = player;
+            }
+
             Events.call(new LGPlayerJoinEvent(orchestrator, player, lgPlayer));
 
             lobbyTeleporter.teleportPlayerIn(player);
@@ -176,6 +175,7 @@ class MinecraftLGLobby implements LGLobby {
 
     @Override
     public Player getOwner() {
+        Preconditions.checkState(owner != null, "There is no owner.");
         return owner;
     }
 
@@ -215,14 +215,9 @@ class MinecraftLGLobby implements LGLobby {
         }
 
         @Override
-        protected void checkPlayerCount(int playerCount) throws IllegalPlayerCountException {
-            super.checkPlayerCount(playerCount);
-
-            if (MinecraftLGLobby.this.getGame().getPlayers().size() > playerCount) {
-                throw new IllegalPlayerCountException(getPlayerCount() - 1 == playerCount ?
-                        "Impossible de retirer un joueur, car cela excluerait quelqu'un." :
-                        "Impossible de retirer autant de joueurs, car cela excluerait quelqu'un.");
-            }
+        public boolean isValidPlayerCount(int playerCount) {
+            return super.isValidPlayerCount(playerCount) &&
+                   getGame().getPlayers().size() <= playerCount;
         }
 
         @Override

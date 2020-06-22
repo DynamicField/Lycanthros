@@ -11,8 +11,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.error;
 
 @CommandName("lgstart")
@@ -34,11 +32,12 @@ public class LGStartCommand extends SelfConfiguredCommandExecutor {
             sender.sendMessage(error("Impossible de lancer cette command sur la console."));
             return true;
         }
+
         Player player = ((Player) sender);
 
-        gameManager.startGame(Collections.singleton(player), DefaultCompositions.villagerComposition(8))
+        gameManager.startGame(DefaultCompositions.villagerComposition(8))
                 .ifSuccessOrElse(
-                        game -> sender.sendMessage(ChatColor.GREEN + "Partie créée !"),
+                        game -> game.lobby().addPlayer(player),
                         error -> sender.sendMessage(ChatColor.RED + "Impossible de créer la partie : " + error)
                 );
         return true;

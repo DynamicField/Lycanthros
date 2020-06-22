@@ -2,7 +2,6 @@ package com.github.jeuxjeux20.loupsgarous.game.cards.composition.gui;
 
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.IllegalPlayerCountException;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.util.CompositionFormatUtil;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator;
@@ -144,7 +143,7 @@ public final class CompositionGui extends Gui {
     private void drawTopBarBook() {
         int playerCount = composition.getPlayerCount();
 
-        String[] compositionLore = CompositionFormatUtil.format(composition.getCards().stream()).split("\n");
+        String[] compositionLore = CompositionFormatUtil.format(composition).split("\n");
 
         Item item = ItemStackBuilder.of(Material.BOOK)
                 .name(ChatColor.GOLD.toString() + ChatColor.BOLD + "Partie")
@@ -159,12 +158,14 @@ public final class CompositionGui extends Gui {
         MenuPopulator populator = CARDS.newPopulator(this);
         for (LGCard card : cardsToProvider.keySet()) {
             int amount = (int) composition.getCards().stream().filter(x -> x.getClass() == card.getClass()).count();
-            boolean canRemoveCard = amount > 0;
+
+            boolean canAddCard = composition.canAddCard();
+            boolean canRemoveCard = composition.canRemoveCard();
 
             ItemStackBuilder builder = ItemStackBuilder.of(card.createGuiItem())
                     .name(card.getColor() + card.getName())
                     .lore(ChatColor.GOLD.toString() + ChatColor.BOLD + "Quantité : " + amount)
-                    .lore(LEFT_CLICK_LORE)
+                    .lore(canAddCard ? new String[]{LEFT_CLICK_LORE} : new String[0])
                     .lore(canRemoveCard ? new String[]{RIGHT_CLICK_LORE} : new String[0])
                     .lore("")
                     .lore(ChatPaginator.wordWrap(card.getDescription(), 35))
@@ -180,42 +181,25 @@ public final class CompositionGui extends Gui {
         Provider<LGCard> cardProvider = cardsToProvider.get(card);
         LGCard newCard = cardProvider.get();
 
-        try {
-            try {
-                composition.addCard(newCard);
-            } catch (IllegalPlayerCountException e) {
-                getPlayer().sendMessage(ChatColor.RED + e.getMessage());
-                LGSoundStuff.nah(getPlayer());
-                return;
-            }
-
+        if (composition.addCard(newCard)) {
             LGSoundStuff.ding(getPlayer());
-        } finally {
-            redraw();
+        } else {
+            getPlayer().sendMessage(ChatColor.RED + "Impossible d'ajouter la carte");
+            LGSoundStuff.nah(getPlayer());
         }
+
+        redraw();
     }
 
     private void removeCard(LGCard card) {
-        boolean success = false;
-        String errorMessage = "Impossible de retirer la carte.";
-
-        try {
-            try {
-                success = composition.removeCardOfClass(card.getClass());
-            } catch (IllegalPlayerCountException e) {
-                errorMessage = e.getMessage();
-            }
-
-            if (!success) {
-                getPlayer().sendMessage(ChatColor.RED + errorMessage);
-                LGSoundStuff.nah(getPlayer());
-                return;
-            }
-
+        if (composition.removeCardOfClass(card.getClass())) {
             LGSoundStuff.remove(getPlayer());
-        } finally {
-            redraw();
+        } else {
+            getPlayer().sendMessage(ChatColor.RED + "Impossible de retirer la carte");
+            LGSoundStuff.nah(getPlayer());
         }
+
+        redraw();
     }
 
     public interface Factory {

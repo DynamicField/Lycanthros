@@ -23,10 +23,4 @@ public final class OptionalUtils {
                 .orElseGet(Optional::empty);
     }
 
-    @SuppressWarnings("RedundantThrows") // It throws but sneakily.
-    public static <T, R, E extends Throwable>
-    Optional<R> mapThrows(Optional<? extends T> optional,
-                          ThrowingFunction<? super T, ? extends R, ? extends E> function) throws E {
-        return optional.map(function);
-    }
 }

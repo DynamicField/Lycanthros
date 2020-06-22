@@ -20,15 +20,14 @@ import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardManager;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
+import me.lucko.helper.Schedulers;
 import me.lucko.helper.metadata.MetadataMap;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.function.Function;
@@ -46,8 +45,6 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     // Game state
     private final MutableLGGame game;
     private LGGameState state = LGGameState.UNINITIALIZED;
-    // Metadata
-    private final ImmutableSet<Player> initialPlayers;
     // Components
     private final LGLobby lobby;
     private final LGCardsOrchestrator cardOrchestrator;
@@ -67,7 +64,6 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
                                 LGCardsOrchestrator.Factory cardOrchestratorFactory,
                                 LGStagesOrchestrator.Factory stagesOrchestratorFactory,
                                 LGKillsOrchestrator.Factory killsOrchestratorFactory) throws CannotCreateLobbyException {
-        this.initialPlayers = lobbyInfo.getPlayers();
         this.plugin = plugin;
         this.game = new MutableLGGame(lobbyInfo.getId());
         this.lobby = lobbyFactory.create(lobbyInfo, this);
@@ -103,12 +99,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
         changeStateTo(WAITING_FOR_PLAYERS, LGGameWaitingForPlayersEvent::new);
 
-        initialPlayers.forEach(lobby::addPlayer);
-
-        if (game().getPlayers().isEmpty()) {
-            delete(); // No online players have been added, so bye!
-            return;
-        }
+        bind(Schedulers.sync().runLater(this::deleteIfEmpty, 100));
 
         if (stages().current() instanceof LGStage.Null) {
             stages().next();
@@ -167,6 +158,12 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         Events.call(new LGTurnChangeEvent(this));
     }
 
+    private void deleteIfEmpty() {
+        if (game().isEmpty()) {
+            delete();
+        }
+    }
+
     private void updateLobbyState() {
         state.mustBe(UNINITIALIZED, WAITING_FOR_PLAYERS, READY_TO_START);
 
@@ -211,9 +208,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         }
 
         // Are they all gone?
-        if (game().isEmpty() && state.isEnabled()) {
-            delete();
-        }
+        deleteIfEmpty();
     }
 
     @Nonnull

@@ -2,13 +2,12 @@ package com.github.jeuxjeux20.loupsgarous.game.cards.composition;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.VillageoisCard;
-import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
-import com.github.jeuxjeux20.loupsgarous.util.ThrowingFunction;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 public class MutableComposition implements Composition {
     private final Set<LGCard> cards;
@@ -36,24 +35,28 @@ public class MutableComposition implements Composition {
         return playerCount;
     }
 
-    public final void setPlayerCount(int playerCount) throws IllegalPlayerCountException {
-        checkPlayerCount(playerCount);
+    public final void setPlayerCount(int playerCount) {
+        Preconditions.checkArgument(isValidPlayerCount(playerCount), "The player count " + playerCount + " is invalid.");
 
         this.playerCount = playerCount;
         adaptCompositionSize();
         onChange();
     }
 
-    protected void checkPlayerCount(int playerCount) throws IllegalPlayerCountException {
-        if (playerCount < 1) {
-            throw new IllegalPlayerCountException("Nombre minimum de joueurs atteint.");
-        }
+    public boolean isValidPlayerCount(int playerCount) {
+        return playerCount >= 1;
     }
 
     // Cards
 
-    public void addCard(LGCard card) throws IllegalPlayerCountException {
-        checkPlayerCount(playerCount + 1);
+    public boolean canAddCard() {
+        return isValidPlayerCount(playerCount + 1);
+    }
+
+    public boolean addCard(LGCard card) {
+        if (!canAddCard()) {
+            return false;
+        }
 
         Preconditions.checkArgument(!cards.contains(card),
                 "The composition already contains the card \"" + card + "\".");
@@ -61,10 +64,18 @@ public class MutableComposition implements Composition {
         cards.add(card);
         adaptPlayerSize();
         onChange();
+
+        return true;
     }
 
-    public boolean removeCard(LGCard card) throws IllegalPlayerCountException {
-        checkPlayerCount(playerCount - 1);
+    public boolean canRemoveCard() {
+        return isValidPlayerCount(playerCount - 1);
+    }
+
+    public boolean removeCard(LGCard card) {
+        if (!canRemoveCard()) {
+            return false;
+        }
 
         boolean removed = cards.remove(card);
 
@@ -74,10 +85,10 @@ public class MutableComposition implements Composition {
         return removed;
     }
 
-    public final boolean removeCardOfClass(Class<? extends LGCard> cardClass) throws IllegalPlayerCountException {
+    public final boolean removeCardOfClass(Class<? extends LGCard> cardClass) {
         Optional<LGCard> maybeCard = getCards().stream().filter(x -> x.getClass() == cardClass).findAny();
 
-        return OptionalUtils.mapThrows(maybeCard, (RemoveCardFunction) this::removeCard).orElse(false);
+        return maybeCard.map(this::removeCard).orElse(false);
     }
 
     protected void onChange() {
@@ -85,7 +96,7 @@ public class MutableComposition implements Composition {
 
     // Adapt stuff
 
-    private void adaptPlayerSize() throws IllegalPlayerCountException {
+    private void adaptPlayerSize() {
         if (cards.size() != playerCount) {
             setPlayerCount(cards.size());
         }
@@ -99,8 +110,5 @@ public class MutableComposition implements Composition {
                 cards.add(new VillageoisCard());
             }
         }
-    }
-
-    private interface RemoveCardFunction extends ThrowingFunction<LGCard, Boolean, IllegalPlayerCountException> {
     }
 }

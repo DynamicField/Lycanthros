@@ -1,8 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
-import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardsOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.SnapshotComposition;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
@@ -12,6 +13,7 @@ import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobbyInfo;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
+import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.metadata.MetadataMap;
 import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.World;
@@ -111,11 +113,11 @@ public interface LGGameOrchestrator extends TerminableConsumer {
         getAllMinecraftPlayers().forEach(player -> player.sendTitle("", subtitle, -1, -1, -1));
     }
 
-    default Stream<LGCard> getCurrentComposition() {
+    default Composition getCurrentComposition() {
         if (state() == LGGameState.WAITING_FOR_PLAYERS || state() == READY_TO_START) {
-            return lobby().getComposition().getCards().stream();
+            return new SnapshotComposition(lobby().getComposition());
         } else {
-            return game().getAlivePlayers().map(LGPlayer::getCard);
+            return () -> game().getAlivePlayers().map(LGPlayer::getCard).collect(ImmutableSet.toImmutableSet());
         }
     }
 

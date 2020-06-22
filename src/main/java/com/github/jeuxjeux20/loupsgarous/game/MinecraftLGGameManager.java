@@ -10,26 +10,22 @@ import com.github.jeuxjeux20.loupsgarous.game.lobby.CannotCloneWorldException;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.CannotCreateLobbyException;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobbyInfo;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.MaximumWorldCountReachedException;
-import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import me.lucko.helper.Events;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Hashtable;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @Singleton
 class MinecraftLGGameManager implements LGGameManager {
@@ -61,25 +57,13 @@ class MinecraftLGGameManager implements LGGameManager {
     }
 
     @Override
-    public synchronized SafeResult<LGGameOrchestrator> startGame(Set<Player> players, Composition composition, @Nullable String id) {
+    public synchronized SafeResult<LGGameOrchestrator> startGame(Composition composition, @Nullable String id) {
         try {
-            Set<Player> presentPlayers = findPresentPlayers(players);
-
-            int presentPlayersCount = presentPlayers.size();
-            if (presentPlayersCount > 0) {
-                return SafeResult.error(presentPlayersCount > 1 ?
-                        "Les joueurs " + presentPlayers.stream().map(Player::getName).collect(Collectors.joining(", ")) +
-                        " sont déjà en partie." :
-                        "Le joueur " + presentPlayers.iterator().next().getName() + " est déjà en partie.");
-            }
-
             if (id == null) {
                 id = UUID.randomUUID().toString().substring(0, 8);
             }
 
-            LGGameOrchestrator orchestrator = orchestratorFactory.create(
-                    new LGGameLobbyInfo(players, composition, null, id)
-            );
+            LGGameOrchestrator orchestrator = orchestratorFactory.create(new LGGameLobbyInfo(composition, id));
 
             ongoingGames.add(orchestrator);
             gamesById.put(id, orchestrator);
@@ -101,14 +85,6 @@ class MinecraftLGGameManager implements LGGameManager {
 
     private void logWorldError(Level level, Throwable throwable) {
         logger.log(level, "Couldn't create game: " + throwable.getMessage());
-    }
-
-    private Set<Player> findPresentPlayers(Set<Player> players) {
-        return ongoingGames.stream().flatMap(x -> x.game().getPlayers().stream())
-                .map(LGPlayer::getMinecraftPlayer)
-                .flatMap(OptionalUtils::stream)
-                .filter(players::contains)
-                .collect(Collectors.toSet());
     }
 
     @Override
