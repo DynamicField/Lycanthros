@@ -32,6 +32,7 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.*;
@@ -41,6 +42,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
     // Base dependencies
     private final LoupsGarous plugin;
+    private final LGGameOrchestratorLogger logger;
     // Game state
     private final MutableLGGame game;
     private LGGameState state = LGGameState.UNINITIALIZED;
@@ -69,6 +71,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         this.plugin = plugin;
         this.game = new MutableLGGame(lobbyInfo.getId());
         this.lobby = lobbyFactory.create(lobbyInfo, this);
+        this.logger = new LGGameOrchestratorLogger(this);
         this.cardOrchestrator = cardOrchestratorFactory.create(this);
         this.stagesOrchestrator = stagesOrchestratorFactory.create(this);
         this.chatManager = chatManagerFactory.create(this);
@@ -259,7 +262,12 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
     @Override
     public MetadataMap metadata() {
-        return LGMetadata.games().provide(this);
+        return LGMetadata.provideForGame(this);
+    }
+
+    @Override
+    public Logger logger() {
+        return logger;
     }
 
     /**
@@ -274,7 +282,10 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
                                Function<? super LGGameOrchestrator, ? extends LGEvent> eventFunction) {
         if (this.state == state) return;
 
+        LGGameState oldState = this.state;
         this.state = state;
+
+        logger.fine("State changed: " + oldState + " -> " + state);
 
         Events.call(eventFunction.apply(this));
     }

@@ -18,6 +18,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.READY_TO_START;
@@ -94,6 +95,8 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     LGLobby lobby();
 
     MetadataMap metadata();
+
+    Logger logger();
 
 
     default boolean isMyEvent(LGEvent event) {

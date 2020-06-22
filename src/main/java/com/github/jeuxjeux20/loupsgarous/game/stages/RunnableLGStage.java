@@ -85,6 +85,8 @@ public abstract class RunnableLGStage implements LGStage, Terminable, Terminable
             return;
         }
 
+        orchestrator.logger().finer("Closing stage " + getClass().getSimpleName() + "...");
+
         if (currentFuture != null) {
             currentFuture.cancel(true);
         }
@@ -110,7 +112,7 @@ public abstract class RunnableLGStage implements LGStage, Terminable, Terminable
     }
 
     @Override
-    public LGGameOrchestrator getOrchestrator() {
+    public final LGGameOrchestrator getOrchestrator() {
         return orchestrator;
     }
 

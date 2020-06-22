@@ -2,7 +2,6 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartingEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.overrides.StageOverride;
 import com.github.jeuxjeux20.loupsgarous.util.FutureExceptionUtils;
 import com.google.inject.Inject;
@@ -22,9 +21,8 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     private final LGGameOrchestrator gameOrchestrator;
 
     private final LinkedList<RunnableLGStage.Factory<?>> stageFactories;
-    private @Nullable ListIterator<RunnableLGStage.Factory<?>> stageIterator = null;
+    private ListIterator<RunnableLGStage.Factory<?>> stageIterator;
     private @Nullable RunnableLGStage currentStage = null;
-    private @Nullable LGStageStartingEvent currentStageEvent = null;
     private final Set<StageOverride> stageOverrides;
     private final Logger logger;
 
@@ -35,20 +33,17 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
                                   LoupsGarous plugin) {
         this.gameOrchestrator = gameOrchestrator;
         this.stageFactories = new LinkedList<>(stageFactories);
+        this.stageIterator = this.stageFactories.listIterator();
         this.stageOverrides = stageOverrides;
-        this.logger = plugin.getLogger();
+        this.logger = gameOrchestrator.logger();
 
         gameOrchestrator.bind(new CurrentStageTerminable());
     }
 
     @Override
     public void insert(RunnableLGStage.Factory<?> stage) {
-        if (stageIterator == null) {
-            stageFactories.addFirst(stage);
-        } else {
-            stageIterator.add(stage);
-            stageIterator.previous();
-        }
+        stageIterator.add(stage);
+        stageIterator.previous();
     }
 
     @Override
@@ -58,7 +53,7 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
         if (stageFactories.size() == 0)
             throw new IllegalStateException("No stages have been found.");
 
-        if (stageIterator == null || !stageIterator.hasNext())
+        if (!stageIterator.hasNext())
             stageIterator = stageFactories.listIterator(); // Reset the iterator
 
         RunnableLGStage.Factory<?> factory = stageIterator.next();
