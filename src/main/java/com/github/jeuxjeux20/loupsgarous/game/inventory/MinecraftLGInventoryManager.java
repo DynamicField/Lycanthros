@@ -4,7 +4,6 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
@@ -37,17 +36,15 @@ import java.util.*;
 public class MinecraftLGInventoryManager implements LGInventoryManager {
     private final Set<InventoryItem> inventoryItems;
     private final LGGameManager gameManager;
-    private final LoupsGarous plugin;
     private final MetadataKey<Map<Integer, InventoryItem>> itemsKey
             = MetadataKey.create("inv_manager", new TypeToken<Map<Integer, InventoryItem>>() {});
 
     private boolean hasEvents;
 
     @Inject
-    MinecraftLGInventoryManager(Set<InventoryItem> inventoryItems, LGGameManager gameManager, LoupsGarous plugin) {
+    MinecraftLGInventoryManager(Set<InventoryItem> inventoryItems, LGGameManager gameManager) {
         this.inventoryItems = inventoryItems;
         this.gameManager = gameManager;
-        this.plugin = plugin;
     }
 
     @Override
@@ -59,28 +56,22 @@ public class MinecraftLGInventoryManager implements LGInventoryManager {
 
         Events.subscribe(PlayerInteractEvent.class)
                 .filter(e -> e.getAction() != Action.PHYSICAL)
-                .handler(e -> handleItemClick(e.getPlayer(), e.getPlayer().getInventory().getHeldItemSlot()))
-                .bindWith(plugin);
+                .handler(e -> handleItemClick(e.getPlayer(), e.getPlayer().getInventory().getHeldItemSlot()));
 
         Events.subscribe(InventoryClickEvent.class)
-                .handler(this::handleInventoryClick)
-                .bindWith(plugin);
+                .handler(this::handleInventoryClick);
 
         Events.subscribe(InventoryDragEvent.class)
-                .handler(e -> cancelEvent(e.getWhoClicked().getUniqueId(), e))
-                .bindWith(plugin);
+                .handler(e -> cancelEvent(e.getWhoClicked().getUniqueId(), e));
 
         Events.subscribe(PlayerDropItemEvent.class)
-                .handler(e -> cancelEvent(e.getPlayer().getUniqueId(), e))
-                .bindWith(plugin);
+                .handler(e -> cancelEvent(e.getPlayer().getUniqueId(), e));
 
         Events.subscribe(LGPlayerQuitEvent.class)
-                .handler(this::clearPlayerInventory)
-                .bindWith(plugin);
+                .handler(this::clearPlayerInventory);
 
         Protocol.subscribe(PacketType.Play.Server.ENTITY_EQUIPMENT)
-                .handler(this::hideHeldItem)
-                .bindWith(plugin);
+                .handler(this::hideHeldItem);
     }
 
     @SuppressWarnings("unchecked")

@@ -6,14 +6,13 @@ import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyOwnerChangeEvent;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 public class LobbyOwnerScoreboardComponent implements ScoreboardComponent {
     @Override
     public ImmutableList<Line> render(LGPlayer player, LGGameOrchestrator orchestrator) {
         if (orchestrator.lobby().isLocked()) return ImmutableList.of();
 
-        Player owner = orchestrator.lobby().getOwner();
+        LGPlayer owner = orchestrator.lobby().getOwner();
 
         return ImmutableList.of(new Line("Partie de " + ChatColor.GREEN + owner.getName()));
     }

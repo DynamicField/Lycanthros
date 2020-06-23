@@ -1,17 +1,17 @@
 package com.github.jeuxjeux20.loupsgarous.game.event.lobby;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
-import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 public class LGLobbyOwnerChangeEvent extends LGEvent {
     private static final HandlerList handlerList = new HandlerList();
-    private final Player oldOwner;
-    private final Player newOwner;
+    private final LGPlayer oldOwner;
+    private final LGPlayer newOwner;
 
-    public LGLobbyOwnerChangeEvent(LGGameOrchestrator orchestrator, Player oldOwner, Player newOwner) {
+    public LGLobbyOwnerChangeEvent(LGGameOrchestrator orchestrator, LGPlayer oldOwner, LGPlayer newOwner) {
         super(orchestrator);
         this.oldOwner = oldOwner;
         this.newOwner = newOwner;
@@ -26,11 +26,11 @@ public class LGLobbyOwnerChangeEvent extends LGEvent {
         return handlerList;
     }
 
-    public Player getOldOwner() {
+    public LGPlayer getOldOwner() {
         return oldOwner;
     }
 
-    public Player getNewOwner() {
+    public LGPlayer getNewOwner() {
         return newOwner;
     }
 }

@@ -38,18 +38,13 @@ public abstract class RunnableLGStage implements LGStage, Terminable, Terminable
     public final CompletableFuture<Void> run() {
         Preconditions.checkState(!isClosed, "This stage has already been ran, or it has closed.");
 
-        currentStartingEvent = Events.callAndReturn(new LGStageStartingEvent(this));
-        isClosed |= currentStartingEvent.isCancelled(); // OR assignment so we don't un-cancel.
+        callStartingEvent();
 
         // The event has been cancelled OR the stage has been cancelled
         // in either case: ensure we close the stage and return a cancelled future.
         if (isClosed) {
-            closeAndReportException();
             return CompletableFutures.cancelledFuture();
         }
-
-        // We don't need the event anymore.
-        currentStartingEvent = null;
 
         // Now, start the stage!
 
@@ -61,14 +56,20 @@ public abstract class RunnableLGStage implements LGStage, Terminable, Terminable
         CompletableFuture<Void> future = initialFuture
                 .thenRun(() -> Events.call(new LGStageEndingEvent(this)))
                 .thenRun(this::finish)
-                .whenComplete((r, u) -> closeAndReportException())
-                .thenRun(() -> Events.call(new LGStageEndedEvent(this)));
+                .thenRun(() -> Events.call(new LGStageEndedEvent(this)))
+                .whenComplete((r, u) -> closeAndReportException());
 
-        // Cancel the real future if something manually completes the given future
-        // (cancelling, for example)
+        // Cancel the initial future when this gets cancelled.
         future.whenComplete((r, u) -> initialFuture.cancel(true));
 
         return future;
+    }
+
+    private void callStartingEvent() {
+        currentStartingEvent = Events.callAndReturn(new LGStageStartingEvent(this));
+        if (currentStartingEvent.isCancelled()) {
+            closeAndReportException();
+        }
     }
 
     protected abstract CompletableFuture<Void> execute();
@@ -84,8 +85,11 @@ public abstract class RunnableLGStage implements LGStage, Terminable, Terminable
         if (isClosed) {
             return;
         }
+        isClosed = true;
 
-        orchestrator.logger().finer("Closing stage " + getClass().getSimpleName() + "...");
+        orchestrator.logger().finer("Closing stage " +
+                                    getClass().getSimpleName() + "@" + Integer.toHexString(hashCode()) +
+                                    "...");
 
         if (currentFuture != null) {
             currentFuture.cancel(true);
@@ -96,8 +100,6 @@ public abstract class RunnableLGStage implements LGStage, Terminable, Terminable
         }
 
         terminableRegistry.close();
-
-        isClosed = true;
     }
 
     @Override

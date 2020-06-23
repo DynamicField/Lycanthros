@@ -1,8 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.util;
 
-import com.github.jeuxjeux20.loupsgarous.LGChatStuff;
 import com.google.common.base.Preconditions;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -72,12 +70,6 @@ public final class Check {
     public Check and(Supplier<Check> other) {
         if (!this.success) return this;
         else return other.get();
-    }
-
-    public boolean sendMessageOnError(Player player) {
-        if (success) return false;
-        player.sendMessage(LGChatStuff.error(errorMessage));
-        return true;
     }
 
     public void ifError(Consumer<String> consumer) {

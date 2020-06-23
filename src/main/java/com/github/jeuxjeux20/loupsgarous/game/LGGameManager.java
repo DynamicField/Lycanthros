@@ -1,8 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
-import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.PlayerJoinException;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -11,13 +10,27 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface LGGameManager {
-    SafeResult<LGGameOrchestrator> startGame(Composition composition, @Nullable String id);
+    LGGameOrchestrator start(Player owner, Composition composition, @Nullable String id) throws GameCreationException;
 
-    default SafeResult<LGGameOrchestrator> startGame(Composition composition) {
-        return startGame(composition, null);
+    default LGGameOrchestrator start(Player owner, Composition composition) throws GameCreationException {
+        return start(owner, composition, null);
     }
 
-    ImmutableList<LGGameOrchestrator> getOngoingGames();
+    default void joinOrStart(Player player, Composition composition, String id)
+            throws GameCreationException, PlayerJoinException {
+        Optional<LGGameOrchestrator> existingGame = get(id);
+
+        if (existingGame.isPresent()) {
+            existingGame.get().lobby().addPlayer(player);
+        } else {
+            start(player, composition, id);
+        }
+    }
+
+    Optional<LGGameOrchestrator> get(String id);
+
+    ImmutableList<LGGameOrchestrator> getAll();
+
 
     Optional<LGPlayerAndGame> getPlayerInGame(UUID playerUUID);
 
@@ -25,12 +38,5 @@ public interface LGGameManager {
         return getPlayerInGame(player.getUniqueId());
     }
 
-    Optional<LGGameOrchestrator> getGameById(String id);
 
-    default Optional<LGGameOrchestrator> getOrStart(Composition composition, String id) {
-        return OptionalUtils.or(
-                () -> getGameById(id),
-                () -> startGame(composition, id).getValueOptional()
-        );
-    }
 }

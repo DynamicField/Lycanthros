@@ -12,6 +12,6 @@ public interface LobbyTeleporter extends Terminable {
     void teleportPlayerOut(Player player);
 
     interface Factory {
-        LobbyTeleporter create() throws CannotCreateLobbyException;
+        LobbyTeleporter create() throws LobbyCreationException;
     }
 }

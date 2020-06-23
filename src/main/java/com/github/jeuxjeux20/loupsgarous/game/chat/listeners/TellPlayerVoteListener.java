@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.chat.listeners;
 
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
@@ -11,11 +12,12 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.vote;
 
 public class TellPlayerVoteListener implements Listener {
     @EventHandler
-    public void onVote(LGPickEvent event) {
-        if (!(event.getPickableProvider() instanceof Votable)) {
-            return;
-        }
-        Votable votable = ((Votable) event.getPickableProvider());
+    public void onPick(LGPickEvent<?, ?> event) {
+        event.cast(Votable.class).ifPresent(this::onVote);
+    }
+
+    private void onVote(LGPickEvent<LGPlayer, Votable> event) {
+        Votable votable = event.getPickableProvider();
 
         LGChatChannel channel = votable.getInfoMessagesChannel();
         String message = vote(player(event.getPicker().getName())) +

@@ -5,7 +5,6 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.chat.AnonymizedChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -71,8 +70,12 @@ public final class MutableLGGame implements LGGame {
         return getPlayer(player.getPlayerUUID());
     }
 
-    public @Nullable MutableLGPlayer addPlayerIfAbsent(MutableLGPlayer player) {
-        return playersByUUID.putIfAbsent(player.getPlayerUUID(), player);
+    public void addPlayer(MutableLGPlayer player) {
+        if (playersByUUID.containsValue(player)) {
+            throw new IllegalArgumentException("This player is already present.");
+        }
+
+        playersByUUID.put(player.getPlayerUUID(), player);
     }
 
     public @Nullable MutableLGPlayer removePlayer(MutableLGPlayer player) {

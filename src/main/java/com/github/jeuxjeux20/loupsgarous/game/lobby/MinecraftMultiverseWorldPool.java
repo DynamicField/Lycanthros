@@ -1,7 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
 import com.github.jeuxjeux20.loupsgarous.Plugin;
-import com.github.jeuxjeux20.loupsgarous.config.LGConfiguration;
 import com.github.jeuxjeux20.loupsgarous.config.annotations.DefaultWorld;
 import com.github.jeuxjeux20.loupsgarous.config.annotations.Pool;
 import com.google.inject.Inject;
@@ -14,7 +13,6 @@ import com.onarandombox.MultiverseCore.event.MVWorldDeleteEvent;
 import me.lucko.helper.Events;
 import org.bukkit.entity.Player;
 
-import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -47,7 +45,7 @@ class MinecraftMultiverseWorldPool implements MultiverseWorldPool {
 
         try {
             initializeWorlds();
-        } catch (CannotCreateWorldException e) {
+        } catch (WorldCreationException e) {
             logger.severe("Couldn't create the world while initializing the world pool: " + e.getMessage());
             logger.severe("The following error may prevent the plugin from being used.");
             logger.severe("Please check the default-world entry in config.yml and restart the server.");
@@ -58,7 +56,7 @@ class MinecraftMultiverseWorldPool implements MultiverseWorldPool {
     }
 
     @Override
-    public PooledMultiverseWorld get() throws CannotCreateWorldException {
+    public PooledMultiverseWorld get() throws WorldCreationException {
         MultiverseWorld availableWorld = availableWorlds.poll();
 
         if (availableWorld == null) {
@@ -84,7 +82,7 @@ class MinecraftMultiverseWorldPool implements MultiverseWorldPool {
         return allWorlds.stream().anyMatch(x -> x.getName().equals(name));
     }
 
-    private synchronized MultiverseWorld createWorld() throws CannotCloneWorldException, MaximumWorldCountReachedException {
+    private synchronized MultiverseWorld createWorld() throws WorldCloneFailedException, MaximumWorldCountReachedException {
         ensureWorldCapacity();
 
         MVWorldManager worldManager = multiverse.getMVWorldManager();
@@ -92,7 +90,7 @@ class MinecraftMultiverseWorldPool implements MultiverseWorldPool {
         String newWorld = WORLD_PREFIX + UUID.randomUUID();
 
         if (!worldManager.cloneWorld(sourceWorld, newWorld)) {
-            throw new CannotCloneWorldException("Could not clone sourceWorld \"" + sourceWorld + "\".", sourceWorld);
+            throw new WorldCloneFailedException("Could not clone sourceWorld \"" + sourceWorld + "\".", sourceWorld);
         }
 
         MultiverseWorld world = worldManager.getMVWorld(newWorld);
@@ -107,7 +105,7 @@ class MinecraftMultiverseWorldPool implements MultiverseWorldPool {
         }
     }
 
-    private void initializeWorlds() throws CannotCloneWorldException, MaximumWorldCountReachedException {
+    private void initializeWorlds() throws WorldCloneFailedException, MaximumWorldCountReachedException {
         MVWorldManager worldManager = multiverse.getMVWorldManager();
 
         for (MultiverseWorld world : worldManager.getMVWorlds()) {

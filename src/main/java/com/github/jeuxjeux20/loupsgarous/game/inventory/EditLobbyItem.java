@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 public class EditLobbyItem implements InventoryItem {
     @Override
     public boolean isShown(LGPlayer player, LGGameOrchestrator orchestrator) {
-        return orchestrator.lobby().getOwner().getUniqueId() == player.getPlayerUUID() &&
+        return orchestrator.lobby().getOwner() == player &&
                !orchestrator.lobby().isLocked();
     }
 

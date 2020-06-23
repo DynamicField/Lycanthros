@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.event.CountdownTickEvent;
+import com.github.jeuxjeux20.loupsgarous.util.FutureExceptionUtils;
 import com.google.common.base.Preconditions;
 import me.lucko.helper.Events;
 import me.lucko.helper.Helper;
@@ -14,7 +15,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -70,7 +70,7 @@ public class Countdown implements Terminable, TerminableConsumer {
         startTask();
 
         future.whenComplete((r, e) -> {
-            if (e instanceof CancellationException) {
+            if (FutureExceptionUtils.isCancellation(e)) {
                 finish(true);
             } else if (state == State.RUNNING) {
                 // The future has somehow completed while it was running?

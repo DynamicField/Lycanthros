@@ -30,7 +30,7 @@ public class LGFinishCommand implements HelperCommandRegisterer {
                 .handler(c -> {
                     Optional<LGGameOrchestrator> game = Optional.empty();
                     String gameId = c.arg(0).value().orElse(null);
-                    if (gameId != null) game = gameManager.getGameById(gameId);
+                    if (gameId != null) game = gameManager.get(gameId);
 
                     boolean hasTried = gameId != null;
                     boolean hasProvidedGame = game.isPresent();

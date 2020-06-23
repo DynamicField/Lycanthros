@@ -2,10 +2,6 @@ package com.github.jeuxjeux20.loupsgarous.config;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.google.inject.Inject;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Optional;
-import java.util.function.Function;
 
 public class PluginLGConfiguration implements LGConfiguration {
     public static final String CONFIG_PATH = "configuration";

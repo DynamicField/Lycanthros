@@ -1,19 +1,19 @@
 package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
-public class CannotCloneWorldException extends CannotCreateWorldException {
+public class WorldCloneFailedException extends WorldCreationException {
     private final String worldName;
 
-    public CannotCloneWorldException(String message, String worldName) {
+    public WorldCloneFailedException(String message, String worldName) {
         super(message);
         this.worldName = worldName;
     }
 
-    public CannotCloneWorldException(String message, Throwable cause, String worldName) {
+    public WorldCloneFailedException(String message, Throwable cause, String worldName) {
         super(message, cause);
         this.worldName = worldName;
     }
 
-    public CannotCloneWorldException(Throwable cause, String worldName) {
+    public WorldCloneFailedException(Throwable cause, String worldName) {
         super(cause);
         this.worldName = worldName;
     }

@@ -1,6 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.game.scoreboard;
 
-import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.HasTriggers;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
@@ -31,17 +30,14 @@ class MinecraftLGScoreboardManager implements LGScoreboardManager {
 
     private final ScoreboardComponentRenderer componentRenderer;
     private final Set<ScoreboardComponent> components;
-    private final LoupsGarous plugin;
 
     private boolean hasEvents;
 
     @Inject
     MinecraftLGScoreboardManager(ScoreboardComponentRenderer componentRenderer,
-                                 Set<ScoreboardComponent> components,
-                                 LoupsGarous plugin) {
+                                 Set<ScoreboardComponent> components) {
         this.componentRenderer = componentRenderer;
         this.components = components;
-        this.plugin = plugin;
     }
 
     public void registerEvents() {
@@ -54,16 +50,13 @@ class MinecraftLGScoreboardManager implements LGScoreboardManager {
                     for (LGPlayer player : e.getGame().getPlayers()) {
                         updatePlayer(player, e.getOrchestrator());
                     }
-                })
-                .bindWith(plugin);
+                });
 
         Events.subscribe(LGPlayerJoinEvent.class)
-                .handler(e -> updatePlayer(e.getLGPlayer(), e.getOrchestrator()))
-                .bindWith(plugin);
+                .handler(e -> updatePlayer(e.getLGPlayer(), e.getOrchestrator()));
 
         Events.subscribe(LGPlayerQuitEvent.class)
-                .handler(e -> removePlayer(e.getLGPlayer()))
-                .bindWith(plugin);
+                .handler(e -> removePlayer(e.getLGPlayer()));
 
         hasEvents = true;
     }

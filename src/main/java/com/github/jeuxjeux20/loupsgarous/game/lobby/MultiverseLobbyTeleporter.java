@@ -20,7 +20,7 @@ class MultiverseLobbyTeleporter implements LobbyTeleporter {
     @Inject
     MultiverseLobbyTeleporter(MultiverseCore multiverse, MultiverseWorldProvider multiverseWorldProvider,
                               SpawnTeleporter spawnTeleporter)
-            throws CannotCreateWorldException {
+            throws WorldCreationException {
         this.multiverse = multiverse;
 
         this.terminableWorld = multiverseWorldProvider.get();

@@ -3,6 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.commands;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.PlayerJoinException;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
@@ -23,15 +24,15 @@ public class LGJoinCommand implements HelperCommandRegisterer {
     @Override
     public void register() {
         Commands.create()
-                .assertPermission("loupsgarous.game.finish",
-                        ChatColor.RED + "Vous n'avez pas la permission de terminer les parties :(")
+                .assertPermission("loupsgarous.game.join",
+                        ChatColor.RED + "Vous n'avez pas la permission de rejoindre des parties :(")
                 .assertUsage("<game>", "{usage}")
                 .assertPlayer()
                 .handler(c -> {
                     String name = c.arg(0).value().orElseThrow(AssertionError::new);
 
                     Optional<LGGameOrchestrator> maybeGame = OptionalUtils.or(
-                            () -> gameManager.getGameById(name),
+                            () -> gameManager.get(name),
                             () -> {
                                 Player player = Bukkit.getPlayer(name);
                                 if (player == null) return Optional.empty();
@@ -44,8 +45,10 @@ public class LGJoinCommand implements HelperCommandRegisterer {
                         return;
                     }
 
-                    if (!maybeGame.get().lobby().addPlayer(c.sender())) {
-                        c.reply("&cImpossible de rejoindre la partie.");
+                    try {
+                        maybeGame.get().lobby().addPlayer(c.sender());
+                    } catch (PlayerJoinException e) {
+                        c.reply("&cImpossible de rejoindre la partie: " + e.getLocalizedMessage());
                     }
                 })
                 .register("lgjoin", "lg join");

@@ -23,12 +23,12 @@ public class ShortenVoteCountdownListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onLGPick(LGPickEvent event) {
+    public void onLGPick(LGPickEvent<?, ?> event) {
         updateStageCountdown(event.getOrchestrator().stages().current());
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onLGPickRemoved(LGPickRemovedEvent event) {
+    public void onLGPickRemoved(LGPickRemovedEvent<?, ?> event) {
         updateStageCountdown(event.getOrchestrator().stages().current());
     }
 

@@ -1,6 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.MutableLGGameOrchestrator;
@@ -19,7 +18,7 @@ import java.util.UUID;
 public interface LGLobby extends LGGameOrchestratorComponent {
     World getWorld();
 
-    boolean addPlayer(Player player);
+    LGPlayer addPlayer(Player player) throws PlayerJoinException;
 
     boolean removePlayer(UUID playerUUID);
 
@@ -59,12 +58,12 @@ public interface LGLobby extends LGGameOrchestratorComponent {
         return "(" + getSlotsTaken() + "/" + getTotalSlotCount() + ")";
     }
 
-    Player getOwner();
+    LGPlayer getOwner();
 
-    void setOwner(Player owner);
+    void setOwner(LGPlayer owner);
 
     interface Factory {
-        LGLobby create(LGGameLobbyInfo lobbyInfo, MutableLGGameOrchestrator orchestrator)
-                throws CannotCreateLobbyException;
+        LGLobby create(LGGameBootstrapData lobbyInfo, MutableLGGameOrchestrator orchestrator)
+                throws LobbyCreationException;
     }
 }

@@ -8,8 +8,8 @@ import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.CannotCreateLobbyException;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobbyInfo;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.LobbyCreationException;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameBootstrapData;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
@@ -122,6 +122,6 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     }
 
     interface Factory {
-        LGGameOrchestrator create(LGGameLobbyInfo lobbyInfo) throws CannotCreateLobbyException;
+        LGGameOrchestrator create(LGGameBootstrapData lobbyInfo) throws LobbyCreationException;
     }
 }

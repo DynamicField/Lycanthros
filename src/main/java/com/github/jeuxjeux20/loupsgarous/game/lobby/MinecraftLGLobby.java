@@ -6,9 +6,7 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableCompositi
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.SnapshotComposition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.gui.CompositionGui;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator;
-import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
-import com.github.jeuxjeux20.loupsgarous.game.event.LGGameDeletedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.event.LGGameStartEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.*;
 import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyCompositionChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyOwnerChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerJoinEvent;
@@ -23,7 +21,6 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
@@ -33,19 +30,19 @@ class MinecraftLGLobby implements LGLobby {
     private final MutableLGGameOrchestrator orchestrator;
     private final MutableComposition composition;
     private final LobbyTeleporter lobbyTeleporter;
-    private @MonotonicNonNull Player owner;
+    private LGPlayer owner;
     private final LGGameManager gameManager;
     private final CompositionValidator compositionValidator;
     private @Nullable CompositionValidator.Problem.Type worseCompositionProblemType;
     private final CompositionGui.Factory compositionGuiFactory;
 
     @Inject
-    MinecraftLGLobby(@Assisted LGGameLobbyInfo lobbyInfo,
+    MinecraftLGLobby(@Assisted LGGameBootstrapData lobbyInfo,
                      @Assisted MutableLGGameOrchestrator orchestrator,
                      LobbyTeleporter.Factory lobbyTeleporterFactory,
                      LGGameManager gameManager,
                      CompositionValidator compositionValidator,
-                     CompositionGui.Factory compositionGuiFactory) throws CannotCreateLobbyException {
+                     CompositionGui.Factory compositionGuiFactory) throws LobbyCreationException {
         this.gameManager = gameManager;
         this.orchestrator = orchestrator;
 
@@ -56,12 +53,14 @@ class MinecraftLGLobby implements LGLobby {
 
         lobbyTeleporter.bindWith(orchestrator);
 
+        try {
+            this.owner = addPlayer(lobbyInfo.getOwner());
+        } catch (PlayerJoinException e) {
+            throw new InvalidOwnerException(e);
+        }
+
         registerPlayerQuitEvents();
         updateCompositionProblemType();
-    }
-
-    private boolean canAddPlayer() {
-        return getSlotsTaken() < getTotalSlotCount() && !isLocked();
     }
 
     @Override
@@ -69,35 +68,54 @@ class MinecraftLGLobby implements LGLobby {
         return lobbyTeleporter.getWorld();
     }
 
-    private boolean canPlayerJoin(Player player) {
+    private void checkPlayer(Player player) throws PlayerJoinException {
         // The LGGameManager approach works well for now
         // but it will cause issues with BungeeCord support.
 
-        return player.isOnline() &&
-               player.hasPermission("loupsgarous.game.join") &&
-               canAddPlayer() &&
-               !gameManager.getPlayerInGame(player).isPresent();
+        if (!player.isOnline()) {
+            throw new PlayerOfflineException(player);
+        }
+
+        String permission = "loupsgarous.game.join";
+        if (!player.hasPermission(permission)) {
+            throw new PermissionMissingException(permission, player);
+        }
+
+        if (isLocked()) {
+            throw InaccessibleLobbyException.lobbyLocked();
+        } else if (getSlotsTaken() == getTotalSlotCount()) {
+            throw InaccessibleLobbyException.lobbyFull();
+        }
+
+        if (gameManager.getPlayerInGame(player).isPresent()) {
+            throw new PlayerAlreadyPresentException(player);
+        }
     }
 
     @Override
-    public boolean addPlayer(Player player) {
-        if (!canPlayerJoin(player)) {
-            return false;
-        }
+    public LGPlayer addPlayer(Player player) throws PlayerJoinException {
+        checkPlayer(player);
 
         MutableLGPlayer lgPlayer = new MutableLGPlayer(player);
+        getGame().addPlayer(lgPlayer);
 
-        boolean added = getGame().addPlayerIfAbsent(lgPlayer) == null;
-        if (added) {
-            if (owner == null) {
-                owner = player;
-            }
-
-            Events.call(new LGPlayerJoinEvent(orchestrator, player, lgPlayer));
-
-            lobbyTeleporter.teleportPlayerIn(player);
+        if (orchestrator.state() != LGGameState.UNINITIALIZED) {
+            onPlayerAdd(player, lgPlayer);
+        } else {
+            // Wait until the game initializes so we can do the usual stuff.
+            // -> We don't TP the player until the game is initialized.
+            Events.subscribe(LGGameInitializeEvent.class)
+                    .filter(orchestrator::isMyEvent)
+                    .expireAfter(1)
+                    .handler(e -> onPlayerAdd(player, lgPlayer));
         }
-        return added;
+
+        return lgPlayer;
+    }
+
+    private void onPlayerAdd(Player player, MutableLGPlayer lgPlayer) {
+        Events.call(new LGPlayerJoinEvent(orchestrator, player, lgPlayer));
+        lobbyTeleporter.teleportPlayerIn(player);
     }
 
     @Override
@@ -111,13 +129,13 @@ class MinecraftLGLobby implements LGLobby {
             getGame().removePlayer(playerUUID);
         }
 
-        Events.call(new LGPlayerQuitEvent(orchestrator, playerUUID, player));
+        if (player == owner) {
+            putRandomOwner();
+        }
 
         player.getMinecraftPlayerNoContext().ifPresent(lobbyTeleporter::teleportPlayerOut);
 
-        if (playerUUID.equals(owner.getUniqueId()) && orchestrator.state().isEnabled()) {
-            putRandomOwner();
-        }
+        Events.call(new LGPlayerQuitEvent(orchestrator, playerUUID, player));
 
         return true;
     }
@@ -125,16 +143,14 @@ class MinecraftLGLobby implements LGLobby {
     private void putRandomOwner() {
         if (getGame().isEmpty()) return;
 
-        setOwner(getGame().getPresentPlayers().findAny()
-                .flatMap(LGPlayer::getMinecraftPlayer)
-                .orElseThrow(() -> new AssertionError("Wait what, how is the owner I got offline?")));
+        setOwner(getGame().getPresentPlayers().findAny().orElseThrow(AssertionError::new));
     }
 
     @Override
     public void openOwnerGui() {
         if (isLocked()) return;
 
-        CompositionGui gui = compositionGuiFactory.create(owner, composition);
+        CompositionGui gui = compositionGuiFactory.create(owner.getMinecraftPlayer().orElseThrow(AssertionError::new), composition);
         gui.open();
 
         Events.merge(LGEvent.class,
@@ -169,24 +185,24 @@ class MinecraftLGLobby implements LGLobby {
 
     @Override
     public boolean isLocked() {
-        return orchestrator.state() != LGGameState.WAITING_FOR_PLAYERS &&
+        return orchestrator.state() != LGGameState.UNINITIALIZED &&
+               orchestrator.state() != LGGameState.WAITING_FOR_PLAYERS &&
                orchestrator.state() != LGGameState.READY_TO_START;
     }
 
     @Override
-    public Player getOwner() {
-        Preconditions.checkState(owner != null, "There is no owner.");
+    public LGPlayer getOwner() {
         return owner;
     }
 
     @Override
-    public void setOwner(Player owner) {
-        Preconditions.checkArgument(getGame().getPlayer(owner.getUniqueId()).isPresent(),
+    public void setOwner(LGPlayer owner) {
+        Preconditions.checkArgument(getGame().getPlayer(owner.getPlayerUUID()).isPresent(),
                 "The given owner isn't present in the lobby.");
 
         if (owner == this.owner) return;
 
-        Player oldOwner = this.owner;
+        LGPlayer oldOwner = this.owner;
         this.owner = owner;
 
         Events.call(new LGLobbyOwnerChangeEvent(orchestrator, oldOwner, owner));
@@ -200,7 +216,7 @@ class MinecraftLGLobby implements LGLobby {
 
         Events.subscribe(PlayerChangedWorldEvent.class)
                 .expireIf(e -> orchestrator.state().isDisabled())
-                .filter(e -> e.getFrom() == orchestrator.world())
+                .filter(e -> e.getFrom() == getWorld())
                 .handler(e -> removePlayer(e.getPlayer()))
                 .bindWith(orchestrator);
     }

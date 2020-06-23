@@ -1,8 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.game.signs.listeners;
 
+import com.github.jeuxjeux20.loupsgarous.game.GameCreationException;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.util.DefaultCompositions;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.PlayerJoinException;
 import com.github.jeuxjeux20.loupsgarous.game.signs.GameJoinSignManager;
 import com.google.inject.Inject;
 import me.lucko.helper.Schedulers;
@@ -38,23 +39,22 @@ public class JoinOnSignClickListener implements Listener {
             !(event.getClickedBlock().getState() instanceof Sign)) return;
 
         Player player = event.getPlayer();
-
         Sign sign = (Sign) event.getClickedBlock().getState();
+        Optional<String> maybeName = signManager.getSignGameName(sign);
 
-        Optional<String> name = signManager.getSignGameName(sign);
-
-        if (!name.isPresent() || !cooldownMap.test(player.getUniqueId())) {
+        if (!maybeName.isPresent() || !cooldownMap.test(player.getUniqueId())) {
             return;
         }
 
+        String name = maybeName.get();
+
         Schedulers.sync().runLater(() -> {
-            Optional<LGGameOrchestrator> maybeGame =
-                    gameManager.getOrStart(DefaultCompositions.villagerComposition(8), name.get());
-
-            boolean joined = maybeGame.map(x -> x.lobby().addPlayer(player)).orElse(false);
-
-            if (!joined) {
-                player.sendMessage(ChatColor.RED + "Impossible de rejoindre la partie.");
+            try {
+                gameManager.joinOrStart(player, DefaultCompositions.villagerComposition(8), name);
+            } catch (GameCreationException e) {
+                player.sendMessage(ChatColor.RED + "Impossible de créer la partie: " + e.getLocalizedMessage());
+            } catch (PlayerJoinException e) {
+                player.sendMessage(ChatColor.RED + "Impossible de rejoindre la partie: " + e.getLocalizedMessage());
             }
         }, 4); // Wait 4 ticks so the click action doesn't occur again.
     }

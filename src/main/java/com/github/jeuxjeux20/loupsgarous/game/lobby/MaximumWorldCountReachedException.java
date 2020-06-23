@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
-public class MaximumWorldCountReachedException extends CannotCreateWorldException {
+public class MaximumWorldCountReachedException extends WorldCreationException {
     private final int maximumWorldCount;
 
     public MaximumWorldCountReachedException(int maximumWorldCount) {

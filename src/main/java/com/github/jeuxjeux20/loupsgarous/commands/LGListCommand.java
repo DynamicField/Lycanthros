@@ -27,8 +27,8 @@ public class LGListCommand implements HelperCommandRegisterer {
                 .handler(c -> {
                     int page = Math.min(c.arg(0).parse(Integer.class).orElse(1), 1);
                     int itemsPerPage = 8;
-                    int itemsCount = gameManager.getOngoingGames().size();
-                    int pageCount = PaginationUtils.getPageCount(gameManager.getOngoingGames(), itemsPerPage);
+                    int itemsCount = gameManager.getAll().size();
+                    int pageCount = PaginationUtils.getPageCount(gameManager.getAll(), itemsPerPage);
 
                     if (pageCount == 0) {
                         c.reply("&bIl n'y a aucune partie en cours !");
@@ -43,7 +43,7 @@ public class LGListCommand implements HelperCommandRegisterer {
 
                     messageBuilder.append(header);
 
-                    PaginationUtils.in(gameManager.getOngoingGames(), page, itemsPerPage).forEach(x -> {
+                    PaginationUtils.in(gameManager.getAll(), page, itemsPerPage).forEach(x -> {
                         LGGameOrchestrator orchestrator = x.getValue();
                         LGGame game = orchestrator.game();
 

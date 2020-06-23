@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.commands;
 
 import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.guicybukkit.command.SelfConfiguredCommandExecutor;
+import com.github.jeuxjeux20.loupsgarous.game.GameCreationException;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.util.DefaultCompositions;
 import com.google.inject.Inject;
@@ -35,11 +36,11 @@ public class LGStartCommand extends SelfConfiguredCommandExecutor {
 
         Player player = ((Player) sender);
 
-        gameManager.startGame(DefaultCompositions.villagerComposition(8))
-                .ifSuccessOrElse(
-                        game -> game.lobby().addPlayer(player),
-                        error -> sender.sendMessage(ChatColor.RED + "Impossible de créer la partie : " + error)
-                );
+        try {
+            gameManager.start(player, DefaultCompositions.villagerComposition(8));
+        } catch (GameCreationException e) {
+            sender.sendMessage(ChatColor.RED + "Impossible de créer la partie : " + e.getMessage());
+        }
         return true;
     }
 }

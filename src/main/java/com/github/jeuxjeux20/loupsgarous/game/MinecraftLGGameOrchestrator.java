@@ -13,8 +13,7 @@ import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.game.inventory.LGInventoryManager;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.PlayerQuitKillReason;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.CannotCreateLobbyException;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameLobbyInfo;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameBootstrapData;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardManager;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
@@ -23,7 +22,6 @@ import com.google.common.base.MoreObjects;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
-import me.lucko.helper.Schedulers;
 import me.lucko.helper.metadata.MetadataMap;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
 import org.bukkit.Bukkit;
@@ -53,7 +51,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     private final LGKillsOrchestrator killsOrchestrator;
 
     @Inject
-    MinecraftLGGameOrchestrator(@Assisted LGGameLobbyInfo lobbyInfo,
+    MinecraftLGGameOrchestrator(@Assisted LGGameBootstrapData bootstrapData,
                                 LoupsGarous plugin,
                                 LGScoreboardManager scoreboardManager,
                                 LGInventoryManager inventoryManager,
@@ -63,24 +61,32 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
                                 LGLobby.Factory lobbyFactory,
                                 LGCardsOrchestrator.Factory cardOrchestratorFactory,
                                 LGStagesOrchestrator.Factory stagesOrchestratorFactory,
-                                LGKillsOrchestrator.Factory killsOrchestratorFactory) throws CannotCreateLobbyException {
-        this.plugin = plugin;
-        this.game = new MutableLGGame(lobbyInfo.getId());
-        this.lobby = lobbyFactory.create(lobbyInfo, this);
-        this.logger = new LGGameOrchestratorLogger(this);
-        this.cardOrchestrator = cardOrchestratorFactory.create(this);
-        this.stagesOrchestrator = stagesOrchestratorFactory.create(this);
-        this.chatManager = chatManagerFactory.create(this);
-        this.killsOrchestrator = killsOrchestratorFactory.create(this);
-        LGBossBarManager bossBarManager = bossBarManagerFactory.create(this);
-        LGActionBarManager actionBarManager = actionBarManagerFactory.create(this);
+                                LGKillsOrchestrator.Factory killsOrchestratorFactory) throws GameCreationException {
+        try {
+            this.plugin = plugin;
+            this.game = new MutableLGGame(bootstrapData.getId());
+            this.lobby = lobbyFactory.create(bootstrapData, this);
+            this.logger = new LGGameOrchestratorLogger(this);
+            this.cardOrchestrator = cardOrchestratorFactory.create(this);
+            this.stagesOrchestrator = stagesOrchestratorFactory.create(this);
+            this.chatManager = chatManagerFactory.create(this);
+            this.killsOrchestrator = killsOrchestratorFactory.create(this);
+            LGBossBarManager bossBarManager = bossBarManagerFactory.create(this);
+            LGActionBarManager actionBarManager = actionBarManagerFactory.create(this);
 
-        bindModule(actionBarManager.createUpdateModule());
-        bindModule(bossBarManager.createUpdateModule());
+            bindModule(actionBarManager.createUpdateModule());
+            bindModule(bossBarManager.createUpdateModule());
 
-        registerLobbyEvents();
-        scoreboardManager.registerEvents();
-        inventoryManager.registerEvents();
+            registerLobbyEvents();
+            scoreboardManager.registerEvents();
+            inventoryManager.registerEvents();
+        } catch (Exception e) {
+            // Ensure that all the terminables get closed
+            // before rethrowing.
+            terminableRegistry.closeAndReportException();
+
+            throw e;
+        }
     }
 
     @Override
@@ -97,9 +103,9 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     public void initialize() {
         state.mustBe(UNINITIALIZED);
 
-        changeStateTo(WAITING_FOR_PLAYERS, LGGameWaitingForPlayersEvent::new);
+        Events.call(new LGGameInitializeEvent(this));
 
-        bind(Schedulers.sync().runLater(this::deleteIfEmpty, 100));
+        changeStateTo(WAITING_FOR_PLAYERS, LGGameWaitingForPlayersEvent::new);
 
         if (stages().current() instanceof LGStage.Null) {
             stages().next();

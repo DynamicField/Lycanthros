@@ -5,6 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEventBase;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
@@ -21,7 +22,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
@@ -33,7 +33,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class VoteStructure implements Structure {
@@ -158,7 +157,7 @@ public class VoteStructure implements Structure {
     private class InteractionModule implements TerminableModule {
         @Override
         public void setup(@Nonnull TerminableConsumer consumer) {
-            Events.merge(LGPickEvent.class, LGPickEvent.class, LGPickRemovedEvent.class)
+            Events.merge(LGPickEventBase.class, LGPickEvent.class, LGPickRemovedEvent.class)
                     .filter(votable::isMyEvent)
                     .handler(e -> build())
                     .bindWith(consumer);
