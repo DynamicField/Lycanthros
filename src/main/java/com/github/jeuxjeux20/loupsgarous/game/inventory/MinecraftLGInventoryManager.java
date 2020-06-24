@@ -4,12 +4,10 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
+import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerQuitEvent;
+import com.github.jeuxjeux20.loupsgarous.util.ClassArrayUtils;
 import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -74,14 +72,8 @@ public class MinecraftLGInventoryManager implements LGInventoryManager {
                 .handler(this::hideHeldItem);
     }
 
-    @SuppressWarnings("unchecked")
     private void registerUpdateItemsEvent() {
-        Class<?>[] classes = inventoryItems.stream()
-                .flatMap(x -> x.getUpdateTriggers().stream())
-                .distinct()
-                .toArray(Class[]::new);
-
-        Events.merge(LGEvent.class, (Class<? extends LGEvent>[]) classes)
+        Events.merge(LGEvent.class, ClassArrayUtils.merge(inventoryItems.stream().map(HasTriggers::getUpdateTriggers)))
                 .handler(e -> {
                     for (LGPlayer player : e.getOrchestrator().game().getPlayers()) {
                         update(player, e.getOrchestrator());

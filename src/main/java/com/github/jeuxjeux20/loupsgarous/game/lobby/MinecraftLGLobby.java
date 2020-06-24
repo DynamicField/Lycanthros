@@ -1,17 +1,10 @@
 package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
 import com.github.jeuxjeux20.loupsgarous.game.*;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.SnapshotComposition;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.gui.CompositionGui;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator;
-import com.github.jeuxjeux20.loupsgarous.game.event.*;
-import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyCompositionChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.LGGameInitializeEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyOwnerChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerQuitEvent;
-import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
@@ -21,46 +14,37 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Comparator;
 import java.util.UUID;
 
 class MinecraftLGLobby implements LGLobby {
     private final MutableLGGameOrchestrator orchestrator;
-    private final MutableComposition composition;
     private final LobbyTeleporter lobbyTeleporter;
-    private LGPlayer owner;
     private final LGGameManager gameManager;
-    private final CompositionValidator compositionValidator;
-    private @Nullable CompositionValidator.Problem.Type worseCompositionProblemType;
-    private final CompositionGui.Factory compositionGuiFactory;
+    private final LGLobbyCompositionManager compositionManager;
+
+    private MutableLGPlayer owner;
 
     @Inject
-    MinecraftLGLobby(@Assisted LGGameBootstrapData lobbyInfo,
+    MinecraftLGLobby(@Assisted LGGameBootstrapData bootstrapData,
                      @Assisted MutableLGGameOrchestrator orchestrator,
                      LobbyTeleporter.Factory lobbyTeleporterFactory,
                      LGGameManager gameManager,
-                     CompositionValidator compositionValidator,
-                     CompositionGui.Factory compositionGuiFactory) throws LobbyCreationException {
+                     LGLobbyCompositionManager.Factory compositionManagerFactory) throws LobbyCreationException {
         this.gameManager = gameManager;
         this.orchestrator = orchestrator;
-
-        this.composition = new LobbyComposition(lobbyInfo.getComposition());
         this.lobbyTeleporter = lobbyTeleporterFactory.create();
-        this.compositionValidator = compositionValidator;
-        this.compositionGuiFactory = compositionGuiFactory;
+        this.compositionManager = compositionManagerFactory.create(orchestrator, bootstrapData);
 
         lobbyTeleporter.bindWith(orchestrator);
 
         try {
-            this.owner = addPlayer(lobbyInfo.getOwner());
+            this.owner = addPlayer(bootstrapData.getOwner());
         } catch (PlayerJoinException e) {
             throw new InvalidOwnerException(e);
         }
 
         registerPlayerQuitEvents();
-        updateCompositionProblemType();
     }
 
     @Override
@@ -93,7 +77,7 @@ class MinecraftLGLobby implements LGLobby {
     }
 
     @Override
-    public LGPlayer addPlayer(Player player) throws PlayerJoinException {
+    public MutableLGPlayer addPlayer(Player player) throws PlayerJoinException {
         checkPlayer(player);
 
         MutableLGPlayer lgPlayer = new MutableLGPlayer(player);
@@ -141,41 +125,13 @@ class MinecraftLGLobby implements LGLobby {
     }
 
     private void putRandomOwner() {
-        if (getGame().isEmpty()) return;
-
-        setOwner(getGame().getPresentPlayers().findAny().orElseThrow(AssertionError::new));
-    }
-
-    @Override
-    public void openOwnerGui() {
-        if (isLocked()) return;
-
-        CompositionGui gui = compositionGuiFactory.create(owner.getMinecraftPlayer().orElseThrow(AssertionError::new), composition);
-        gui.open();
-
-        Events.merge(LGEvent.class,
-                LGGameStartEvent.class, LGGameDeletedEvent.class, LGLobbyOwnerChangeEvent.class)
-                .expireIf(x -> !gui.isValid())
-                .filter(x -> x.getOrchestrator() == orchestrator)
-                .handler(e -> gui.close())
-                .bindWith(gui);
-    }
-
-    @Override
-    public Composition getComposition() {
-        return new SnapshotComposition(composition);
-    }
-
-    @Override
-    public @Nullable CompositionValidator.Problem.Type getWorstCompositionProblemType() {
-        return worseCompositionProblemType;
-    }
-
-    private void updateCompositionProblemType() {
-        worseCompositionProblemType = compositionValidator.validate(composition).stream()
-                .map(CompositionValidator.Problem::getType)
-                .max(Comparator.naturalOrder())
-                .orElse(null);
+        if (!getGame().isEmpty()) {
+            setOwner(getGame().getPresentPlayers().findAny().orElseThrow(AssertionError::new));
+        } else {
+            // SPECIAL CASE: Here the game is empty, however, we don't want the owner to be null.
+            // So, let's just make the current owner away.
+            owner.setAway(true);
+        }
     }
 
     @Override
@@ -197,15 +153,20 @@ class MinecraftLGLobby implements LGLobby {
 
     @Override
     public void setOwner(LGPlayer owner) {
-        Preconditions.checkArgument(getGame().getPlayer(owner.getPlayerUUID()).isPresent(),
-                "The given owner isn't present in the lobby.");
+        MutableLGPlayer newOwner = getGame().getPlayer(owner.getPlayerUUID())
+                .orElseThrow(() -> new IllegalArgumentException("The given owner isn't present in the lobby."));
 
         if (owner == this.owner) return;
 
         LGPlayer oldOwner = this.owner;
-        this.owner = owner;
+        this.owner = newOwner;
 
         Events.call(new LGLobbyOwnerChangeEvent(orchestrator, oldOwner, owner));
+    }
+
+    @Override
+    public LGLobbyCompositionManager composition() {
+        return compositionManager;
     }
 
     private void registerPlayerQuitEvents() {
@@ -223,23 +184,5 @@ class MinecraftLGLobby implements LGLobby {
 
     private MutableLGGame getGame() {
         return orchestrator.game();
-    }
-
-    private final class LobbyComposition extends MutableComposition {
-        public LobbyComposition(Composition composition) {
-            super(composition);
-        }
-
-        @Override
-        public boolean isValidPlayerCount(int playerCount) {
-            return super.isValidPlayerCount(playerCount) &&
-                   getGame().getPlayers().size() <= playerCount;
-        }
-
-        @Override
-        protected void onChange() {
-            updateCompositionProblemType();
-            Events.call(new LGLobbyCompositionChangeEvent(orchestrator));
-        }
     }
 }

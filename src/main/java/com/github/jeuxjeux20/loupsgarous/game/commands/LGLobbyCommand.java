@@ -31,11 +31,11 @@ public class LGLobbyCommand implements HelperCommandRegisterer {
             context.reply(error("La partie a déjà commencé."));
             return;
         }
-        if (orchestrator.lobby().getOwner() != context.sender()) {
+        if (orchestrator.lobby().getOwner().getPlayerUUID() != context.sender().getUniqueId()) {
             context.reply(error("Vous n'êtes pas le maître de la partie."));
             return;
         }
 
-        orchestrator.lobby().openOwnerGui();
+        orchestrator.lobby().composition().openOwnerGui();
     }
 }

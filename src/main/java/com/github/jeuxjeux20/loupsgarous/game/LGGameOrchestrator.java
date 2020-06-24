@@ -115,7 +115,7 @@ public interface LGGameOrchestrator extends TerminableConsumer {
 
     default Composition getCurrentComposition() {
         if (state() == LGGameState.WAITING_FOR_PLAYERS || state() == READY_TO_START) {
-            return new SnapshotComposition(lobby().getComposition());
+            return new SnapshotComposition(lobby().composition().get());
         } else {
             return () -> game().getAlivePlayers().map(LGPlayer::getCard).collect(ImmutableSet.toImmutableSet());
         }

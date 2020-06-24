@@ -65,8 +65,9 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         try {
             this.plugin = plugin;
             this.game = new MutableLGGame(bootstrapData.getId());
-            this.lobby = lobbyFactory.create(bootstrapData, this);
             this.logger = new LGGameOrchestratorLogger(this);
+
+            this.lobby = lobbyFactory.create(bootstrapData, this);
             this.cardOrchestrator = cardOrchestratorFactory.create(this);
             this.stagesOrchestrator = stagesOrchestratorFactory.create(this);
             this.chatManager = chatManagerFactory.create(this);
@@ -105,7 +106,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
         Events.call(new LGGameInitializeEvent(this));
 
-        changeStateTo(WAITING_FOR_PLAYERS, LGGameWaitingForPlayersEvent::new);
+        updateLobbyState();
 
         if (stages().current() instanceof LGStage.Null) {
             stages().next();
@@ -116,7 +117,8 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     public void start() {
         state.mustBe(READY_TO_START);
 
-        game.distributeCards(lobby.getComposition());
+        game.distributeCards(lobby.composition().get());
+
         changeStateTo(STARTED, LGGameStartEvent::new);
 
         Events.call(new LGTurnChangeEvent(this));
@@ -143,7 +145,6 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         changeStateTo(DELETING, LGGameDeletingEvent::new);
 
         terminableRegistry.closeAndReportException();
-
         game.getPlayers().forEach(lobby::removePlayer);
 
         changeStateTo(DELETED, LGGameDeletedEvent::new);
@@ -173,7 +174,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     private void updateLobbyState() {
         state.mustBe(UNINITIALIZED, WAITING_FOR_PLAYERS, READY_TO_START);
 
-        if (lobby.isFull() && lobby.isCompositionValid()) {
+        if (lobby.isFull() && lobby.composition().isValid()) {
             changeStateTo(READY_TO_START, LGGameReadyToStartEvent::new);
         } else {
             changeStateTo(WAITING_FOR_PLAYERS, LGGameWaitingForPlayersEvent::new);

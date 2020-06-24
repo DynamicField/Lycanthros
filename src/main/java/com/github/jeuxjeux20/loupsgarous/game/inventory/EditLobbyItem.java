@@ -27,7 +27,7 @@ public class EditLobbyItem implements InventoryItem {
 
     @Override
     public void onClick(LGPlayer player, LGGameOrchestrator orchestrator) {
-        orchestrator.lobby().openOwnerGui();
+        orchestrator.lobby().composition().openOwnerGui();
     }
 
     @Override

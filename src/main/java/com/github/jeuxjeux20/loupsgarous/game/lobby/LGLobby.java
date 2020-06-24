@@ -4,11 +4,9 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.MutableLGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -17,6 +15,7 @@ import java.util.UUID;
  */
 public interface LGLobby extends LGGameOrchestratorComponent {
     World getWorld();
+
 
     LGPlayer addPlayer(Player player) throws PlayerJoinException;
 
@@ -30,24 +29,24 @@ public interface LGLobby extends LGGameOrchestratorComponent {
         return removePlayer(player.getPlayerUUID());
     }
 
+
     boolean isLocked();
 
-    void openOwnerGui();
 
-    Composition getComposition();
+    LGPlayer getOwner();
 
-    @Nullable CompositionValidator.Problem.Type getWorstCompositionProblemType();
+    void setOwner(LGPlayer owner);
 
-    default boolean isCompositionValid() {
-        return getWorstCompositionProblemType() != CompositionValidator.Problem.Type.IMPOSSIBLE;
-    }
+
+    LGLobbyCompositionManager composition();
+
 
     default int getSlotsTaken() {
         return (int) gameOrchestrator().game().getPresentPlayers().count();
     }
 
     default int getTotalSlotCount() {
-        return getComposition().getPlayerCount();
+        return composition().get().getPlayerCount();
     }
 
     default boolean isFull() {
@@ -58,9 +57,6 @@ public interface LGLobby extends LGGameOrchestratorComponent {
         return "(" + getSlotsTaken() + "/" + getTotalSlotCount() + ")";
     }
 
-    LGPlayer getOwner();
-
-    void setOwner(LGPlayer owner);
 
     interface Factory {
         LGLobby create(LGGameBootstrapData lobbyInfo, MutableLGGameOrchestrator orchestrator)

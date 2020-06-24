@@ -9,5 +9,9 @@ public final class LGLobbyModule extends AbstractModule {
         install(new FactoryModuleBuilder()
                 .implement(LGLobby.class, MinecraftLGLobby.class)
                 .build(LGLobby.Factory.class));
+
+        install(new FactoryModuleBuilder()
+                .implement(LGLobbyCompositionManager.class, MinecraftLGLobbyCompositionManager.class)
+                .build(LGLobbyCompositionManager.Factory.class));
     }
 }
