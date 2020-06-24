@@ -1,9 +1,11 @@
-package com.github.jeuxjeux20.loupsgarous.game.stages.interaction;
+package com.github.jeuxjeux20.loupsgarous.game.stages.interaction.handler;
 
 import com.github.jeuxjeux20.loupsgarous.LGMessages;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.stages.CupidonCoupleStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Couple;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.CoupleCreator;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Pickable;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import me.lucko.helper.command.context.CommandContext;
@@ -15,26 +17,26 @@ import java.util.Optional;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.error;
 
-public class CoupleCommandPickHandler implements CommandPickHandler<CouplePickable> {
+public class CoupleCommandPickHandler implements CommandPickHandler<Pickable<Couple>> {
     @Override
     public void configure(FunctionalCommandBuilder<Player> builder) {
         builder.assertUsage("<partenaire1> <partenaire2>", "{usage}");
     }
 
     @Override
-    public void pick(CommandContext<Player> context, LGPlayer player, CouplePickable pickable, LGGameOrchestrator orchestrator) {
+    public void pick(CommandContext<Player> context, LGPlayer player, Pickable<Couple> pickable, LGGameOrchestrator orchestrator) {
         String partner1Name = context.arg(0).value().orElseThrow(AssertionError::new);
         String partner2Name = context.arg(1).value().orElseThrow(AssertionError::new);
 
-        Optional<SafeResult<CupidonCoupleStage>> maybeStage = orchestrator.stages().current()
-                .getSafeComponent(CupidonCoupleStage.class, x -> x.canPlayerCreateCouple(player));
+        Optional<SafeResult<CoupleCreator>> maybeCoupleCreator = orchestrator.stages().current()
+                .getSafeComponent(CoupleCreator.class, x -> x.conditions().checkPicker(player));
 
-        CupidonCoupleStage coupleStage = maybeStage
+        CoupleCreator coupleCreator = maybeCoupleCreator
                 .flatMap(SafeResult::getValueOptional)
                 .orElse(null);
 
-        if (coupleStage == null) {
-            String errorMessage = maybeStage
+        if (coupleCreator == null) {
+            String errorMessage = maybeCoupleCreator
                     .flatMap(SafeResult::getErrorMessageOptional)
                     .orElse("Ce n'est pas l'heure !");
 
@@ -43,10 +45,10 @@ public class CoupleCommandPickHandler implements CommandPickHandler<CouplePickab
         }
 
         createCouple(partner1Name, partner2Name, orchestrator, context.sender()).ifPresent(couple -> {
-            Check check = coupleStage.canCreateCouple(player, couple);
+            Check check = coupleCreator.conditions().checkPick(player, couple);
 
             if (check.isSuccess()) {
-                coupleStage.createCouple(player, couple);
+                coupleCreator.pick(player, couple);
             }
             else {
                 context.reply(ChatColor.RED + check.getErrorMessage());
@@ -65,6 +67,11 @@ public class CoupleCommandPickHandler implements CommandPickHandler<CouplePickab
         Optional<LGPlayer> partner2 = orchestrator.game().findByName(partner2Name);
         if (!partner2.isPresent()) {
             sender.sendMessage(LGMessages.cannotFindPlayer(partner2Name));
+            return Optional.empty();
+        }
+
+        if (partner1.equals(partner2)) {
+            sender.sendMessage(ChatColor.RED + "Impossible d'avoir un couple avec deux mêmes personnes !");
             return Optional.empty();
         }
 

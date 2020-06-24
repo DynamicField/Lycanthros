@@ -6,7 +6,7 @@ import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartingEvent;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.PlayerVotable;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.ChatColor;
 
@@ -19,16 +19,16 @@ public class CurrentVotesScoreboardComponent implements ScoreboardComponent {
 
         ImmutableList.Builder<Line> lines = ImmutableList.builder();
 
-        Optional<Votable> maybeVotable = orchestrator.stages().current().getComponent(Votable.class,
-                x -> x.getCurrentState().canPlayerPick(player).isSuccess());
+        // TODO: Broader votables
+        Optional<PlayerVotable> maybeVotable = orchestrator.stages().current().getComponent(PlayerVotable.class,
+                x -> x.conditions().checkPicker(player).isSuccess());
 
         maybeVotable.ifPresent(votable -> {
             lines.add(new Line(ChatColor.LIGHT_PURPLE + "-= Votes =-"));
 
-            Votable.VoteState voteState = votable.getCurrentState();
-            LGPlayer playerWithMostVotes = voteState.getPlayerWithMostVotes();
+            LGPlayer playerWithMostVotes = votable.getMajorityTarget();
 
-            voteState.getPlayersVoteCount().forEach((votedPlayer, voteCount) -> {
+            votable.getTargetVoteCount().forEach((votedPlayer, voteCount) -> {
                 boolean isMostVotes = playerWithMostVotes == votedPlayer;
                 String color = isMostVotes ? ChatColor.RED.toString() + ChatColor.BOLD : "";
 

@@ -9,21 +9,22 @@ import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LoupsGarousVoteChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.NightKillReason;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.AbstractPlayerVotable;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.condition.FunctionalPickConditions;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
-import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.bukkit.ChatColor;
 import org.bukkit.boss.BarColor;
-import org.jetbrains.annotations.NotNull;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
 @MajorityVoteShortensCountdown(timeLeft = 10)
-public class LoupGarouVoteStage extends CountdownLGStage implements Votable {
-    private final VoteState voteState;
+public class LoupGarouVoteStage extends CountdownLGStage {
+    private final LoupGarouVotable votable;
     private final LoupsGarousVoteChatChannel voteChannel;
 
     private boolean isVoteSuccessful;
@@ -34,9 +35,9 @@ public class LoupGarouVoteStage extends CountdownLGStage implements Votable {
         super(orchestrator);
 
         this.voteChannel = voteChannel;
-        this.voteState = createVoteState();
+        this.votable = new LoupGarouVotable();
 
-        bind(voteState);
+        bind(votable);
     }
 
     @Override
@@ -51,7 +52,7 @@ public class LoupGarouVoteStage extends CountdownLGStage implements Votable {
 
     @Override
     protected void finish() {
-        voteState.close();
+        votable.close();
         computeVoteOutcome();
         howl();
     }
@@ -71,30 +72,8 @@ public class LoupGarouVoteStage extends CountdownLGStage implements Votable {
         return BarColor.RED;
     }
 
-    @Override
-    public LGChatChannel getInfoMessagesChannel() {
-        return voteChannel;
-    }
-
-    @Override
-    public String getIndicator() {
-        return "vote pour tuer";
-    }
-
-    @NotNull
-    private VoteState createVoteState() {
-        return new VoteState(orchestrator, this) {
-            @Override
-            public Check canPlayerPick(@NotNull LGPlayer player) {
-                return super.canPlayerPick(player)
-                        .and(player.getCard().isInTeam(LGTeams.LOUPS_GAROUS),
-                                "Impossible de voter, car vous n'êtes pas loup-garou !");
-            }
-        };
-    }
-
     private void computeVoteOutcome() {
-        LGPlayer playerWithMostVotes = voteState.getPlayerWithMostVotes();
+        LGPlayer playerWithMostVotes = votable.getMajorityTarget();
         if (playerWithMostVotes != null) {
             orchestrator.kills().pending().add(LGKill.of(playerWithMostVotes, NightKillReason::new));
             orchestrator.chat().sendMessage(voteChannel,
@@ -120,7 +99,39 @@ public class LoupGarouVoteStage extends CountdownLGStage implements Votable {
                 .forEach(LGSoundStuff::howl);
     }
 
-    public VoteState getCurrentState() {
-        return voteState;
+    public LoupGarouVotable votes() {
+        return votable;
+    }
+
+    @Override
+    public Iterable<?> getAllComponents() {
+        return ImmutableList.of(votable);
+    }
+
+    public final class LoupGarouVotable extends AbstractPlayerVotable {
+        private LoupGarouVotable() {
+            super(LoupGarouVoteStage.this.orchestrator);
+        }
+
+        @Override
+        public PickConditions<LGPlayer> conditions() {
+            return FunctionalPickConditions.builder(super.conditions())
+                    .ensurePicker(this::isLoupGarou, "Impossible de voter, car vous n'êtes pas loup-garou !")
+                    .build();
+        }
+
+        @Override
+        public String getIndicator() {
+            return "vote pour tuer";
+        }
+
+        @Override
+        public LGChatChannel getInfoMessagesChannel() {
+            return voteChannel;
+        }
+
+        private boolean isLoupGarou(LGPlayer picker) {
+            return picker.getCard().isInTeam(LGTeams.LOUPS_GAROUS);
+        }
     }
 }

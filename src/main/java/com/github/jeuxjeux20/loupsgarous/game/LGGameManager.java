@@ -37,6 +37,4 @@ public interface LGGameManager {
     default Optional<LGPlayerAndGame> getPlayerInGame(Player player) {
         return getPlayerInGame(player.getUniqueId());
     }
-
-
 }

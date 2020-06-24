@@ -1,7 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.Plugin;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.CountdownTimedStage;
@@ -33,7 +32,7 @@ public class ShortenVoteCountdownListener implements Listener {
     }
 
     private void updateStageCountdown(LGStage stage) {
-        Votable votable = stage.getComponent(Votable.class).orElse(null);
+        Votable<?> votable = stage.getComponent(Votable.class).orElse(null);
         CountdownTimedStage countdownStage = stage.getComponent(CountdownTimedStage.class).orElse(null);
         MajorityVoteShortensCountdown annotation = stage.getClass().getAnnotation(MajorityVoteShortensCountdown.class);
 
@@ -58,16 +57,14 @@ public class ShortenVoteCountdownListener implements Listener {
         }
     }
 
-    private boolean shouldShorten(MajorityVoteShortensCountdown annotation, Votable votable) {
-        Votable.VoteState state = votable.getCurrentState();
-
-        LGPlayer playerWithMostVotes = state.getPlayerWithMostVotes();
-        if (playerWithMostVotes == null) {
-            // Then there is no majority.
+    private boolean shouldShorten(MajorityVoteShortensCountdown annotation, Votable<?> votable) {
+        Object majority = votable.getMajorityTarget();
+        if (majority == null) {
+            // The vote determines that there is no majority.
             return false;
         }
-        int playerVoteCount = state.getPlayersVoteCount().get(playerWithMostVotes);
-        int totalVoteCount = state.getTotalVoteCount();
+        int playerVoteCount = votable.getTargetVoteCount().get(majority);
+        int totalVoteCount = votable.getTotalVoteCount();
 
         int percentage = (int) (((float) playerVoteCount / totalVoteCount) * 100);
 

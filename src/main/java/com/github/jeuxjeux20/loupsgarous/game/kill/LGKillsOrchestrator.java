@@ -13,6 +13,10 @@ public interface LGKillsOrchestrator extends LGGameOrchestratorComponent {
 
     void revealPending();
 
+    default boolean willDie(LGPlayer player) {
+        return pending().stream().anyMatch(kill -> kill.getWhoDied() == player);
+    }
+
     void instantly(LGKill kill);
 
     default void instantly(LGPlayer player, LGKillReason reason) {

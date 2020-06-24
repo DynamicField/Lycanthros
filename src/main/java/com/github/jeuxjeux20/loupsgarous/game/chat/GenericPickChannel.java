@@ -2,9 +2,9 @@ package com.github.jeuxjeux20.loupsgarous.game.chat;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.PickableProvider;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Pickable;
 
-public class GenericPickChannel<T extends PickableProvider<?>> implements LGChatChannel {
+public class GenericPickChannel<T extends Pickable<?>> implements LGChatChannel {
     private final T pickableProvider;
 
     public GenericPickChannel(T pickableProvider) {
@@ -28,7 +28,7 @@ public class GenericPickChannel<T extends PickableProvider<?>> implements LGChat
 
     @Override
     public boolean areMessagesVisibleTo(LGPlayer recipient, LGGameOrchestrator orchestrator) {
-        return pickableProvider.providePickable().canPlayerPick(recipient).isSuccess();
+        return pickableProvider.conditions().checkPicker(recipient).isSuccess();
     }
 
     @Override

@@ -14,6 +14,8 @@ import java.util.function.*;
  * Most of the time, these are used as a replacement for {@code boolean} in methods such as {@code canDoX()}.
  */
 public final class Check {
+    private static final Check SUCCESS = new Check(true, null);
+
     private final boolean success;
     private final String errorMessage;
 
@@ -25,7 +27,7 @@ public final class Check {
     }
 
     public static Check success() {
-        return new Check(true, null);
+        return SUCCESS;
     }
 
     public static Check error(@Nullable String message) {
@@ -43,6 +45,10 @@ public final class Check {
 
     public boolean isSuccess() {
         return success;
+    }
+
+    public boolean isError() {
+        return !success;
     }
 
     public @NotNull String getErrorMessage() {

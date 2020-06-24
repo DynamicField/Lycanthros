@@ -3,9 +3,8 @@ package com.github.jeuxjeux20.loupsgarous.game.commands;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.CommandPickHandler;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.handler.CommandPickHandler;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Pickable;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.PickableProvider;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.google.inject.Inject;
 import com.google.inject.TypeLiteral;
@@ -21,9 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public final class PickableCommandBuilder<T extends PickableProvider<P>, P extends Pickable<?>> {
-    private final Class<T> pickableClass;
-    private final CommandPickHandler<P> handler;
+public final class PickableCommandBuilder<P extends BP, BP extends Pickable<?>> {
+    private final Class<P> pickableClass;
+    private final CommandPickHandler<BP> handler;
     private final InGameHandlerCondition inGameHandlerCondition;
 
     private final List<Consumer<FunctionalCommandBuilder<Player>>> commandConfigurators = new ArrayList<>();
@@ -31,20 +30,20 @@ public final class PickableCommandBuilder<T extends PickableProvider<P>, P exten
 
     @SuppressWarnings("unchecked")
     @Inject
-    public PickableCommandBuilder(TypeLiteral<T> pickableType,
-                                  CommandPickHandler<P> handler,
+    public PickableCommandBuilder(TypeLiteral<P> pickableType,
+                                  CommandPickHandler<BP> handler,
                                   InGameHandlerCondition inGameHandlerCondition) {
-        this.pickableClass = (Class<T>) pickableType.getRawType(); // It's safe, usually.
+        this.pickableClass = (Class<P>) pickableType.getRawType(); // It's safe, usually.
         this.handler = handler;
         this.inGameHandlerCondition = inGameHandlerCondition;
     }
 
-    public PickableCommandBuilder<T, P> withCannotPickErrorMessage(String errorMessage) {
+    public PickableCommandBuilder<P, BP> withCannotPickErrorMessage(String errorMessage) {
         this.cannotPickErrorMessage = errorMessage;
         return this;
     }
 
-    public PickableCommandBuilder<T, P> configure(Consumer<FunctionalCommandBuilder<Player>> commandConfigurator) {
+    public PickableCommandBuilder<P, BP> configure(Consumer<FunctionalCommandBuilder<Player>> commandConfigurator) {
         commandConfigurators.add(commandConfigurator);
         return this;
     }
@@ -64,8 +63,8 @@ public final class PickableCommandBuilder<T extends PickableProvider<P>, P exten
     private void handle(CommandContext<Player> context, LGPlayer lgPlayer, LGGameOrchestrator orchestrator) {
         LGStage stage = orchestrator.stages().current();
 
-        Optional<SafeResult<T>> maybePickable
-                = stage.getSafeComponent(pickableClass, x -> x.providePickable().canPlayerPick(lgPlayer));
+        Optional<SafeResult<P>> maybePickable
+                = stage.getSafeComponent(pickableClass, x -> x.conditions().checkPicker(lgPlayer));
 
         String errorMessage = maybePickable
                 .flatMap(SafeResult::getErrorMessageOptional)
@@ -73,7 +72,6 @@ public final class PickableCommandBuilder<T extends PickableProvider<P>, P exten
 
         P pickable = maybePickable
                 .flatMap(SafeResult::getValueOptional)
-                .map(PickableProvider::providePickable)
                 .orElse(null);
 
         if (pickable == null) {

@@ -3,18 +3,18 @@ package com.github.jeuxjeux20.loupsgarous.game.event.interaction;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Pickable;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.PickableProvider;
+import com.google.common.reflect.TypeToken;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-public final class LGPickEvent<T, PP extends PickableProvider<? extends Pickable<T>>> extends LGPickEventBase<T, PP> {
+public final class LGPickEvent<T, P extends Pickable<T>> extends LGPickEventBase<T, P> {
     private static final HandlerList handlerList = new HandlerList();
 
-    public LGPickEvent(LGGameOrchestrator orchestrator, PP pickableProvider,
+    public LGPickEvent(LGGameOrchestrator orchestrator, P pickable,
                        LGPlayer picker, T target) {
-        super(orchestrator, pickableProvider, picker, target);
+        super(orchestrator, pickable, picker, target);
     }
 
     public static @NotNull HandlerList getHandlerList() {
@@ -22,9 +22,8 @@ public final class LGPickEvent<T, PP extends PickableProvider<? extends Pickable
     }
 
     @Override
-    public <NT, NPP extends PickableProvider<? extends Pickable<NT>>>
-    Optional<LGPickEvent<NT, NPP>> cast(Class<? extends NPP> pickableProviderClass) {
-        return actualCast(pickableProviderClass);
+    public <NT, NP extends Pickable<NT>> Optional<LGPickEvent<NT, NP>> cast(Class<? extends NP> pickableClass) {
+        return actualCast(pickableClass);
     }
 
     @Override

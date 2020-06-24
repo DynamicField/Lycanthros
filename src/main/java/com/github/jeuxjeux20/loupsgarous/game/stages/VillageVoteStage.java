@@ -6,26 +6,27 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.atmosphere.VoteStructure;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.VillageVoteKillReason;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.AbstractPlayerVotable;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
 @MajorityVoteShortensCountdown
-public class VillageVoteStage extends CountdownLGStage implements Votable {
-    private final VoteState voteState;
+public class VillageVoteStage extends CountdownLGStage {
+    private final VillageVotable votable;
     private final VoteStructure voteStructure;
 
     @Inject
     VillageVoteStage(@Assisted LGGameOrchestrator orchestrator, VoteStructure.Factory voteStructureFactory) {
         super(orchestrator);
 
-        voteState = new VoteState(orchestrator, this);
+        votable = new VillageVotable(orchestrator);
         voteStructure =
-                voteStructureFactory.create(orchestrator, orchestrator.world().getSpawnLocation(), this);
+                voteStructureFactory.create(orchestrator, orchestrator.world().getSpawnLocation(), votable);
 
-        bind(voteState);
+        bind(votable);
         bind(voteStructure);
         bindModule(voteStructure.createInteractionModule());
     }
@@ -52,7 +53,7 @@ public class VillageVoteStage extends CountdownLGStage implements Votable {
 
     @Override
     protected void finish() {
-        voteState.close();
+        votable.close();
         computeVoteOutcome();
     }
 
@@ -66,13 +67,8 @@ public class VillageVoteStage extends CountdownLGStage implements Votable {
         return "Le village va voter";
     }
 
-    @Override
-    public String getIndicator() {
-        return "vote pour tuer";
-    }
-
     private void computeVoteOutcome() {
-        LGPlayer playerWithMostVotes = voteState.getPlayerWithMostVotes();
+        LGPlayer playerWithMostVotes = votable.getMajorityTarget();
         if (playerWithMostVotes != null) {
             orchestrator.kills().instantly(playerWithMostVotes, VillageVoteKillReason::new);
         } else {
@@ -80,8 +76,23 @@ public class VillageVoteStage extends CountdownLGStage implements Votable {
         }
     }
 
+    public VillageVotable votes() {
+        return votable;
+    }
+
     @Override
-    public VoteState getCurrentState() {
-        return voteState;
+    public Iterable<?> getAllComponents() {
+        return ImmutableList.of(votable);
+    }
+
+    public static final class VillageVotable extends AbstractPlayerVotable {
+        private VillageVotable(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
+        }
+
+        @Override
+        public String getIndicator() {
+            return "vote pour tuer";
+        }
     }
 }

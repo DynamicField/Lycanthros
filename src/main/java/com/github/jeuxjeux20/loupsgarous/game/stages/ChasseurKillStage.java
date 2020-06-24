@@ -1,29 +1,36 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
+import com.github.jeuxjeux20.loupsgarous.ComponentStyles;
+import com.github.jeuxjeux20.loupsgarous.ComponentTemplates;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.ChasseurCard;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.ChasseurKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Killable;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.winconditions.PostponesWinConditions;
-import com.github.jeuxjeux20.loupsgarous.util.Check;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import me.lucko.helper.text.Text;
+import me.lucko.helper.text.TextComponent;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.importantTip;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
 @PostponesWinConditions
-public class ChasseurKillStage extends CountdownLGStage implements Killable {
+public class ChasseurKillStage extends CountdownLGStage {
     private final LGPlayer chasseur;
-    private boolean killed;
+
+    private final ChasseurKillable killable;
 
     @Inject
     ChasseurKillStage(@Assisted LGGameOrchestrator orchestrator, @Assisted LGPlayer chasseur) {
         super(orchestrator);
         this.chasseur = chasseur;
+        this.killable = new ChasseurKillable();
     }
 
     @Override
@@ -35,16 +42,19 @@ public class ChasseurKillStage extends CountdownLGStage implements Killable {
     protected void start() {
         chasseur.getMinecraftPlayer().ifPresent(player -> {
             player.spigot().respawn();
-            player.sendMessage(
-                    importantTip("Vite ! Faites /lgkill <joueur> pour tirer votre balle juste avant de mourir !")
-            );
+
+            TextComponent message = TextComponent.of("Vite ! Faites ").mergeStyle(ComponentStyles.IMPORTANT_TIP)
+                    .append(ComponentTemplates.command("/lgkill", "<joueur>"))
+                    .append(TextComponent.of(" pour tirer votre balle juste avant de mourir !"));
+
+            Text.sendMessage(player, message);
             LGSoundStuff.ding(player);
         });
     }
 
     @Override
     protected void finish() {
-        if (!killed) {
+        if (!killable.killed) {
             orchestrator.chat().sendToEveryone(info("Le chasseur n'a pas tiré."));
         }
     }
@@ -56,7 +66,7 @@ public class ChasseurKillStage extends CountdownLGStage implements Killable {
 
     @Override
     public String getTitle() {
-        return "Le chasseur va tirer sa balle (ou non) !";
+        return "Le chasseur " + chasseur.getName() + " va tirer sa balle (ou non) !";
     }
 
     @Override
@@ -64,25 +74,53 @@ public class ChasseurKillStage extends CountdownLGStage implements Killable {
         return true;
     }
 
-    @Override
-    public Check canPlayerKill(LGPlayer killer) {
-        return Check
-                .ensure(killer.getCard() instanceof ChasseurCard, "Vous n'êtes pas chasseur !")
-                .and(killer == chasseur, "Pas maintenant !")
-                .and(!killed, "Vous avez déjà tiré votre balle.");
+    public ChasseurKillable kills() {
+        return killable;
     }
 
     @Override
-    public void kill(LGPlayer killer, LGPlayer target) {
-        canKill(killer, target).ifError(error -> {
-            throw new IllegalArgumentException("Cannot kill player " + target.getName() + " : " + error);
-        });
-        killed = true;
-        orchestrator.kills().instantly(target, ChasseurKillReason::new);
-        getCountdown().interrupt();
+    public Iterable<?> getAllComponents() {
+        return ImmutableList.of(killable);
     }
 
     public interface Factory {
         ChasseurKillStage create(LGGameOrchestrator orchestrator, LGPlayer chasseur);
+    }
+
+    public final class ChasseurKillable implements Killable {
+        boolean killed = false;
+
+        private ChasseurKillable() {
+        }
+
+        @Override
+        public PickConditions<LGPlayer> conditions() {
+            return FunctionalPickConditions.<LGPlayer>builder()
+                    .ensurePicker(this::isChasseur, "Vous n'êtes pas chasseur !")
+                    .ensurePicker(this::isTheirTurn, "Ce n'est pas à votre tour !")
+                    .ensurePicker(this::canShoot, "Vous avez déjà tiré votre balle.")
+                    .build();
+        }
+
+        @Override
+        public void pick(LGPlayer picker, LGPlayer target) {
+            conditions().throwIfInvalid(picker, target);
+
+            killed = true;
+            orchestrator.kills().instantly(target, ChasseurKillReason::new);
+            getCountdown().interrupt();
+        }
+
+        private boolean isChasseur(LGPlayer picker) {
+            return picker.getCard() instanceof ChasseurCard;
+        }
+
+        private boolean isTheirTurn(LGPlayer picker) {
+            return picker == chasseur;
+        }
+
+        private boolean canShoot(LGPlayer picker) {
+            return !killed;
+        }
     }
 }

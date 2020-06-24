@@ -1,8 +1,9 @@
-package com.github.jeuxjeux20.loupsgarous.game.stages.interaction;
+package com.github.jeuxjeux20.loupsgarous.game.stages.interaction.handler;
 
 import com.github.jeuxjeux20.loupsgarous.LGMessages;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Pickable;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import me.lucko.helper.command.context.CommandContext;
 import me.lucko.helper.command.functional.FunctionalCommandBuilder;
@@ -11,20 +12,20 @@ import org.bukkit.entity.Player;
 
 import java.util.Optional;
 
-public class SinglePlayerCommandPickHandler implements CommandPickHandler<PlayerPickable> {
+public class SinglePlayerCommandPickHandler implements CommandPickHandler<Pickable<LGPlayer>> {
     @Override
     public void configure(FunctionalCommandBuilder<Player> builder) {
         builder.assertUsage("<player>", "C'est pas comme ça que ça marche ! {usage}");
     }
 
     @Override
-    public void pick(CommandContext<Player> context, LGPlayer player, PlayerPickable pickable, LGGameOrchestrator orchestrator) {
+    public void pick(CommandContext<Player> context, LGPlayer player, Pickable<LGPlayer> pickable, LGGameOrchestrator orchestrator) {
         String targetName = context.arg(0).value().orElseThrow(AssertionError::new);
 
         Optional<LGPlayer> maybeTarget = orchestrator.game().findByName(targetName);
 
         maybeTarget.ifPresent(target -> {
-            Check check = pickable.canPick(player, target);
+            Check check = pickable.conditions().checkPick(player, target);
 
             if (check.isSuccess()) {
                 pickable.pick(player, target);

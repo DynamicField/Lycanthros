@@ -13,7 +13,7 @@ public class TellVoteTipsListener implements Listener {
     public void onLGStageStarted(LGStageStartedEvent event) {
         LGGameOrchestrator orchestrator = event.getOrchestrator();
 
-        for (Votable votable : event.getStage().getComponents(Votable.class)) {
+        for (Votable<?> votable : event.getStage().getComponents(Votable.class)) {
             orchestrator.chat().sendMessage(votable.getInfoMessagesChannel(), VOTE_TIP);
         }
     }

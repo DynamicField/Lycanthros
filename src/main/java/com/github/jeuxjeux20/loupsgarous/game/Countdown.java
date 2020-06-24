@@ -52,13 +52,6 @@ public class Countdown implements Terminable, TerminableConsumer {
         return new Builder().time(seconds);
     }
 
-    public static Consumer<Builder> syncWith(Countdown countdown) {
-        return builder -> builder
-                .time(countdown.getTimer())
-                .start(countdown::start)
-                .finished(countdown::tryInterrupt);
-    }
-
     // Start & Interrupt
 
     public final CompletableFuture<Void> start() {

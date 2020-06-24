@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.PlayerVotable;
 import com.google.inject.Inject;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -25,18 +25,16 @@ public class LGDevoteCommand extends LGGameCommand {
 
         LGStage stage = orchestrator.stages().current();
 
-        Votable votable = stage.getComponent(Votable.class).orElse(null);
+        PlayerVotable votable = stage.getComponent(PlayerVotable.class).orElse(null);
         if (votable == null) {
             player.sendMessage(ChatColor.RED + "Ce n'est pas l'heure de voter !");
             return true;
         }
 
-        Votable.VoteState currentState = votable.getCurrentState();
-
-        if (!currentState.hasPick(lgPlayer)) {
+        if (!votable.hasPick(lgPlayer)) {
             player.sendMessage(ChatColor.RED + "Vous ne votez pour personne.");
         } else {
-            currentState.removePick(lgPlayer);
+            votable.removePick(lgPlayer);
         }
         return true;
     }

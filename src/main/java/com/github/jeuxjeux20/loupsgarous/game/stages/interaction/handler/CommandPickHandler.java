@@ -1,7 +1,8 @@
-package com.github.jeuxjeux20.loupsgarous.game.stages.interaction;
+package com.github.jeuxjeux20.loupsgarous.game.stages.interaction.handler;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Pickable;
 import me.lucko.helper.command.context.CommandContext;
 import me.lucko.helper.command.functional.FunctionalCommandBuilder;
 import org.bukkit.entity.Player;

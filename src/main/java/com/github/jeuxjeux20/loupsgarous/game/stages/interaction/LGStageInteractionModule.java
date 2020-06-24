@@ -1,11 +1,10 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages.interaction;
 
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.handler.LGStageInteractionHandlersModule;
 import com.google.inject.AbstractModule;
-import com.google.inject.TypeLiteral;
 
 public final class LGStageInteractionModule extends AbstractModule {
     protected void configure() {
-        bind(new TypeLiteral<CommandPickHandler<PlayerPickable>>(){}).to(SinglePlayerCommandPickHandler.class);
-        bind(new TypeLiteral<CommandPickHandler<CouplePickable>>(){}).to(CoupleCommandPickHandler.class);
+        install(new LGStageInteractionHandlersModule());
     }
 }

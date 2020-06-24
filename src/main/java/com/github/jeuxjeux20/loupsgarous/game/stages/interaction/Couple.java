@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Objects;
@@ -11,6 +12,8 @@ public final class Couple {
     private final ImmutableList<LGPlayer> partners;
 
     public Couple(LGPlayer partner1, LGPlayer partner2) {
+        Preconditions.checkArgument(partner1 != partner2, "Partner 1 cannot be the same as partner 2.");
+
         this.partner1 = Objects.requireNonNull(partner1);
         this.partner2 = Objects.requireNonNull(partner2);
         partners = ImmutableList.of(partner1, partner2);

@@ -7,7 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEventBase;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.PlayerVotable;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -42,7 +42,7 @@ public class VoteStructure implements Structure {
     private final LGGameOrchestrator orchestrator;
     private final Location location;
     private final World world;
-    private final Votable votable;
+    private final PlayerVotable votable;
     private final LGGameManager gameManager;
 
     private final int spacing = 3;
@@ -51,7 +51,7 @@ public class VoteStructure implements Structure {
     private BackedStructure backedStructure = BackedStructure.EMPTY;
 
     @Inject
-    VoteStructure(@Assisted LGGameOrchestrator orchestrator, @Assisted Location location, @Assisted Votable votable,
+    VoteStructure(@Assisted LGGameOrchestrator orchestrator, @Assisted Location location, @Assisted PlayerVotable votable,
                   LGGameManager gameManager) {
         this.orchestrator = orchestrator;
         this.location = location;
@@ -73,12 +73,10 @@ public class VoteStructure implements Structure {
     }
 
     private BuildingContext createBuildingContext() {
-        Votable.VoteState voteState = votable.getCurrentState();
-
         List<LGPlayer> players = orchestrator.game().getPlayers().stream()
-                .filter(Check.predicate(voteState::canPickTarget))
+                .filter(Check.predicate(votable.conditions()::checkTarget))
                 .collect(Collectors.toList());
-        LGPlayer playerWithMostVotes = voteState.getPlayerWithMostVotes();
+        LGPlayer playerWithMostVotes = votable.getMajorityTarget();
 
         return new BuildingContext(players, playerWithMostVotes);
     }
@@ -104,7 +102,7 @@ public class VoteStructure implements Structure {
     }
 
     private ArmorStand createArmorStand(LGPlayer player, Location armorStandLocation, BuildingContext context) {
-        int voteCount = votable.getCurrentState().getPlayersVoteCount().getOrDefault(player, 0);
+        int voteCount = votable.getTargetVoteCount().getOrDefault(player, 0);
         String color = context.playerWithMostVotes == player ? ChatColor.RED.toString() + ChatColor.BOLD : "";
 
         ArmorStand armorStand = world.spawn(armorStandLocation, ArmorStand.class);
@@ -183,11 +181,10 @@ public class VoteStructure implements Structure {
                     .ifPresent(target -> {
                         e.setCancelled(true);
 
-                        Votable.VoteState voteState = votable.getCurrentState();
-                        Check check = voteState.canPick(player, target);
+                        Check check = votable.conditions().checkPick(player, target);
 
                         if (check.isSuccess()) {
-                            voteState.togglePick(player, target);
+                            votable.togglePick(player, target);
                         } else {
                             e.getPlayer().sendMessage(ChatColor.RED + check.getErrorMessage());
                         }
@@ -210,6 +207,6 @@ public class VoteStructure implements Structure {
     }
 
     public interface Factory {
-        VoteStructure create(LGGameOrchestrator orchestrator, Location location, Votable votable);
+        VoteStructure create(LGGameOrchestrator orchestrator, Location location, PlayerVotable votable);
     }
 }

@@ -10,5 +10,6 @@ public final class LGAtmosphereListenersModule extends ListenersModule {
         addListener(PreventNightPlayerMovementListener.class);
         addListener(PutPlayerOnSpawnListener.class);
         addListener(SwitchTimeOfDayListener.class);
+        addListener(PreventPlayerDamageListener.class);
     }
 }

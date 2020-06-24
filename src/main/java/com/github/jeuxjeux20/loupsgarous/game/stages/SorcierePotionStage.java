@@ -10,9 +10,9 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.SorciereCard;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.NightKillReason;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Healable;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Killable;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.PickableProvider;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.*;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.condition.FunctionalPickConditions;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -34,8 +34,8 @@ import static me.lucko.helper.text.format.TextColor.*;
 import static me.lucko.helper.text.format.TextDecoration.BOLD;
 
 public class SorcierePotionStage extends CountdownLGStage {
-    private final Healable healable;
-    private final Killable killable;
+    private final SorciereHealable healable;
+    private final SorciereKillable killable;
 
     @Inject
     SorcierePotionStage(@Assisted LGGameOrchestrator orchestrator) {
@@ -73,19 +73,23 @@ public class SorcierePotionStage extends CountdownLGStage {
     }
 
     @Override
-    public Iterable<? extends PickableProvider<?>> getAllComponents() {
+    public Iterable<? extends Pickable<?>> getAllComponents() {
         return Arrays.asList(healable, killable);
     }
 
-    private Check canAct(LGPlayer player) {
-        return Check.ensure(player.isAlive(), "Vous êtes mort !")
-                .and(player.getCard() instanceof SorciereCard, "Vous n'êtes pas une sorcière !");
+    public SorciereHealable heals() {
+        return healable;
+    }
+
+    public SorciereKillable kills() {
+        return killable;
     }
 
     private void sendNotification(LGPlayer player) {
         player.getMinecraftPlayer().ifPresent(minecraftPlayer -> sendNotification(player, minecraftPlayer));
     }
 
+    // This is really long.
     private void sendNotification(LGPlayer player, Player minecraftPlayer) {
         SorciereCard card = ((SorciereCard) player.getCard()); // The checks ensure that it is a SorciereCard.
 
@@ -157,28 +161,34 @@ public class SorcierePotionStage extends CountdownLGStage {
         LGSoundStuff.ding(minecraftPlayer);
     }
 
+
+    // Pick stuff
+
+    private Check canAct(LGPlayer player) {
+        return Check.ensure(player.isAlive(), "Vous êtes mort !")
+                .and(player.getCard() instanceof SorciereCard, "Vous n'êtes pas une sorcière !");
+    }
+
+    private FunctionalPickConditions.Builder<LGPlayer> baseBuilder() {
+        return FunctionalPickConditions.<LGPlayer>builder()
+                .ensurePicker(this::canAct);
+    }
+
     public class SorciereHealable implements Healable {
         private SorciereHealable() {
         }
 
         @Override
-        public Check canPlayerHeal(LGPlayer healer) {
-            return canAct(healer)
-                    .and(() -> ((SorciereCard) healer.getCard()).hasHealPotion(),
-                            "Vous avez déjà utilisé votre potion de soin !");
+        public PickConditions<LGPlayer> conditions() {
+            return baseBuilder()
+                    .ensurePicker(this::hasHealPotion, "Vous avez déjà utilisé votre potion de soin !")
+                    .ensureTarget(this::willDieTonight, "Ce joueur ne va pas mourir ce tour ci.")
+                    .build();
         }
 
         @Override
-        public Check canHealTarget(LGPlayer target) {
-            return Check.ensure(orchestrator.kills().pending().stream().anyMatch(x -> x.getWhoDied() == target),
-                    "Ce joueur ne va pas mourir ce tour ci.");
-        }
-
-        @Override
-        public void heal(LGPlayer healer, LGPlayer target) {
-            canHeal(healer, target).ifError(error -> {
-                throw new IllegalArgumentException("Cannot heal player " + target.getName() + ": " + error);
-            });
+        public void pick(LGPlayer healer, LGPlayer target) {
+            conditions().throwIfInvalid(healer, target);
 
             SorciereCard card = (SorciereCard) healer.getCard();
 
@@ -192,6 +202,14 @@ public class SorcierePotionStage extends CountdownLGStage {
                     )
             );
         }
+
+        private boolean hasHealPotion(LGPlayer player) {
+            return ((SorciereCard) player.getCard()).hasHealPotion();
+        }
+
+        private boolean willDieTonight(LGPlayer player) {
+            return orchestrator.kills().willDie(player);
+        }
     }
 
     public class SorciereKillable implements Killable {
@@ -199,17 +217,16 @@ public class SorcierePotionStage extends CountdownLGStage {
         }
 
         @Override
-        public Check canPlayerKill(LGPlayer killer) {
-            return canAct(killer)
-                    .and(() -> ((SorciereCard) killer.getCard()).hasKillPotion(),
-                            "Vous avez déjà utilisé votre potion de mort !");
+        public PickConditions<LGPlayer> conditions() {
+            return baseBuilder()
+                    .apply(Killable::addBasicChecks)
+                    .ensurePicker(this::pickerHasKillPotion, "Vous avez déjà utilisé votre potion de mort !")
+                    .build();
         }
 
         @Override
-        public void kill(LGPlayer killer, LGPlayer target) {
-            canKill(killer, target).ifError(error -> {
-                throw new IllegalArgumentException("Cannot kill player " + target.getName() + ": " + error);
-            });
+        public void pick(LGPlayer killer, LGPlayer target) {
+            conditions().throwIfInvalid(killer, target);
 
             SorciereCard card = (SorciereCard) killer.getCard();
 
@@ -222,6 +239,10 @@ public class SorcierePotionStage extends CountdownLGStage {
                             ChatColor.RED + " qui va mourir cette nuit."
                     )
             );
+        }
+
+        private boolean pickerHasKillPotion(LGPlayer picker) {
+            return ((SorciereCard) picker.getCard()).hasKillPotion();
         }
     }
 }

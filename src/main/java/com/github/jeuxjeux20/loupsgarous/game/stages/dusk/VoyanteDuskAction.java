@@ -4,9 +4,12 @@ import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.VoyanteCard;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Lookable;
+import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
+import com.google.common.collect.ImmutableList;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -16,18 +19,18 @@ import java.util.List;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.VOYANTE_SYMBOL;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.importantTip;
 
-public class VoyanteDuskAction extends DuskStage.Action implements Lookable {
-    private final List<LGPlayer> playersWhoLooked = new ArrayList<>();
+public class VoyanteDuskAction extends DuskStage.Action {
+    private final VoyanteLookable lookable = new VoyanteLookable();
 
     @Override
     protected boolean shouldRun(LGGameOrchestrator orchestrator) {
-        return orchestrator.game().getAlivePlayers().anyMatch(x -> canPlayerLook(x).isSuccess());
+        return orchestrator.game().getPlayers().stream().anyMatch(Check.predicate(lookable.conditions()::checkPicker));
     }
 
     @Override
     protected void onDuskStart(LGGameOrchestrator orchestrator) {
         orchestrator.game().getPlayers().stream()
-                .filter(Check.predicate(this::canPlayerLook))
+                .filter(Check.predicate(lookable.conditions()::checkPicker))
                 .map(LGPlayer::getMinecraftPlayer)
                 .flatMap(OptionalUtils::stream)
                 .forEach(this::sendNotification);
@@ -44,34 +47,52 @@ public class VoyanteDuskAction extends DuskStage.Action implements Lookable {
         return "La voyante va découvrir le rôle de quelqu'un...";
     }
 
-    @Override
-    public Check canPlayerLook(LGPlayer looker) {
-        return Check.ensure(looker.getCard() instanceof VoyanteCard, "Vous n'êtes pas voyante !")
-                .and(looker.isAlive(), "Vous êtes mort !")
-                .and(!playersWhoLooked.contains(looker), "Vous avez déjà utilisé votre pouvoir.");
+    public Lookable look() {
+        return lookable;
     }
 
     @Override
-    public Check canLookTarget(LGPlayer target) {
-        return Check.ensure(target.isAlive(),
-                target.getName() + " est déjà mort ! (Il est " + target.getCard().getName() + ")");
+    public Iterable<?> getAllComponents() {
+        return ImmutableList.of(lookable);
     }
 
-    @Override
-    public void look(LGPlayer looker, LGPlayer target) {
-        playersWhoLooked.add(looker);
+    private static class VoyanteLookable implements Lookable {
+        private final List<LGPlayer> playersWhoLooked = new ArrayList<>();
 
-        VoyanteCard voyanteCard = (VoyanteCard) looker.getCard();
-        voyanteCard.getPlayersSaw().add(target);
+        @Override
+        public PickConditions<LGPlayer> conditions() {
+            return FunctionalPickConditions.<LGPlayer>builder()
+                    .ensurePicker(this::isVoyante, "Vous n'êtes pas voyante !")
+                    .ensurePicker(LGPlayer::isAlive, "Vous êtes mort !")
+                    .ensurePicker(this::isPowerAvailable, "Vous avez déjà utilisé votre pouvoir.")
+                    .ensureTarget(LGPlayer::isAlive, "La cible est déjà morte !")
+                    .build();
+        }
 
-        looker.getMinecraftPlayer().ifPresent(player -> {
-            player.sendMessage(
-                    ChatColor.DARK_PURPLE.toString() + "Votre boule de cristal indique... que " +
-                    ChatColor.BOLD + target.getName() +
-                    ChatColor.DARK_PURPLE + " est " + ChatColor.BOLD + target.getCard().getName() +
-                    ChatColor.DARK_PURPLE + "."
-            );
-            LGSoundStuff.enchant(player);
-        });
+        @Override
+        public void pick(LGPlayer picker, LGPlayer target) {
+            playersWhoLooked.add(picker);
+
+            VoyanteCard voyanteCard = (VoyanteCard) picker.getCard();
+            voyanteCard.getPlayersSaw().add(target);
+
+            picker.getMinecraftPlayer().ifPresent(player -> {
+                player.sendMessage(
+                        ChatColor.DARK_PURPLE.toString() + "Votre boule de cristal indique... que " +
+                        ChatColor.BOLD + target.getName() +
+                        ChatColor.DARK_PURPLE + " est " + ChatColor.BOLD + target.getCard().getName() +
+                        ChatColor.DARK_PURPLE + "."
+                );
+                LGSoundStuff.enchant(player);
+            });
+        }
+
+        private boolean isPowerAvailable(LGPlayer picker) {
+            return !playersWhoLooked.contains(picker);
+        }
+
+        private boolean isVoyante(LGPlayer player) {
+            return player.getCard() instanceof VoyanteCard;
+        }
     }
 }

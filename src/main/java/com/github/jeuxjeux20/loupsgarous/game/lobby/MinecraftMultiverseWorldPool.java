@@ -77,9 +77,9 @@ class MinecraftMultiverseWorldPool implements MultiverseWorldPool {
 
     @Override
     public synchronized boolean isInLobbyWorld(Player player) {
-        String name = player.getWorld().getName();
+        MultiverseWorld multiverseWorld = multiverse.getMVWorldManager().getMVWorld(player.getWorld());
 
-        return allWorlds.stream().anyMatch(x -> x.getName().equals(name));
+        return multiverseWorld != null && allWorlds.contains(multiverseWorld);
     }
 
     private synchronized MultiverseWorld createWorld() throws WorldCloneFailedException, MaximumWorldCountReachedException {
