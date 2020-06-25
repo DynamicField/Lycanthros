@@ -14,7 +14,7 @@ import me.lucko.helper.Events;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.logging.Logger;
 
@@ -28,7 +28,7 @@ class MinecraftMultiverseWorldPool implements MultiverseWorldPool {
     private final Provider<Integer> maxWorldsProvider;
     private final Logger logger;
 
-    private final ConcurrentLinkedQueue<MultiverseWorld> availableWorlds = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedDeque<MultiverseWorld> availableWorlds = new ConcurrentLinkedDeque<>();
     private final CopyOnWriteArraySet<MultiverseWorld> allWorlds = new CopyOnWriteArraySet<>();
 
     @Inject
@@ -134,7 +134,7 @@ class MinecraftMultiverseWorldPool implements MultiverseWorldPool {
         allWorlds.add(world);
 
         logger.fine("Marking as available: " + world.getName());
-        return availableWorlds.add(world);
+        return availableWorlds.offerFirst(world);
     }
 
     private boolean markAsUnavailable(MultiverseWorld world) {
