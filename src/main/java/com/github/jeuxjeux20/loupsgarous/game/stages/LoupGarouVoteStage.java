@@ -74,18 +74,18 @@ public class LoupGarouVoteStage extends CountdownLGStage {
 
     private void computeVoteOutcome() {
         LGPlayer playerWithMostVotes = votable.getMajorityTarget();
-        if (playerWithMostVotes != null) {
+        isVoteSuccessful = playerWithMostVotes != null;
+
+        if (isVoteSuccessful) {
             orchestrator.kills().pending().add(LGKill.of(playerWithMostVotes, NightKillReason::new));
             orchestrator.chat().sendMessage(voteChannel,
                     ChatColor.AQUA + "Les loups ont décidé de tuer " +
                     player(playerWithMostVotes.getName()) + ChatColor.AQUA + "."
             );
-            isVoteSuccessful = true;
         } else {
             orchestrator.chat().sendMessage(voteChannel,
                     ChatColor.AQUA + "Les loups n'ont pas pu se décider !"
             );
-            isVoteSuccessful = false;
         }
     }
 

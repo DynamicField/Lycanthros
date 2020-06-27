@@ -99,6 +99,7 @@ public class ChasseurKillStage extends CountdownLGStage {
                     .ensurePicker(this::isChasseur, "Vous n'êtes pas chasseur !")
                     .ensurePicker(this::isTheirTurn, "Ce n'est pas à votre tour !")
                     .ensurePicker(this::canShoot, "Vous avez déjà tiré votre balle.")
+                    .ensureTarget(LGPlayer::isAlive, "La cible est déjà morte.")
                     .build();
         }
 

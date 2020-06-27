@@ -1,7 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
-import com.github.jeuxjeux20.loupsgarous.Plugin;
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
@@ -19,7 +18,6 @@ import com.google.inject.assistedinject.Assisted;
 import org.bukkit.boss.BarColor;
 
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,15 +25,13 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 
 public class CupidonCoupleStage extends CountdownLGStage {
     private final Random random;
-    private final Logger logger;
 
     private final CupidonCoupleCreator coupleCreator = new CupidonCoupleCreator();
 
     @Inject
-    CupidonCoupleStage(@Assisted LGGameOrchestrator orchestrator, Random random, @Plugin Logger logger) {
+    CupidonCoupleStage(@Assisted LGGameOrchestrator orchestrator, Random random) {
         super(orchestrator);
         this.random = random;
-        this.logger = logger;
     }
 
     @Override
@@ -188,10 +184,10 @@ public class CupidonCoupleStage extends CountdownLGStage {
             }
         }
 
-        Optional<Couple> createRandomCouple() {
+        public Optional<Couple> createRandomCouple() {
             List<LGPlayer> eligiblePartners = getEligiblePartners().collect(Collectors.toCollection(ArrayList::new));
             if (eligiblePartners.size() < 2) {
-                logger.warning("Not enough eligible partners! (" + eligiblePartners.size() + ")");
+                orchestrator.logger().warning("Not enough eligible partners! (" + eligiblePartners.size() + ")");
                 return Optional.empty();
             }
 

@@ -220,7 +220,7 @@ public class SorcierePotionStage extends CountdownLGStage {
         public PickConditions<LGPlayer> conditions() {
             return baseBuilder()
                     .apply(Killable::addBasicChecks)
-                    .ensurePicker(this::pickerHasKillPotion, "Vous avez déjà utilisé votre potion de mort !")
+                    .ensurePicker(this::hasKillPotion, "Vous avez déjà utilisé votre potion de mort !")
                     .build();
         }
 
@@ -241,8 +241,8 @@ public class SorcierePotionStage extends CountdownLGStage {
             );
         }
 
-        private boolean pickerHasKillPotion(LGPlayer picker) {
-            return ((SorciereCard) picker.getCard()).hasKillPotion();
+        private boolean hasKillPotion(LGPlayer player) {
+            return ((SorciereCard) player.getCard()).hasKillPotion();
         }
     }
 }
