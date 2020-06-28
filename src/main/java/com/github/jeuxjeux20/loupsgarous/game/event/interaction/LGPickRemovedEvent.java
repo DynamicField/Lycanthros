@@ -2,32 +2,34 @@ package com.github.jeuxjeux20.loupsgarous.game.event.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Pickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.NotifyingInteractable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.StatefulPickable;
 import com.google.common.reflect.TypeToken;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-public final class LGPickRemovedEvent<T, P extends Pickable<T>> extends LGPickEventBase<T, P> {
+public final class LGPickRemovedEvent<T, P extends StatefulPickable<T> & NotifyingInteractable> extends LGPickEventBase<T, P> {
     private static final HandlerList handlerList = new HandlerList();
 
     private final boolean isInvalidate;
 
     public LGPickRemovedEvent(LGGameOrchestrator orchestrator,
-                              P pickable,
+                              InteractableEntry<P> entry,
                               LGPlayer picker, T target) {
-        super(orchestrator, pickable, picker, target);
-        isInvalidate = !pickable.conditions().checkPick(picker, target).isSuccess();
+        super(orchestrator, entry, picker, target);
+        isInvalidate = !entry.getValue().conditions().checkPick(picker, target).isSuccess();
     }
 
     public static @NotNull HandlerList getHandlerList() {
         return handlerList;
     }
 
-    @Override
-    public <NT, NP extends Pickable<NT>> Optional<LGPickRemovedEvent<NT, NP>> cast(Class<? extends NP> pickableClass) {
-        return actualCast(pickableClass);
+    public <NT, NP extends StatefulPickable<NT> & NotifyingInteractable>
+    Optional<LGPickRemovedEvent<NT, NP>> cast(TypeToken<? extends NP> pickableProviderType) {
+        return actualCast(pickableProviderType);
     }
 
     @Override

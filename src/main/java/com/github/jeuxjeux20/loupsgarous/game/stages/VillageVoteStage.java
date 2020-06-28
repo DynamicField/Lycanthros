@@ -5,16 +5,21 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.atmosphere.VoteStructure;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerVotable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableProvider;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.VillageVoteKillReason;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.AbstractPlayerVotable;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+
+import java.util.Set;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
 @MajorityVoteShortensCountdown
-public class VillageVoteStage extends CountdownLGStage {
+public class VillageVoteStage extends CountdownLGStage implements InteractableProvider {
     private final VillageVotable votable;
     private final VoteStructure voteStructure;
 
@@ -22,7 +27,7 @@ public class VillageVoteStage extends CountdownLGStage {
     VillageVoteStage(@Assisted LGGameOrchestrator orchestrator, VoteStructure.Factory voteStructureFactory) {
         super(orchestrator);
 
-        votable = new VillageVotable(orchestrator);
+        votable = new VillageVotable();
         voteStructure =
                 voteStructureFactory.create(orchestrator, orchestrator.world().getSpawnLocation(), votable);
 
@@ -81,17 +86,17 @@ public class VillageVoteStage extends CountdownLGStage {
     }
 
     @Override
-    public Iterable<?> getAllComponents() {
-        return ImmutableList.of(votable);
+    public Set<InteractableEntry<?>> getInteractables() {
+        return ImmutableSet.of(votable.getEntry());
     }
 
-    public static final class VillageVotable extends AbstractPlayerVotable {
-        private VillageVotable(LGGameOrchestrator orchestrator) {
-            super(orchestrator);
+    public final class VillageVotable extends AbstractPlayerVotable {
+        private VillageVotable() {
+            super(VillageVoteStage.this.orchestrator, LGInteractableKeys.PLAYER_VOTE);
         }
 
         @Override
-        public String getIndicator() {
+        public String getPointingText() {
             return "vote pour tuer";
         }
     }

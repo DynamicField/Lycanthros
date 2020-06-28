@@ -5,14 +5,13 @@ import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.CupidonCard;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Couple;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.CoupleCreator;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.condition.FunctionalPickConditions;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.condition.PickConditions;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.*;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.teams.CoupleTeam;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.bukkit.boss.BarColor;
@@ -23,7 +22,7 @@ import java.util.stream.Stream;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 
-public class CupidonCoupleStage extends CountdownLGStage {
+public class CupidonCoupleStage extends CountdownLGStage implements InteractableProvider {
     private final Random random;
 
     private final CupidonCoupleCreator coupleCreator = new CupidonCoupleCreator();
@@ -89,11 +88,13 @@ public class CupidonCoupleStage extends CountdownLGStage {
     }
 
     @Override
-    public Iterable<?> getAllComponents() {
-        return ImmutableList.of(coupleCreator);
+    public Set<InteractableEntry<?>> getInteractables() {
+        return ImmutableSet.of(
+                new InteractableEntry<>(LGInteractableKeys.COUPLE_CREATOR, coupleCreator)
+        );
     }
 
-    public final class CupidonCoupleCreator implements CoupleCreator {
+    public final class CupidonCoupleCreator implements Pickable<Couple> {
         private final Map<LGPlayer, Couple> couplePicks = new HashMap<>();
 
         private CupidonCoupleCreator() {

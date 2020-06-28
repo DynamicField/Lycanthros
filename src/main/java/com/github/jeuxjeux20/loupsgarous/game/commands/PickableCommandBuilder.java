@@ -2,12 +2,11 @@ package com.github.jeuxjeux20.loupsgarous.game.commands;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.handler.CommandPickHandler;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Pickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableKey;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Pickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.handler.CommandPickHandler;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.google.inject.Inject;
-import com.google.inject.TypeLiteral;
 import me.lucko.helper.Commands;
 import me.lucko.helper.command.Command;
 import me.lucko.helper.command.context.CommandContext;
@@ -18,37 +17,36 @@ import org.bukkit.util.Consumer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
-public final class PickableCommandBuilder<P extends BP, BP extends Pickable<?>> {
-    private final Class<P> pickableClass;
-    private final CommandPickHandler<BP> handler;
+public final class PickableCommandBuilder<P extends Pickable<?>, H extends CommandPickHandler<? super P>> {
+    private InteractableKey<P> key;
+    private final H handler;
     private final InGameHandlerCondition inGameHandlerCondition;
 
     private final List<Consumer<FunctionalCommandBuilder<Player>>> commandConfigurators = new ArrayList<>();
-    private String cannotPickErrorMessage = "Vous ne pouvez pas faire ça maintenant.";
+    private String failureMessage = "Vous ne pouvez pas faire ça maintenant.";
 
-    @SuppressWarnings("unchecked")
     @Inject
-    public PickableCommandBuilder(TypeLiteral<P> pickableType,
-                                  CommandPickHandler<BP> handler,
+    public PickableCommandBuilder(H handler,
                                   InGameHandlerCondition inGameHandlerCondition) {
-        this.pickableClass = (Class<P>) pickableType.getRawType(); // It's safe, usually.
         this.handler = handler;
         this.inGameHandlerCondition = inGameHandlerCondition;
     }
 
-    public PickableCommandBuilder<P, BP> withCannotPickErrorMessage(String errorMessage) {
-        this.cannotPickErrorMessage = errorMessage;
+    public PickableCommandBuilder<P, H> failureMessage(String errorMessage) {
+        this.failureMessage = Objects.requireNonNull(errorMessage);
         return this;
     }
 
-    public PickableCommandBuilder<P, BP> configure(Consumer<FunctionalCommandBuilder<Player>> commandConfigurator) {
-        commandConfigurators.add(commandConfigurator);
+    public PickableCommandBuilder<P, H> configure(Consumer<FunctionalCommandBuilder<Player>> commandConfigurator) {
+        commandConfigurators.add(Objects.requireNonNull(commandConfigurator));
         return this;
     }
 
-    public Command buildCommand() {
+    public Command build(InteractableKey<P> key) {
+        this.key = Objects.requireNonNull(key);
+
         FunctionalCommandBuilder<Player> builder = Commands.create()
                 .assertPlayer()
                 .assertUsage("<player>", "C'est pas comme ça que ça marche ! {usage}");
@@ -60,25 +58,15 @@ public final class PickableCommandBuilder<P extends BP, BP extends Pickable<?>> 
         return builder.handler(inGameHandlerCondition.wrap(this::handle));
     }
 
-    private void handle(CommandContext<Player> context, LGPlayer lgPlayer, LGGameOrchestrator orchestrator) {
-        LGStage stage = orchestrator.stages().current();
+    private void handle(CommandContext<Player> context, LGPlayer player, LGGameOrchestrator orchestrator) {
+        SafeResult<P> maybePickable = orchestrator.interactables().single(key)
+                .check(p -> p.conditions().checkPicker(player))
+                .failureMessage(failureMessage)
+                .get();
 
-        Optional<SafeResult<P>> maybePickable
-                = stage.getSafeComponent(pickableClass, x -> x.conditions().checkPicker(lgPlayer));
-
-        String errorMessage = maybePickable
-                .flatMap(SafeResult::getErrorMessageOptional)
-                .orElse(cannotPickErrorMessage);
-
-        P pickable = maybePickable
-                .flatMap(SafeResult::getValueOptional)
-                .orElse(null);
-
-        if (pickable == null) {
-            context.sender().sendMessage(ChatColor.RED + errorMessage);
-            return;
-        }
-
-        handler.pick(context, lgPlayer, pickable, orchestrator);
+        maybePickable.ifSuccessOrElse(
+                pickable ->  handler.pick(context, player, pickable, orchestrator),
+                error -> context.sender().sendMessage(ChatColor.RED + error)
+        );
     }
 }

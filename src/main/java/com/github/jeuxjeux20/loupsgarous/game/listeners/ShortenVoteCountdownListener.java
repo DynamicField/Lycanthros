@@ -3,10 +3,12 @@ package com.github.jeuxjeux20.loupsgarous.game.listeners;
 import com.github.jeuxjeux20.loupsgarous.Plugin;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableProvider;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
 import com.github.jeuxjeux20.loupsgarous.game.stages.CountdownTimedStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.MajorityVoteShortensCountdown;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Votable;
 import com.google.inject.Inject;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -32,14 +34,18 @@ public class ShortenVoteCountdownListener implements Listener {
     }
 
     private void updateStageCountdown(LGStage stage) {
-        Votable<?> votable = stage.getComponent(Votable.class).orElse(null);
-        CountdownTimedStage countdownStage = stage.getComponent(CountdownTimedStage.class).orElse(null);
+        Votable<?> votable = stage.safeCast(InteractableProvider.class)
+                .flatMap(p -> p.getInteractables(Votable.class).stream()
+                        .map(InteractableEntry::getValue)
+                        .findAny())
+                .orElse(null);
+        CountdownTimedStage countdownStage = stage.safeCast(CountdownTimedStage.class).orElse(null);
         MajorityVoteShortensCountdown annotation = stage.getClass().getAnnotation(MajorityVoteShortensCountdown.class);
 
         if (votable == null || countdownStage == null) {
             if (annotation != null) {
                 logger.warning("Stage " + stage.getClass().getName() + " is annotated with " +
-                               "MajorityVoteShortensCountdown but doesn't implement Votable and " +
+                               "MajorityVoteShortensCountdown but doesn't have a Votable interactable and " +
                                "CountdownTimedStage");
             }
             return;

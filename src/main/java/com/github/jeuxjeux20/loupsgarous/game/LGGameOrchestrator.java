@@ -7,10 +7,13 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.composition.SnapshotComposit
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.LGGameFinishedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.LGGameStartEvent;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableRegistry;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.LobbyCreationException;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameBootstrapData;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
+import com.github.jeuxjeux20.loupsgarous.game.lobby.LobbyCreationException;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.common.collect.ImmutableSet;
@@ -22,9 +25,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-
-import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.READY_TO_START;
-import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.STARTED;
 
 /**
  * Manages a Loups-Garous game instance.
@@ -71,16 +71,51 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     }
 
     default boolean isGameRunning() {
-        return state() == STARTED;
+        return state() == LGGameState.STARTED;
     }
 
 
+    /**
+     * Initializes the game to be ready to accept new players. Usually, this method is called internally.
+     * This will change the state to {@link LGGameState#WAITING_FOR_PLAYERS}
+     * or {@link LGGameState#READY_TO_START}.
+     *
+     * @throws IllegalStateException when the game is not {@linkplain LGGameState#UNINITIALIZED uninitialized}
+     */
     void initialize();
 
+    /**
+     * Starts the game and calls the {@link LGGameStartEvent}.
+     * This will change the state to {@link LGGameState#STARTED}.
+     *
+     * @throws IllegalStateException when the game is not {@linkplain LGGameState#READY_TO_START ready to start}
+     */
     void start();
 
+    /**
+     * Finishes the game with the given ending and calls the {@link LGGameFinishedEvent}.
+     * This will change the state to {@link LGGameState#FINISHED}.
+     *
+     * @param ending why the game ended
+     * @throws IllegalStateException when the game is
+     *                               {@linkplain LGGameState#UNINITIALIZED uninitialized},
+     *                               {@linkplain LGGameState#FINISHED finished},
+     *                               {@linkplain LGGameState#DELETING deleting} or
+     *                               {@linkplain LGGameState#DELETED deleted}
+     */
     void finish(LGEnding ending);
 
+    /**
+     * Deletes the game and calls the deletion events.
+     * <p>
+     * This changes the state to {@link LGGameState#DELETING}, terminates every terminable
+     * bound to this orchestrator, teleports all players to the spawn,
+     * and finally changes the state to {@link LGGameState#DELETED}.
+     *
+     * @throws IllegalStateException when the game is
+     *                               {@linkplain LGGameState#DELETING deleting} or
+     *                               {@linkplain LGGameState#DELETED deleted}
+     */
     void delete();
 
     void nextTimeOfDay();
@@ -100,6 +135,8 @@ public interface LGGameOrchestrator extends TerminableConsumer {
 
     Logger logger();
 
+    InteractableRegistry interactables();
+
 
     default boolean isMyEvent(LGEvent event) {
         return event.getOrchestrator() == this;
@@ -114,7 +151,7 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     }
 
     default Composition getCurrentComposition() {
-        if (state() == LGGameState.WAITING_FOR_PLAYERS || state() == READY_TO_START) {
+        if (state() == LGGameState.WAITING_FOR_PLAYERS || state() == LGGameState.READY_TO_START) {
             return new SnapshotComposition(lobby().composition().get());
         } else {
             return () -> game().getAlivePlayers().map(LGPlayer::getCard).collect(ImmutableSet.toImmutableSet());

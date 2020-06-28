@@ -1,8 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
-import com.github.jeuxjeux20.loupsgarous.ComponentBased;
+import com.github.jeuxjeux20.loupsgarous.SafeCast;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.event.CountdownTickEvent;
 import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.boss.BarColor;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +24,7 @@ import javax.annotation.Nonnull;
  * <p>
  * The {@link LGStagesModule} contains all the stages of the classic game.
  */
-public interface LGStage extends ComponentBased, TerminableConsumer {
+public interface LGStage extends SafeCast, TerminableConsumer {
     /**
      * Determines whether or not this stage should be deleted after it has been ran.
      * <p>

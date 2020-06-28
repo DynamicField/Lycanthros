@@ -1,6 +1,10 @@
-package com.github.jeuxjeux20.loupsgarous.game.stages.interaction;
+package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
+import me.lucko.helper.Events;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,19 +14,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class AbstractVotable<T> extends AbstractStatefulPickable<T> implements Votable<T> {
-    public AbstractVotable(LGGameOrchestrator orchestrator) {
+public abstract class AbstractVotable<T>
+        extends AbstractStatefulPickable<T>
+        implements Votable<T>, SelfKeyedInteractable<AbstractVotable<T>> {
+    private final InteractableKey<Votable<T>> key;
+    private final InteractableEntry<Votable<T>> entry;
+
+    public AbstractVotable(LGGameOrchestrator orchestrator, InteractableKey<Votable<T>> key) {
         super(orchestrator);
+
+        this.key = key;
+        this.entry = new InteractableEntry<>(key, this);
     }
 
     @Override
     public @Nullable T getMajorityTarget() {
         // No votes
-        if (picks.size() == 0) return null;
+        if (getPicks().size() == 0) return null;
         // Only one vote
         // ---
         // MdrJeNinja -> LGCramé
-        if (picks.size() == 1) return picks.values().iterator().next();
+        if (getPicks().size() == 1) return getPicks().values().iterator().next();
 
         Map<T, Integer> votedTargetsCount = getTargetVoteCount();
 
@@ -55,7 +67,7 @@ public abstract class AbstractVotable<T> extends AbstractStatefulPickable<T> imp
         Map<T, Integer> votedTargetsCount = new HashMap<>();
 
         // Fill the votes count map
-        picks.forEach((from, to) -> {
+        getPicks().forEach((from, to) -> {
             int count = votedTargetsCount.getOrDefault(to, 0) + 1;
             votedTargetsCount.put(to, count);
         });
@@ -67,11 +79,37 @@ public abstract class AbstractVotable<T> extends AbstractStatefulPickable<T> imp
         return getTargetVoteCount().values().stream().reduce(0, Integer::sum);
     }
 
+    @Override
+    public void pick(@NotNull LGPlayer picker, @NotNull T target) {
+        super.pick(picker, target);
+        Events.call(new LGPickEvent<>(orchestrator, entry, picker, target));
+    }
+
+    @Override
+    public T removePick(@NotNull LGPlayer from) {
+        T removedTarget = super.removePick(from);
+
+        if (removedTarget != null) {
+            Events.call(new LGPickRemovedEvent<>(orchestrator, entry, from, removedTarget));
+        }
+
+        return removedTarget;
+    }
+
     @NotNull
     private List<Map.Entry<T, Integer>> getTwoHighestVotes(Map<T, Integer> votedTargetsCount) {
         return votedTargetsCount.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(2)
                 .collect(Collectors.toList());
+    }
+
+    public final InteractableEntry<Votable<T>> getEntry() {
+        return entry;
+    }
+
+    @Override
+    public final InteractableKey<Votable<T>> getKey() {
+        return key;
     }
 }

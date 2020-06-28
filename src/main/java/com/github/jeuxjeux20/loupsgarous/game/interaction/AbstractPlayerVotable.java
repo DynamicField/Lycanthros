@@ -1,16 +1,16 @@
-package com.github.jeuxjeux20.loupsgarous.game.stages.interaction;
+package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.condition.FunctionalPickConditions;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.condition.PickConditions;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.error;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
-public abstract class AbstractPlayerVotable extends AbstractVotable<LGPlayer> implements PlayerVotable {
-    public AbstractPlayerVotable(LGGameOrchestrator orchestrator) {
-        super(orchestrator);
+public abstract class AbstractPlayerVotable extends AbstractVotable<LGPlayer> {
+    public AbstractPlayerVotable(LGGameOrchestrator orchestrator, InteractableKey<Votable<LGPlayer>> key) {
+        super(orchestrator, key);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game.stages.interaction;
+package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
 public class InvalidPickException extends RuntimeException {
     public InvalidPickException() {

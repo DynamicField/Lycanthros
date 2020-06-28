@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.chat;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Pickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Pickable;
 
 public class GenericPickChannel<T extends Pickable<?>> implements LGChatChannel {
     private final T pickableProvider;

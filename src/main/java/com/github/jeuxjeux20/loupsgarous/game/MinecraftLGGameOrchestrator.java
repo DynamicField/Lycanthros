@@ -10,6 +10,7 @@ import com.github.jeuxjeux20.loupsgarous.game.event.*;
 import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyCompositionChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerQuitEvent;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableRegistry;
 import com.github.jeuxjeux20.loupsgarous.game.inventory.LGInventoryManager;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.PlayerQuitKillReason;
@@ -49,6 +50,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     private final LGStagesOrchestrator stagesOrchestrator;
     private final LGChatOrchestrator chatManager;
     private final LGKillsOrchestrator killsOrchestrator;
+    private final InteractableRegistry interactableRegistry;
 
     @Inject
     MinecraftLGGameOrchestrator(@Assisted LGGameBootstrapData bootstrapData,
@@ -61,7 +63,8 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
                                 LGLobby.Factory lobbyFactory,
                                 LGCardsOrchestrator.Factory cardOrchestratorFactory,
                                 LGStagesOrchestrator.Factory stagesOrchestratorFactory,
-                                LGKillsOrchestrator.Factory killsOrchestratorFactory) throws GameCreationException {
+                                LGKillsOrchestrator.Factory killsOrchestratorFactory,
+                                InteractableRegistry.Factory interactableRegistryFactory) throws GameCreationException {
         try {
             this.plugin = plugin;
             this.game = new MutableLGGame(bootstrapData.getId());
@@ -72,6 +75,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
             this.stagesOrchestrator = stagesOrchestratorFactory.create(this);
             this.chatManager = chatManagerFactory.create(this);
             this.killsOrchestrator = killsOrchestratorFactory.create(this);
+            this.interactableRegistry = interactableRegistryFactory.create(this);
             LGBossBarManager bossBarManager = bossBarManagerFactory.create(this);
             LGActionBarManager actionBarManager = actionBarManagerFactory.create(this);
 
@@ -115,6 +119,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
     @Override
     public void start() {
+        state.mustNotBe(UNINITIALIZED);
         state.mustBe(READY_TO_START);
 
         game.distributeCards(lobby.composition().get());
@@ -128,8 +133,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
     @Override
     public void finish(LGEnding ending) {
-        // A game can be finished at any state except when it's already finished or deleted.
-        state.mustNotBe(FINISHED, DELETING, DELETED);
+        state.mustNotBe(UNINITIALIZED, FINISHED, DELETING, DELETED);
 
         game.setEnding(ending);
 
@@ -270,6 +274,11 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     @Override
     public Logger logger() {
         return logger;
+    }
+
+    @Override
+    public InteractableRegistry interactables() {
+        return interactableRegistry;
     }
 
     /**

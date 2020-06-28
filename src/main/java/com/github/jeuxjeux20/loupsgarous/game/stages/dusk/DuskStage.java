@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages.dusk;
 
-import com.github.jeuxjeux20.loupsgarous.ComponentBased;
+import com.github.jeuxjeux20.loupsgarous.SafeCast;
 import com.github.jeuxjeux20.loupsgarous.LGChatStuff;
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
@@ -68,12 +68,7 @@ public class    DuskStage extends CountdownLGStage {
         return BarColor.PURPLE;
     }
 
-    @Override
-    public Iterable<? extends Action> getAllComponents() {
-        return actionsToRun;
-    }
-
-    public abstract static class Action implements ComponentBased {
+    public abstract static class Action implements SafeCast {
         abstract protected boolean shouldRun(LGGameOrchestrator orchestrator);
 
         protected void initialize(LGGameOrchestrator orchestrator) {

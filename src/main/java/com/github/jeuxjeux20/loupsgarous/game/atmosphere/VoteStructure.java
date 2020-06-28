@@ -7,7 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEventBase;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.PlayerVotable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -42,7 +42,7 @@ public class VoteStructure implements Structure {
     private final LGGameOrchestrator orchestrator;
     private final Location location;
     private final World world;
-    private final PlayerVotable votable;
+    private final Votable<LGPlayer> votable;
     private final LGGameManager gameManager;
 
     private final int spacing = 3;
@@ -51,7 +51,7 @@ public class VoteStructure implements Structure {
     private BackedStructure backedStructure = BackedStructure.EMPTY;
 
     @Inject
-    VoteStructure(@Assisted LGGameOrchestrator orchestrator, @Assisted Location location, @Assisted PlayerVotable votable,
+    VoteStructure(@Assisted LGGameOrchestrator orchestrator, @Assisted Location location, @Assisted Votable<LGPlayer> votable,
                   LGGameManager gameManager) {
         this.orchestrator = orchestrator;
         this.location = location;
@@ -207,6 +207,6 @@ public class VoteStructure implements Structure {
     }
 
     public interface Factory {
-        VoteStructure create(LGGameOrchestrator orchestrator, Location location, PlayerVotable votable);
+        VoteStructure create(LGGameOrchestrator orchestrator, Location location, Votable<LGPlayer> votable);
     }
 }

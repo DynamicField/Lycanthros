@@ -8,12 +8,13 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.SorciereCard;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.*;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.NightKillReason;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.*;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.condition.FunctionalPickConditions;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.text.Text;
@@ -24,7 +25,6 @@ import me.lucko.helper.text.format.TextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
@@ -33,7 +33,7 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 import static me.lucko.helper.text.format.TextColor.*;
 import static me.lucko.helper.text.format.TextDecoration.BOLD;
 
-public class SorcierePotionStage extends CountdownLGStage {
+public class SorcierePotionStage extends CountdownLGStage implements InteractableProvider {
     private final SorciereHealable healable;
     private final SorciereKillable killable;
 
@@ -70,11 +70,6 @@ public class SorcierePotionStage extends CountdownLGStage {
     @Override
     public String getTitle() {
         return "La sorcière va utiliser ses potions...";
-    }
-
-    @Override
-    public Iterable<? extends Pickable<?>> getAllComponents() {
-        return Arrays.asList(healable, killable);
     }
 
     public SorciereHealable heals() {
@@ -174,7 +169,15 @@ public class SorcierePotionStage extends CountdownLGStage {
                 .ensurePicker(this::canAct);
     }
 
-    public class SorciereHealable implements Healable {
+    @Override
+    public Set<InteractableEntry<?>> getInteractables() {
+        return ImmutableSet.of(
+                new InteractableEntry<>(LGInteractableKeys.HEAL, healable),
+                new InteractableEntry<>(LGInteractableKeys.KILL, killable)
+        );
+    }
+
+    public class SorciereHealable implements Pickable<LGPlayer> {
         private SorciereHealable() {
         }
 
@@ -212,14 +215,14 @@ public class SorcierePotionStage extends CountdownLGStage {
         }
     }
 
-    public class SorciereKillable implements Killable {
+    public class SorciereKillable implements Pickable<LGPlayer> {
         private SorciereKillable() {
         }
 
         @Override
         public PickConditions<LGPlayer> conditions() {
             return baseBuilder()
-                    .apply(Killable::addBasicChecks)
+                    .apply(PickableConditions::ensureKillTargetAlive)
                     .ensurePicker(this::hasKillPotion, "Vous avez déjà utilisé votre potion de mort !")
                     .build();
         }

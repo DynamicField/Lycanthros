@@ -30,7 +30,7 @@ public class LGSkipStageCommand implements HelperCommandRegisterer {
     }
 
     private void handle(CommandContext<Player> context, LGPlayer player, LGGameOrchestrator orchestrator) {
-        orchestrator.stages().current().getComponent(CountdownTimedStage.class)
+        orchestrator.stages().current().safeCast(CountdownTimedStage.class)
                 .map(CountdownTimedStage::getCountdown)
                 .ifPresent(Countdown::interrupt);
     }

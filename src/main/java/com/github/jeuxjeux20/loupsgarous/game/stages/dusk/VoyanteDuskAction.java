@@ -4,12 +4,11 @@ import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.VoyanteCard;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.condition.FunctionalPickConditions;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Lookable;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.condition.PickConditions;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Pickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
-import com.google.common.collect.ImmutableList;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -47,16 +46,11 @@ public class VoyanteDuskAction extends DuskStage.Action {
         return "La voyante va découvrir le rôle de quelqu'un...";
     }
 
-    public Lookable look() {
+    public VoyanteLookable look() {
         return lookable;
     }
 
-    @Override
-    public Iterable<?> getAllComponents() {
-        return ImmutableList.of(lookable);
-    }
-
-    private static class VoyanteLookable implements Lookable {
+    private static class VoyanteLookable implements Pickable<LGPlayer> {
         private final List<LGPlayer> playersWhoLooked = new ArrayList<>();
 
         @Override

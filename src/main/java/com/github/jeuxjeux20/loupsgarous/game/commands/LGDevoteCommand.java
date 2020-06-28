@@ -4,8 +4,9 @@ import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.PlayerVotable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
+import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.google.inject.Inject;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -23,19 +24,23 @@ public class LGDevoteCommand extends LGGameCommand {
                           Player player, Command command, String label, String[] args) {
         if (args.length != 0) return false;
 
-        LGStage stage = orchestrator.stages().current();
+        SafeResult<Votable<LGPlayer>> maybeVotable = orchestrator.interactables().single(LGInteractableKeys.PLAYER_VOTE)
+                .check(x -> x.conditions().checkPicker(lgPlayer))
+                .failureMessage("Ce n'est pas l'heure de voter !")
+                .get();
 
-        PlayerVotable votable = stage.getComponent(PlayerVotable.class).orElse(null);
-        if (votable == null) {
-            player.sendMessage(ChatColor.RED + "Ce n'est pas l'heure de voter !");
-            return true;
-        }
+        maybeVotable.ifSuccessOrElse(
+                votable -> {
+                    if (!votable.hasPick(lgPlayer)) {
+                        player.sendMessage(ChatColor.RED + "Vous ne votez pour personne.");
+                    } else {
+                        votable.removePick(lgPlayer);
+                    }
+                },
+                error -> player.sendMessage(ChatColor.RED + error)
+        );
 
-        if (!votable.hasPick(lgPlayer)) {
-            player.sendMessage(ChatColor.RED + "Vous ne votez pour personne.");
-        } else {
-            votable.removePick(lgPlayer);
-        }
         return true;
     }
 }
+

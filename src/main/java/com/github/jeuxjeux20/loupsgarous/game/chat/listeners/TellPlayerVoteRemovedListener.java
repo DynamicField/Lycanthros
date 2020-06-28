@@ -3,7 +3,8 @@ package com.github.jeuxjeux20.loupsgarous.game.chat.listeners;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.PlayerVotable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableTypes;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,13 +17,13 @@ public class TellPlayerVoteRemovedListener implements Listener {
 
     @EventHandler
     public void onPickRemoved(LGPickRemovedEvent<?, ?> e) {
-        e.cast(PlayerVotable.class)
+        e.cast(LGInteractableTypes.PLAYER_VOTABLE)
                 .filter(LGPickRemovedEvent::isOrganic)
                 .ifPresent(this::onVoteRemoved);
     }
 
-    private void onVoteRemoved(LGPickRemovedEvent<LGPlayer, PlayerVotable> event) {
-        LGChatChannel channel = event.getPickable().getInfoMessagesChannel();
+    private void onVoteRemoved(LGPickRemovedEvent<LGPlayer, Votable<LGPlayer>> event) {
+        LGChatChannel channel = event.getEntry().getValue().getInfoMessagesChannel();
 
         String message = vote(player(event.getPicker().getName())) +
                          vote(" retire son vote ") +

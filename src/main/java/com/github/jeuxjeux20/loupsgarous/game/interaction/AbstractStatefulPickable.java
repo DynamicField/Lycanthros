@@ -1,11 +1,9 @@
-package com.github.jeuxjeux20.loupsgarous.game.stages.interaction;
+package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGKillEvent;
-import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
-import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.util.ClassArrayUtils;
 import com.google.common.collect.ImmutableList;
@@ -14,14 +12,17 @@ import me.lucko.helper.Events;
 import me.lucko.helper.event.MergedSubscription;
 import me.lucko.helper.terminable.Terminable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractStatefulPickable<T> implements StatefulPickable<T>, Terminable {
-    protected final Map<LGPlayer, T> picks = new HashMap<>();
+    protected final LGGameOrchestrator orchestrator;
 
-    private final LGGameOrchestrator orchestrator;
-
+    private final Map<LGPlayer, T> picks = new HashMap<>();
     private final MergedSubscription<LGEvent> invalidateEventSubscription;
 
     public AbstractStatefulPickable(LGGameOrchestrator orchestrator) {
@@ -38,17 +39,13 @@ public abstract class AbstractStatefulPickable<T> implements StatefulPickable<T>
     }
 
     @Override
-    public final void pick(@NotNull LGPlayer picker, @NotNull T target) {
+    public void pick(@NotNull LGPlayer picker, @NotNull T target) {
         conditions().throwIfInvalid(picker, target);
         picks.put(picker, target);
-        Events.call(new LGPickEvent<>(orchestrator, this, picker, target));
     }
 
-    public final void removePick(@NotNull LGPlayer from) {
-        T removed = picks.remove(from);
-        if (removed != null) {
-            Events.call(new LGPickRemovedEvent<>(orchestrator, this, from, removed));
-        }
+    public @Nullable T removePick(@NotNull LGPlayer from) {
+        return picks.remove(from);
     }
 
     public synchronized final boolean hasPick(@NotNull LGPlayer from) {

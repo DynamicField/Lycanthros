@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game.stages.interaction.condition;
+package com.github.jeuxjeux20.loupsgarous.game.interaction.condition;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.util.Check;

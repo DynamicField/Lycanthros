@@ -1,9 +1,9 @@
-package com.github.jeuxjeux20.loupsgarous.game.stages.interaction;
+package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
 import java.util.Map;
 
-public interface Votable<T> extends StatefulPickable<T> {
-    String getIndicator();
+public interface Votable<T> extends StatefulPickable<T>, NotifyingInteractable {
+    String getPointingText();
 
     /**
      * Gets the target with the vote majority.
@@ -24,6 +24,7 @@ public interface Votable<T> extends StatefulPickable<T> {
      *
      * @return a map representing the targets and the count of votes they got
      */
+    // TODO: Use a Multiset
     Map<T, Integer> getTargetVoteCount();
 
     int getTotalVoteCount();

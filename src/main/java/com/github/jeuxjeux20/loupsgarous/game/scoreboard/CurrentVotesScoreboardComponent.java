@@ -6,7 +6,8 @@ import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartingEvent;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.PlayerVotable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.ChatColor;
 
@@ -20,8 +21,10 @@ public class CurrentVotesScoreboardComponent implements ScoreboardComponent {
         ImmutableList.Builder<Line> lines = ImmutableList.builder();
 
         // TODO: Broader votables
-        Optional<PlayerVotable> maybeVotable = orchestrator.stages().current().getComponent(PlayerVotable.class,
-                x -> x.conditions().checkPicker(player).isSuccess());
+        Optional<Votable<LGPlayer>> maybeVotable =
+                orchestrator.interactables().single(LGInteractableKeys.PLAYER_VOTE)
+                        .check(x -> x.conditions().checkPicker(player))
+                        .getOptional();
 
         maybeVotable.ifPresent(votable -> {
             lines.add(new Line(ChatColor.LIGHT_PURPLE + "-= Votes =-"));

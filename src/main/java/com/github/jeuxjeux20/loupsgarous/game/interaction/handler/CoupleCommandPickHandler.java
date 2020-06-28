@@ -1,21 +1,17 @@
-package com.github.jeuxjeux20.loupsgarous.game.stages.interaction.handler;
+package com.github.jeuxjeux20.loupsgarous.game.interaction.handler;
 
 import com.github.jeuxjeux20.loupsgarous.LGMessages;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Couple;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.CoupleCreator;
-import com.github.jeuxjeux20.loupsgarous.game.stages.interaction.Pickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Couple;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Pickable;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
-import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import me.lucko.helper.command.context.CommandContext;
 import me.lucko.helper.command.functional.FunctionalCommandBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.Optional;
-
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.error;
 
 public class CoupleCommandPickHandler implements CommandPickHandler<Pickable<Couple>> {
     @Override
@@ -28,27 +24,11 @@ public class CoupleCommandPickHandler implements CommandPickHandler<Pickable<Cou
         String partner1Name = context.arg(0).value().orElseThrow(AssertionError::new);
         String partner2Name = context.arg(1).value().orElseThrow(AssertionError::new);
 
-        Optional<SafeResult<CoupleCreator>> maybeCoupleCreator = orchestrator.stages().current()
-                .getSafeComponent(CoupleCreator.class, x -> x.conditions().checkPicker(player));
-
-        CoupleCreator coupleCreator = maybeCoupleCreator
-                .flatMap(SafeResult::getValueOptional)
-                .orElse(null);
-
-        if (coupleCreator == null) {
-            String errorMessage = maybeCoupleCreator
-                    .flatMap(SafeResult::getErrorMessageOptional)
-                    .orElse("Ce n'est pas l'heure !");
-
-            context.reply(error(errorMessage));
-            return;
-        }
-
         createCouple(partner1Name, partner2Name, orchestrator, context.sender()).ifPresent(couple -> {
-            Check check = coupleCreator.conditions().checkPick(player, couple);
+            Check check = pickable.conditions().checkPick(player, couple);
 
             if (check.isSuccess()) {
-                coupleCreator.pick(player, couple);
+                pickable.pick(player, couple);
             }
             else {
                 context.reply(ChatColor.RED + check.getErrorMessage());
