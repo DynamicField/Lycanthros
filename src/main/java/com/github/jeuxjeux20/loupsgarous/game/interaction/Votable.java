@@ -1,8 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
-import java.util.Map;
+import com.google.common.collect.Multiset;
 
-public interface Votable<T> extends StatefulPickable<T>, NotifyingInteractable {
+public interface Votable<T> extends StatefulPickable<T>, Interactable {
     String getPointingText();
 
     /**
@@ -10,10 +10,10 @@ public interface Votable<T> extends StatefulPickable<T>, NotifyingInteractable {
      *
      * @return the most voted target, or {@code null} if there isn't a clear distinction
      */
-    T getMajorityTarget();
+    T getMajority();
 
     /**
-     * Gets a map with the value representing how much votes the target (the key) got.
+     * Gets a multiset representing the occurrences of each voted players.
      * <p>
      * <b>Example:</b>
      * <pre>{@code
@@ -22,10 +22,7 @@ public interface Votable<T> extends StatefulPickable<T>, NotifyingInteractable {
      * InsererPseudo -> Woufe            | LoL        : 1 vote
      * CETAIT_SUR    -> LoL              - }</pre>
      *
-     * @return a map representing the targets and the count of votes they got
+     * @return a multiset representing the occurrences of each voted players
      */
-    // TODO: Use a Multiset
-    Map<T, Integer> getTargetVoteCount();
-
-    int getTotalVoteCount();
+    Multiset<T> getVotes();
 }

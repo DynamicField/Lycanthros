@@ -76,7 +76,7 @@ public class VoteStructure implements Structure {
         List<LGPlayer> players = orchestrator.game().getPlayers().stream()
                 .filter(Check.predicate(votable.conditions()::checkTarget))
                 .collect(Collectors.toList());
-        LGPlayer playerWithMostVotes = votable.getMajorityTarget();
+        LGPlayer playerWithMostVotes = votable.getMajority();
 
         return new BuildingContext(players, playerWithMostVotes);
     }
@@ -102,7 +102,7 @@ public class VoteStructure implements Structure {
     }
 
     private ArmorStand createArmorStand(LGPlayer player, Location armorStandLocation, BuildingContext context) {
-        int voteCount = votable.getTargetVoteCount().getOrDefault(player, 0);
+        int voteCount = votable.getVotes().count(player);
         String color = context.playerWithMostVotes == player ? ChatColor.RED.toString() + ChatColor.BOLD : "";
 
         ArmorStand armorStand = world.spawn(armorStandLocation, ArmorStand.class);

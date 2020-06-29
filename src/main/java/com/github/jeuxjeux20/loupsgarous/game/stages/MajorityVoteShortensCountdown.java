@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * When annotated on a {@link LGStage} implementing {@link CountdownTimedStage} with the first votable
  * of the specified key name ({@link #value()}),
  * changes the timer of the {@linkplain CountdownTimedStage#getCountdown() countdown} to
- * {@link #timeLeft()} when {@linkplain AbstractPlayerVotable#getMajorityTarget() the player with the most votes}
+ * {@link #timeLeft()} when {@linkplain AbstractPlayerVotable#getMajority() the player with the most votes}
  * holds the same or more vote share than the {@link #majorityPercentage()}.
  * <p>
  * However, if some votes change and the majority becomes invalid, the

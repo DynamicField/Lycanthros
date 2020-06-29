@@ -4,14 +4,14 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
 import me.lucko.helper.Events;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public abstract class AbstractVotable<T, E extends Pickable<T>>
@@ -23,7 +23,7 @@ public abstract class AbstractVotable<T, E extends Pickable<T>>
     }
 
     @Override
-    public @Nullable T getMajorityTarget() {
+    public @Nullable T getMajority() {
         // No votes
         if (getPicks().size() == 0) return null;
         // Only one vote
@@ -31,57 +31,50 @@ public abstract class AbstractVotable<T, E extends Pickable<T>>
         // MdrJeNinja -> LGCramé
         if (getPicks().size() == 1) return getPicks().values().iterator().next();
 
-        Map<T, Integer> votedTargetsCount = getTargetVoteCount();
+        Multiset<T> votes = getVotes();
 
         // Unanimous vote
         // ---
         // ElFamosoLG : 10 votes
-        if (votedTargetsCount.size() == 1) return votedTargetsCount.keySet().iterator().next(); // First item
+        if (votes.elementSet().size() == 1) return votes.iterator().next(); // First item
 
-        List<Map.Entry<T, Integer>> highestVoteCounts = getTwoHighestVotes(votedTargetsCount);
+        List<Multiset.Entry<T>> highestVoteCounts = getTwoHighestVotes(votes);
 
-        Map.Entry<T, Integer> highestVote = highestVoteCounts.get(0);
-        Map.Entry<T, Integer> secondHighestVote = highestVoteCounts.get(1);
+        Multiset.Entry<T> highestVote = highestVoteCounts.get(0);
+        Multiset.Entry<T> secondHighestVote = highestVoteCounts.get(1);
 
         // If the two highest votes are the same, nobody gets elected.
         // ---
         // ChatonDouteux  : 5 votes    | highestVote
         // SuperMangeChat : 5 votes    | secondHighestVote
         // JeSuisInno     : 4 votes    --------------------
-        if (highestVote.getValue().equals(secondHighestVote.getValue())) return null;
+        if (highestVote.getCount() == secondHighestVote.getCount()) return null;
 
         // If it's not the same count then it's the highestVote gets elected, for good or for worse.
         // ---
         // LGCramé        : 8 votes    | highestVote
         // EncoreUnLG     : 5 votes    | secondHighestVote
-        return highestVote.getKey();
+        return highestVote.getElement();
     }
 
     @Override
-    public Map<T, Integer> getTargetVoteCount() {
-        Map<T, Integer> votedTargetsCount = new HashMap<>();
+    public Multiset<T> getVotes() {
+        Multiset<T> multiset = HashMultiset.create();
 
-        // Fill the votes count map
-        getPicks().forEach((from, to) -> {
-            int count = votedTargetsCount.getOrDefault(to, 0) + 1;
-            votedTargetsCount.put(to, count);
-        });
-        return votedTargetsCount;
+        // Fill the multiset
+        getPicks().forEach((from, to) -> multiset.add(to));
+
+        return multiset;
     }
 
     @Override
-    public int getTotalVoteCount() {
-        return getTargetVoteCount().values().stream().reduce(0, Integer::sum);
-    }
-
-    @Override
-    public void safePick(@NotNull LGPlayer picker, @NotNull T target) {
+    public final void safePick(LGPlayer picker, T target) {
         super.safePick(picker, target);
         Events.call(new LGPickEvent(orchestrator, createPick(picker, target)));
     }
 
     @Override
-    protected @Nullable T safeRemovePick(LGPlayer picker, boolean isInvalidate) {
+    protected final @Nullable T safeRemovePick(LGPlayer picker, boolean isInvalidate) {
         T removedTarget = super.safeRemovePick(picker, isInvalidate);
 
         if (removedTarget != null) {
@@ -91,14 +84,14 @@ public abstract class AbstractVotable<T, E extends Pickable<T>>
         return removedTarget;
     }
 
-    private Pick<T, E> createPick(@NotNull LGPlayer picker, @NotNull T target) {
+    private Pick<T, E> createPick(LGPlayer picker, T target) {
         return new Pick<>(getEntry(), picker, target);
     }
 
     @NotNull
-    private List<Map.Entry<T, Integer>> getTwoHighestVotes(Map<T, Integer> votedTargetsCount) {
-        return votedTargetsCount.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+    private List<Multiset.Entry<T>> getTwoHighestVotes(Multiset<T> votes) {
+        return votes.entrySet().stream()
+                .sorted(Comparator.<Multiset.Entry<T>, Integer>comparing(Multiset.Entry::getCount).reversed())
                 .limit(2)
                 .collect(Collectors.toList());
     }

@@ -49,7 +49,8 @@ public class LoupGarouVoteStage extends CountdownLGStage {
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.turn().getTime() == LGGameTurnTime.NIGHT;
+        return orchestrator.turn().getTime() == LGGameTurnTime.NIGHT &&
+               votable.canSomeonePick(orchestrator);
     }
 
     @Override
@@ -75,7 +76,7 @@ public class LoupGarouVoteStage extends CountdownLGStage {
     }
 
     private void computeVoteOutcome() {
-        LGPlayer playerWithMostVotes = votable.getMajorityTarget();
+        LGPlayer playerWithMostVotes = votable.getMajority();
         isVoteSuccessful = playerWithMostVotes != null;
 
         if (isVoteSuccessful) {
@@ -116,9 +117,9 @@ public class LoupGarouVoteStage extends CountdownLGStage {
         }
 
         @Override
-        public PickConditions<LGPlayer> additionalConditions() {
+        public PickConditions<LGPlayer> additionalVoteConditions() {
             return FunctionalPickConditions.<LGPlayer>builder()
-                    .ensurePicker(this::isLoupGarou, "Impossible de voter, car vous n'êtes pas loup-garou !")
+                    .ensurePicker(this::isLoupGarou, "Vous n'êtes pas loup-garou !")
                     .build();
         }
 

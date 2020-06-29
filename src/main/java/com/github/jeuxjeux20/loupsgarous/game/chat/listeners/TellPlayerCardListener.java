@@ -14,12 +14,15 @@ public class TellPlayerCardListener implements Listener {
         event.getGame().getPlayers().forEach(this::sendMessage);
     }
 
-    private void sendMessage(LGPlayer lgPlayer, Player minecraftPlayer) {
-        String cardName = lgPlayer.getCard().getName();
-        String cardDescription = lgPlayer.getCard().getDescription();
+    private void sendMessage(LGPlayer player, Player minecraftPlayer) {
+        String cardName = player.getCard().getName();
+        String cardDescription = player.getCard().getDescription();
+        boolean isFeminine = player.getCard().isFeminineName();
+
+        String article = isFeminine ? "une" : "un";
 
         String message = LGChatStuff.BANNER + "\n" +
-                         ChatColor.BLUE + "Tu est un " + ChatColor.GOLD + cardName + ChatColor.BLUE + ".\n" +
+                         ChatColor.BLUE + "Tu est " + article + " " + ChatColor.GOLD + cardName + ChatColor.BLUE + ".\n" +
                          ChatColor.YELLOW + cardDescription + "\n" +
                          LGChatStuff.BANNER;
 

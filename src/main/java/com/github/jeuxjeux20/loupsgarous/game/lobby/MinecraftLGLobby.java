@@ -108,7 +108,11 @@ class MinecraftLGLobby implements LGLobby {
         if (player == null) return false;
 
         player.setAway(true);
-        getGame().removePlayer(playerUUID);
+        if (!isLocked()) {
+            // Let's not remove the player when the game's locked.
+            // This would lead to weird reference issues.
+            getGame().removePlayer(playerUUID);
+        }
 
         if (player == owner) {
             putRandomOwner();
@@ -158,7 +162,7 @@ class MinecraftLGLobby implements LGLobby {
         LGPlayer oldOwner = this.owner;
         this.owner = newOwner;
 
-        Events.call(new LGLobbyOwnerChangeEvent(orchestrator, oldOwner, owner));
+        Events.call(new LGLobbyOwnerChangeEvent(orchestrator, oldOwner.getOfflineMinecraftPlayer(), owner));
     }
 
     @Override

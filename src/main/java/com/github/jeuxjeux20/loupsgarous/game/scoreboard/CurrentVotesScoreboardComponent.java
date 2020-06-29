@@ -29,9 +29,9 @@ public class CurrentVotesScoreboardComponent implements ScoreboardComponent {
         maybeVotable.ifPresent(votable -> {
             lines.add(new Line(ChatColor.LIGHT_PURPLE + "-= Votes =-"));
 
-            LGPlayer playerWithMostVotes = votable.getMajorityTarget();
+            LGPlayer playerWithMostVotes = votable.getMajority();
 
-            votable.getTargetVoteCount().forEach((votedPlayer, voteCount) -> {
+            votable.getVotes().forEachEntry((votedPlayer, voteCount) -> {
                 boolean isMostVotes = playerWithMostVotes == votedPlayer;
                 String color = isMostVotes ? ChatColor.RED.toString() + ChatColor.BOLD : "";
 

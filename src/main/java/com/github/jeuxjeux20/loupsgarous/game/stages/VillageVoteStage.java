@@ -9,6 +9,7 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerVotable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.VillageVoteKillReason;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -46,7 +47,8 @@ public class VillageVoteStage extends CountdownLGStage {
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.turn().getTime() == LGGameTurnTime.DAY;
+        return orchestrator.turn().getTime() == LGGameTurnTime.DAY &&
+               votable.canSomeonePick(orchestrator);
     }
 
     @Override
@@ -71,7 +73,7 @@ public class VillageVoteStage extends CountdownLGStage {
     }
 
     private void computeVoteOutcome() {
-        LGPlayer playerWithMostVotes = votable.getMajorityTarget();
+        LGPlayer playerWithMostVotes = votable.getMajority();
         if (playerWithMostVotes != null) {
             orchestrator.kills().instantly(playerWithMostVotes, VillageVoteKillReason::new);
         } else {
@@ -91,6 +93,11 @@ public class VillageVoteStage extends CountdownLGStage {
         @Override
         public InteractableEntry<Votable<LGPlayer>> getEntry() {
             return new InteractableEntry<>(LGInteractableKeys.PLAYER_VOTE, this);
+        }
+
+        @Override
+        protected PickConditions<LGPlayer> additionalVoteConditions() {
+            return PickConditions.empty();
         }
 
         @Override

@@ -44,7 +44,7 @@ public class CupidonCoupleStage extends CountdownLGStage {
 
     @Override
     public boolean shouldRun() {
-        return coupleCreator.getEligibleCupidons().findAny().isPresent();
+        return coupleCreator.canSomeonePick(orchestrator);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class CupidonCoupleStage extends CountdownLGStage {
         }
 
         @Override
-        public PickConditions<Couple> conditions() {
+        public PickConditions<Couple> pickConditions() {
             return FunctionalPickConditions.<Couple>builder()
                     .ensurePicker(this::isCupidon, "Vous n'êtes pas cupidon !")
                     .ensurePicker(LGPlayer::isAlive, "Vous êtes mort !")
@@ -162,7 +162,7 @@ public class CupidonCoupleStage extends CountdownLGStage {
         }
 
         Stream<LGPlayer> getEligibleCupidons() {
-            return orchestrator.game().getPlayers().stream().filter(Check.predicate(conditions()::checkPicker));
+            return getEligiblePickers(orchestrator);
         }
 
         Stream<LGPlayer> getEligiblePartners() {

@@ -57,7 +57,7 @@ public class VoyanteDuskAction extends DuskStage.Action {
         private final List<LGPlayer> playersWhoLooked = new ArrayList<>();
 
         @Override
-        public PickConditions<LGPlayer> conditions() {
+        public PickConditions<LGPlayer> pickConditions() {
             return FunctionalPickConditions.<LGPlayer>builder()
                     .ensurePicker(this::isVoyante, "Vous n'êtes pas voyante !")
                     .ensurePicker(LGPlayer::isAlive, "Vous êtes mort !")

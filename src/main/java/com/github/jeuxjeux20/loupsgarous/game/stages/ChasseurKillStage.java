@@ -41,6 +41,11 @@ public class ChasseurKillStage extends CountdownLGStage {
     }
 
     @Override
+    public boolean shouldRun() {
+        return killable.canSomeonePick(orchestrator);
+    }
+
+    @Override
     protected void start() {
         chasseur.getMinecraftPlayer().ifPresent(player -> {
             player.spigot().respawn();
@@ -91,7 +96,7 @@ public class ChasseurKillStage extends CountdownLGStage {
         }
 
         @Override
-        public PickConditions<LGPlayer> conditions() {
+        public PickConditions<LGPlayer> pickConditions() {
             return FunctionalPickConditions.<LGPlayer>builder()
                     .ensurePicker(this::isChasseur, "Vous n'êtes pas chasseur !")
                     .ensurePicker(this::isTheirTurn, "Ce n'est pas à votre tour !")

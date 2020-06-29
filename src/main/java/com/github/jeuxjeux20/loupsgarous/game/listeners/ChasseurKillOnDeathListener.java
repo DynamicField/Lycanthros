@@ -23,7 +23,8 @@ public class ChasseurKillOnDeathListener implements Listener {
         for (LGKill kill : event.getKills()) {
             LGPlayer whoDied = kill.getWhoDied();
 
-            if (!(whoDied.getCard() instanceof ChasseurCard)) return;
+            if (!(whoDied.getCard() instanceof ChasseurCard) ||
+                whoDied.isAway()) return;
 
             event.getOrchestrator().stages().insert(o -> chasseurStageFactory.create(o, whoDied));
         }

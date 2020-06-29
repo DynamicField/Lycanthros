@@ -14,23 +14,21 @@ public abstract class AbstractPlayerVotable<E extends Pickable<LGPlayer>> extend
     }
 
     @Override
-    public final PickConditions<LGPlayer> conditions() {
+    public final PickConditions<LGPlayer> pickConditions() {
         return FunctionalPickConditions.<LGPlayer>builder()
-                .use(defaultConditions())
-                .use(additionalConditions())
+                .use(defaultVoteConditions())
+                .use(additionalVoteConditions())
                 .build();
     }
 
-    protected PickConditions<LGPlayer> defaultConditions() {
+    protected PickConditions<LGPlayer> defaultVoteConditions() {
         return FunctionalPickConditions.<LGPlayer>builder()
                 .ensurePicker(LGPlayer::isAlive, this::getPickerDeadError)
                 .ensureTarget(LGPlayer::isAlive, this::getTargetDeadError)
                 .build();
     }
 
-    protected PickConditions<LGPlayer> additionalConditions() {
-        return PickConditions.empty();
-    }
+    protected abstract PickConditions<LGPlayer> additionalVoteConditions();
 
     protected String getTargetDeadError(LGPlayer target) {
         return error("Impossible de voter pour ") + player(target.getName()) + error(" car il est mort !");

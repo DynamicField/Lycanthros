@@ -178,7 +178,7 @@ public class SorcierePotionStage extends CountdownLGStage {
         }
 
         @Override
-        public PickConditions<LGPlayer> conditions() {
+        public PickConditions<LGPlayer> pickConditions() {
             return baseBuilder()
                     .ensurePicker(this::hasHealPotion, "Vous avez déjà utilisé votre potion de soin !")
                     .ensureTarget(this::willDieTonight, "Ce joueur ne va pas mourir ce tour ci.")
@@ -214,7 +214,7 @@ public class SorcierePotionStage extends CountdownLGStage {
         }
 
         @Override
-        public PickConditions<LGPlayer> conditions() {
+        public PickConditions<LGPlayer> pickConditions() {
             return baseBuilder()
                     .apply(PickableConditions::ensureKillTargetAlive)
                     .ensurePicker(this::hasKillPotion, "Vous avez déjà utilisé votre potion de mort !")
