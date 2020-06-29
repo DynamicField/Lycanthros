@@ -14,17 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class AbstractVotable<T>
+public abstract class AbstractVotable<T, E extends Pickable<T>>
         extends AbstractStatefulPickable<T>
-        implements Votable<T>, SelfKeyedInteractable<AbstractVotable<T>> {
-    private final InteractableKey<Votable<T>> key;
-    private final InteractableEntry<Votable<T>> entry;
+        implements Votable<T>, SelfAwareInteractable<E> {
 
-    public AbstractVotable(LGGameOrchestrator orchestrator, InteractableKey<Votable<T>> key) {
+    public AbstractVotable(LGGameOrchestrator orchestrator) {
         super(orchestrator);
-
-        this.key = key;
-        this.entry = new InteractableEntry<>(key, this);
     }
 
     @Override
@@ -80,20 +75,24 @@ public abstract class AbstractVotable<T>
     }
 
     @Override
-    public void pick(@NotNull LGPlayer picker, @NotNull T target) {
-        super.pick(picker, target);
-        Events.call(new LGPickEvent<>(orchestrator, entry, picker, target));
+    public void safePick(@NotNull LGPlayer picker, @NotNull T target) {
+        super.safePick(picker, target);
+        Events.call(new LGPickEvent(orchestrator, createPick(picker, target)));
     }
 
     @Override
-    public T removePick(@NotNull LGPlayer from) {
-        T removedTarget = super.removePick(from);
+    protected @Nullable T safeRemovePick(LGPlayer picker, boolean isInvalidate) {
+        T removedTarget = super.safeRemovePick(picker, isInvalidate);
 
         if (removedTarget != null) {
-            Events.call(new LGPickRemovedEvent<>(orchestrator, entry, from, removedTarget));
+            Events.call(new LGPickRemovedEvent(orchestrator, createPick(picker, removedTarget), isInvalidate));
         }
 
         return removedTarget;
+    }
+
+    private Pick<T, E> createPick(@NotNull LGPlayer picker, @NotNull T target) {
+        return new Pick<>(getEntry(), picker, target);
     }
 
     @NotNull
@@ -102,14 +101,5 @@ public abstract class AbstractVotable<T>
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(2)
                 .collect(Collectors.toList());
-    }
-
-    public final InteractableEntry<Votable<T>> getEntry() {
-        return entry;
-    }
-
-    @Override
-    public final InteractableKey<Votable<T>> getKey() {
-        return key;
     }
 }

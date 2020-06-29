@@ -4,6 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableTypes;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Pick;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
@@ -16,18 +17,21 @@ public class TellPlayerVoteRemovedListener implements Listener {
     // TODO: Broader votables
 
     @EventHandler
-    public void onPickRemoved(LGPickRemovedEvent<?, ?> e) {
-        e.cast(LGInteractableTypes.PLAYER_VOTABLE)
-                .filter(LGPickRemovedEvent::isOrganic)
-                .ifPresent(this::onVoteRemoved);
+    public void onPickRemoved(LGPickRemovedEvent event) {
+        if (!event.isOrganic()) {
+            return;
+        }
+
+        event.getPick().cast(LGInteractableTypes.PLAYER_VOTABLE)
+                .ifPresent(p -> onVoteRemoved(event, p));
     }
 
-    private void onVoteRemoved(LGPickRemovedEvent<LGPlayer, Votable<LGPlayer>> event) {
-        LGChatChannel channel = event.getEntry().getValue().getInfoMessagesChannel();
+    private void onVoteRemoved(LGPickRemovedEvent event, Pick<LGPlayer, Votable<LGPlayer>> pick) {
+        LGChatChannel channel = pick.getEntry().getValue().getInfoMessagesChannel();
 
-        String message = vote(player(event.getPicker().getName())) +
+        String message = vote(player(pick.getPicker().getName())) +
                          vote(" retire son vote ") +
-                         ChatColor.ITALIC + "(" + player(ChatColor.ITALIC + event.getTarget().getName()) +
+                         ChatColor.ITALIC + "(" + player(ChatColor.ITALIC + pick.getTarget().getName()) +
                          vote(ChatColor.ITALIC + ")");
 
         event.getOrchestrator().chat().sendMessage(channel, message);

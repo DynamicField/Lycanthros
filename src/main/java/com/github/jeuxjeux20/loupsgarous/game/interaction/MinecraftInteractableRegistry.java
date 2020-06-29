@@ -1,35 +1,35 @@
 package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.finders.InteractableFinder;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.github.jeuxjeux20.loupsgarous.util.CheckPredicate;
 import com.github.jeuxjeux20.loupsgarous.util.CheckStreams;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.*;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import me.lucko.helper.terminable.composite.CompositeClosingException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 class MinecraftInteractableRegistry implements InteractableRegistry {
-    private final LGGameOrchestrator orchestrator;
-    private final InteractableFinder interactableFinder;
+    private final SetMultimap<InteractableKey<?>, Interactable> map = MultimapBuilder.hashKeys().hashSetValues().build();
 
     @Inject
-    MinecraftInteractableRegistry(@Assisted LGGameOrchestrator orchestrator,
-                                  InteractableFinder interactableFinder) {
-        this.orchestrator = orchestrator;
-        this.interactableFinder = interactableFinder;
+    MinecraftInteractableRegistry(@Assisted LGGameOrchestrator orchestrator) {
+        bindWith(orchestrator);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T extends Interactable> ImmutableSet<T> get(InteractableKey<T> key) {
-        // Safe because the map is created using getAll().
-        return (ImmutableSet<T>) getAll().get(key);
+        cleanTerminatedValues(key);
+
+        // Safe because we check the key type every time we put something.
+        Set<? extends T> interactables = (Set<? extends T>) map.get(key);
+
+        return ImmutableSet.copyOf(interactables);
     }
 
     @Override
@@ -38,28 +38,73 @@ class MinecraftInteractableRegistry implements InteractableRegistry {
     }
 
     @Override
-    public <T extends Interactable> boolean isPresent(InteractableEntry<T> entry) {
-        return getAll().containsEntry(entry.getKey(), entry.getValue());
+    public <T extends Interactable> boolean put(InteractableKey<T> key, T value) {
+        checkKeyType(key);
+
+        return map.put(key, value);
+    }
+
+    @Override
+    public <T extends Interactable> boolean remove(InteractableKey<T> key, T value) {
+        // Close the interactable before we remove it.
+        value.closeAndReportException();
+
+        return map.remove(key, value);
+    }
+
+    @Override
+    public <T extends Interactable> boolean has(InteractableKey<T> key, T value) {
+        cleanTerminatedValues(key);
+
+        return map.containsEntry(key, value);
+    }
+
+    @Override
+    public Optional<InteractableKey<?>> findKey(String name) {
+        return map.keySet().stream().filter(x -> x.getName().equals(name)).findAny();
     }
 
     @Override
     public ImmutableSetMultimap<InteractableKey<?>, Interactable> getAll() {
-        ImmutableSetMultimap.Builder<InteractableKey<?>, Interactable> builder = ImmutableSetMultimap.builder();
+        ImmutableSet.copyOf(map.keySet()).forEach(this::cleanTerminatedValues);
 
-        Set<InteractableEntry<?>> entries = interactableFinder.find(orchestrator);
-        for (InteractableEntry<?> entry : entries) {
-            builder.put(entry.getKey(), entry.getValue());
-        }
-
-        return builder.build();
+        return ImmutableSetMultimap.copyOf(map);
     }
 
-    private <T extends Interactable> MultipleInteractablesException createMultipleInteractablesException(
-            InteractableKey<T> key, Set<T> interactables) {
-        return new MultipleInteractablesException(
-                "Multiple interactables have been found for key " + key + ": [" +
-                interactables.stream().map(Object::toString).collect(Collectors.joining(", ")) + "]"
-        );
+    @Override
+    public void close() throws Exception {
+        List<Exception> closingExceptions = new ArrayList<>();
+
+        for (Interactable value : map.values()) {
+            if (!value.isClosed()) {
+                try {
+                    value.close();
+                } catch (Exception e) {
+                    closingExceptions.add(e);
+                }
+            }
+        }
+
+        map.clear();
+
+        if (!closingExceptions.isEmpty()) {
+            throw new CompositeClosingException(closingExceptions);
+        }
+    }
+
+    private void checkKeyType(InteractableKey<?> key) {
+        Optional<InteractableKey<?>> maybeActualKey = findKey(key.getName());
+
+        maybeActualKey.ifPresent(actualKey -> {
+            if (!key.getType().equals(actualKey.getType())) {
+                throw new IllegalArgumentException("Given key " + key + " does not have the same type as " +
+                                                   "the actual key " + actualKey + ".");
+            }
+        });
+    }
+
+    private void cleanTerminatedValues(InteractableKey<?> key) {
+        map.get(key).removeIf(Interactable::isClosed);
     }
 
     private final class SafeSingleBuilderImpl<T extends Interactable> implements SafeSingleBuilder<T> {
@@ -106,16 +151,14 @@ class MinecraftInteractableRegistry implements InteractableRegistry {
 
             if (validInteractables.size() == 1) {
                 return SafeResult.success(validInteractables.iterator().next());
-            }
-            else if (validInteractables.size() == 0) {
+            } else if (validInteractables.size() == 0) {
                 if (failedChecks.size() == 1) {
                     return SafeResult.error(failedChecks.get(0).getErrorMessage());
                 } else {
                     // Putting multiple error messages at once is weird, just use the failure message.
                     return SafeResult.error(failureMessage);
                 }
-            }
-            else {
+            } else {
                 return multipleItemsHandler.handle(key, validInteractables);
             }
         }
@@ -141,8 +184,11 @@ class MinecraftInteractableRegistry implements InteractableRegistry {
             return new FilterResults(validInteractables, failedChecks);
         }
 
-        private SafeResult<T> defaultMultipleItemsHandler(InteractableKey<T> a, Set<T> b) {
-            throw createMultipleInteractablesException(a, b);
+        private SafeResult<T> defaultMultipleItemsHandler(InteractableKey<T> key, Set<T> interactables) {
+            throw new MultipleInteractablesException(
+                    "Multiple interactables have been found for key " + key + ": [" +
+                    interactables.stream().map(Object::toString).collect(Collectors.joining(", ")) + "]"
+            );
         }
 
         private final class FilterResults {

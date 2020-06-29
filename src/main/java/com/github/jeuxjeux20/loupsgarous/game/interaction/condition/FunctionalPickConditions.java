@@ -86,20 +86,8 @@ public final class FunctionalPickConditions<T> implements PickConditions<T> {
         public Builder() {
         }
 
-        @SuppressWarnings("unchecked")
         public Builder(PickConditions<? super T> conditions) {
-            if (conditions instanceof FunctionalPickConditions<?>) {
-                FunctionalPickConditions<? super T> functionalPickConditions =
-                        (FunctionalPickConditions<? super T>) conditions;
-
-                this.pickerPredicates.addAll(functionalPickConditions.pickerPredicates);
-                this.targetPredicates.addAll(functionalPickConditions.targetPredicates);
-                this.pickPredicates.addAll(functionalPickConditions.pickPredicates);
-            } else {
-                this.pickerPredicates.add(conditions::checkPicker);
-                this.targetPredicates.add(conditions::checkTarget);
-                this.pickPredicates.add(conditions::checkPick);
-            }
+            use(conditions);
         }
 
         public Builder<T> ensurePicker(PickerPredicate.BoolPredicate predicate, String message) {
@@ -147,6 +135,24 @@ public final class FunctionalPickConditions<T> implements PickConditions<T> {
 
         public Builder<T> ensurePick(PickPredicate<T> checkPredicate) {
             pickPredicates.add(checkPredicate);
+            return this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public Builder<T> use(PickConditions<? super T> conditions) {
+            if (conditions instanceof FunctionalPickConditions<?>) {
+                FunctionalPickConditions<? super T> functionalPickConditions =
+                        (FunctionalPickConditions<? super T>) conditions;
+
+                this.pickerPredicates.addAll(functionalPickConditions.pickerPredicates);
+                this.targetPredicates.addAll(functionalPickConditions.targetPredicates);
+                this.pickPredicates.addAll(functionalPickConditions.pickPredicates);
+            } else {
+                this.pickerPredicates.add(conditions::checkPicker);
+                this.targetPredicates.add(conditions::checkTarget);
+                this.pickPredicates.add(conditions::checkPick);
+            }
+
             return this;
         }
 

@@ -1,57 +1,51 @@
 package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
-import com.github.jeuxjeux20.loupsgarous.Plugin;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableProvider;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
 import com.github.jeuxjeux20.loupsgarous.game.stages.CountdownTimedStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.MajorityVoteShortensCountdown;
-import com.google.inject.Inject;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import java.util.logging.Logger;
-
 public class ShortenVoteCountdownListener implements Listener {
-    private final Logger logger;
-
-    @Inject
-    ShortenVoteCountdownListener(@Plugin Logger logger) {
-        this.logger = logger;
-    }
-
     @EventHandler(ignoreCancelled = true)
-    public void onLGPick(LGPickEvent<?, ?> event) {
+    public void onLGPick(LGPickEvent event) {
         updateStageCountdown(event.getOrchestrator().stages().current());
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onLGPickRemoved(LGPickRemovedEvent<?, ?> event) {
+    public void onLGPickRemoved(LGPickRemovedEvent event) {
         updateStageCountdown(event.getOrchestrator().stages().current());
     }
 
     private void updateStageCountdown(LGStage stage) {
-        Votable<?> votable = stage.safeCast(InteractableProvider.class)
-                .flatMap(p -> p.getInteractables(Votable.class).stream()
-                        .map(InteractableEntry::getValue)
-                        .findAny())
-                .orElse(null);
-        CountdownTimedStage countdownStage = stage.safeCast(CountdownTimedStage.class).orElse(null);
-        MajorityVoteShortensCountdown annotation = stage.getClass().getAnnotation(MajorityVoteShortensCountdown.class);
+        LGGameOrchestrator orchestrator = stage.getOrchestrator();
 
-        if (votable == null || countdownStage == null) {
-            if (annotation != null) {
-                logger.warning("Stage " + stage.getClass().getName() + " is annotated with " +
-                               "MajorityVoteShortensCountdown but doesn't have a Votable interactable and " +
-                               "CountdownTimedStage");
-            }
+        MajorityVoteShortensCountdown annotation = stage.getClass().getAnnotation(MajorityVoteShortensCountdown.class);
+        if (annotation == null) return;
+
+        CountdownTimedStage countdownStage = stage.safeCast(CountdownTimedStage.class).orElse(null);
+
+        if (countdownStage == null) {
+            orchestrator.logger().warning("MajorityVoteShortensCountdown: " +
+                                          "Stage " + stage.getClass().getName() + " is annotated with " +
+                                          "MajorityVoteShortensCountdown but doesn't implement " +
+                                          "CountdownTimedStage");
             return;
         }
 
-        if (annotation == null) return;
+        Votable<?> votable = orchestrator.interactables().findKey(annotation.value())
+                .flatMap(key -> key.cast(Votable.class))
+                .flatMap(key -> orchestrator.interactables().single(key).getOptional())
+                .orElse(null);
+
+        if (votable == null) {
+            orchestrator.logger().warning("MajorityVoteShortensCountdown: No votable with a key named " + annotation.value() + " found.");
+            return;
+        }
 
         // Nothing will change anyway, we're under the time left.
         if (countdownStage.getCountdown().getStartSnapshot().getTimerNow() <= annotation.timeLeft()) return;

@@ -4,7 +4,8 @@ import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.VoyanteCard;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Pickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
@@ -28,6 +29,8 @@ public class VoyanteDuskAction extends DuskStage.Action {
 
     @Override
     protected void onDuskStart(LGGameOrchestrator orchestrator) {
+        orchestrator.interactables().put(LGInteractableKeys.LOOK, bind(lookable));
+
         orchestrator.game().getPlayers().stream()
                 .filter(Check.predicate(lookable.conditions()::checkPicker))
                 .map(LGPlayer::getMinecraftPlayer)
@@ -50,7 +53,7 @@ public class VoyanteDuskAction extends DuskStage.Action {
         return lookable;
     }
 
-    private static class VoyanteLookable implements Pickable<LGPlayer> {
+    private static class VoyanteLookable extends AbstractPickable<LGPlayer> {
         private final List<LGPlayer> playersWhoLooked = new ArrayList<>();
 
         @Override
@@ -64,7 +67,7 @@ public class VoyanteDuskAction extends DuskStage.Action {
         }
 
         @Override
-        public void pick(LGPlayer picker, LGPlayer target) {
+        protected void safePick(LGPlayer picker, LGPlayer target) {
             playersWhoLooked.add(picker);
 
             VoyanteCard voyanteCard = (VoyanteCard) picker.getCard();

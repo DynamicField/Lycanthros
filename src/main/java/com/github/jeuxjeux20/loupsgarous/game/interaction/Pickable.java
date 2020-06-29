@@ -11,8 +11,8 @@ public interface Pickable<T> extends Interactable {
 
     void pick(LGPlayer picker, T target);
 
-    default boolean isMyEvent(LGPickEventBase<?, ?> event) {
-        return event.getEntry().getValue() == this;
+    default boolean isMyEvent(LGPickEventBase event) {
+        return event.getPick().getEntry().getValue() == this;
     }
 
     default LGChatChannel getInfoMessagesChannel() {

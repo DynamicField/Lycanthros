@@ -5,13 +5,14 @@ import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.CupidonCard;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.*;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Couple;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.teams.CoupleTeam;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.bukkit.boss.BarColor;
@@ -22,15 +23,18 @@ import java.util.stream.Stream;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 
-public class CupidonCoupleStage extends CountdownLGStage implements InteractableProvider {
+public class CupidonCoupleStage extends CountdownLGStage {
     private final Random random;
 
-    private final CupidonCoupleCreator coupleCreator = new CupidonCoupleCreator();
+    private final CupidonCoupleCreator coupleCreator;
 
     @Inject
     CupidonCoupleStage(@Assisted LGGameOrchestrator orchestrator, Random random) {
         super(orchestrator);
         this.random = random;
+        this.coupleCreator = new CupidonCoupleCreator();
+
+        orchestrator.interactables().put(LGInteractableKeys.COUPLE_CREATOR, bind(coupleCreator));
     }
 
     @Override
@@ -87,14 +91,7 @@ public class CupidonCoupleStage extends CountdownLGStage implements Interactable
         return coupleCreator;
     }
 
-    @Override
-    public Set<InteractableEntry<?>> getInteractables() {
-        return ImmutableSet.of(
-                new InteractableEntry<>(LGInteractableKeys.COUPLE_CREATOR, coupleCreator)
-        );
-    }
-
-    public final class CupidonCoupleCreator implements Pickable<Couple> {
+    public final class CupidonCoupleCreator extends AbstractPickable<Couple> {
         private final Map<LGPlayer, Couple> couplePicks = new HashMap<>();
 
         private CupidonCoupleCreator() {
@@ -122,9 +119,7 @@ public class CupidonCoupleStage extends CountdownLGStage implements Interactable
         }
 
         @Override
-        public void pick(LGPlayer cupidon, Couple couple) {
-            conditions().throwIfInvalid(cupidon, couple);
-
+        protected void safePick(LGPlayer cupidon, Couple couple) {
             couplePicks.put(cupidon, couple);
 
             CoupleTeam coupleTeam = LGTeams.newCouple();

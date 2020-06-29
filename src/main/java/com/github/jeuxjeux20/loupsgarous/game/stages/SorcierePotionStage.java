@@ -8,13 +8,14 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.SorciereCard;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.*;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.PickableConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.NightKillReason;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.text.Text;
@@ -33,7 +34,7 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 import static me.lucko.helper.text.format.TextColor.*;
 import static me.lucko.helper.text.format.TextDecoration.BOLD;
 
-public class SorcierePotionStage extends CountdownLGStage implements InteractableProvider {
+public class SorcierePotionStage extends CountdownLGStage {
     private final SorciereHealable healable;
     private final SorciereKillable killable;
 
@@ -42,6 +43,9 @@ public class SorcierePotionStage extends CountdownLGStage implements Interactabl
         super(orchestrator);
         healable = new SorciereHealable();
         killable = new SorciereKillable();
+
+        orchestrator.interactables().put(LGInteractableKeys.HEAL, bind(healable));
+        orchestrator.interactables().put(LGInteractableKeys.KILL, bind(killable));
     }
 
     @Override
@@ -57,7 +61,7 @@ public class SorcierePotionStage extends CountdownLGStage implements Interactabl
 
     @Override
     protected void start() {
-        orchestrator.game().getAlivePlayers()
+        orchestrator.game().getPlayers().stream()
                 .filter(Check.predicate(this::canAct))
                 .forEach(this::sendNotification);
     }
@@ -169,15 +173,7 @@ public class SorcierePotionStage extends CountdownLGStage implements Interactabl
                 .ensurePicker(this::canAct);
     }
 
-    @Override
-    public Set<InteractableEntry<?>> getInteractables() {
-        return ImmutableSet.of(
-                new InteractableEntry<>(LGInteractableKeys.HEAL, healable),
-                new InteractableEntry<>(LGInteractableKeys.KILL, killable)
-        );
-    }
-
-    public class SorciereHealable implements Pickable<LGPlayer> {
+    public class SorciereHealable extends AbstractPickable<LGPlayer> {
         private SorciereHealable() {
         }
 
@@ -190,9 +186,7 @@ public class SorcierePotionStage extends CountdownLGStage implements Interactabl
         }
 
         @Override
-        public void pick(LGPlayer healer, LGPlayer target) {
-            conditions().throwIfInvalid(healer, target);
-
+        protected void safePick(LGPlayer healer, LGPlayer target) {
             SorciereCard card = (SorciereCard) healer.getCard();
 
             card.useHealPotion();
@@ -215,7 +209,7 @@ public class SorcierePotionStage extends CountdownLGStage implements Interactabl
         }
     }
 
-    public class SorciereKillable implements Pickable<LGPlayer> {
+    public class SorciereKillable extends AbstractPickable<LGPlayer> {
         private SorciereKillable() {
         }
 
@@ -228,9 +222,7 @@ public class SorcierePotionStage extends CountdownLGStage implements Interactabl
         }
 
         @Override
-        public void pick(LGPlayer killer, LGPlayer target) {
-            conditions().throwIfInvalid(killer, target);
-
+        protected void safePick(LGPlayer killer, LGPlayer target) {
             SorciereCard card = (SorciereCard) killer.getCard();
 
             card.useKillPotion();

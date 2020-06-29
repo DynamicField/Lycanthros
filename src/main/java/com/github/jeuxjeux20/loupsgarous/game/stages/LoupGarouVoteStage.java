@@ -7,25 +7,25 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LoupsGarousVoteChatChannel;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.*;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerVotable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.NightKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.bukkit.ChatColor;
 import org.bukkit.boss.BarColor;
 
-import java.util.Set;
-
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
-@MajorityVoteShortensCountdown(timeLeft = 10)
-public class LoupGarouVoteStage extends CountdownLGStage implements InteractableProvider {
+@MajorityVoteShortensCountdown(value = LGInteractableKeys.Names.PLAYER_VOTE, timeLeft = 10)
+public class LoupGarouVoteStage extends CountdownLGStage {
     private final LoupGarouVotable votable;
     private final LoupsGarousVoteChatChannel voteChannel;
 
@@ -39,7 +39,7 @@ public class LoupGarouVoteStage extends CountdownLGStage implements Interactable
         this.voteChannel = voteChannel;
         this.votable = new LoupGarouVotable();
 
-        bind(votable);
+        orchestrator.interactables().put(bind(votable));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class LoupGarouVoteStage extends CountdownLGStage implements Interactable
 
     @Override
     protected void finish() {
-        votable.close();
+        votable.closeAndReportException();
         computeVoteOutcome();
         howl();
     }
@@ -105,19 +105,19 @@ public class LoupGarouVoteStage extends CountdownLGStage implements Interactable
         return votable;
     }
 
-    @Override
-    public Set<InteractableEntry<?>> getInteractables() {
-        return ImmutableSet.of(votable.getEntry());
-    }
-
-    public final class LoupGarouVotable extends AbstractPlayerVotable {
+    public final class LoupGarouVotable extends AbstractPlayerVotable<Votable<LGPlayer>> {
         private LoupGarouVotable() {
-            super(LoupGarouVoteStage.this.orchestrator, LGInteractableKeys.PLAYER_VOTE);
+            super(LoupGarouVoteStage.this.orchestrator);
         }
 
         @Override
-        public PickConditions<LGPlayer> conditions() {
-            return FunctionalPickConditions.builder(super.conditions())
+        public InteractableEntry<Votable<LGPlayer>> getEntry() {
+            return new InteractableEntry<>(LGInteractableKeys.PLAYER_VOTE, this);
+        }
+
+        @Override
+        public PickConditions<LGPlayer> additionalConditions() {
+            return FunctionalPickConditions.<LGPlayer>builder()
                     .ensurePicker(this::isLoupGarou, "Impossible de voter, car vous n'êtes pas loup-garou !")
                     .build();
         }

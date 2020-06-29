@@ -8,13 +8,18 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.stages.CountdownLGStage;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import me.lucko.helper.terminable.Terminable;
+import me.lucko.helper.terminable.TerminableConsumer;
+import me.lucko.helper.terminable.composite.CompositeClosingException;
+import me.lucko.helper.terminable.composite.CompositeTerminable;
 import org.bukkit.boss.BarColor;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class    DuskStage extends CountdownLGStage {
+public class DuskStage extends CountdownLGStage {
     private final List<Action> actionsToRun;
 
     @Inject
@@ -25,6 +30,8 @@ public class    DuskStage extends CountdownLGStage {
             action.initialize(orchestrator);
         }
         actionsToRun = allActions.stream().filter(x -> x.shouldRun(orchestrator)).collect(Collectors.toList());
+
+        bind(this::closeAllActions);
     }
 
     @Override
@@ -68,7 +75,13 @@ public class    DuskStage extends CountdownLGStage {
         return BarColor.PURPLE;
     }
 
-    public abstract static class Action implements SafeCast {
+    private void closeAllActions() {
+        actionsToRun.forEach(Action::closeAndReportException);
+    }
+
+    public abstract static class Action implements SafeCast, Terminable, TerminableConsumer {
+        private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
+
         abstract protected boolean shouldRun(LGGameOrchestrator orchestrator);
 
         protected void initialize(LGGameOrchestrator orchestrator) {
@@ -80,6 +93,17 @@ public class    DuskStage extends CountdownLGStage {
         }
 
         protected void onDuskEnd(LGGameOrchestrator orchestrator) {
+        }
+
+        @Nonnull
+        @Override
+        public <T extends AutoCloseable> T bind(@Nonnull T terminable) {
+            return terminableRegistry.bind(terminable);
+        }
+
+        @Override
+        public final void close() throws CompositeClosingException {
+            terminableRegistry.close();
         }
     }
 }

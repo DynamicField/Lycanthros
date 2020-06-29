@@ -1,7 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerVotable;
 import org.checkerframework.common.value.qual.IntRange;
 
@@ -11,7 +10,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * When annotated on a {@link LGStage} implementing {@link CountdownTimedStage} and having a {@link Votable} interactable,
+ * When annotated on a {@link LGStage} implementing {@link CountdownTimedStage} with the first votable
+ * of the specified key name ({@link #value()}),
  * changes the timer of the {@linkplain CountdownTimedStage#getCountdown() countdown} to
  * {@link #timeLeft()} when {@linkplain AbstractPlayerVotable#getMajorityTarget() the player with the most votes}
  * holds the same or more vote share than the {@link #majorityPercentage()}.
@@ -26,6 +26,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MajorityVoteShortensCountdown {
+    String value();
+
     @IntRange(from = 0, to = 100)
     int majorityPercentage() default 60;
 

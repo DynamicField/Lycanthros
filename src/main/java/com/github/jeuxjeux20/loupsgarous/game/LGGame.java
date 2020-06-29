@@ -38,12 +38,8 @@ public interface LGGame {
         return getPlayers().stream().filter(LGPlayer::isAlive);
     }
 
-    default Stream<LGPlayer> getPresentPlayers() {
-        return getPlayers().stream().filter(LGPlayer::isPresent);
-    }
-
     default boolean isEmpty() {
-        return !getPresentPlayers().findAny().isPresent();
+        return getPlayers().size() == 0;
     }
 
     default Optional<LGPlayer> findByName(String name) {

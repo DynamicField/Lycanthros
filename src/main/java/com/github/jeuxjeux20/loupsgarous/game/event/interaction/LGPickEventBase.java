@@ -1,56 +1,23 @@
 package com.github.jeuxjeux20.loupsgarous.game.event.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.NotifyingInteractable;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Pickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Pick;
 import com.google.common.base.Preconditions;
-import com.google.common.reflect.TypeToken;
 
-import java.util.Optional;
+public abstract class LGPickEventBase extends LGEvent {
+    private final Pick<?, ?> pick;
 
-public abstract class LGPickEventBase<T, P extends Pickable<T> & NotifyingInteractable> extends LGEvent {
-    private final InteractableEntry<P> entry;
-    protected final LGPlayer picker;
-    protected final T target;
-
-    public LGPickEventBase(LGGameOrchestrator orchestrator, InteractableEntry<P> entry,
-                           LGPlayer picker, T target) {
+    public LGPickEventBase(LGGameOrchestrator orchestrator, Pick<?, ?> pick) {
         super(orchestrator);
 
-        Preconditions.checkArgument(orchestrator.interactables().isPresent(entry),
-                "The interactable entry " + entry + " is not present.");
+        Preconditions.checkArgument(orchestrator.interactables().has(pick.getEntry()),
+                "The interactable entry " + pick.getEntry() + " is not present.");
 
-        this.entry = entry;
-        this.picker = picker;
-        this.target = target;
+        this.pick = pick;
     }
 
-    // Here comes GENERIC BLACK MAGIC
-
-    @SuppressWarnings("unchecked")
-    protected final <NT,
-            NP extends Pickable<NT> & NotifyingInteractable,
-            E extends LGPickEventBase<NT, NP>>
-    Optional<E> actualCast(TypeToken<? extends NP> pickableProviderType) {
-        if (getEntry().getKey().getType().isSupertypeOf(pickableProviderType)) {
-            return Optional.of((E) this);
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    public InteractableEntry<P> getEntry() {
-        return entry;
-    }
-
-    public LGPlayer getPicker() {
-        return picker;
-    }
-
-    public T getTarget() {
-        return target;
+    public Pick<?, ?> getPick() {
+        return pick;
     }
 }

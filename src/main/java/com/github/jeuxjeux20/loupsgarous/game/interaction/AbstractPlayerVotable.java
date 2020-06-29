@@ -8,17 +8,28 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditio
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.error;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
-public abstract class AbstractPlayerVotable extends AbstractVotable<LGPlayer> {
-    public AbstractPlayerVotable(LGGameOrchestrator orchestrator, InteractableKey<Votable<LGPlayer>> key) {
-        super(orchestrator, key);
+public abstract class AbstractPlayerVotable<E extends Pickable<LGPlayer>> extends AbstractVotable<LGPlayer, E> {
+    public AbstractPlayerVotable(LGGameOrchestrator orchestrator) {
+        super(orchestrator);
     }
 
     @Override
-    public PickConditions<LGPlayer> conditions() {
+    public final PickConditions<LGPlayer> conditions() {
+        return FunctionalPickConditions.<LGPlayer>builder()
+                .use(defaultConditions())
+                .use(additionalConditions())
+                .build();
+    }
+
+    protected PickConditions<LGPlayer> defaultConditions() {
         return FunctionalPickConditions.<LGPlayer>builder()
                 .ensurePicker(LGPlayer::isAlive, this::getPickerDeadError)
                 .ensureTarget(LGPlayer::isAlive, this::getTargetDeadError)
                 .build();
+    }
+
+    protected PickConditions<LGPlayer> additionalConditions() {
+        return PickConditions.empty();
     }
 
     protected String getTargetDeadError(LGPlayer target) {

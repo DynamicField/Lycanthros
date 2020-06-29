@@ -107,11 +107,8 @@ class MinecraftLGLobby implements LGLobby {
         MutableLGPlayer player = getGame().getPlayer(playerUUID).filter(LGPlayer::isPresent).orElse(null);
         if (player == null) return false;
 
-        if (isLocked()) {
-            player.setAway(true);
-        } else {
-            getGame().removePlayer(playerUUID);
-        }
+        player.setAway(true);
+        getGame().removePlayer(playerUUID);
 
         if (player == owner) {
             putRandomOwner();
@@ -126,7 +123,7 @@ class MinecraftLGLobby implements LGLobby {
 
     private void putRandomOwner() {
         if (!getGame().isEmpty()) {
-            setOwner(getGame().getPresentPlayers().findAny().orElseThrow(AssertionError::new));
+            setOwner(getGame().getPlayers().iterator().next());
         } else {
             // SPECIAL CASE: Here the game is empty, however, we don't want the owner to be null.
             // So, let's just make the current owner away.

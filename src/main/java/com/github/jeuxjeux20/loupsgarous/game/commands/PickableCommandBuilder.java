@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public final class PickableCommandBuilder<P extends Pickable<?>, H extends CommandPickHandler<? super P>> {
+public final class  PickableCommandBuilder<P extends Pickable<?>, H extends CommandPickHandler<? super P>> {
     private InteractableKey<P> key;
     private final H handler;
     private final InGameHandlerCondition inGameHandlerCondition;

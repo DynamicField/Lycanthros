@@ -10,8 +10,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import me.lucko.helper.Events;
 import me.lucko.helper.event.MergedSubscription;
-import me.lucko.helper.terminable.Terminable;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -19,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractStatefulPickable<T> implements StatefulPickable<T>, Terminable {
+public abstract class AbstractStatefulPickable<T> extends AbstractPickable<T> implements StatefulPickable<T> {
     protected final LGGameOrchestrator orchestrator;
 
     private final Map<LGPlayer, T> picks = new HashMap<>();
@@ -39,26 +37,37 @@ public abstract class AbstractStatefulPickable<T> implements StatefulPickable<T>
     }
 
     @Override
-    public void pick(@NotNull LGPlayer picker, @NotNull T target) {
-        conditions().throwIfInvalid(picker, target);
+    public void safePick(LGPlayer picker, T target) {
         picks.put(picker, target);
     }
 
-    public @Nullable T removePick(@NotNull LGPlayer from) {
-        return picks.remove(from);
+    public final @Nullable T removePick(LGPlayer picker) {
+        return removePick(picker, false);
     }
 
-    public synchronized final boolean hasPick(@NotNull LGPlayer from) {
-        return picks.containsKey(from);
+    protected final @Nullable T removePick(LGPlayer picker, boolean isInvalidate) {
+        throwIfClosed();
+
+        return safeRemovePick(picker, isInvalidate);
     }
 
-    public synchronized final void removeInvalidPicks() {
+    protected @Nullable T safeRemovePick(LGPlayer picker, boolean isInvalidate) {
+        return picks.remove(picker);
+    }
+
+    public final boolean hasPick(LGPlayer picker) {
+        throwIfClosed();
+
+        return picks.containsKey(picker);
+    }
+
+    public final void removeInvalidPicks() {
         List<LGPlayer> invalidPicks = new ArrayList<>();
 
         picks.forEach((from, to) -> conditions().checkPick(from, to).ifError(e -> invalidPicks.add(from)));
 
         for (LGPlayer invalidPick : invalidPicks) {
-            removePick(invalidPick);
+            removePick(invalidPick, true);
         }
     }
 
@@ -67,7 +76,8 @@ public abstract class AbstractStatefulPickable<T> implements StatefulPickable<T>
     }
 
     @Override
-    public void close() {
+    protected void closeResources() throws Exception {
+        super.closeResources();
         invalidateEventSubscription.close();
     }
 }

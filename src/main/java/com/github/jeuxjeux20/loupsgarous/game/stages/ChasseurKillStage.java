@@ -7,23 +7,21 @@ import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.ChasseurCard;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.*;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.ChasseurKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.winconditions.PostponesWinConditions;
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.text.Text;
 import me.lucko.helper.text.TextComponent;
 
-import java.util.Set;
-
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
 @PostponesWinConditions
-public class ChasseurKillStage extends CountdownLGStage implements InteractableProvider {
+public class ChasseurKillStage extends CountdownLGStage {
     private final LGPlayer chasseur;
 
     private final ChasseurKillable killable;
@@ -33,6 +31,8 @@ public class ChasseurKillStage extends CountdownLGStage implements InteractableP
         super(orchestrator);
         this.chasseur = chasseur;
         this.killable = new ChasseurKillable();
+
+        orchestrator.interactables().put(LGInteractableKeys.KILL, bind(killable));
     }
 
     @Override
@@ -80,18 +80,11 @@ public class ChasseurKillStage extends CountdownLGStage implements InteractableP
         return killable;
     }
 
-    @Override
-    public Set<InteractableEntry<?>> getInteractables() {
-        return ImmutableSet.of(
-                new InteractableEntry<>(LGInteractableKeys.KILL, killable)
-        );
-    }
-
     public interface Factory {
         ChasseurKillStage create(LGGameOrchestrator orchestrator, LGPlayer chasseur);
     }
 
-    public final class ChasseurKillable implements Pickable<LGPlayer> {
+    public final class ChasseurKillable extends AbstractPickable<LGPlayer> {
         boolean killed = false;
 
         private ChasseurKillable() {
@@ -108,7 +101,7 @@ public class ChasseurKillStage extends CountdownLGStage implements InteractableP
         }
 
         @Override
-        public void pick(LGPlayer picker, LGPlayer target) {
+        protected void safePick(LGPlayer picker, LGPlayer target) {
             conditions().throwIfInvalid(picker, target);
 
             killed = true;
