@@ -76,7 +76,7 @@ public class VoteStructure implements Structure {
         List<LGPlayer> players = orchestrator.game().getPlayers().stream()
                 .filter(Check.predicate(votable.conditions()::checkTarget))
                 .collect(Collectors.toList());
-        LGPlayer playerWithMostVotes = votable.getMajority();
+        LGPlayer playerWithMostVotes = votable.getMajority().orElse(null);
 
         return new BuildingContext(players, playerWithMostVotes);
     }

@@ -12,31 +12,32 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-public abstract class AbstractVotable<T, E extends Pickable<T>>
+public abstract class AbstractVotable<T>
         extends AbstractStatefulPickable<T>
-        implements Votable<T>, SelfAwareInteractable<E> {
+        implements Votable<T>, SelfAwareInteractable {
 
     public AbstractVotable(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }
 
     @Override
-    public @Nullable T getMajority() {
+    public Optional<T> getMajority() {
         // No votes
-        if (getPicks().size() == 0) return null;
+        if (getPicks().size() == 0) return Optional.empty();
         // Only one vote
         // ---
         // MdrJeNinja -> LGCramé
-        if (getPicks().size() == 1) return getPicks().values().iterator().next();
+        if (getPicks().size() == 1) return Optional.of(getPicks().values().iterator().next());
 
         Multiset<T> votes = getVotes();
 
         // Unanimous vote
         // ---
         // ElFamosoLG : 10 votes
-        if (votes.elementSet().size() == 1) return votes.iterator().next(); // First item
+        if (votes.elementSet().size() == 1) return Optional.of(votes.iterator().next()); // First item
 
         List<Multiset.Entry<T>> highestVoteCounts = getTwoHighestVotes(votes);
 
@@ -48,27 +49,22 @@ public abstract class AbstractVotable<T, E extends Pickable<T>>
         // ChatonDouteux  : 5 votes    | highestVote
         // SuperMangeChat : 5 votes    | secondHighestVote
         // JeSuisInno     : 4 votes    --------------------
-        if (highestVote.getCount() == secondHighestVote.getCount()) return null;
+        if (highestVote.getCount() == secondHighestVote.getCount()) return Optional.empty();
 
         // If it's not the same count then it's the highestVote gets elected, for good or for worse.
         // ---
         // LGCramé        : 8 votes    | highestVote
         // EncoreUnLG     : 5 votes    | secondHighestVote
-        return highestVote.getElement();
+        return Optional.of(highestVote.getElement());
     }
 
     @Override
     public Multiset<T> getVotes() {
-        Multiset<T> multiset = HashMultiset.create();
-
-        // Fill the multiset
-        getPicks().forEach((from, to) -> multiset.add(to));
-
-        return multiset;
+        return HashMultiset.create(getPicks().values());
     }
 
     @Override
-    public final void safePick(LGPlayer picker, T target) {
+    protected final void safePick(LGPlayer picker, T target) {
         super.safePick(picker, target);
         Events.call(new LGPickEvent(orchestrator, createPick(picker, target)));
     }
@@ -84,9 +80,12 @@ public abstract class AbstractVotable<T, E extends Pickable<T>>
         return removedTarget;
     }
 
-    private Pick<T, E> createPick(LGPlayer picker, T target) {
+    private Pick<T, ?> createPick(LGPlayer picker, T target) {
         return new Pick<>(getEntry(), picker, target);
     }
+
+    @Override
+    public abstract InteractableEntry<? extends Pickable<T>> getEntry();
 
     @NotNull
     private List<Multiset.Entry<T>> getTwoHighestVotes(Multiset<T> votes) {

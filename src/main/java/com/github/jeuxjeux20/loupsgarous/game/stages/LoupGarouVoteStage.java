@@ -22,6 +22,8 @@ import com.google.inject.assistedinject.Assisted;
 import org.bukkit.ChatColor;
 import org.bukkit.boss.BarColor;
 
+import java.util.Optional;
+
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
 @MajorityVoteShortensCountdown(value = LGInteractableKeys.Names.PLAYER_VOTE, timeLeft = 10)
@@ -76,14 +78,16 @@ public class LoupGarouVoteStage extends CountdownLGStage {
     }
 
     private void computeVoteOutcome() {
-        LGPlayer playerWithMostVotes = votable.getMajority();
-        isVoteSuccessful = playerWithMostVotes != null;
+        Optional<LGPlayer> maybeMajority = votable.getMajority();
+        isVoteSuccessful = maybeMajority.isPresent();
 
         if (isVoteSuccessful) {
-            orchestrator.kills().pending().add(LGKill.of(playerWithMostVotes, NightKillReason::new));
+            LGPlayer majority = maybeMajority.get();
+
+            orchestrator.kills().pending().add(LGKill.of(majority, NightKillReason::new));
             orchestrator.chat().sendMessage(voteChannel,
                     ChatColor.AQUA + "Les loups ont décidé de tuer " +
-                    player(playerWithMostVotes.getName()) + ChatColor.AQUA + "."
+                    player(majority.getName()) + ChatColor.AQUA + "."
             );
         } else {
             orchestrator.chat().sendMessage(voteChannel,
@@ -106,7 +110,7 @@ public class LoupGarouVoteStage extends CountdownLGStage {
         return votable;
     }
 
-    public final class LoupGarouVotable extends AbstractPlayerVotable<Votable<LGPlayer>> {
+    public final class LoupGarouVotable extends AbstractPlayerVotable {
         private LoupGarouVotable() {
             super(LoupGarouVoteStage.this.orchestrator);
         }

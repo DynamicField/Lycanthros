@@ -5,14 +5,13 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.atmosphere.VoteStructure;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerVotable;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.*;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.VillageVoteKillReason;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+
+import java.util.Optional;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
@@ -73,9 +72,10 @@ public class VillageVoteStage extends CountdownLGStage {
     }
 
     private void computeVoteOutcome() {
-        LGPlayer playerWithMostVotes = votable.getMajority();
-        if (playerWithMostVotes != null) {
-            orchestrator.kills().instantly(playerWithMostVotes, VillageVoteKillReason::new);
+        Optional<LGPlayer> maybeMajority = votable.getMajority();
+
+        if (maybeMajority.isPresent()) {
+            orchestrator.kills().instantly(maybeMajority.get(), VillageVoteKillReason::new);
         } else {
             orchestrator.chat().sendToEveryone(info("Le village n'a pas pu se décider !"));
         }
@@ -85,7 +85,7 @@ public class VillageVoteStage extends CountdownLGStage {
         return votable;
     }
 
-    public final class VillageVotable extends AbstractPlayerVotable<Votable<LGPlayer>> {
+    public final class VillageVotable extends AbstractPlayerVotable {
         private VillageVotable() {
             super(VillageVoteStage.this.orchestrator);
         }

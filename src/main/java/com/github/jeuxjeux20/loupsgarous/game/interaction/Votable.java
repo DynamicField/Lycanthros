@@ -2,15 +2,18 @@ package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
 import com.google.common.collect.Multiset;
 
-public interface Votable<T> extends StatefulPickable<T>, Interactable {
+import java.util.Optional;
+
+public interface Votable<T> extends StatefulPickable<T> {
     String getPointingText();
 
     /**
      * Gets the target with the vote majority.
      *
-     * @return the most voted target, or {@code null} if there isn't a clear distinction
+     * @return an optional containing the target with the vote majority,
+     * which may be empty if there is no majority
      */
-    T getMajority();
+    Optional<T> getMajority();
 
     /**
      * Gets a multiset representing the occurrences of each voted players.

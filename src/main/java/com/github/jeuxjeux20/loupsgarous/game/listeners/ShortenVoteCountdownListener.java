@@ -58,11 +58,11 @@ public class ShortenVoteCountdownListener implements Listener {
     }
 
     private boolean shouldShorten(MajorityVoteShortensCountdown annotation, Votable<?> votable) {
-        Object majority = votable.getMajority();
+        Object majority = votable.getMajority().orElse(null);
         if (majority == null) {
-            // The vote determines that there is no majority.
             return false;
         }
+
         int playerVoteCount = votable.getVotes().count(majority);
         int totalVoteCount = votable.getVotes().size();
 

@@ -37,7 +37,7 @@ public abstract class AbstractStatefulPickable<T> extends AbstractPickable<T> im
     }
 
     @Override
-    public void safePick(LGPlayer picker, T target) {
+    protected void safePick(LGPlayer picker, T target) {
         picks.put(picker, target);
     }
 

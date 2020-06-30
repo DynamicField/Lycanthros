@@ -23,7 +23,7 @@ public interface InteractableRegistry extends Terminable {
         return put(entry.getKey(), entry.getValue());
     }
 
-    default <T extends Interactable> boolean put(SelfAwareInteractable<T> interactable) {
+    default <T extends Interactable> boolean put(SelfAwareInteractable interactable) {
         return put(interactable.getEntry());
     }
 
@@ -34,7 +34,7 @@ public interface InteractableRegistry extends Terminable {
         return remove(entry.getKey(), entry.getValue());
     }
 
-    default <T extends Interactable> boolean remove(SelfAwareInteractable<T> interactable) {
+    default <T extends Interactable> boolean remove(SelfAwareInteractable interactable) {
         return remove(interactable.getEntry());
     }
 
@@ -45,7 +45,7 @@ public interface InteractableRegistry extends Terminable {
         return has(entry.getKey(), entry.getValue());
     }
 
-    default <T extends Interactable> boolean has(SelfAwareInteractable<T> interactable) {
+    default <T extends Interactable> boolean has(SelfAwareInteractable interactable) {
         return has(interactable.getEntry());
     }
 

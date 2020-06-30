@@ -8,7 +8,7 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditio
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.error;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
-public abstract class AbstractPlayerVotable<E extends Pickable<LGPlayer>> extends AbstractVotable<LGPlayer, E> {
+public abstract class AbstractPlayerVotable extends AbstractVotable<LGPlayer> {
     public AbstractPlayerVotable(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }

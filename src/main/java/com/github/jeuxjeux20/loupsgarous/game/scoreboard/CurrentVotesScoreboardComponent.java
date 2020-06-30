@@ -29,7 +29,7 @@ public class CurrentVotesScoreboardComponent implements ScoreboardComponent {
         maybeVotable.ifPresent(votable -> {
             lines.add(new Line(ChatColor.LIGHT_PURPLE + "-= Votes =-"));
 
-            LGPlayer playerWithMostVotes = votable.getMajority();
+            LGPlayer playerWithMostVotes = votable.getMajority().orElse(null);
 
             votable.getVotes().forEachEntry((votedPlayer, voteCount) -> {
                 boolean isMostVotes = playerWithMostVotes == votedPlayer;
