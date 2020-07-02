@@ -12,19 +12,14 @@ import me.lucko.helper.Events;
 import me.lucko.helper.event.MergedSubscription;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class AbstractStatefulPickable<T> extends AbstractPickable<T> implements StatefulPickable<T> {
-    protected final LGGameOrchestrator orchestrator;
-
     private final Map<LGPlayer, T> picks = new HashMap<>();
     private final MergedSubscription<LGEvent> invalidateEventSubscription;
 
     public AbstractStatefulPickable(LGGameOrchestrator orchestrator) {
-        this.orchestrator = orchestrator;
+        super(orchestrator);
 
         invalidateEventSubscription =
                 Events.merge(LGEvent.class, ClassArrayUtils.toArray(getInvalidateEvents()))
@@ -48,6 +43,8 @@ public abstract class AbstractStatefulPickable<T> extends AbstractPickable<T> im
     protected final @Nullable T removePick(LGPlayer picker, boolean isInvalidate) {
         throwIfClosed();
 
+        Objects.requireNonNull(picker, "picker is null");
+
         return safeRemovePick(picker, isInvalidate);
     }
 
@@ -56,10 +53,10 @@ public abstract class AbstractStatefulPickable<T> extends AbstractPickable<T> im
     }
 
     public final boolean hasPick(LGPlayer picker) {
-        throwIfClosed();
-
         return picks.containsKey(picker);
     }
+
+    // Invalidation
 
     public final void removeInvalidPicks() {
         List<LGPlayer> invalidPicks = new ArrayList<>();

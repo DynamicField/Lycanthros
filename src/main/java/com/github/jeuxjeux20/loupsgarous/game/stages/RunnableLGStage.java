@@ -114,7 +114,7 @@ public abstract class RunnableLGStage implements LGStage, Terminable, Terminable
     }
 
     @Override
-    public final LGGameOrchestrator getOrchestrator() {
+    public final LGGameOrchestrator gameOrchestrator() {
         return orchestrator;
     }
 

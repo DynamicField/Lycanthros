@@ -40,7 +40,9 @@ public class MinecraftLGKillsOrchestrator implements LGKillsOrchestrator {
         pendingKills.clear();
 
         for (LGKill kill : kills) {
-            killPlayer(kill);
+            if (kill.getWhoDied().isAlive()) {
+                killPlayer(kill);
+            }
         }
 
         Events.call(new LGKillEvent(gameOrchestrator, kills));

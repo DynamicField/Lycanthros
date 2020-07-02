@@ -7,7 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartingEvent;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.ChatColor;
 
@@ -29,11 +29,11 @@ public class CurrentVotesScoreboardComponent implements ScoreboardComponent {
         maybeVotable.ifPresent(votable -> {
             lines.add(new Line(ChatColor.LIGHT_PURPLE + "-= Votes =-"));
 
-            LGPlayer playerWithMostVotes = votable.getMajority().orElse(null);
+            LGPlayer elected = votable.getOutcome().getElected().orElse(null);
 
             votable.getVotes().forEachEntry((votedPlayer, voteCount) -> {
-                boolean isMostVotes = playerWithMostVotes == votedPlayer;
-                String color = isMostVotes ? ChatColor.RED.toString() + ChatColor.BOLD : "";
+                boolean isElected = elected == votedPlayer;
+                String color = isElected ? ChatColor.RED.toString() + ChatColor.BOLD : "";
 
                 lines.add(new Line(color + votedPlayer.getName(), voteCount));
             });

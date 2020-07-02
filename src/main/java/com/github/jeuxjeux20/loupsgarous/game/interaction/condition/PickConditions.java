@@ -5,6 +5,8 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.InvalidPickException;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.Pick;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 
+import java.util.function.Function;
+
 public interface PickConditions<T> {
     PickConditions<?> EMPTY = new Empty();
 
@@ -12,9 +14,7 @@ public interface PickConditions<T> {
 
     Check checkTarget(T target);
 
-    default Check checkPick(LGPlayer picker, T target) {
-        return checkPicker(picker).and(() -> checkTarget(target));
-    }
+    Check checkPick(LGPlayer picker, T target);
 
     default Check checkPick(Pick<T, ?> pick) {
         return checkPick(pick.getPicker(), pick.getTarget());
@@ -35,6 +35,27 @@ public interface PickConditions<T> {
                     "Invalid pick: " + check.getErrorMessage() +
                     " (picker: " + picker + ", target: " + target);
         }
+    }
+
+    default <R> PickConditions<R> map(Function<? super R, ? extends T> mappingFunction) {
+        PickConditions<T> self = this;
+
+        return new PickConditions<R>() {
+            @Override
+            public Check checkPicker(LGPlayer picker) {
+                return self.checkPicker(picker);
+            }
+
+            @Override
+            public Check checkTarget(R target) {
+                return self.checkTarget(mappingFunction.apply(target));
+            }
+
+            @Override
+            public Check checkPick(LGPlayer picker, R target) {
+                return self.checkPick(picker, mappingFunction.apply(target));
+            }
+        };
     }
 
     @SuppressWarnings("unchecked")

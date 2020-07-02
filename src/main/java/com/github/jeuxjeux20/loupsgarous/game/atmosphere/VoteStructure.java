@@ -7,7 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEventBase;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -76,9 +76,9 @@ public class VoteStructure implements Structure {
         List<LGPlayer> players = orchestrator.game().getPlayers().stream()
                 .filter(Check.predicate(votable.conditions()::checkTarget))
                 .collect(Collectors.toList());
-        LGPlayer playerWithMostVotes = votable.getMajority().orElse(null);
+        LGPlayer elected = votable.getOutcome().getElected().orElse(null);
 
-        return new BuildingContext(players, playerWithMostVotes);
+        return new BuildingContext(players, elected);
     }
 
     private void placeBlocks(BuildingContext context) {
@@ -136,8 +136,8 @@ public class VoteStructure implements Structure {
 
             skullMeta.setOwningPlayer(player.getOfflineMinecraftPlayer());
         }).build();
-        equipment.setHelmet(head);
 
+        equipment.setHelmet(head);
         equipment.setChestplate(new ItemStack(Material.LEATHER_CHESTPLATE));
         equipment.setLeggings(new ItemStack(Material.LEATHER_LEGGINGS));
         equipment.setBoots(new ItemStack(Material.LEATHER_BOOTS));

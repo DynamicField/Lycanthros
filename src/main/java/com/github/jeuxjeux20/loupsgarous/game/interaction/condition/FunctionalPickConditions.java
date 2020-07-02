@@ -78,6 +78,15 @@ public final class FunctionalPickConditions<T> implements PickConditions<T> {
         interface BoolPredicate<T> extends BiPredicate<LGPlayer, T> {}
     }
 
+    public interface BidirectionalPlayerPredicate extends PickerPredicate, TargetPredicate<LGPlayer> {
+        Check testOn(LGPlayer picker);
+
+        @Override
+        default Check test(LGPlayer picker) {
+            return testOn(picker);
+        }
+    }
+
     public static final class Builder<T> {
         private final ImmutableList.Builder<PickerPredicate> pickerPredicates = ImmutableList.builder();
         private final ImmutableList.Builder<TargetPredicate<? super T>> targetPredicates = ImmutableList.builder();

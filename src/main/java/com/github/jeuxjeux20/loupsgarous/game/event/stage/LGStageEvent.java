@@ -10,7 +10,7 @@ public abstract class LGStageEvent extends LGEvent {
     private final LGStage stage;
 
     public LGStageEvent(LGStage stage) {
-        super(stage.getOrchestrator());
+        super(stage.gameOrchestrator());
         this.stage = stage;
     }
 

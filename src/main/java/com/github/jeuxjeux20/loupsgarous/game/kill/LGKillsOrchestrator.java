@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.kill;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorComponent;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.MutableLGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.LGKillReason;
@@ -8,7 +8,7 @@ import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.LGKillReason;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public interface LGKillsOrchestrator extends LGGameOrchestratorComponent {
+public interface LGKillsOrchestrator extends LGGameOrchestratorDependent {
     Set<LGKill> pending();
 
     void revealPending();

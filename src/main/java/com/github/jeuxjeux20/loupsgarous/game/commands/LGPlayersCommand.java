@@ -56,7 +56,7 @@ public class LGPlayersCommand implements HelperCommandRegisterer {
 
             messageBuilder.append(ChatColor.DARK_AQUA);
 
-            if (cardRevealer.willReveal(player, sender, orchestrator)) {
+            if (cardRevealer.willReveal(sender, player, orchestrator)) {
                 messageBuilder.append(" (")
                         .append(player.getCard().getColor())
                         .append(player.getCard().getName())
@@ -64,7 +64,7 @@ public class LGPlayersCommand implements HelperCommandRegisterer {
                         .append(")");
             }
 
-            for (LGTeam team : teamRevealer.getTeamsRevealed(player, sender, orchestrator)) {
+            for (LGTeam team : teamRevealer.getTeamsRevealed(sender, player, orchestrator)) {
                 messageBuilder.append(ChatColor.YELLOW)
                         .append(" [")
                         .append(team.getColor())

@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.VoyanteCard;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerPickable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
@@ -20,7 +20,12 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.VOYANTE_SYMBOL;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.importantTip;
 
 public class VoyanteDuskAction extends DuskStage.Action {
-    private final VoyanteLookable lookable = new VoyanteLookable();
+    private VoyanteLookable lookable;
+
+    @Override
+    protected void initialize(LGGameOrchestrator orchestrator) {
+        lookable = new VoyanteLookable(orchestrator);
+    }
 
     @Override
     protected boolean shouldRun(LGGameOrchestrator orchestrator) {
@@ -53,8 +58,12 @@ public class VoyanteDuskAction extends DuskStage.Action {
         return lookable;
     }
 
-    private static class VoyanteLookable extends AbstractPickable<LGPlayer> {
+    private static final class VoyanteLookable extends AbstractPlayerPickable {
         private final List<LGPlayer> playersWhoLooked = new ArrayList<>();
+
+        private VoyanteLookable(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
+        }
 
         @Override
         public PickConditions<LGPlayer> pickConditions() {

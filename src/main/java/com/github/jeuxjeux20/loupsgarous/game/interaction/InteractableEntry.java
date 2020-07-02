@@ -1,18 +1,19 @@
 package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+
+import java.util.Objects;
 
 public final class InteractableEntry<T extends Interactable> {
-    private final InteractableKey<? super T> key;
+    private final InteractableKey<T> key;
     private final T value;
 
-    public InteractableEntry(InteractableKey<? super T> key, T value) {
-        this.key = key;
-        this.value = value;
+    public InteractableEntry(InteractableKey<T> key, T value) {
+        this.key = Objects.requireNonNull(key, "key is null");
+        this.value = Objects.requireNonNull(value, "value is null");
     }
 
-    public InteractableKey<? super T> getKey() {
+    public InteractableKey<T> getKey() {
         return key;
     }
 
@@ -25,13 +26,13 @@ public final class InteractableEntry<T extends Interactable> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         InteractableEntry<?> that = (InteractableEntry<?>) o;
-        return Objects.equal(key, that.key) &&
-               Objects.equal(value, that.value);
+        return key.equals(that.key) &&
+               value.equals(that.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(key, value);
+        return Objects.hash(key, value);
     }
 
     @Override

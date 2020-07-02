@@ -15,9 +15,9 @@ public final class CardRevealerAggregator implements CardRevealer {
     }
 
     @Override
-    public boolean willReveal(LGPlayer playerToReveal, LGPlayer target, LGGameOrchestrator orchestrator) {
+    public boolean willReveal(LGPlayer viewer, LGPlayer playerToReveal, LGGameOrchestrator orchestrator) {
         for (CardRevealer cardRevealer : cardRevealers) {
-            if (cardRevealer.willReveal(playerToReveal, target, orchestrator)) {
+            if (cardRevealer.willReveal(viewer, playerToReveal, orchestrator)) {
                 return true;
             }
         }

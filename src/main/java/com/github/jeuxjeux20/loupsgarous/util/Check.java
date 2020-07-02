@@ -81,4 +81,14 @@ public final class Check {
     public void ifError(Consumer<String> consumer) {
         if (!success) consumer.accept(errorMessage);
     }
+
+    @Override
+    public String toString() {
+        if (success) {
+            return "[Success]";
+        }
+        else {
+            return "[Error: " + errorMessage + "]";
+        }
+    }
 }

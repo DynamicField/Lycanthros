@@ -6,5 +6,5 @@ import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.google.common.collect.ImmutableSet;
 
 public interface TeamRevealer {
-    ImmutableSet<LGTeam> getTeamsRevealed(LGPlayer playerToReveal, LGPlayer target, LGGameOrchestrator orchestrator);
+    ImmutableSet<LGTeam> getTeamsRevealed(LGPlayer viewer, LGPlayer playerToReveal, LGGameOrchestrator orchestrator);
 }

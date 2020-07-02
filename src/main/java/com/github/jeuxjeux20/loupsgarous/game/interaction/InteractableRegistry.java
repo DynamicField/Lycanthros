@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
 import com.github.jeuxjeux20.loupsgarous.util.CheckPredicate;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.google.common.collect.ImmutableSet;
@@ -11,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.Set;
 
-public interface InteractableRegistry extends Terminable {
+public interface InteractableRegistry extends Terminable, LGGameOrchestratorDependent {
     <T extends Interactable> ImmutableSet<T> get(InteractableKey<T> key);
 
     <T extends Interactable> SafeSingleBuilder<T> single(InteractableKey<T> key);
@@ -23,7 +24,7 @@ public interface InteractableRegistry extends Terminable {
         return put(entry.getKey(), entry.getValue());
     }
 
-    default <T extends Interactable> boolean put(SelfAwareInteractable interactable) {
+    default boolean put(SelfAwareInteractable interactable) {
         return put(interactable.getEntry());
     }
 
@@ -34,7 +35,7 @@ public interface InteractableRegistry extends Terminable {
         return remove(entry.getKey(), entry.getValue());
     }
 
-    default <T extends Interactable> boolean remove(SelfAwareInteractable interactable) {
+    default boolean remove(SelfAwareInteractable interactable) {
         return remove(interactable.getEntry());
     }
 
@@ -45,7 +46,7 @@ public interface InteractableRegistry extends Terminable {
         return has(entry.getKey(), entry.getValue());
     }
 
-    default <T extends Interactable> boolean has(SelfAwareInteractable interactable) {
+    default boolean has(SelfAwareInteractable interactable) {
         return has(interactable.getEntry());
     }
 

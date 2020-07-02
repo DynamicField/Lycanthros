@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.SafeCast;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
 import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.boss.BarColor;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +25,7 @@ import javax.annotation.Nonnull;
  * <p>
  * The {@link LGStagesModule} contains all the stages of the classic game.
  */
-public interface LGStage extends SafeCast, TerminableConsumer {
+public interface LGStage extends SafeCast, TerminableConsumer, LGGameOrchestratorDependent {
     /**
      * Determines whether or not this stage should be deleted after it has been ran.
      * <p>
@@ -84,7 +85,8 @@ public interface LGStage extends SafeCast, TerminableConsumer {
      *
      * @return the game orchestrator
      */
-    LGGameOrchestrator getOrchestrator();
+    @Override
+    LGGameOrchestrator gameOrchestrator();
 
     /**
      * The null object for a stage.
@@ -107,7 +109,7 @@ public interface LGStage extends SafeCast, TerminableConsumer {
         }
 
         @Override
-        public LGGameOrchestrator getOrchestrator() {
+        public LGGameOrchestrator gameOrchestrator() {
             return orchestrator;
         }
 

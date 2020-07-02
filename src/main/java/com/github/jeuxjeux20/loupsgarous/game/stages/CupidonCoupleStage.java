@@ -5,9 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.CupidonCard;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPickable;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Couple;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.*;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.teams.CoupleTeam;
@@ -44,7 +42,7 @@ public class CupidonCoupleStage extends CountdownLGStage {
 
     @Override
     public boolean shouldRun() {
-        return coupleCreator.canSomeonePick(orchestrator);
+        return coupleCreator.canSomeonePick();
     }
 
     @Override
@@ -91,10 +89,11 @@ public class CupidonCoupleStage extends CountdownLGStage {
         return coupleCreator;
     }
 
-    public final class CupidonCoupleCreator extends AbstractPickable<Couple> {
+    public final class CupidonCoupleCreator extends AbstractCouplePickable {
         private final Map<LGPlayer, Couple> couplePicks = new HashMap<>();
 
         private CupidonCoupleCreator() {
+            super(CupidonCoupleStage.this.orchestrator);
         }
 
         @Override
@@ -125,7 +124,7 @@ public class CupidonCoupleStage extends CountdownLGStage {
             CoupleTeam coupleTeam = LGTeams.newCouple();
 
             for (LGPlayer partner : couple.getPartners()) {
-                orchestrator.cards().addTeam(partner.getCard(), coupleTeam);
+                orchestrator.teams().add(partner, coupleTeam);
             }
 
             sendCoupleMessages(cupidon, couple);
@@ -162,7 +161,7 @@ public class CupidonCoupleStage extends CountdownLGStage {
         }
 
         Stream<LGPlayer> getEligibleCupidons() {
-            return getEligiblePickers(orchestrator);
+            return getEligiblePickers();
         }
 
         Stream<LGPlayer> getEligiblePartners() {

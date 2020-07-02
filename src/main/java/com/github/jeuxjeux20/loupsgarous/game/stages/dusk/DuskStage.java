@@ -1,11 +1,12 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages.dusk;
 
-import com.github.jeuxjeux20.loupsgarous.SafeCast;
 import com.github.jeuxjeux20.loupsgarous.LGChatStuff;
+import com.github.jeuxjeux20.loupsgarous.SafeCast;
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.stages.CountdownLGStage;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.terminable.Terminable;
@@ -15,12 +16,10 @@ import me.lucko.helper.terminable.composite.CompositeTerminable;
 import org.bukkit.boss.BarColor;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class DuskStage extends CountdownLGStage {
-    private final List<Action> actionsToRun;
+    private final ImmutableList<Action> actionsToRun;
 
     @Inject
     DuskStage(@Assisted LGGameOrchestrator orchestrator, Set<Action> allActions) {
@@ -29,7 +28,9 @@ public class DuskStage extends CountdownLGStage {
         for (Action action : allActions) {
             action.initialize(orchestrator);
         }
-        actionsToRun = allActions.stream().filter(x -> x.shouldRun(orchestrator)).collect(Collectors.toList());
+        actionsToRun = allActions.stream()
+                .filter(x -> x.shouldRun(orchestrator))
+                .collect(ImmutableList.toImmutableList());
 
         bind(this::closeAllActions);
     }
@@ -73,6 +74,10 @@ public class DuskStage extends CountdownLGStage {
     @Override
     public BarColor getBarColor() {
         return BarColor.PURPLE;
+    }
+
+    public ImmutableList<Action> getActions() {
+        return actionsToRun;
     }
 
     private void closeAllActions() {

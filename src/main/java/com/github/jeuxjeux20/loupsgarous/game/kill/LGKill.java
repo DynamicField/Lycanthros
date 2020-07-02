@@ -2,9 +2,8 @@ package com.github.jeuxjeux20.loupsgarous.game.kill;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.LGKillReason;
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public final class LGKill {
@@ -12,10 +11,8 @@ public final class LGKill {
     private final LGKillReason reason;
 
     public LGKill(LGPlayer player, LGKillReason reason) {
-        Preconditions.checkArgument(player.isAlive(), "Cannot create a LGKill when the player is already dead");
-
-        this.player = player;
-        this.reason = reason;
+        this.player = Objects.requireNonNull(player, "player is null");
+        this.reason = Objects.requireNonNull(reason, "reason is null");
     }
 
     public static LGKill of(LGPlayer player, LGKillReason reason) {
@@ -39,11 +36,11 @@ public final class LGKill {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LGKill lgKill = (LGKill) o;
-        return Objects.equal(player, lgKill.player);
+        return player.equals(lgKill.player);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(player);
+        return Objects.hash(player);
     }
 }

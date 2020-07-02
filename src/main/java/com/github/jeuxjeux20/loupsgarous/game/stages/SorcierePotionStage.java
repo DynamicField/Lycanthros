@@ -8,7 +8,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.SorciereCard;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerPickable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.PickableConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
@@ -173,8 +173,9 @@ public class SorcierePotionStage extends CountdownLGStage {
                 .ensurePicker(this::canAct);
     }
 
-    public class SorciereHealable extends AbstractPickable<LGPlayer> {
+    public class SorciereHealable extends AbstractPlayerPickable {
         private SorciereHealable() {
+            super(SorcierePotionStage.this.orchestrator);
         }
 
         @Override
@@ -209,8 +210,9 @@ public class SorcierePotionStage extends CountdownLGStage {
         }
     }
 
-    public class SorciereKillable extends AbstractPickable<LGPlayer> {
+    public class SorciereKillable extends AbstractPlayerPickable {
         private SorciereKillable() {
+            super(SorcierePotionStage.this.orchestrator);
         }
 
         @Override

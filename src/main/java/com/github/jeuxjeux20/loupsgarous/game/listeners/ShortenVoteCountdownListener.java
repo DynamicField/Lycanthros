@@ -3,7 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game.listeners;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
 import com.github.jeuxjeux20.loupsgarous.game.stages.CountdownTimedStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.MajorityVoteShortensCountdown;
@@ -22,7 +22,7 @@ public class ShortenVoteCountdownListener implements Listener {
     }
 
     private void updateStageCountdown(LGStage stage) {
-        LGGameOrchestrator orchestrator = stage.getOrchestrator();
+        LGGameOrchestrator orchestrator = stage.gameOrchestrator();
 
         MajorityVoteShortensCountdown annotation = stage.getClass().getAnnotation(MajorityVoteShortensCountdown.class);
         if (annotation == null) return;
@@ -58,12 +58,12 @@ public class ShortenVoteCountdownListener implements Listener {
     }
 
     private boolean shouldShorten(MajorityVoteShortensCountdown annotation, Votable<?> votable) {
-        Object majority = votable.getMajority().orElse(null);
-        if (majority == null) {
+        Object elected = votable.getOutcome().getElected().orElse(null);
+        if (elected == null) {
             return false;
         }
 
-        int playerVoteCount = votable.getVotes().count(majority);
+        int playerVoteCount = votable.getVotes().count(elected);
         int totalVoteCount = votable.getVotes().size();
 
         int percentage = (int) (((float) playerVoteCount / totalVoteCount) * 100);

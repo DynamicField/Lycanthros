@@ -6,9 +6,9 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.VoyanteCard;
 
 public final class VoyanteCardRevealer implements CardRevealer {
     @Override
-    public boolean willReveal(LGPlayer playerToReveal, LGPlayer target, LGGameOrchestrator orchestrator) {
-        if (target.getCard() instanceof VoyanteCard) {
-            VoyanteCard card = (VoyanteCard) target.getCard();
+    public boolean willReveal(LGPlayer viewer, LGPlayer playerToReveal, LGGameOrchestrator orchestrator) {
+        if (viewer.getCard() instanceof VoyanteCard) {
+            VoyanteCard card = (VoyanteCard) viewer.getCard();
 
             return card.getPlayersSaw().contains(playerToReveal);
         }

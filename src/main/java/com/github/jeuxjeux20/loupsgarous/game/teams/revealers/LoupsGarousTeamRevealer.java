@@ -8,13 +8,14 @@ import com.google.common.collect.ImmutableSet;
 
 public final class LoupsGarousTeamRevealer implements TeamRevealer {
     @Override
-    public ImmutableSet<LGTeam> getTeamsRevealed(LGPlayer playerToReveal, LGPlayer target, LGGameOrchestrator orchestrator) {
-        if (playerToReveal == target) return ImmutableSet.of();
+    public ImmutableSet<LGTeam> getTeamsRevealed(LGPlayer viewer, LGPlayer playerToReveal, LGGameOrchestrator orchestrator) {
+        if (playerToReveal == viewer) return ImmutableSet.of();
 
         if (playerToReveal.getCard().getTeams().contains(LGTeams.LOUPS_GAROUS) &&
-            target.getCard().getTeams().contains(LGTeams.LOUPS_GAROUS)) {
+            viewer.getCard().getTeams().contains(LGTeams.LOUPS_GAROUS)) {
             return ImmutableSet.of(LGTeams.LOUPS_GAROUS);
         }
+
         return ImmutableSet.of();
     }
 }

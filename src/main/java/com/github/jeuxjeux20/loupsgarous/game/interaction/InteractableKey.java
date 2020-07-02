@@ -1,23 +1,23 @@
 package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import com.google.common.reflect.TypeToken;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * Represents a key that identifies an {@link Interactable}'s type.
  *
- * @param <T> the type of the pickable
+ * @param <T> the type of the interactable
  */
 public final class InteractableKey<T extends Interactable> {
     private final String name;
     private final TypeToken<T> type;
 
     public InteractableKey(String name, TypeToken<T> type) {
-        this.name = name;
-        this.type = type;
+        this.name = Objects.requireNonNull(name, "name is null");
+        this.type = Objects.requireNonNull(type, "type is null");
     }
 
     public String getName() {
@@ -46,12 +46,12 @@ public final class InteractableKey<T extends Interactable> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         InteractableKey<?> that = (InteractableKey<?>) o;
-        return Objects.equal(name, that.name);
+        return name.equals(that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name);
+        return Objects.hash(name);
     }
 
     @Override

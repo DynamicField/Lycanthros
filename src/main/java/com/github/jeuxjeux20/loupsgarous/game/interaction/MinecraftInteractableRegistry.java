@@ -5,6 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.github.jeuxjeux20.loupsgarous.util.CheckPredicate;
 import com.github.jeuxjeux20.loupsgarous.util.CheckStreams;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.*;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -14,10 +15,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 class MinecraftInteractableRegistry implements InteractableRegistry {
+    private final LGGameOrchestrator orchestrator;
+
     private final SetMultimap<InteractableKey<?>, Interactable> map = MultimapBuilder.hashKeys().hashSetValues().build();
 
     @Inject
     MinecraftInteractableRegistry(@Assisted LGGameOrchestrator orchestrator) {
+        this.orchestrator = orchestrator;
         bindWith(orchestrator);
     }
 
@@ -40,6 +44,9 @@ class MinecraftInteractableRegistry implements InteractableRegistry {
     @Override
     public <T extends Interactable> boolean put(InteractableKey<T> key, T value) {
         checkKeyType(key);
+        Preconditions.checkArgument(value.gameOrchestrator() == orchestrator,
+                "The interactable value's orchestrator (" + value.gameOrchestrator() + ") " +
+                "is not the same as this registry's orchestrator: " + orchestrator);
 
         return map.put(key, value);
     }
@@ -90,6 +97,11 @@ class MinecraftInteractableRegistry implements InteractableRegistry {
         if (!closingExceptions.isEmpty()) {
             throw new CompositeClosingException(closingExceptions);
         }
+    }
+
+    @Override
+    public LGGameOrchestrator gameOrchestrator() {
+        return orchestrator;
     }
 
     private void checkKeyType(InteractableKey<?> key) {

@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
@@ -39,5 +40,27 @@ public final class Couple {
         } else {
             throw new IllegalArgumentException("The given player is not present in the couple.");
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Couple couple = (Couple) o;
+        return Objects.equals(partner1, couple.partner1) &&
+               Objects.equals(partner2, couple.partner2);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(partner1, partner2);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("partner1", partner1)
+                .add("partner2", partner2)
+                .toString();
     }
 }

@@ -43,15 +43,6 @@ public interface LGCard {
     }
 
     /**
-     * Gets the tags that this card has
-     * <p>
-     * Those may change, depending on the events of the game.
-     *
-     * @return an immutable set of tags
-     */
-    ImmutableSet<String> getTags();
-
-    /**
      * Gets the description, shown at the start of the game, of this card.
      *
      * @return the description of this card
@@ -80,11 +71,6 @@ public interface LGCard {
 
         @Override
         public ImmutableSet<LGTeam> getTeams() {
-            return ImmutableSet.of();
-        }
-
-        @Override
-        public ImmutableSet<String> getTags() {
             return ImmutableSet.of();
         }
 

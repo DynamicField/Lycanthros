@@ -12,23 +12,23 @@ import org.bukkit.entity.Player;
 
 import java.util.Optional;
 
-public class SinglePlayerCommandPickHandler implements CommandPickHandler<Pickable<LGPlayer>> {
+public class SinglePlayerInteractableCommandHandler implements InteractableCommandHandler<Pickable<LGPlayer>> {
     @Override
     public void configure(FunctionalCommandBuilder<Player> builder) {
         builder.assertUsage("<player>", "C'est pas comme ça que ça marche ! {usage}");
     }
 
     @Override
-    public void pick(CommandContext<Player> context, LGPlayer player, Pickable<LGPlayer> pickable, LGGameOrchestrator orchestrator) {
+    public void pick(CommandContext<Player> context, LGPlayer player, Pickable<LGPlayer> interactable, LGGameOrchestrator orchestrator) {
         String targetName = context.arg(0).value().orElseThrow(AssertionError::new);
 
         Optional<LGPlayer> maybeTarget = orchestrator.game().findByName(targetName);
 
         maybeTarget.ifPresent(target -> {
-            Check check = pickable.conditions().checkPick(player, target);
+            Check check = interactable.conditions().checkPick(player, target);
 
             if (check.isSuccess()) {
-                pickable.pick(player, target);
+                interactable.pick(player, target);
             }
             else {
                 context.reply(ChatColor.RED + check.getErrorMessage());

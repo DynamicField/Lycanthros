@@ -1,6 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.chat.GenericPickChannel;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
@@ -25,11 +24,11 @@ public interface Pickable<T> extends Interactable {
 
     // Useful stuff
 
-    default Stream<LGPlayer> getEligiblePickers(LGGameOrchestrator orchestrator) {
-        return orchestrator.game().getPlayers().stream().filter(Check.predicate(conditions()::checkPicker));
+    default Stream<LGPlayer> getEligiblePickers() {
+        return gameOrchestrator().game().getPlayers().stream().filter(Check.predicate(conditions()::checkPicker));
     }
 
-    default boolean canSomeonePick(LGGameOrchestrator orchestrator) {
-        return getEligiblePickers(orchestrator).anyMatch(Check.predicate(conditions()::checkPicker));
+    default boolean canSomeonePick() {
+        return getEligiblePickers().anyMatch(Check.predicate(conditions()::checkPicker));
     }
 }

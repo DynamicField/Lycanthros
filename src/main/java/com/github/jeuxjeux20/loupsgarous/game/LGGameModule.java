@@ -13,6 +13,7 @@ import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobbyModule;
 import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardModule;
 import com.github.jeuxjeux20.loupsgarous.game.signs.LGSignsModule;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesModule;
+import com.github.jeuxjeux20.loupsgarous.game.tags.LGTagsModule;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeamsModule;
 import com.github.jeuxjeux20.loupsgarous.game.winconditions.LGWinConditionsModule;
 import com.google.inject.AbstractModule;
@@ -36,6 +37,7 @@ public final class LGGameModule extends AbstractModule {
         install(new LGActionBarModule());
         install(new LGAtmosphereModule());
         install(new LGBossBarModule());
+        install(new LGTagsModule());
 
         bind(LGGameManager.class).to(MinecraftLGGameManager.class);
 

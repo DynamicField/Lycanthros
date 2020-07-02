@@ -16,11 +16,7 @@ import java.util.Set;
  * They are also used to "extend" a player's capacities.
  */
 public abstract class MutableLGCard implements LGCard {
-    protected final ChatColor LOUPS_GAROUS_COLOR = ChatColor.RED;
-    protected final ChatColor VILLAGEOIS_COLOR = ChatColor.DARK_AQUA;
-    protected final ChatColor GRAY_AREA_COLOR = ChatColor.DARK_PURPLE;
     protected final Set<LGTeam> teams = new HashSet<>();
-    protected final Set<String> tags = new HashSet<>();
 
     public MutableLGCard() {
         teams.add(getMainTeam());
@@ -35,15 +31,6 @@ public abstract class MutableLGCard implements LGCard {
 
     public final Set<LGTeam> getMutableTeams() {
         return teams;
-    }
-
-    @Override
-    public ImmutableSet<String> getTags() {
-        return ImmutableSet.copyOf(tags);
-    }
-
-    public final Set<String> getMutableTags() {
-        return tags;
     }
 
     @Override

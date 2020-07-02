@@ -3,7 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game.chat.listeners;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 

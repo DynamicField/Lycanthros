@@ -3,7 +3,8 @@ package com.github.jeuxjeux20.loupsgarous.game;
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.actionbar.LGActionBarManager;
 import com.github.jeuxjeux20.loupsgarous.game.bossbar.LGBossBarManager;
-import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardsOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.tags.LGTagsOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeamsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.event.*;
@@ -46,10 +47,11 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     private LGGameState state = LGGameState.UNINITIALIZED;
     // Components
     private final LGLobby lobby;
-    private final LGCardsOrchestrator cardOrchestrator;
+    private final LGTeamsOrchestrator teamsOrchestrator;
     private final LGStagesOrchestrator stagesOrchestrator;
-    private final LGChatOrchestrator chatManager;
+    private final LGChatOrchestrator chatOrchestrator;
     private final LGKillsOrchestrator killsOrchestrator;
+    private final LGTagsOrchestrator tagsOrchestrator;
     private final InteractableRegistry interactableRegistry;
 
     @Inject
@@ -57,11 +59,12 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
                                 LoupsGarous plugin,
                                 LGScoreboardManager scoreboardManager,
                                 LGInventoryManager inventoryManager,
-                                LGChatOrchestrator.Factory chatManagerFactory,
+                                LGChatOrchestrator.Factory chatOrchestratorFactory,
                                 LGBossBarManager.Factory bossBarManagerFactory,
                                 LGActionBarManager.Factory actionBarManagerFactory,
                                 LGLobby.Factory lobbyFactory,
-                                LGCardsOrchestrator.Factory cardOrchestratorFactory,
+                                LGTeamsOrchestrator.Factory teamsOrchestratorFactory,
+                                LGTagsOrchestrator.Factory tagsOrchestratorFactory,
                                 LGStagesOrchestrator.Factory stagesOrchestratorFactory,
                                 LGKillsOrchestrator.Factory killsOrchestratorFactory,
                                 InteractableRegistry.Factory interactableRegistryFactory) throws GameCreationException {
@@ -71,10 +74,11 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
             this.logger = new LGGameOrchestratorLogger(this);
 
             this.lobby = lobbyFactory.create(bootstrapData, this);
-            this.cardOrchestrator = cardOrchestratorFactory.create(this);
+            this.teamsOrchestrator = teamsOrchestratorFactory.create(this);
             this.stagesOrchestrator = stagesOrchestratorFactory.create(this);
-            this.chatManager = chatManagerFactory.create(this);
+            this.chatOrchestrator = chatOrchestratorFactory.create(this);
             this.killsOrchestrator = killsOrchestratorFactory.create(this);
+            this.tagsOrchestrator = tagsOrchestratorFactory.create(this);
             this.interactableRegistry = interactableRegistryFactory.create(this);
             LGBossBarManager bossBarManager = bossBarManagerFactory.create(this);
             LGActionBarManager actionBarManager = actionBarManagerFactory.create(this);
@@ -222,20 +226,6 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         deleteIfEmpty();
     }
 
-    @Nonnull
-    @Override
-    public <T extends AutoCloseable> T bind(@Nonnull T terminable) {
-        return terminableRegistry.bind(terminable);
-    }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("id", game.getId())
-                .add("state", state)
-                .toString();
-    }
-
     @Override
     public LoupsGarous plugin() {
         return plugin;
@@ -243,7 +233,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
     @Override
     public LGChatOrchestrator chat() {
-        return chatManager;
+        return chatOrchestrator;
     }
 
     @Override
@@ -252,8 +242,13 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     }
 
     @Override
-    public LGCardsOrchestrator cards() {
-        return cardOrchestrator;
+    public LGTeamsOrchestrator teams() {
+        return teamsOrchestrator;
+    }
+
+    @Override
+    public LGTagsOrchestrator tags() {
+        return tagsOrchestrator;
     }
 
     @Override
@@ -267,6 +262,11 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     }
 
     @Override
+    public InteractableRegistry interactables() {
+        return interactableRegistry;
+    }
+
+    @Override
     public MetadataMap metadata() {
         return LGMetadata.provideForGame(this);
     }
@@ -277,8 +277,17 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     }
 
     @Override
-    public InteractableRegistry interactables() {
-        return interactableRegistry;
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", game.getId())
+                .add("state", state)
+                .toString();
+    }
+
+    @Nonnull
+    @Override
+    public <T extends AutoCloseable> T bind(@Nonnull T terminable) {
+        return terminableRegistry.bind(terminable);
     }
 
     /**

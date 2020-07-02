@@ -20,7 +20,7 @@ public final class LGChatModule extends ChatChannelsModule {
         addChatChannel(DayChatChannel.class);
         addChatChannel(DeadChatChannel.class);
         addChatChannel(LoupsGarousChatChannel.class);
-        addChatChannel(OutOfChatChannel.class);
+        addChatChannel(OutOfGameChatChannel.class);
         addChatChannel(LoupsGarousVoteChatChannel.class);
     }
 }

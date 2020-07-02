@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorComponent;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.MutableLGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
@@ -13,7 +13,7 @@ import java.util.UUID;
 /**
  * Manages players entering in and out of a game, as well as the {@link Composition} of the game.
  */
-public interface LGLobby extends LGGameOrchestratorComponent {
+public interface LGLobby extends LGGameOrchestratorDependent {
     World getWorld();
 
 

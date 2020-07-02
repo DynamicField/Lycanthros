@@ -11,9 +11,9 @@ import java.util.stream.Collectors;
 
 public final class CoupleCardRevealer implements CardRevealer {
     @Override
-    public boolean willReveal(LGPlayer playerToReveal, LGPlayer target, LGGameOrchestrator orchestrator) {
+    public boolean willReveal(LGPlayer viewer, LGPlayer playerToReveal, LGGameOrchestrator orchestrator) {
         List<LGTeam> playerCouples = getCouples(playerToReveal);
-        List<LGTeam> targetCouples = getCouples(target);
+        List<LGTeam> targetCouples = getCouples(viewer);
 
         return !Collections.disjoint(playerCouples, targetCouples);
     }

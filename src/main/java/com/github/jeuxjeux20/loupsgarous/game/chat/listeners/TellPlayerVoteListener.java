@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableTypes;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.Pick;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 

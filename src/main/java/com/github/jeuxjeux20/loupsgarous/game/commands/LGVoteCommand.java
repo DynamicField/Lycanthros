@@ -3,16 +3,16 @@ package com.github.jeuxjeux20.loupsgarous.game.commands;
 import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.handler.SinglePlayerCommandPickHandler;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.handler.SinglePlayerInteractableCommandHandler;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 public class LGVoteCommand implements HelperCommandRegisterer {
-    private final Provider<PickableCommandBuilder<Votable<LGPlayer>, SinglePlayerCommandPickHandler>> commandBuilderProvider;
+    private final Provider<PickableCommandBuilder<Votable<LGPlayer>, SinglePlayerInteractableCommandHandler>> commandBuilderProvider;
 
     @Inject
-    LGVoteCommand(Provider<PickableCommandBuilder<Votable<LGPlayer>, SinglePlayerCommandPickHandler>> commandBuilderProvider) {
+    LGVoteCommand(Provider<PickableCommandBuilder<Votable<LGPlayer>, SinglePlayerInteractableCommandHandler>> commandBuilderProvider) {
         this.commandBuilderProvider = commandBuilderProvider;
     }
 

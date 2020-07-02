@@ -2,9 +2,9 @@ package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import com.google.common.reflect.TypeToken;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public final class Pick<T, P extends Pickable<T>> {
@@ -13,9 +13,9 @@ public final class Pick<T, P extends Pickable<T>> {
     private final T target;
 
     public Pick(InteractableEntry<P> entry, LGPlayer picker, T target) {
-        this.entry = entry;
-        this.picker = picker;
-        this.target = target;
+        this.entry = Objects.requireNonNull(entry, "entry is null");
+        this.picker = Objects.requireNonNull(picker, "picker is null");
+        this.target = Objects.requireNonNull(target, "target is null");
     }
 
     public InteractableEntry<P> getEntry() {
@@ -48,14 +48,14 @@ public final class Pick<T, P extends Pickable<T>> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Pick<?, ?> pick = (Pick<?, ?>) o;
-        return Objects.equal(entry, pick.entry) &&
-               Objects.equal(picker, pick.picker) &&
-               Objects.equal(target, pick.target);
+        return entry.equals(pick.entry) &&
+               picker.equals(pick.picker) &&
+               target.equals(pick.target);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(entry, picker, target);
+        return Objects.hash(entry, picker, target);
     }
 
     @Override

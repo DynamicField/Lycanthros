@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
 
 import static com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableTypes.*;
 

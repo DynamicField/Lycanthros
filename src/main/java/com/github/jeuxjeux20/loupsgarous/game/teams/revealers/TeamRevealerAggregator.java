@@ -17,9 +17,9 @@ public final class TeamRevealerAggregator implements TeamRevealer {
     }
 
     @Override
-    public ImmutableSet<LGTeam> getTeamsRevealed(LGPlayer playerToReveal, LGPlayer target, LGGameOrchestrator orchestrator) {
+    public ImmutableSet<LGTeam> getTeamsRevealed(LGPlayer viewer, LGPlayer playerToReveal, LGGameOrchestrator orchestrator) {
         return teamRevealers.stream()
-                .flatMap(x -> x.getTeamsRevealed(playerToReveal, target, orchestrator).stream())
+                .flatMap(x -> x.getTeamsRevealed(viewer, playerToReveal, orchestrator).stream())
                 .collect(ImmutableSet.toImmutableSet());
     }
 }

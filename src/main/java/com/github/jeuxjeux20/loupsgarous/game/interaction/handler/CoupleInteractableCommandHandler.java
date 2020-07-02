@@ -13,22 +13,22 @@ import org.bukkit.entity.Player;
 
 import java.util.Optional;
 
-public class CoupleCommandPickHandler implements CommandPickHandler<Pickable<Couple>> {
+public class CoupleInteractableCommandHandler implements InteractableCommandHandler<Pickable<Couple>> {
     @Override
     public void configure(FunctionalCommandBuilder<Player> builder) {
         builder.assertUsage("<partenaire1> <partenaire2>", "{usage}");
     }
 
     @Override
-    public void pick(CommandContext<Player> context, LGPlayer player, Pickable<Couple> pickable, LGGameOrchestrator orchestrator) {
+    public void pick(CommandContext<Player> context, LGPlayer player, Pickable<Couple> interactable, LGGameOrchestrator orchestrator) {
         String partner1Name = context.arg(0).value().orElseThrow(AssertionError::new);
         String partner2Name = context.arg(1).value().orElseThrow(AssertionError::new);
 
         createCouple(partner1Name, partner2Name, orchestrator, context.sender()).ifPresent(couple -> {
-            Check check = pickable.conditions().checkPick(player, couple);
+            Check check = interactable.conditions().checkPick(player, couple);
 
             if (check.isSuccess()) {
-                pickable.pick(player, couple);
+                interactable.pick(player, couple);
             }
             else {
                 context.reply(ChatColor.RED + check.getErrorMessage());

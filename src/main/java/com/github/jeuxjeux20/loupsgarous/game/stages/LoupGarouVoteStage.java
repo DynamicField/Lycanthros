@@ -7,10 +7,10 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LoupsGarousVoteChatChannel;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerVotable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVotable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
@@ -35,11 +35,12 @@ public class LoupGarouVoteStage extends CountdownLGStage {
 
     @Inject
     LoupGarouVoteStage(@Assisted LGGameOrchestrator orchestrator,
-                       LoupsGarousVoteChatChannel voteChannel) {
+                       LoupsGarousVoteChatChannel voteChannel,
+                       AbstractPlayerVotable.PlayerVoteDependencies voteDependencies) {
         super(orchestrator);
 
         this.voteChannel = voteChannel;
-        this.votable = new LoupGarouVotable();
+        this.votable = new LoupGarouVotable(voteDependencies);
 
         orchestrator.interactables().put(bind(votable));
     }
@@ -52,7 +53,7 @@ public class LoupGarouVoteStage extends CountdownLGStage {
     @Override
     public boolean shouldRun() {
         return orchestrator.turn().getTime() == LGGameTurnTime.NIGHT &&
-               votable.canSomeonePick(orchestrator);
+               votable.canSomeonePick();
     }
 
     @Override
@@ -78,7 +79,7 @@ public class LoupGarouVoteStage extends CountdownLGStage {
     }
 
     private void computeVoteOutcome() {
-        Optional<LGPlayer> maybeMajority = votable.getMajority();
+        Optional<LGPlayer> maybeMajority = votable.getOutcome().getElected();
         isVoteSuccessful = maybeMajority.isPresent();
 
         if (isVoteSuccessful) {
@@ -111,8 +112,8 @@ public class LoupGarouVoteStage extends CountdownLGStage {
     }
 
     public final class LoupGarouVotable extends AbstractPlayerVotable {
-        private LoupGarouVotable() {
-            super(LoupGarouVoteStage.this.orchestrator);
+        private LoupGarouVotable(PlayerVoteDependencies dependencies) {
+            super(LoupGarouVoteStage.this.orchestrator, dependencies);
         }
 
         @Override
