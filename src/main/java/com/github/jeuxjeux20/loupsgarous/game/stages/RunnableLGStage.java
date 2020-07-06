@@ -66,7 +66,9 @@ public abstract class RunnableLGStage implements LGStage, Terminable, Terminable
     }
 
     private void callStartingEvent() {
-        currentStartingEvent = Events.callAndReturn(new LGStageStartingEvent(this));
+        currentStartingEvent = new LGStageStartingEvent(this);
+        Events.call(currentStartingEvent);
+
         if (currentStartingEvent.isCancelled()) {
             closeAndReportException();
         }

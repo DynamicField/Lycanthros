@@ -8,6 +8,6 @@ public final class LGTagRevealersModule extends TagRevealersModule {
 
     @Override
     protected void configureTagRevealers() {
-        // some stuff soon
+        addTagRevealer(MaireTagRevealer.class);
     }
 }

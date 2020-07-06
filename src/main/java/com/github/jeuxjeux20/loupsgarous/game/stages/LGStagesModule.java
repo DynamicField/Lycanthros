@@ -35,6 +35,7 @@ public final class LGStagesModule extends StagesModule {
         addStage(SorcierePotionStage.class);
         addStage(NextTimeOfDayStage.class);
         addStage(RevealAllKillsStage.class);
+        addStage(MaireElectionStage.class);
         addStage(VillageVoteStage.class);
 
         install(new FactoryModuleBuilder().build(ChasseurKillStage.Factory.class));

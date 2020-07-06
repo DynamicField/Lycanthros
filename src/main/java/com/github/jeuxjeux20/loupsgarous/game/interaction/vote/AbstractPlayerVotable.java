@@ -5,11 +5,13 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.CriticalPickableConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
+import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
 import com.google.inject.TypeLiteral;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.error;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
@@ -39,6 +41,10 @@ public abstract class AbstractPlayerVotable extends AbstractVotable<LGPlayer> {
     @Override
     protected final PickConditions<LGPlayer> criticalConditions() {
         return CriticalPickableConditions.player(orchestrator);
+    }
+
+    public Stream<LGPlayer> getEligibleTargets() {
+        return orchestrator.game().getPlayers().stream().filter(Check.predicate(conditions()::checkTarget));
     }
 
     protected String getTargetDeadError(LGPlayer target) {

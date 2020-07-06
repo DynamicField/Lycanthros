@@ -11,10 +11,6 @@ public interface LGChatChannel {
 
     boolean canBeUsedByPlayer(LGGameOrchestrator orchestrator);
 
-    default boolean cannotBeUsedByPlayer(LGGameOrchestrator orchestrator) {
-        return !canBeUsedByPlayer(orchestrator);
-    }
-
     boolean areMessagesVisibleTo(LGPlayer recipient, LGGameOrchestrator orchestrator);
 
     boolean canTalk(LGPlayer sender, LGGameOrchestrator orchestrator);

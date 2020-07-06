@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 
-public final class DayChatChannel implements LGChatChannel {
+public class DayChatChannel implements LGChatChannel {
     @Override
     public String getName() {
         return "Jour";

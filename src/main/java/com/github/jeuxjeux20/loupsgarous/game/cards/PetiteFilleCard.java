@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
 @Unique
-public final class PetiteFilleCard extends MutableLGCard implements LoupGarouNightSpy {
+public final class PetiteFilleCard extends MutableLGCard {
     @Override
     public String getName() {
         return "Petite fille";

@@ -134,6 +134,11 @@ public class LoupGarouVoteStage extends CountdownLGStage {
         }
 
         @Override
+        public ChatColor getHighlightColor() {
+            return ChatColor.RED;
+        }
+
+        @Override
         public LGChatChannel getInfoMessagesChannel() {
             return voteChannel;
         }

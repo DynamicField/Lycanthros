@@ -28,7 +28,7 @@ class MinecraftLGGameManager implements LGGameManager {
     private final CopyOnWriteArrayList<LGGameOrchestrator> ongoingGames = new CopyOnWriteArrayList<>();
 
     private final Hashtable<String, LGGameOrchestrator> gamesById = new Hashtable<>();
-    private final Hashtable<UUID, LGGameOrchestrator> gamesByPlayerUUID = new Hashtable<>();
+    private final Hashtable<UUID, LGPlayerAndGame> playerGames = new Hashtable<>();
 
     @Inject
     MinecraftLGGameManager(LGGameOrchestrator.Factory orchestratorFactory) {
@@ -38,10 +38,14 @@ class MinecraftLGGameManager implements LGGameManager {
                 .handler(e -> removeDeletedGame(e.getOrchestrator()));
 
         Events.subscribe(LGPlayerJoinEvent.class, EventPriority.LOWEST)
-                .handler(e -> gamesByPlayerUUID.put(e.getPlayer().getUniqueId(), e.getOrchestrator()));
+                .handler(e -> {
+                    LGPlayerAndGame value = new LGPlayerAndGame(e.getLGPlayer(), e.getOrchestrator());
+
+                    playerGames.put(e.getPlayer().getUniqueId(), value);
+                });
 
         Events.subscribe(LGPlayerQuitEvent.class, EventPriority.LOWEST)
-                .handler(e -> gamesByPlayerUUID.remove(e.getPlayerUUID()));
+                .handler(e -> playerGames.remove(e.getPlayerUUID()));
 
         Events.subscribe(PluginDisableEvent.class)
                 .filter(e -> e.getPlugin() instanceof LoupsGarous)
@@ -76,12 +80,7 @@ class MinecraftLGGameManager implements LGGameManager {
 
     @Override
     public synchronized Optional<LGPlayerAndGame> getPlayerInGame(UUID playerUUID) {
-        LGGameOrchestrator orchestrator = gamesByPlayerUUID.get(playerUUID);
-        if (orchestrator == null) return Optional.empty();
-
-        return orchestrator.game().getPlayer(playerUUID)
-                .filter(LGPlayer::isPresent)
-                .map(p -> new LGPlayerAndGame(p, orchestrator));
+        return Optional.ofNullable(playerGames.get(playerUUID));
     }
 
     @Override

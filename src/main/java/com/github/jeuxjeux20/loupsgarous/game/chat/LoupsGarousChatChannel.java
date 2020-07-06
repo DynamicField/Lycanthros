@@ -3,7 +3,6 @@ package com.github.jeuxjeux20.loupsgarous.game.chat;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.AnonymousNameHolder;
-import com.github.jeuxjeux20.loupsgarous.game.cards.LoupGarouNightSpy;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LoupGarouVoteStage;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.google.inject.Inject;
@@ -53,27 +52,21 @@ public class LoupsGarousChatChannel implements LGChatChannel, AnonymizedChatChan
 
     @Override
     public boolean areMessagesVisibleTo(LGPlayer recipient, LGGameOrchestrator orchestrator) {
-        return hasAccess(recipient, true) || isPlayerSpying(recipient);
+        return hasAccess(recipient);
     }
 
     @Override
     public boolean canTalk(LGPlayer sender, LGGameOrchestrator orchestrator) {
-        return hasAccess(sender, false);
+        return hasAccess(sender);
     }
 
-    protected boolean hasAccess(LGPlayer sender, boolean canBeDead) {
-        return sender.getCard().isInTeam(LGTeams.LOUPS_GAROUS) &&
-               (canBeDead || sender.isAlive());
-    }
-
-    private boolean isPlayerSpying(LGPlayer recipient) {
-        return recipient.getCard() instanceof LoupGarouNightSpy &&
-               ((LoupGarouNightSpy) recipient.getCard()).canSpy(recipient);
+    protected boolean hasAccess(LGPlayer sender) {
+        return sender.getCard().isInTeam(LGTeams.LOUPS_GAROUS);
     }
 
     @Override
     public boolean shouldAnonymizeTo(LGPlayer recipient, LGGameOrchestrator orchestrator) {
-        return recipient.getCard() instanceof LoupGarouNightSpy;
+        return false;
     }
 
     @Override

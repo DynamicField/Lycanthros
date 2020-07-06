@@ -22,8 +22,8 @@ public final class CheckWinConditionsListener implements Listener {
         this.winConditions = winConditions;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onLGStageChange(LGStageStartingEvent event) {
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onLGStageStarting(LGStageStartingEvent event) {
         LGGameOrchestrator orchestrator = event.getOrchestrator();
         LGStage stage = event.getStage();
 

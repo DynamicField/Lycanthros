@@ -61,7 +61,7 @@ class MinecraftLGChatOrchestrator implements LGChatOrchestrator {
 
         builder.append(TextComponent.of("<"))
                 .append(channel.formatUsername(sender, recipient, orchestrator))
-                .append(TextComponent.of(">"))
+                .append(TextComponent.of("> "))
                 .append(TextComponent.of(message));
 
         return builder.build();

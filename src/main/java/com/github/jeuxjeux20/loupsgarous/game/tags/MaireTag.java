@@ -15,6 +15,6 @@ public final class MaireTag extends LGTag {
 
     @Override
     public ChatColor getColor() {
-        return ChatColor.GOLD;
+        return ChatColor.BLUE;
     }
 }

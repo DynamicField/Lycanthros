@@ -13,6 +13,7 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.VillageVoteKillReason;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import org.bukkit.ChatColor;
 
 import java.util.Optional;
 
@@ -108,6 +109,11 @@ public class VillageVoteStage extends CountdownLGStage {
         @Override
         public String getPointingText() {
             return "vote pour tuer";
+        }
+
+        @Override
+        public ChatColor getHighlightColor() {
+            return ChatColor.RED;
         }
     }
 }

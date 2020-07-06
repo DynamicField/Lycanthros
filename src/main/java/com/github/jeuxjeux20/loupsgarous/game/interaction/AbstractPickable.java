@@ -37,9 +37,8 @@ public abstract class AbstractPickable<T> extends AbstractInteractable implement
     @Override
     public final PickConditions<T> conditions() {
         return FunctionalPickConditions.<T>builder()
-                .ensurePicker(LGPlayer::isPresent, "Vous n'êtes pas dans la partie.")
                 .use(new CriticalConditionsLoggingWrapper(allCriticalConditions()))
-                .use(pickConditions())
+                .use(allPickConditions())
                 .build();
     }
 
@@ -47,6 +46,13 @@ public abstract class AbstractPickable<T> extends AbstractInteractable implement
         return FunctionalPickConditions.<T>builder()
                 .ensurePicker(PickableConditions.checkPlayerGamePresence(orchestrator))
                 .use(criticalConditions())
+                .build();
+    }
+
+    private PickConditions<T> allPickConditions() {
+        return FunctionalPickConditions.<T>builder()
+                .ensurePicker(LGPlayer::isPresent, "Vous n'êtes pas dans la partie.")
+                .use(pickConditions())
                 .build();
     }
 

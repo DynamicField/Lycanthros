@@ -33,7 +33,7 @@ public class CurrentVotesScoreboardComponent implements ScoreboardComponent {
 
             votable.getVotes().forEachEntry((votedPlayer, voteCount) -> {
                 boolean isElected = elected == votedPlayer;
-                String color = isElected ? ChatColor.RED.toString() + ChatColor.BOLD : "";
+                String color = isElected ? votable.getHighlightColor().toString() + ChatColor.BOLD : "";
 
                 lines.add(new Line(color + votedPlayer.getName(), voteCount));
             });

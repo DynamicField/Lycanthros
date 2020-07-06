@@ -5,6 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
 import com.google.inject.Inject;
+import me.lucko.helper.Schedulers;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -24,10 +25,15 @@ public class RedirectChatMessageListener implements Listener {
         Optional<LGPlayerAndGame> playerAndGame = gameManager.getPlayerInGame(event.getPlayer());
         if (!playerAndGame.isPresent()) return;
 
-        LGPlayer sender = playerAndGame.get().getPlayer();
-        LGGameOrchestrator orchestrator = playerAndGame.get().getOrchestrator();
-
         event.setCancelled(true);
-        orchestrator.chat().redirectMessage(sender, event.getMessage());
+
+        LGPlayerAndGame data = playerAndGame.get();
+
+        Schedulers.sync().run(() -> {
+            LGPlayer sender = data.getPlayer();
+            LGGameOrchestrator orchestrator = data.getOrchestrator();
+
+            orchestrator.chat().redirectMessage(sender, event.getMessage());
+        });
     }
 }

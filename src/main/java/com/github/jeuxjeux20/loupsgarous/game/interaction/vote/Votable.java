@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.interaction.vote;
 
 import com.github.jeuxjeux20.loupsgarous.game.interaction.StatefulPickable;
 import com.google.common.collect.Multiset;
+import org.bukkit.ChatColor;
 
 public interface Votable<T> extends StatefulPickable<T> {
     /**
@@ -36,4 +37,6 @@ public interface Votable<T> extends StatefulPickable<T> {
      * @return a multiset representing the occurrences of each vote
      */
     Multiset<T> getVotes();
+
+    ChatColor getHighlightColor();
 }
