@@ -3,8 +3,6 @@ package com.github.jeuxjeux20.loupsgarous.game;
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.actionbar.LGActionBarManager;
 import com.github.jeuxjeux20.loupsgarous.game.bossbar.LGBossBarManager;
-import com.github.jeuxjeux20.loupsgarous.game.tags.LGTagsOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeamsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.event.*;
@@ -20,8 +18,12 @@ import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardManager;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.tags.LGTagsOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeamsOrchestrator;
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
 import me.lucko.helper.metadata.MetadataMap;
@@ -47,55 +49,24 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     private LGGameState state = LGGameState.UNINITIALIZED;
     // Components
     private final LGLobby lobby;
-    private final LGTeamsOrchestrator teamsOrchestrator;
-    private final LGStagesOrchestrator stagesOrchestrator;
-    private final LGChatOrchestrator chatOrchestrator;
-    private final LGKillsOrchestrator killsOrchestrator;
-    private final LGTagsOrchestrator tagsOrchestrator;
-    private final InteractableRegistry interactableRegistry;
+    private DelayedDependencies delayedDependencies;
+    private final Provider<DelayedDependencies> delayedDependenciesProvider;
+    private final OrchestratorScope scope;
 
     @Inject
     MinecraftLGGameOrchestrator(@Assisted LGGameBootstrapData bootstrapData,
                                 LoupsGarous plugin,
-                                LGScoreboardManager scoreboardManager,
-                                LGInventoryManager inventoryManager,
-                                LGChatOrchestrator.Factory chatOrchestratorFactory,
-                                LGBossBarManager.Factory bossBarManagerFactory,
-                                LGActionBarManager.Factory actionBarManagerFactory,
                                 LGLobby.Factory lobbyFactory,
-                                LGTeamsOrchestrator.Factory teamsOrchestratorFactory,
-                                LGTagsOrchestrator.Factory tagsOrchestratorFactory,
-                                LGStagesOrchestrator.Factory stagesOrchestratorFactory,
-                                LGKillsOrchestrator.Factory killsOrchestratorFactory,
-                                InteractableRegistry.Factory interactableRegistryFactory) throws GameCreationException {
-        try {
-            this.plugin = plugin;
-            this.game = new MutableLGGame(bootstrapData.getId());
-            this.logger = new LGGameOrchestratorLogger(this);
+                                OrchestratorScope scope,
+                                Provider<DelayedDependencies> delayedDependenciesProvider) throws GameCreationException {
+        this.plugin = plugin;
+        this.scope = scope;
+        this.game = new MutableLGGame(bootstrapData.getId());
+        this.delayedDependenciesProvider = delayedDependenciesProvider;
+        this.logger = new LGGameOrchestratorLogger(this);
+        this.lobby = lobbyFactory.create(bootstrapData, this);
 
-            this.lobby = lobbyFactory.create(bootstrapData, this);
-            this.teamsOrchestrator = teamsOrchestratorFactory.create(this);
-            this.stagesOrchestrator = stagesOrchestratorFactory.create(this);
-            this.chatOrchestrator = chatOrchestratorFactory.create(this);
-            this.killsOrchestrator = killsOrchestratorFactory.create(this);
-            this.tagsOrchestrator = tagsOrchestratorFactory.create(this);
-            this.interactableRegistry = interactableRegistryFactory.create(this);
-            LGBossBarManager bossBarManager = bossBarManagerFactory.create(this);
-            LGActionBarManager actionBarManager = actionBarManagerFactory.create(this);
-
-            bindModule(actionBarManager.createUpdateModule());
-            bindModule(bossBarManager.createUpdateModule());
-
-            registerLobbyEvents();
-            scoreboardManager.registerEvents();
-            inventoryManager.registerEvents();
-        } catch (Exception e) {
-            // Ensure that all the terminables get closed
-            // before rethrowing.
-            terminableRegistry.closeAndReportException();
-
-            throw e;
-        }
+        registerLobbyEvents();
     }
 
     @Override
@@ -112,6 +83,12 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     public void initialize() {
         state.mustBe(UNINITIALIZED);
 
+        try (OrchestratorScope.Block block = scope()) {
+            delayedDependencies = delayedDependenciesProvider.get();
+        }
+
+        initializeRecurrentDependenciesUpdates();
+
         Events.call(new LGGameInitializeEvent(this));
 
         updateLobbyState();
@@ -119,6 +96,14 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         if (stages().current() instanceof LGStage.Null) {
             stages().next();
         }
+    }
+
+    private void initializeRecurrentDependenciesUpdates() {
+        bindModule(actionBar().createUpdateModule());
+        bindModule(bossBar().createUpdateModule());
+
+        delayedDependencies.scoreboardManager.registerEvents();
+        delayedDependencies.inventoryManager.registerEvents();
     }
 
     @Override
@@ -216,7 +201,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(e.getPlayerUUID());
 
         if (isGameRunning() && e.getLGPlayer().isAlive()) {
-            kills().instantly(e.getLGPlayer(), PlayerQuitKillReason::new);
+            kills().instantly(e.getLGPlayer(), PlayerQuitKillReason.INSTANCE);
         } else if (state.isEnabled()) { // Let's not write quit messages while deleting.
             chat().sendToEveryone(player(offlinePlayer.getName()) + lobbyMessage(" a quitté la partie ! ") +
                                   slots(lobby.getSlotsDisplay()));
@@ -233,27 +218,37 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
     @Override
     public LGChatOrchestrator chat() {
-        return chatOrchestrator;
+        checkDelayedDependencies();
+
+        return delayedDependencies.chatOrchestrator;
     }
 
     @Override
     public LGStagesOrchestrator stages() {
-        return stagesOrchestrator;
+        checkDelayedDependencies();
+
+        return delayedDependencies.stagesOrchestrator;
     }
 
     @Override
     public LGTeamsOrchestrator teams() {
-        return teamsOrchestrator;
+        checkDelayedDependencies();
+
+        return delayedDependencies.teamsOrchestrator;
     }
 
     @Override
     public LGTagsOrchestrator tags() {
-        return tagsOrchestrator;
+        checkDelayedDependencies();
+
+        return delayedDependencies.tagsOrchestrator;
     }
 
     @Override
     public LGKillsOrchestrator kills() {
-        return killsOrchestrator;
+        checkDelayedDependencies();
+
+        return delayedDependencies.killsOrchestrator;
     }
 
     @Override
@@ -263,7 +258,23 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
     @Override
     public InteractableRegistry interactables() {
-        return interactableRegistry;
+        checkDelayedDependencies();
+
+        return delayedDependencies.interactableRegistry;
+    }
+
+    @Override
+    public LGActionBarManager actionBar() {
+        checkDelayedDependencies();
+
+        return delayedDependencies.actionBarManager;
+    }
+
+    @Override
+    public LGBossBarManager bossBar() {
+        checkDelayedDependencies();
+
+        return delayedDependencies.bossBarManager;
     }
 
     @Override
@@ -274,6 +285,11 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     @Override
     public Logger logger() {
         return logger;
+    }
+
+    @Override
+    public OrchestratorScope.Block scope() {
+        return scope.use(this);
     }
 
     @Override
@@ -308,5 +324,47 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         logger.fine("State changed: " + oldState + " -> " + state);
 
         Events.call(eventFunction.apply(this));
+    }
+
+    private void checkDelayedDependencies() {
+        Preconditions.checkState(delayedDependencies != null,
+                "This game is not initialized yet. (OrchestratorScoped dependencies are not present.)");
+    }
+
+    @OrchestratorScoped
+    private static final class DelayedDependencies {
+        final LGScoreboardManager scoreboardManager;
+        final LGInventoryManager inventoryManager;
+        final LGChatOrchestrator chatOrchestrator;
+        final LGBossBarManager bossBarManager;
+        final LGActionBarManager actionBarManager;
+        final LGTeamsOrchestrator teamsOrchestrator;
+        final LGTagsOrchestrator tagsOrchestrator;
+        final LGStagesOrchestrator stagesOrchestrator;
+        final LGKillsOrchestrator killsOrchestrator;
+        final InteractableRegistry interactableRegistry;
+
+        @Inject
+        DelayedDependencies(LGScoreboardManager scoreboardManager,
+                            LGInventoryManager inventoryManager,
+                            LGChatOrchestrator chatOrchestrator,
+                            LGBossBarManager bossBarManager,
+                            LGActionBarManager actionBarManager,
+                            LGTeamsOrchestrator teamsOrchestrator,
+                            LGTagsOrchestrator tagsOrchestrator,
+                            LGStagesOrchestrator stagesOrchestrator,
+                            LGKillsOrchestrator killsOrchestrator,
+                            InteractableRegistry interactableRegistry) {
+            this.scoreboardManager = scoreboardManager;
+            this.inventoryManager = inventoryManager;
+            this.chatOrchestrator = chatOrchestrator;
+            this.bossBarManager = bossBarManager;
+            this.actionBarManager = actionBarManager;
+            this.teamsOrchestrator = teamsOrchestrator;
+            this.tagsOrchestrator = tagsOrchestrator;
+            this.stagesOrchestrator = stagesOrchestrator;
+            this.killsOrchestrator = killsOrchestrator;
+            this.interactableRegistry = interactableRegistry;
+        }
     }
 }

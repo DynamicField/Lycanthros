@@ -3,11 +3,11 @@ package com.github.jeuxjeux20.loupsgarous.game.kill;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.MutableLGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.MutableLGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGKillEvent;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
 
 import java.util.HashSet;
@@ -15,13 +15,14 @@ import java.util.Set;
 
 import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.STARTED;
 
+@OrchestratorScoped
 public class MinecraftLGKillsOrchestrator implements LGKillsOrchestrator {
     private final MutableLGGameOrchestrator gameOrchestrator;
 
     private final Set<LGKill> pendingKills = new HashSet<>();
 
     @Inject
-    MinecraftLGKillsOrchestrator(@Assisted MutableLGGameOrchestrator gameOrchestrator) {
+    MinecraftLGKillsOrchestrator(MutableLGGameOrchestrator gameOrchestrator) {
         this.gameOrchestrator = gameOrchestrator;
     }
 

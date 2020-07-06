@@ -30,20 +30,14 @@ public abstract class LGChatChannelInterceptor implements LGChatChannel {
 
     @Override
     @Redirection
-    public boolean canBeUsedByPlayer(LGGameOrchestrator orchestrator) {
-        return channel.canBeUsedByPlayer(orchestrator);
+    public boolean isReadable(LGPlayer recipient, LGGameOrchestrator orchestrator) {
+        return channel.isReadable(recipient, orchestrator);
     }
 
     @Override
     @Redirection
-    public boolean areMessagesVisibleTo(LGPlayer recipient, LGGameOrchestrator orchestrator) {
-        return channel.areMessagesVisibleTo(recipient, orchestrator);
-    }
-
-    @Override
-    @Redirection
-    public boolean canTalk(LGPlayer sender, LGGameOrchestrator orchestrator) {
-        return channel.canTalk(sender, orchestrator);
+    public boolean isWritable(LGPlayer sender, LGGameOrchestrator orchestrator) {
+        return channel.isWritable(sender, orchestrator);
     }
 
     protected LGChatChannel getChannel() {

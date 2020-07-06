@@ -3,7 +3,6 @@ package com.github.jeuxjeux20.loupsgarous.game.chat;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.AnonymousNameHolder;
-import com.github.jeuxjeux20.loupsgarous.game.stages.LoupGarouVoteStage;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -45,18 +44,12 @@ public class LoupsGarousChatChannel implements LGChatChannel, AnonymizedChatChan
     }
 
     @Override
-    public boolean canBeUsedByPlayer(LGGameOrchestrator orchestrator) {
-        return orchestrator.isGameRunning() &&
-               orchestrator.stages().current() instanceof LoupGarouVoteStage;
-    }
-
-    @Override
-    public boolean areMessagesVisibleTo(LGPlayer recipient, LGGameOrchestrator orchestrator) {
+    public boolean isReadable(LGPlayer recipient, LGGameOrchestrator orchestrator) {
         return hasAccess(recipient);
     }
 
     @Override
-    public boolean canTalk(LGPlayer sender, LGGameOrchestrator orchestrator) {
+    public boolean isWritable(LGPlayer sender, LGGameOrchestrator orchestrator) {
         return hasAccess(sender);
     }
 

@@ -1,6 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
+import com.github.jeuxjeux20.loupsgarous.game.actionbar.LGActionBarManager;
+import com.github.jeuxjeux20.loupsgarous.game.bossbar.LGBossBarManager;
 import com.github.jeuxjeux20.loupsgarous.game.tags.LGTagsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeamsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
@@ -132,13 +134,19 @@ public interface LGGameOrchestrator extends TerminableConsumer {
 
     LGKillsOrchestrator kills();
 
+    LGActionBarManager actionBar();
+
+    LGBossBarManager bossBar();
+
+    InteractableRegistry interactables();
+
     LGLobby lobby();
+
+    OrchestratorScope.Block scope();
 
     MetadataMap metadata();
 
     Logger logger();
-
-    InteractableRegistry interactables();
 
 
     default boolean isMyEvent(LGEvent event) {

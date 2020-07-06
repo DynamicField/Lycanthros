@@ -22,6 +22,8 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 public final class LGGameModule extends AbstractModule {
     @Override
     protected void configure() {
+        install(new OrchestratorScopeModule());
+
         install(new LGCardsModule());
         install(new LGListenersModule());
         install(new LGStagesModule());

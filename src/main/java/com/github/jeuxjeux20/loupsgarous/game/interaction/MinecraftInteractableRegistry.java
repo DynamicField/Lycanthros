@@ -1,26 +1,30 @@
 package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.github.jeuxjeux20.loupsgarous.util.CheckPredicate;
 import com.github.jeuxjeux20.loupsgarous.util.CheckStreams;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.SetMultimap;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.terminable.composite.CompositeClosingException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@OrchestratorScoped
 class MinecraftInteractableRegistry implements InteractableRegistry {
     private final LGGameOrchestrator orchestrator;
 
     private final SetMultimap<InteractableKey<?>, Interactable> map = MultimapBuilder.hashKeys().hashSetValues().build();
 
     @Inject
-    MinecraftInteractableRegistry(@Assisted LGGameOrchestrator orchestrator) {
+    MinecraftInteractableRegistry(LGGameOrchestrator orchestrator) {
         this.orchestrator = orchestrator;
         bindWith(orchestrator);
     }

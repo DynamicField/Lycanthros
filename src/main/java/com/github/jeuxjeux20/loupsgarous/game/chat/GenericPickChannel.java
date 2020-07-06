@@ -22,17 +22,12 @@ public class GenericPickChannel<T extends Pickable<?>> implements LGChatChannel 
     }
 
     @Override
-    public boolean canBeUsedByPlayer(LGGameOrchestrator orchestrator) {
-        return false;
-    }
-
-    @Override
-    public boolean areMessagesVisibleTo(LGPlayer recipient, LGGameOrchestrator orchestrator) {
+    public boolean isReadable(LGPlayer recipient, LGGameOrchestrator orchestrator) {
         return pickableProvider.conditions().checkPicker(recipient).isSuccess();
     }
 
     @Override
-    public boolean canTalk(LGPlayer sender, LGGameOrchestrator orchestrator) {
+    public boolean isWritable(LGPlayer sender, LGGameOrchestrator orchestrator) {
         return false;
     }
 }

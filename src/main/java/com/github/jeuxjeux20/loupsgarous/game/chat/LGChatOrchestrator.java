@@ -1,6 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.game.chat;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import me.lucko.helper.text.Text;
@@ -11,7 +10,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 public interface LGChatOrchestrator extends LGGameOrchestratorDependent {
-    void redirectMessage(LGPlayer sender, String message);
+    void redirectMessage(LGPlayer sender, String message, String format);
 
     default void sendMessage(LGChatChannel channel, String message) {
         sendMessage(channel, Text.fromLegacy(message));
@@ -28,8 +27,7 @@ public interface LGChatOrchestrator extends LGGameOrchestratorDependent {
     default Set<LGChatChannel> getWritableChannels(LGPlayer sender) {
         HashSet<LGChatChannel> channels = new HashSet<>();
         for (LGChatChannel channel : getChannels()) {
-            if (channel.canBeUsedByPlayer(gameOrchestrator()) &&
-                channel.canTalk(sender, gameOrchestrator())) {
+            if (channel.isWritable(sender, gameOrchestrator())) {
                 channels.add(channel);
             }
         }
@@ -38,9 +36,5 @@ public interface LGChatOrchestrator extends LGGameOrchestratorDependent {
 
     default void sendToEveryone(String message) {
         gameOrchestrator().getAllMinecraftPlayers().forEach(player -> player.sendMessage(message));
-    }
-
-    interface Factory {
-        LGChatOrchestrator create(LGGameOrchestrator orchestrator);
     }
 }

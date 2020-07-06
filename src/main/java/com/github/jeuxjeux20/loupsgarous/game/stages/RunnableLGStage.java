@@ -5,6 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageEndedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageEndingEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartingEvent;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.SelfBoundOrchestratorInteractableRegisterer;
 import com.github.jeuxjeux20.loupsgarous.util.CompletableFutures;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
@@ -22,7 +23,8 @@ import java.util.concurrent.CompletableFuture;
 /**
  * The runnable implementation of {@link LGStage}.
  */
-public abstract class RunnableLGStage implements LGStage, Terminable, TerminableConsumer {
+public abstract class RunnableLGStage
+        implements LGStage, Terminable, TerminableConsumer, SelfBoundOrchestratorInteractableRegisterer {
     protected final LGGameOrchestrator orchestrator;
     private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
 

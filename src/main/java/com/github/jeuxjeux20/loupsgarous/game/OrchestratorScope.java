@@ -34,24 +34,22 @@ public final class OrchestratorScope implements Scope {
 
     public void enter(LGGameOrchestrator orchestrator) {
         Preconditions.checkState(values.get() == null, "A scoping block is already in progress");
+
         Map<Key<?>, Object> map = createInitialMap(orchestrator);
         values.set(map);
     }
 
     public void exit() {
         Preconditions.checkState(values.get() != null, "No scoping block in progress");
+
         values.remove();
     }
 
-    public void run(LGGameOrchestrator orchestrator, Runnable action) {
-        enter(orchestrator);
+    public Block use(LGGameOrchestrator orchestrator) {
+        Preconditions.checkState(values.get() == null, "A scoping block is already in progress");
 
-        try {
-            action.run();
-        }
-        finally {
-            exit();
-        }
+        enter(orchestrator);
+        return new Block(orchestrator);
     }
 
     @Override
@@ -75,6 +73,11 @@ public final class OrchestratorScope implements Scope {
         };
     }
 
+    @Override
+    public String toString() {
+        return "OrchestratorScope";
+    }
+
     private Map<Key<?>, Object> createInitialMap(LGGameOrchestrator orchestrator) {
         HashMap<Key<?>, Object> map = new HashMap<>();
         map.put(ORCHESTRATOR_KEY, orchestrator);
@@ -91,5 +94,22 @@ public final class OrchestratorScope implements Scope {
                                           + " outside of a scoping block");
         }
         return scopedObjects;
+    }
+
+    public class Block implements AutoCloseable {
+        private final LGGameOrchestrator orchestrator;
+
+        private Block(LGGameOrchestrator orchestrator) {
+            this.orchestrator = orchestrator;
+        }
+
+        public LGGameOrchestrator getOrchestrator() {
+            return orchestrator;
+        }
+
+        @Override
+        public void close() {
+            OrchestratorScope.this.exit();
+        }
     }
 }

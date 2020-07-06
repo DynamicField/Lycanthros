@@ -7,18 +7,17 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LoupsGarousVoteChatChannel;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVotable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVotable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.NightKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import org.bukkit.ChatColor;
 import org.bukkit.boss.BarColor;
 
@@ -34,7 +33,7 @@ public class LoupGarouVoteStage extends CountdownLGStage {
     private boolean isVoteSuccessful;
 
     @Inject
-    LoupGarouVoteStage(@Assisted LGGameOrchestrator orchestrator,
+    LoupGarouVoteStage(LGGameOrchestrator orchestrator,
                        LoupsGarousVoteChatChannel voteChannel,
                        AbstractPlayerVotable.PlayerVoteDependencies voteDependencies) {
         super(orchestrator);
@@ -42,7 +41,7 @@ public class LoupGarouVoteStage extends CountdownLGStage {
         this.voteChannel = voteChannel;
         this.votable = new LoupGarouVotable(voteDependencies);
 
-        orchestrator.interactables().put(bind(votable));
+        registerInteractable(votable);
     }
 
     @Override
@@ -85,7 +84,7 @@ public class LoupGarouVoteStage extends CountdownLGStage {
         if (isVoteSuccessful) {
             LGPlayer majority = maybeMajority.get();
 
-            orchestrator.kills().pending().add(LGKill.of(majority, NightKillReason::new));
+            orchestrator.kills().pending().add(LGKill.of(majority, NightKillReason.INSTANCE));
             orchestrator.chat().sendMessage(voteChannel,
                     ChatColor.AQUA + "Les loups ont décidé de tuer " +
                     player(majority.getName()) + ChatColor.AQUA + "."
@@ -101,7 +100,7 @@ public class LoupGarouVoteStage extends CountdownLGStage {
         if (!isVoteSuccessful) return;
 
         orchestrator.game().getPlayers().stream()
-                .filter(p -> voteChannel.areMessagesVisibleTo(p, orchestrator))
+                .filter(p -> voteChannel.isReadable(p, orchestrator))
                 .map(LGPlayer::getMinecraftPlayer)
                 .flatMap(OptionalUtils::stream)
                 .forEach(LGSoundStuff::howl);

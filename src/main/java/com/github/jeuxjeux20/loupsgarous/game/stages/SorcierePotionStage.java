@@ -17,7 +17,6 @@ import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.NightKillReason;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.text.Text;
 import me.lucko.helper.text.TextComponent;
 import me.lucko.helper.text.event.ClickEvent;
@@ -39,13 +38,13 @@ public class SorcierePotionStage extends CountdownLGStage {
     private final SorciereKillable killable;
 
     @Inject
-    SorcierePotionStage(@Assisted LGGameOrchestrator orchestrator) {
+    SorcierePotionStage(LGGameOrchestrator orchestrator) {
         super(orchestrator);
         healable = new SorciereHealable();
         killable = new SorciereKillable();
 
-        orchestrator.interactables().put(LGInteractableKeys.HEAL, bind(healable));
-        orchestrator.interactables().put(LGInteractableKeys.KILL, bind(killable));
+        registerInteractable(LGInteractableKeys.HEAL, healable);
+        registerInteractable(LGInteractableKeys.KILL, killable);
     }
 
     @Override
@@ -228,7 +227,7 @@ public class SorcierePotionStage extends CountdownLGStage {
             SorciereCard card = (SorciereCard) killer.getCard();
 
             card.useKillPotion();
-            orchestrator.kills().pending().add(LGKill.of(target, NightKillReason::new));
+            orchestrator.kills().pending().add(LGKill.of(target, NightKillReason.INSTANCE));
 
             killer.getMinecraftPlayer().ifPresent(player ->
                     player.sendMessage(

@@ -1,13 +1,13 @@
 package com.github.jeuxjeux20.loupsgarous.game.bossbar;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.game.event.CountdownTickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.StageEventUtils;
 import com.github.jeuxjeux20.loupsgarous.game.stages.TimedStage;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
 import me.lucko.helper.terminable.TerminableConsumer;
 import me.lucko.helper.terminable.module.TerminableModule;
@@ -18,13 +18,14 @@ import org.bukkit.boss.BossBar;
 
 import javax.annotation.Nonnull;
 
+@OrchestratorScoped
 public class MinecraftLGBossBarManager implements LGBossBarManager {
     private final LGGameOrchestrator orchestrator;
 
     private final BossBar bossBar;
 
     @Inject
-    MinecraftLGBossBarManager(@Assisted LGGameOrchestrator orchestrator) {
+    MinecraftLGBossBarManager(LGGameOrchestrator orchestrator) {
         this.orchestrator = orchestrator;
 
         this.bossBar = Bukkit.createBossBar("", BarColor.GREEN, BarStyle.SOLID);

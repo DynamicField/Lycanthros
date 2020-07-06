@@ -6,7 +6,6 @@ import com.github.jeuxjeux20.loupsgarous.game.chat.AnonymizedChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -58,11 +57,6 @@ public final class MutableLGGame implements LGGame {
     @Override
     public Optional<MutableLGPlayer> getPlayer(UUID playerUUID) {
         return Optional.ofNullable(playersByUUID.get(playerUUID));
-    }
-
-    @Override
-    public Optional<MutableLGPlayer> getPlayer(Player player) {
-        return getPlayer(player.getUniqueId());
     }
 
     @Override

@@ -5,14 +5,15 @@ import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.CupidonCard;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.*;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractCouplePickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Couple;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.teams.CoupleTeam;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import org.bukkit.boss.BarColor;
 
 import java.util.*;
@@ -27,12 +28,12 @@ public class CupidonCoupleStage extends CountdownLGStage {
     private final CupidonCoupleCreator coupleCreator;
 
     @Inject
-    CupidonCoupleStage(@Assisted LGGameOrchestrator orchestrator, Random random) {
+    CupidonCoupleStage(LGGameOrchestrator orchestrator, Random random) {
         super(orchestrator);
         this.random = random;
         this.coupleCreator = new CupidonCoupleCreator();
 
-        orchestrator.interactables().put(LGInteractableKeys.COUPLE_CREATOR, bind(coupleCreator));
+        registerInteractable(LGInteractableKeys.COUPLE_CREATOR, coupleCreator);
     }
 
     @Override

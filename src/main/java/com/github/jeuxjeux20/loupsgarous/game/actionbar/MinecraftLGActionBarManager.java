@@ -1,9 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.actionbar;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.PlayerGameOutcome;
+import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator.Problem;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
@@ -12,7 +9,6 @@ import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.StageEventUtils;
 import com.github.jeuxjeux20.loupsgarous.game.stages.TimedStage;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
 import me.lucko.helper.terminable.TerminableConsumer;
 import me.lucko.helper.terminable.module.TerminableModule;
@@ -28,11 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@OrchestratorScoped
 class MinecraftLGActionBarManager implements LGActionBarManager {
     private final LGGameOrchestrator orchestrator;
 
     @Inject
-    MinecraftLGActionBarManager(@Assisted LGGameOrchestrator orchestrator) {
+    MinecraftLGActionBarManager(LGGameOrchestrator orchestrator) {
         this.orchestrator = orchestrator;
     }
 

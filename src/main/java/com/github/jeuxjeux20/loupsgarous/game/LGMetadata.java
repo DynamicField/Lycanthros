@@ -24,7 +24,14 @@ public final class LGMetadata {
 
         if (!SETUP.getAndSet(true)) {
             Events.subscribe(LGGameDeletedEvent.class, EventPriority.MONITOR)
-                    .handler(e -> games().remove(e.getOrchestrator()));
+                    .handler(e -> {
+                        LGGameOrchestrator orchestrator = e.getOrchestrator();
+
+                        games().remove(orchestrator);
+                        for (LGPlayer player : orchestrator.game().getPlayers()) {
+                            players().get(player).ifPresent(MetadataMap::clear);
+                        }
+                    });
 
             Events.subscribe(LGPlayerQuitEvent.class, EventPriority.MONITOR)
                     .handler(e -> players().remove(e.getLGPlayer()));

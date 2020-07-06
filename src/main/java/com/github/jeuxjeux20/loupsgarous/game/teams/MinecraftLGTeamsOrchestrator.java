@@ -3,13 +3,13 @@ package com.github.jeuxjeux20.loupsgarous.game.teams;
 import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.cards.MutableLGCard;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 
+@OrchestratorScoped
 class MinecraftLGTeamsOrchestrator implements LGTeamsOrchestrator {
     private final MutableLGGameOrchestrator gameOrchestrator;
 
     @Inject
-    public MinecraftLGTeamsOrchestrator(@Assisted MutableLGGameOrchestrator gameOrchestrator) {
+    public MinecraftLGTeamsOrchestrator(MutableLGGameOrchestrator gameOrchestrator) {
         this.gameOrchestrator = gameOrchestrator;
     }
 

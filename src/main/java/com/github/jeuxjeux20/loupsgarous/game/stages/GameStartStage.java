@@ -6,17 +6,14 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
 import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyCompositionChangeEvent;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import java.util.concurrent.CompletableFuture;
-
 public class GameStartStage extends CountdownLGStage {
     @Inject
-    GameStartStage(@Assisted LGGameOrchestrator orchestrator) {
+    GameStartStage(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }
 

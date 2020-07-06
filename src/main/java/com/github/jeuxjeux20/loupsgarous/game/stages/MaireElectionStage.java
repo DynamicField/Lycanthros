@@ -10,7 +10,6 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditio
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVotable;
 import com.github.jeuxjeux20.loupsgarous.game.tags.LGTags;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import org.bukkit.ChatColor;
 import org.bukkit.boss.BarColor;
 
@@ -24,14 +23,14 @@ public class MaireElectionStage extends CountdownLGStage {
     private final MaireVotable votable;
 
     @Inject
-    MaireElectionStage(@Assisted LGGameOrchestrator orchestrator, Random random,
+    MaireElectionStage(LGGameOrchestrator orchestrator, Random random,
                        AbstractPlayerVotable.PlayerVoteDependencies voteDependencies) {
         super(orchestrator);
 
         this.random = random;
         this.votable = new MaireVotable(voteDependencies);
 
-        orchestrator.interactables().put(bind(votable));
+        registerInteractable(votable);
     }
 
     @Override

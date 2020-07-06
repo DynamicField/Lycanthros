@@ -3,14 +3,11 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import org.bukkit.boss.BarColor;
-
-import java.util.concurrent.CompletableFuture;
 
 public class GameEndStage extends CountdownLGStage {
     @Inject
-    GameEndStage(@Assisted LGGameOrchestrator orchestrator) {
+    GameEndStage(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }
 

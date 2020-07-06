@@ -14,13 +14,13 @@ public abstract class AbstractStageOverride<T extends RunnableLGStage> implement
 
     @SuppressWarnings("unchecked")
     @Override
-    public Class<? extends RunnableLGStage> getStageClass() {
+    public Class<? extends T> getStageClass() {
         // Since we just need the raw type for instanceof, this is safe.
-        return (Class<? extends RunnableLGStage>) stageTypeLiteral.getRawType();
+        return (Class<? extends T>) stageTypeLiteral.getRawType();
     }
 
     @Override
-    public RunnableLGStage.Factory<?> getStageFactory() {
+    public RunnableLGStage.Factory<T> getStageFactory() {
         return stageFactory;
     }
 }

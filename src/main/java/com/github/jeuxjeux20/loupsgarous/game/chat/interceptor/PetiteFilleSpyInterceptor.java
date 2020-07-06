@@ -15,8 +15,8 @@ public class PetiteFilleSpyInterceptor extends LGChatChannelInterceptor implemen
     }
 
     @Override
-    public boolean areMessagesVisibleTo(LGPlayer recipient, LGGameOrchestrator orchestrator) {
-        return super.areMessagesVisibleTo(recipient, orchestrator) || canSpy(recipient);
+    public boolean isReadable(LGPlayer recipient, LGGameOrchestrator orchestrator) {
+        return super.isReadable(recipient, orchestrator) || canSpy(recipient);
     }
 
     private boolean canSpy(LGPlayer sender) {

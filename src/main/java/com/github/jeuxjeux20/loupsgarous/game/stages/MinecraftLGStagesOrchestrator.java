@@ -1,11 +1,10 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
-import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.game.stages.overrides.StageOverride;
 import com.github.jeuxjeux20.loupsgarous.util.FutureExceptionUtils;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.terminable.Terminable;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,20 +16,20 @@ import java.util.concurrent.CompletionStage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@OrchestratorScoped
 class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     private final LGGameOrchestrator gameOrchestrator;
 
     private final LinkedList<RunnableLGStage.Factory<?>> stageFactories;
     private ListIterator<RunnableLGStage.Factory<?>> stageIterator;
-    private @Nullable RunnableLGStage currentStage = null;
+    private @Nullable RunnableLGStage currentStage;
     private final Set<StageOverride> stageOverrides;
     private final Logger logger;
 
     @Inject
-    MinecraftLGStagesOrchestrator(@Assisted LGGameOrchestrator gameOrchestrator,
+    MinecraftLGStagesOrchestrator(LGGameOrchestrator gameOrchestrator,
                                   Set<RunnableLGStage.Factory<?>> stageFactories,
-                                  Set<StageOverride> stageOverrides,
-                                  LoupsGarous plugin) {
+                                  Set<StageOverride> stageOverrides) {
         this.gameOrchestrator = gameOrchestrator;
         this.stageFactories = new LinkedList<>(stageFactories);
         this.stageIterator = this.stageFactories.listIterator();
@@ -41,8 +40,8 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     }
 
     @Override
-    public void insert(RunnableLGStage.Factory<?> stage) {
-        stageIterator.add(stage);
+    public void insert(RunnableLGStage.Factory<?> stageFactory) {
+        stageIterator.add(stageFactory);
         stageIterator.previous();
     }
 

@@ -32,7 +32,7 @@ public class ChasseurKillStage extends CountdownLGStage {
         this.chasseur = chasseur;
         this.killable = new ChasseurKillable();
 
-        orchestrator.interactables().put(LGInteractableKeys.KILL, bind(killable));
+        registerInteractable(LGInteractableKeys.KILL, killable);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class ChasseurKillStage extends CountdownLGStage {
             conditions().throwIfInvalid(picker, target);
 
             killed = true;
-            orchestrator.kills().instantly(target, ChasseurKillReason::new);
+            orchestrator.kills().instantly(target, ChasseurKillReason.INSTANCE);
             getCountdown().interrupt();
         }
 

@@ -4,7 +4,6 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.LGKillReason;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
 public final class LGKill {
     private final LGPlayer player;
@@ -17,10 +16,6 @@ public final class LGKill {
 
     public static LGKill of(LGPlayer player, LGKillReason reason) {
         return new LGKill(player, reason);
-    }
-
-    public static LGKill of(LGPlayer player, Supplier<? extends LGKillReason> reasonSupplier) {
-        return new LGKill(player, reasonSupplier.get());
     }
 
     public LGPlayer getWhoDied() {

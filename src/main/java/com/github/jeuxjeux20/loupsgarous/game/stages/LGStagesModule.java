@@ -1,19 +1,16 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.ListenersModule;
-import com.github.jeuxjeux20.loupsgarous.game.stages.dusk.LGStagesDuskModule;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractionModule;
+import com.github.jeuxjeux20.loupsgarous.game.stages.dusk.LGStagesDuskModule;
 import com.github.jeuxjeux20.loupsgarous.game.stages.listeners.LGStagesListenersModule;
 import com.github.jeuxjeux20.loupsgarous.game.stages.overrides.LGStageOverridesModule;
-import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 
 public final class LGStagesModule extends StagesModule {
     @Override
     protected void configureBindings() {
-        install(new FactoryModuleBuilder()
-                .implement(LGStagesOrchestrator.class, MinecraftLGStagesOrchestrator.class)
-                .build(LGStagesOrchestrator.Factory.class));
+        bind(LGStagesOrchestrator.class).to(MinecraftLGStagesOrchestrator.class);
 
         install(new LGStageOverridesModule());
         install(new LGInteractionModule());
@@ -38,8 +35,9 @@ public final class LGStagesModule extends StagesModule {
         addStage(MaireElectionStage.class);
         addStage(VillageVoteStage.class);
 
+        registerStageFactory(GameEndStage.class);
+        registerStageFactory(GameStartStage.class);
+
         install(new FactoryModuleBuilder().build(ChasseurKillStage.Factory.class));
-        install(new FactoryModuleBuilder().build(new TypeLiteral<RunnableLGStage.Factory<GameStartStage>>() {}));
-        install(new FactoryModuleBuilder().build(new TypeLiteral<RunnableLGStage.Factory<GameEndStage>>() {}));
     }
 }

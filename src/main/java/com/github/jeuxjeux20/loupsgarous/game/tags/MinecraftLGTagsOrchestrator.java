@@ -3,14 +3,15 @@ package com.github.jeuxjeux20.loupsgarous.game.tags;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.MutableLGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.MutableLGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 
+@OrchestratorScoped
 class MinecraftLGTagsOrchestrator implements LGTagsOrchestrator {
     private final MutableLGGameOrchestrator gameOrchestrator;
 
     @Inject
-    MinecraftLGTagsOrchestrator(@Assisted MutableLGGameOrchestrator gameOrchestrator) {
+    MinecraftLGTagsOrchestrator(MutableLGGameOrchestrator gameOrchestrator) {
         this.gameOrchestrator = gameOrchestrator;
     }
 

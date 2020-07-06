@@ -3,13 +3,15 @@ package com.github.jeuxjeux20.loupsgarous.game.kill.reasons;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import org.bukkit.ChatColor;
 
+import java.util.Objects;
+
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 
-public final class CouplePartnerKillReason extends LGKillReason {
+public final class CouplePartnerKillReason extends SingleLGKillReason {
     private final LGPlayer partner;
 
     public CouplePartnerKillReason(LGPlayer partner) {
-        this.partner = partner;
+        this.partner = Objects.requireNonNull(partner, "partner is null");
     }
 
     @Override
@@ -21,5 +23,18 @@ public final class CouplePartnerKillReason extends LGKillReason {
 
     public LGPlayer getPartner() {
         return partner;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CouplePartnerKillReason that = (CouplePartnerKillReason) o;
+        return Objects.equals(partner, that.partner);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(partner);
     }
 }

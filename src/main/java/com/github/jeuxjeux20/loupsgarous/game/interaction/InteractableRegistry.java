@@ -1,6 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
 import com.github.jeuxjeux20.loupsgarous.util.CheckPredicate;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
@@ -53,11 +52,6 @@ public interface InteractableRegistry extends Terminable, LGGameOrchestratorDepe
     Optional<InteractableKey<?>> findKey(String name);
 
     ImmutableSetMultimap<InteractableKey<?>, Interactable> getAll();
-
-
-    interface Factory {
-        InteractableRegistry create(LGGameOrchestrator orchestrator);
-    }
 
     interface SafeSingleBuilder<T extends Interactable> {
         SafeSingleBuilder<T> check(CheckPredicate<? super T> checkPredicate);

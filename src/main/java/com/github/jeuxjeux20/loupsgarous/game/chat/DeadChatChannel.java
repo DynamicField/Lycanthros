@@ -15,17 +15,12 @@ public class DeadChatChannel implements LGChatChannel {
     }
 
     @Override
-    public boolean canBeUsedByPlayer(LGGameOrchestrator orchestrator) {
-        return orchestrator.isGameRunning();
+    public boolean isReadable(LGPlayer recipient, LGGameOrchestrator orchestrator) {
+        return isWritable(recipient, orchestrator);
     }
 
     @Override
-    public boolean areMessagesVisibleTo(LGPlayer recipient, LGGameOrchestrator orchestrator) {
-        return canTalk(recipient, orchestrator);
-    }
-
-    @Override
-    public boolean canTalk(LGPlayer sender, LGGameOrchestrator orchestrator) {
+    public boolean isWritable(LGPlayer sender, LGGameOrchestrator orchestrator) {
         return sender.isDead();
     }
 }

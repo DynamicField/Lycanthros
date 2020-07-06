@@ -10,6 +10,7 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPi
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
+import com.google.inject.Inject;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -19,22 +20,24 @@ import java.util.List;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.VOYANTE_SYMBOL;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.importantTip;
 
-public class VoyanteDuskAction extends DuskStage.Action {
-    private VoyanteLookable lookable;
+public class VoyanteDuskAction extends DuskAction {
+    private final VoyanteLookable lookable;
 
-    @Override
-    protected void initialize(LGGameOrchestrator orchestrator) {
+    @Inject
+    VoyanteDuskAction(LGGameOrchestrator orchestrator) {
+        super(orchestrator);
+
         lookable = new VoyanteLookable(orchestrator);
     }
 
     @Override
-    protected boolean shouldRun(LGGameOrchestrator orchestrator) {
+    protected boolean shouldRun() {
         return orchestrator.game().getPlayers().stream().anyMatch(Check.predicate(lookable.conditions()::checkPicker));
     }
 
     @Override
-    protected void onDuskStart(LGGameOrchestrator orchestrator) {
-        orchestrator.interactables().put(LGInteractableKeys.LOOK, bind(lookable));
+    protected void onDuskStart() {
+        registerInteractable(LGInteractableKeys.LOOK, lookable);
 
         orchestrator.game().getPlayers().stream()
                 .filter(Check.predicate(lookable.conditions()::checkPicker))

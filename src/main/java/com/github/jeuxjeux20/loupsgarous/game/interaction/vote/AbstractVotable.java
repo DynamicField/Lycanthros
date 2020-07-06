@@ -6,6 +6,7 @@ import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.*;
 import com.google.common.collect.HashMultiset;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multiset;
 import com.google.inject.Inject;
 import com.google.inject.TypeLiteral;
@@ -51,9 +52,9 @@ public abstract class AbstractVotable<T>
         if (sameVotesCandidates.size() == 1) {
             return new RelativeMajorityVoteOutcome<>(sameVotesCandidates.get(0).getElement());
         } else {
-            List<T> conflictingCandidates = sameVotesCandidates.stream()
+            ImmutableList<T> conflictingCandidates = sameVotesCandidates.stream()
                     .map(Multiset.Entry::getElement)
-                    .collect(Collectors.toList());
+                    .collect(ImmutableList.toImmutableList());
 
             return new IndecisiveVoteOutcome<>(conflictingCandidates);
         }

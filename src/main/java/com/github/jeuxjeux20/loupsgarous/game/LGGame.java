@@ -3,7 +3,6 @@ package com.github.jeuxjeux20.loupsgarous.game;
 import com.github.jeuxjeux20.loupsgarous.game.chat.AnonymizedChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.google.common.collect.ImmutableSet;
-import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Map;
@@ -27,10 +26,6 @@ public interface LGGame {
 
     default Optional<? extends LGPlayer> getPlayer(LGPlayer player) {
         return getPlayer(player.getPlayerUUID());
-    }
-
-    default Optional<? extends LGPlayer> getPlayer(Player player) {
-        return getPlayer(player.getUniqueId());
     }
 
 

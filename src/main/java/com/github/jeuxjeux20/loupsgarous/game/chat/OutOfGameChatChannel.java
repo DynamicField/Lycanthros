@@ -15,17 +15,12 @@ public class OutOfGameChatChannel implements LGChatChannel {
     }
 
     @Override
-    public boolean canBeUsedByPlayer(LGGameOrchestrator orchestrator) {
-        return !orchestrator.isGameRunning();
-    }
-
-    @Override
-    public boolean areMessagesVisibleTo(LGPlayer recipient, LGGameOrchestrator orchestrator) {
+    public boolean isReadable(LGPlayer recipient, LGGameOrchestrator orchestrator) {
         return true;
     }
 
     @Override
-    public boolean canTalk(LGPlayer sender, LGGameOrchestrator orchestrator) {
+    public boolean isWritable(LGPlayer sender, LGGameOrchestrator orchestrator) {
         return true;
     }
 }

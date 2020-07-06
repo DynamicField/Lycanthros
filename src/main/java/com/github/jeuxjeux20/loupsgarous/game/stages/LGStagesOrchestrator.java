@@ -11,11 +11,11 @@ import com.github.jeuxjeux20.loupsgarous.game.stages.overrides.StageOverride;
  */
 public interface LGStagesOrchestrator extends LGGameOrchestratorDependent {
     /**
-     * Insert a stage to the current game that will be executed as soon as possible (LIFO).
+     * Insert a stage factory to the current game that will be created and run as soon as possible (LIFO).
      *
-     * @param stage the stage to insert
+     * @param stageFactory the stage factory to insert
      */
-    void insert(RunnableLGStage.Factory<?> stage);
+    void insert(RunnableLGStage.Factory<?> stageFactory);
 
     /**
      * Cancels the current stages, if any, and runs the next one.
@@ -33,8 +33,4 @@ public interface LGStagesOrchestrator extends LGGameOrchestratorDependent {
      * @return the current stage, or {@link LGStage.Null}
      */
     LGStage current();
-
-    interface Factory {
-        LGStagesOrchestrator create(LGGameOrchestrator gameOrchestrator);
-    }
 }

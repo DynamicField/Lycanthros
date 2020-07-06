@@ -12,7 +12,6 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVot
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.VillageVoteKillReason;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import org.bukkit.ChatColor;
 
 import java.util.Optional;
@@ -25,7 +24,7 @@ public class VillageVoteStage extends CountdownLGStage {
     private final VoteStructure voteStructure;
 
     @Inject
-    VillageVoteStage(@Assisted LGGameOrchestrator orchestrator,
+    VillageVoteStage(LGGameOrchestrator orchestrator,
                      VoteStructure.Factory voteStructureFactory,
                      AbstractPlayerVotable.PlayerVoteDependencies voteDependencies) {
         super(orchestrator);
@@ -34,7 +33,7 @@ public class VillageVoteStage extends CountdownLGStage {
         voteStructure =
                 voteStructureFactory.create(orchestrator, orchestrator.world().getSpawnLocation(), votable);
 
-        orchestrator.interactables().put(bind(votable));
+        registerInteractable(votable);
 
         bind(voteStructure);
         bindModule(voteStructure.createInteractionModule());
@@ -81,7 +80,7 @@ public class VillageVoteStage extends CountdownLGStage {
         Optional<LGPlayer> maybeMajority = votable.getOutcome().getElected();
 
         if (maybeMajority.isPresent()) {
-            orchestrator.kills().instantly(maybeMajority.get(), VillageVoteKillReason::new);
+            orchestrator.kills().instantly(maybeMajority.get(), VillageVoteKillReason.INSTANCE);
         } else {
             orchestrator.chat().sendToEveryone(info("Le village n'a pas pu se décider !"));
         }
