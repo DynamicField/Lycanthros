@@ -2,8 +2,14 @@ package com.github.jeuxjeux20.loupsgarous.game.chat;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.google.inject.Inject;
 
-public class DeadChatChannel implements LGChatChannel {
+public class DeadChatChannel extends AbstractLGChatChannel {
+    @Inject
+    protected DeadChatChannel(LGGameOrchestrator orchestrator) {
+        super(orchestrator);
+    }
+
     @Override
     public String getName() {
         return "Morts";
@@ -15,12 +21,12 @@ public class DeadChatChannel implements LGChatChannel {
     }
 
     @Override
-    public boolean isReadable(LGPlayer recipient, LGGameOrchestrator orchestrator) {
-        return isWritable(recipient, orchestrator);
+    public boolean isReadable(LGPlayer recipient) {
+        return isWritable(recipient);
     }
 
     @Override
-    public boolean isWritable(LGPlayer sender, LGGameOrchestrator orchestrator) {
-        return sender.isDead();
+    public boolean isWritable(LGPlayer sender) {
+        return sender.isDead() && orchestrator.isGameRunning();
     }
 }

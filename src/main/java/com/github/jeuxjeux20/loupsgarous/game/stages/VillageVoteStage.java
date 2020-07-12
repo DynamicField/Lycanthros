@@ -1,9 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
-import com.github.jeuxjeux20.loupsgarous.game.Countdown;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.atmosphere.VoteStructure;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
@@ -26,11 +23,11 @@ public class VillageVoteStage extends CountdownLGStage {
     @Inject
     VillageVoteStage(LGGameOrchestrator orchestrator,
                      VoteStructure.Factory voteStructureFactory,
-                     AbstractPlayerVotable.PlayerVoteDependencies voteDependencies) {
+                     VillageVotable votable) {
         super(orchestrator);
 
-        votable = new VillageVotable(voteDependencies);
-        voteStructure =
+        this.votable = votable;
+        this.voteStructure =
                 voteStructureFactory.create(orchestrator, orchestrator.world().getSpawnLocation(), votable);
 
         registerInteractable(votable);
@@ -90,9 +87,11 @@ public class VillageVoteStage extends CountdownLGStage {
         return votable;
     }
 
-    public final class VillageVotable extends AbstractPlayerVotable {
-        private VillageVotable(PlayerVoteDependencies dependencies) {
-            super(VillageVoteStage.this.orchestrator, dependencies);
+    @OrchestratorScoped
+    public static class VillageVotable extends AbstractPlayerVotable {
+        @Inject
+        VillageVotable(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
         }
 
         @Override

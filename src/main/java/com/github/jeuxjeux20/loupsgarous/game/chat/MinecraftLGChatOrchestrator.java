@@ -61,7 +61,7 @@ class MinecraftLGChatOrchestrator implements LGChatOrchestrator {
             format = format + ChatColor.GRAY + "[" + channel.getName() + "]";
         }
 
-        String username = channel.formatUsername(sender, recipient, orchestrator);
+        String username = channel.formatUsername(sender, recipient);
 
         return String.format(format, username, message);
     }
@@ -75,7 +75,7 @@ class MinecraftLGChatOrchestrator implements LGChatOrchestrator {
     private void sendMessageInternal(LGChatChannel channel, BiConsumer<? super LGPlayer, ? super Player> messageSender) {
         for (LGPlayer player : orchestrator.game().getPlayers()) {
             player.getMinecraftPlayer().ifPresent(minecraftPlayer -> {
-                if (!channel.isReadable(player, orchestrator)) return;
+                if (!channel.isReadable(player)) return;
 
                 messageSender.accept(player, minecraftPlayer);
             });

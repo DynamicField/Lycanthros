@@ -10,10 +10,12 @@ import java.util.function.Function;
 
 public abstract class LGChatChannelInterceptor implements LGChatChannel {
     private final LGChatChannel channel;
+    protected final LGGameOrchestrator orchestrator;
 
     @Inject
     public LGChatChannelInterceptor(@Assisted LGChatChannel channel) {
         this.channel = channel;
+        this.orchestrator = channel.gameOrchestrator();
     }
 
     @Override
@@ -30,14 +32,19 @@ public abstract class LGChatChannelInterceptor implements LGChatChannel {
 
     @Override
     @Redirection
-    public boolean isReadable(LGPlayer recipient, LGGameOrchestrator orchestrator) {
-        return channel.isReadable(recipient, orchestrator);
+    public boolean isReadable(LGPlayer recipient) {
+        return channel.isReadable(recipient);
     }
 
     @Override
     @Redirection
-    public boolean isWritable(LGPlayer sender, LGGameOrchestrator orchestrator) {
-        return channel.isWritable(sender, orchestrator);
+    public boolean isWritable(LGPlayer sender) {
+        return channel.isWritable(sender);
+    }
+
+    @Override
+    public LGGameOrchestrator gameOrchestrator() {
+        return channel.gameOrchestrator();
     }
 
     protected LGChatChannel getChannel() {

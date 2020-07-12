@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScope;
 import com.google.inject.Provider;
 
-public class ProviderRunnableStageFactory<T extends RunnableLGStage> implements RunnableLGStage.Factory<T> {
+class ProviderRunnableStageFactory<T extends RunnableLGStage> implements RunnableLGStage.Factory<T> {
     private final Provider<T> provider;
 
     public ProviderRunnableStageFactory(Provider<T> provider) {

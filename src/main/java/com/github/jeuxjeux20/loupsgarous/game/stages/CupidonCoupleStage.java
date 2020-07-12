@@ -4,6 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.game.cards.CupidonCard;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractCouplePickable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.Couple;
@@ -23,15 +24,12 @@ import java.util.stream.Stream;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 
 public class CupidonCoupleStage extends CountdownLGStage {
-    private final Random random;
-
     private final CupidonCoupleCreator coupleCreator;
 
     @Inject
-    CupidonCoupleStage(LGGameOrchestrator orchestrator, Random random) {
+    CupidonCoupleStage(LGGameOrchestrator orchestrator, CupidonCoupleCreator coupleCreator) {
         super(orchestrator);
-        this.random = random;
-        this.coupleCreator = new CupidonCoupleCreator();
+        this.coupleCreator = coupleCreator;
 
         registerInteractable(LGInteractableKeys.COUPLE_CREATOR, coupleCreator);
     }
@@ -90,11 +88,15 @@ public class CupidonCoupleStage extends CountdownLGStage {
         return coupleCreator;
     }
 
-    public final class CupidonCoupleCreator extends AbstractCouplePickable {
+    @OrchestratorScoped
+    public static class CupidonCoupleCreator extends AbstractCouplePickable {
         private final Map<LGPlayer, Couple> couplePicks = new HashMap<>();
+        private final Random random;
 
-        private CupidonCoupleCreator() {
-            super(CupidonCoupleStage.this.orchestrator);
+        @Inject
+        CupidonCoupleCreator(LGGameOrchestrator orchestrator, Random random) {
+            super(orchestrator);
+            this.random = random;
         }
 
         @Override
@@ -131,7 +133,7 @@ public class CupidonCoupleStage extends CountdownLGStage {
             sendCoupleMessages(cupidon, couple);
 
             if (couplePicks.keySet().containsAll(getEligibleCupidons().collect(Collectors.toList()))) {
-                getCountdown().tryInterrupt(); // All cupidons have chosen their couples.
+                orchestrator.stages().current().stop();
             }
         }
 

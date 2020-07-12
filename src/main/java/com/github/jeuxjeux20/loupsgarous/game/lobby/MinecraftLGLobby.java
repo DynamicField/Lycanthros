@@ -159,10 +159,9 @@ class MinecraftLGLobby implements LGLobby {
 
         if (owner == this.owner) return;
 
-        LGPlayer oldOwner = this.owner;
         this.owner = newOwner;
 
-        Events.call(new LGLobbyOwnerChangeEvent(orchestrator, oldOwner.getOfflineMinecraftPlayer(), owner));
+        Events.call(new LGLobbyOwnerChangeEvent(orchestrator, owner));
     }
 
     @Override

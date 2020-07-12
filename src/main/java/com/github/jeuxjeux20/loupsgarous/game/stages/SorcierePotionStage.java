@@ -3,10 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 import com.github.jeuxjeux20.loupsgarous.ComponentStyles;
 import com.github.jeuxjeux20.loupsgarous.ComponentTemplates;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
-import com.github.jeuxjeux20.loupsgarous.game.Countdown;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.cards.SorciereCard;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerPickable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
@@ -36,12 +33,15 @@ import static me.lucko.helper.text.format.TextDecoration.BOLD;
 public class SorcierePotionStage extends CountdownLGStage {
     private final SorciereHealable healable;
     private final SorciereKillable killable;
+    private final BaseConditions baseConditions;
 
     @Inject
-    SorcierePotionStage(LGGameOrchestrator orchestrator) {
+    SorcierePotionStage(LGGameOrchestrator orchestrator, BaseConditions baseConditions,
+                        SorciereHealable healable, SorciereKillable killable) {
         super(orchestrator);
-        healable = new SorciereHealable();
-        killable = new SorciereKillable();
+        this.baseConditions = baseConditions;
+        this.healable = healable;
+        this.killable = killable;
 
         registerInteractable(LGInteractableKeys.HEAL, healable);
         registerInteractable(LGInteractableKeys.KILL, killable);
@@ -54,14 +54,14 @@ public class SorcierePotionStage extends CountdownLGStage {
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.game().getPlayers().stream().anyMatch(Check.predicate(this::canAct)) &&
+        return orchestrator.game().getPlayers().stream().anyMatch(Check.predicate(baseConditions::canAct)) &&
                orchestrator.game().getTurn().getTime() == LGGameTurnTime.NIGHT;
     }
 
     @Override
     protected void start() {
         orchestrator.game().getPlayers().stream()
-                .filter(Check.predicate(this::canAct))
+                .filter(Check.predicate(baseConditions::canAct))
                 .forEach(this::sendNotification);
     }
 
@@ -159,27 +159,45 @@ public class SorcierePotionStage extends CountdownLGStage {
         LGSoundStuff.ding(minecraftPlayer);
     }
 
-
     // Pick stuff
 
-    private Check canAct(LGPlayer player) {
-        return Check.ensure(player.isAlive(), "Vous êtes mort !")
-                .and(player.getCard() instanceof SorciereCard, "Vous n'êtes pas une sorcière !");
+    @OrchestratorScoped
+    private static final class BaseConditions {
+        public Check canAct(LGPlayer player) {
+            return Check.ensure(player.isAlive(), "Vous êtes mort !")
+                    .and(player.getCard() instanceof SorciereCard, "Vous n'êtes pas une sorcière !");
+        }
     }
 
-    private FunctionalPickConditions.Builder<LGPlayer> baseBuilder() {
-        return FunctionalPickConditions.<LGPlayer>builder()
-                .ensurePicker(this::canAct);
-    }
+    private static abstract class SorcierePickable extends AbstractPlayerPickable {
+        private final BaseConditions baseConditions;
 
-    public class SorciereHealable extends AbstractPlayerPickable {
-        private SorciereHealable() {
-            super(SorcierePotionStage.this.orchestrator);
+        protected SorcierePickable(LGGameOrchestrator orchestrator, BaseConditions baseConditions) {
+            super(orchestrator);
+            this.baseConditions = baseConditions;
         }
 
         @Override
-        public PickConditions<LGPlayer> pickConditions() {
-            return baseBuilder()
+        protected final PickConditions<LGPlayer> pickConditions() {
+            return FunctionalPickConditions.<LGPlayer>builder()
+                    .ensurePicker(baseConditions::canAct)
+                    .use(powerConditions())
+                    .build();
+        }
+
+        protected abstract PickConditions<LGPlayer> powerConditions();
+    }
+
+    @OrchestratorScoped
+    public static class SorciereHealable extends SorcierePickable {
+        @Inject
+        SorciereHealable(LGGameOrchestrator orchestrator, BaseConditions baseConditions) {
+            super(orchestrator, baseConditions);
+        }
+
+        @Override
+        protected PickConditions<LGPlayer> powerConditions() {
+            return FunctionalPickConditions.<LGPlayer>builder()
                     .ensurePicker(this::hasHealPotion, "Vous avez déjà utilisé votre potion de soin !")
                     .ensureTarget(this::willDieTonight, "Ce joueur ne va pas mourir ce tour ci.")
                     .build();
@@ -209,14 +227,16 @@ public class SorcierePotionStage extends CountdownLGStage {
         }
     }
 
-    public class SorciereKillable extends AbstractPlayerPickable {
-        private SorciereKillable() {
-            super(SorcierePotionStage.this.orchestrator);
+    @OrchestratorScoped
+    public static class SorciereKillable extends SorcierePickable {
+        @Inject
+        SorciereKillable(LGGameOrchestrator orchestrator, BaseConditions baseConditions) {
+            super(orchestrator, baseConditions);
         }
 
         @Override
-        public PickConditions<LGPlayer> pickConditions() {
-            return baseBuilder()
+        protected PickConditions<LGPlayer> powerConditions() {
+            return FunctionalPickConditions.<LGPlayer>builder()
                     .apply(PickableConditions::ensureKillTargetAlive)
                     .ensurePicker(this::hasKillPotion, "Vous avez déjà utilisé votre potion de mort !")
                     .build();

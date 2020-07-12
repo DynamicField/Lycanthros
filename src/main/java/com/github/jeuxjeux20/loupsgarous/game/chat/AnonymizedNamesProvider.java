@@ -1,17 +1,18 @@
 package com.github.jeuxjeux20.loupsgarous.game.chat;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.cards.AnonymousNameHolder;
 
 public interface AnonymizedNamesProvider {
-    default String createAnonymousNameOrGet(LGGameOrchestrator orchestrator, AnonymousNameHolder anonymousNameHolder,
-                                            AnonymizedChatChannel chatChannel, String[] names) {
+    default String createAnonymousNameOrGet(AnonymousNameHolder anonymousNameHolder) {
         if (anonymousNameHolder.getAnonymizedName() != null)
             return anonymousNameHolder.getAnonymizedName();
 
-        return createAnonymousName(orchestrator, anonymousNameHolder, chatChannel, names);
+        return createAnonymousName(anonymousNameHolder);
     }
 
-    String createAnonymousName(LGGameOrchestrator orchestrator, AnonymousNameHolder anonymousNameHolder,
-                               AnonymizedChatChannel chatChannel, String[] names);
+    String createAnonymousName(AnonymousNameHolder anonymousNameHolder);
+
+    interface Factory {
+        AnonymizedNamesProvider create(String[] names);
+    }
 }

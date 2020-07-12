@@ -2,7 +2,6 @@ package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.game.chat.AnonymizedChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -16,7 +15,6 @@ public final class MutableLGGame implements LGGame {
     private final String id;
     private final Map<UUID, MutableLGPlayer> playersByUUID = new HashMap<>();
     private final MutableLGGameTurn turn = new MutableLGGameTurn();
-    private final Map<AnonymizedChatChannel, List<String>> anonymizedNames = new HashMap<>();
     private @Nullable LGEnding ending;
 
     public MutableLGGame(String id) {
@@ -72,22 +70,17 @@ public final class MutableLGGame implements LGGame {
         playersByUUID.put(player.getPlayerUUID(), player);
     }
 
-    public @Nullable MutableLGPlayer removePlayer(MutableLGPlayer player) {
+    public boolean removePlayer(MutableLGPlayer player) {
         return removePlayer(player.getPlayerUUID());
     }
 
-    public @Nullable MutableLGPlayer removePlayer(UUID playerUUID) {
-        return playersByUUID.remove(playerUUID);
+    public boolean removePlayer(UUID playerUUID) {
+        return playersByUUID.remove(playerUUID) != null;
     }
 
     @Override
     public MutableLGGameTurn getTurn() {
         return turn;
-    }
-
-    @Override
-    public Map<AnonymizedChatChannel, List<String>> getAnonymizedNames() {
-        return anonymizedNames;
     }
 
     @Override

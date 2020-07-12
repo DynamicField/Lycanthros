@@ -27,7 +27,7 @@ public interface LGChatOrchestrator extends LGGameOrchestratorDependent {
     default Set<LGChatChannel> getWritableChannels(LGPlayer sender) {
         HashSet<LGChatChannel> channels = new HashSet<>();
         for (LGChatChannel channel : getChannels()) {
-            if (channel.isWritable(sender, gameOrchestrator())) {
+            if (channel.isWritable(sender)) {
                 channels.add(channel);
             }
         }

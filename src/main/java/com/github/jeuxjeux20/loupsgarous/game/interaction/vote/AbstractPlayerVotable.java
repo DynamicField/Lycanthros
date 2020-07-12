@@ -17,8 +17,8 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.error;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
 public abstract class AbstractPlayerVotable extends AbstractVotable<LGPlayer> {
-    public AbstractPlayerVotable(LGGameOrchestrator orchestrator, PlayerVoteDependencies dependencies) {
-        super(orchestrator, dependencies);
+    public AbstractPlayerVotable(LGGameOrchestrator orchestrator) {
+        super(orchestrator);
     }
 
     @Override
@@ -55,11 +55,4 @@ public abstract class AbstractPlayerVotable extends AbstractVotable<LGPlayer> {
         return "Impossible de voter, car vous êtes mort !";
     }
 
-    public static final class PlayerVoteDependencies extends AbstractVotable.Dependencies<LGPlayer> {
-        @Inject
-        PlayerVoteDependencies(Map<TypeLiteral<?>, List<VoteOutcomeModifier<?>>> voteOutcomeModifierMap,
-                               TypeLiteral<LGPlayer> candidateType) {
-            super(voteOutcomeModifierMap, candidateType);
-        }
-    }
 }

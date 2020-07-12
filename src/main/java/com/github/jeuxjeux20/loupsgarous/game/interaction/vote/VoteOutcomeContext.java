@@ -9,14 +9,16 @@ import com.google.common.collect.Multiset;
 public final class VoteOutcomeContext<T> {
     private final ImmutableMultiset<T> votes;
     private final ImmutableMap<LGPlayer, T> picks;
-    private final Class<? extends Votable<T>> votableClass;
+    private final Class<? extends Votable<?>> votableClass;
     private final LGGameOrchestrator orchestrator;
 
+    // We need raw types because of getClass()
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public VoteOutcomeContext(Multiset<T> votes, ImmutableMap<LGPlayer, T> picks,
-                              Class<? extends Votable<T>> votableClass, LGGameOrchestrator orchestrator) {
+                              Class<? extends Votable> votableClass, LGGameOrchestrator orchestrator) {
         this.votes = ImmutableMultiset.copyOf(votes);
         this.picks = picks;
-        this.votableClass = votableClass;
+        this.votableClass = (Class<? extends Votable<?>>) votableClass;
         this.orchestrator = orchestrator;
     }
 
@@ -28,7 +30,7 @@ public final class VoteOutcomeContext<T> {
         return picks;
     }
 
-    public Class<? extends Votable<T>> getVotableClass() {
+    public Class<? extends Votable<?>> getVotableClass() {
         return votableClass;
     }
 

@@ -1,9 +1,16 @@
 package com.github.jeuxjeux20.loupsgarous.game.chat;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.google.inject.Inject;
 
-public class DayChatChannel implements LGChatChannel {
+public class DayChatChannel extends AbstractLGChatChannel {
+    @Inject
+    protected DayChatChannel(LGGameOrchestrator orchestrator) {
+        super(orchestrator);
+    }
+
     @Override
     public String getName() {
         return "Jour";
@@ -14,13 +21,17 @@ public class DayChatChannel implements LGChatChannel {
         return false;
     }
 
-    @Override
-    public boolean isReadable(LGPlayer recipient, LGGameOrchestrator orchestrator) {
-        return true;
+    private boolean isAccessible() {
+        return orchestrator.turn().getTime() == LGGameTurnTime.DAY && orchestrator.isGameRunning();
     }
 
     @Override
-    public boolean isWritable(LGPlayer sender, LGGameOrchestrator orchestrator) {
-        return sender.isAlive();
+    public boolean isReadable(LGPlayer recipient) {
+        return isAccessible();
+    }
+
+    @Override
+    public boolean isWritable(LGPlayer sender) {
+        return sender.isAlive() && isAccessible();
     }
 }

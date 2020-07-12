@@ -1,10 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
-import com.github.jeuxjeux20.loupsgarous.game.Countdown;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LoupsGarousVoteChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
@@ -35,11 +32,11 @@ public class LoupGarouVoteStage extends CountdownLGStage {
     @Inject
     LoupGarouVoteStage(LGGameOrchestrator orchestrator,
                        LoupsGarousVoteChatChannel voteChannel,
-                       AbstractPlayerVotable.PlayerVoteDependencies voteDependencies) {
+                       LoupGarouVotable votable) {
         super(orchestrator);
 
         this.voteChannel = voteChannel;
-        this.votable = new LoupGarouVotable(voteDependencies);
+        this.votable = votable;
 
         registerInteractable(votable);
     }
@@ -100,7 +97,7 @@ public class LoupGarouVoteStage extends CountdownLGStage {
         if (!isVoteSuccessful) return;
 
         orchestrator.game().getPlayers().stream()
-                .filter(p -> voteChannel.isReadable(p, orchestrator))
+                .filter(voteChannel::isReadable)
                 .map(LGPlayer::getMinecraftPlayer)
                 .flatMap(OptionalUtils::stream)
                 .forEach(LGSoundStuff::howl);
@@ -110,9 +107,15 @@ public class LoupGarouVoteStage extends CountdownLGStage {
         return votable;
     }
 
-    public final class LoupGarouVotable extends AbstractPlayerVotable {
-        private LoupGarouVotable(PlayerVoteDependencies dependencies) {
-            super(LoupGarouVoteStage.this.orchestrator, dependencies);
+    @OrchestratorScoped
+    public static class LoupGarouVotable extends AbstractPlayerVotable {
+        private final LoupsGarousVoteChatChannel voteChannel;
+
+        @Inject
+        LoupGarouVotable(LGGameOrchestrator orchestrator,
+                         LoupsGarousVoteChatChannel voteChannel) {
+            super(orchestrator);
+            this.voteChannel = voteChannel;
         }
 
         @Override

@@ -18,6 +18,11 @@ public abstract class LogicLGStage extends RunnableLGStage {
     public abstract void start();
 
     @Override
+    protected boolean supportsInterruption() {
+        return false;
+    }
+
+    @Override
     public boolean isLogic() {
         return true;
     }

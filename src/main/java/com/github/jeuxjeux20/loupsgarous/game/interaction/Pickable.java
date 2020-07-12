@@ -19,7 +19,7 @@ public interface Pickable<T> extends Interactable {
     }
 
     default LGChatChannel getInfoMessagesChannel() {
-        return new GenericPickChannel<>(this);
+        return new GenericPickChannel<>(this, gameOrchestrator());
     }
 
     // Useful stuff

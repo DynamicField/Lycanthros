@@ -20,6 +20,7 @@ class TagRevealerAggregator implements TagRevealer {
     public ImmutableSet<LGTag> getTagsRevealed(LGPlayer viewer, LGPlayer playerToReveal, LGGameOrchestrator orchestrator) {
         return tagRevealers.stream()
                 .flatMap(x -> x.getTagsRevealed(viewer, playerToReveal, orchestrator).stream())
+                .filter(playerToReveal.getTags()::contains)
                 .collect(ImmutableSet.toImmutableSet());
     }
 }

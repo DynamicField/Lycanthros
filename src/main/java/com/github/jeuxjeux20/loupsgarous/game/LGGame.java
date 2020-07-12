@@ -1,11 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-import com.github.jeuxjeux20.loupsgarous.game.chat.AnonymizedChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.google.common.collect.ImmutableSet;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -16,8 +13,6 @@ public interface LGGame {
     ImmutableSet<LGPlayer> getPlayers();
 
     LGGameTurn getTurn();
-
-    Map<AnonymizedChatChannel, List<String>> getAnonymizedNames();
 
     Optional<LGEnding> getEnding();
 
@@ -34,7 +29,12 @@ public interface LGGame {
     }
 
     default boolean isEmpty() {
-        return getPlayers().size() == 0;
+        for (LGPlayer player : getPlayers()) {
+            if (player.isAway()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     default Optional<LGPlayer> findByName(String name) {

@@ -3,6 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.Pickable;
@@ -23,12 +24,11 @@ public class MaireElectionStage extends CountdownLGStage {
     private final MaireVotable votable;
 
     @Inject
-    MaireElectionStage(LGGameOrchestrator orchestrator, Random random,
-                       AbstractPlayerVotable.PlayerVoteDependencies voteDependencies) {
+    MaireElectionStage(LGGameOrchestrator orchestrator, Random random, MaireVotable votable) {
         super(orchestrator);
 
         this.random = random;
-        this.votable = new MaireVotable(voteDependencies);
+        this.votable = votable;
 
         registerInteractable(votable);
     }
@@ -83,9 +83,11 @@ public class MaireElectionStage extends CountdownLGStage {
         return votable;
     }
 
-    public class MaireVotable extends AbstractPlayerVotable {
-        public MaireVotable(PlayerVoteDependencies dependencies) {
-            super(MaireElectionStage.this.orchestrator, dependencies);
+    @OrchestratorScoped
+    public static class MaireVotable extends AbstractPlayerVotable {
+        @Inject
+        MaireVotable(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
         }
 
         @Override

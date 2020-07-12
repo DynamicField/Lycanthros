@@ -20,34 +20,17 @@ import java.util.stream.Collectors;
 public abstract class AbstractVotable<T>
         extends AbstractStatefulPickable<T>
         implements Votable<T>, SelfAwareInteractable {
-    private final Dependencies<T> dependencies;
-
-    public AbstractVotable(LGGameOrchestrator orchestrator, Dependencies<T> dependencies) {
+    public AbstractVotable(LGGameOrchestrator orchestrator) {
         super(orchestrator);
-        this.dependencies = dependencies;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public VoteOutcome<T> getOutcome() {
-        // Safe because this is an abstract class and they *always* have generic information
-        // about their generic argument (superclass).
-        VoteOutcomeContext<T> context = new VoteOutcomeContext<>(getVotes(), getPicks(),
-                (Class<? extends Votable<T>>) getClass(), orchestrator);
-
-        VoteOutcome<T> outcome = getActualOutcome(context);
-        for (VoteOutcomeModifier<T> voteOutcomeModifier : dependencies.voteOutcomeModifiers) {
-            outcome = voteOutcomeModifier.modifyOutcome(context, outcome);
-        }
-        return outcome;
-    }
-
-    private VoteOutcome<T> getActualOutcome(VoteOutcomeContext<T> context) {
-        if (context.getPicks().size() == 0) {
+        if (getPicks().size() == 0) {
             return new NoVotesVoteOutcome<>();
         }
 
-        List<Multiset.Entry<T>> sameVotesCandidates = getHighestSameVotesCandidates(context.getVotes());
+        List<Multiset.Entry<T>> sameVotesCandidates = getHighestSameVotesCandidates(getVotes());
 
         if (sameVotesCandidates.size() == 1) {
             return new RelativeMajorityVoteOutcome<>(sameVotesCandidates.get(0).getElement());
@@ -118,15 +101,4 @@ public abstract class AbstractVotable<T>
         return results;
     }
 
-    public static class Dependencies<T> {
-        public final List<VoteOutcomeModifier<T>> voteOutcomeModifiers;
-
-        @SuppressWarnings("unchecked")
-        @Inject
-        Dependencies(Map<TypeLiteral<?>, List<VoteOutcomeModifier<?>>> voteOutcomeModifierMap,
-                     TypeLiteral<T> candidateType) {
-            this.voteOutcomeModifiers = (List<VoteOutcomeModifier<T>>) (List<?>)
-                    voteOutcomeModifierMap.getOrDefault(candidateType, Collections.emptyList());
-        }
-    }
 }

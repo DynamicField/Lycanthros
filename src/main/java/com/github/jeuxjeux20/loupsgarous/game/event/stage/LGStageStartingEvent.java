@@ -22,8 +22,7 @@ public class LGStageStartingEvent extends LGStageEvent implements Cancellable {
     public void setCancelled(boolean cancel) {
         isCancelled = cancel;
     }
-
-
+    
     public static @NotNull HandlerList getHandlerList() {
         return handlerList;
     }

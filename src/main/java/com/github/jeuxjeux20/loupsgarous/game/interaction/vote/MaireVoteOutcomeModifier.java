@@ -11,8 +11,6 @@ public class MaireVoteOutcomeModifier implements VoteOutcomeModifier<LGPlayer> {
             return outcome;
         }
 
-        context.getOrchestrator().logger().info("hey! i'll try to modify!");
-
         return outcome.accept(new TransformingVoteOutcomeVisitor<LGPlayer>() {
             @Override
             public VoteOutcome<LGPlayer> visit(IndecisiveVoteOutcome<LGPlayer> indecisiveVoteOutcome) {

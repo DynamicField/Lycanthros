@@ -4,10 +4,11 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.Pickable;
 
-public class GenericPickChannel<T extends Pickable<?>> implements LGChatChannel {
+public class GenericPickChannel<T extends Pickable<?>> extends AbstractLGChatChannel {
     private final T pickableProvider;
 
-    public GenericPickChannel(T pickableProvider) {
+    public GenericPickChannel(T pickableProvider, LGGameOrchestrator orchestrator) {
+        super(orchestrator);
         this.pickableProvider = pickableProvider;
     }
 
@@ -22,12 +23,12 @@ public class GenericPickChannel<T extends Pickable<?>> implements LGChatChannel 
     }
 
     @Override
-    public boolean isReadable(LGPlayer recipient, LGGameOrchestrator orchestrator) {
+    public boolean isReadable(LGPlayer recipient) {
         return pickableProvider.conditions().checkPicker(recipient).isSuccess();
     }
 
     @Override
-    public boolean isWritable(LGPlayer sender, LGGameOrchestrator orchestrator) {
+    public boolean isWritable(LGPlayer sender) {
         return false;
     }
 }

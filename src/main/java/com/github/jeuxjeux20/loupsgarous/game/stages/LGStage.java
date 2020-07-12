@@ -81,6 +81,13 @@ public interface LGStage extends SafeCast, TerminableConsumer, LGGameOrchestrato
     }
 
     /**
+     * Stops this stage if it is running.
+     *
+     * @return {@code true} if the stage stopped, or {@code false} if it didn't
+     */
+    boolean stop();
+
+    /**
      * Gets the game orchestrator that this stage is linked to.
      *
      * @return the game orchestrator
@@ -111,6 +118,11 @@ public interface LGStage extends SafeCast, TerminableConsumer, LGGameOrchestrato
         @Override
         public LGGameOrchestrator gameOrchestrator() {
             return orchestrator;
+        }
+
+        @Override
+        public boolean stop() {
+            return false;
         }
 
         @Nonnull

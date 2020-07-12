@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.chat;
 
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.google.common.base.Preconditions;
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
@@ -34,6 +35,6 @@ public abstract class ChatChannelsModule extends AbstractModule {
     protected final void addChatChannel(TypeLiteral<? extends LGChatChannel> chatChannel) {
         Preconditions.checkState(chatChannelBinder != null, "addChatChannel can only be used inside configureChatChannels()");
 
-        chatChannelBinder.addBinding().to(chatChannel);
+        chatChannelBinder.addBinding().to(chatChannel).in(OrchestratorScoped.class);
     }
 }

@@ -5,10 +5,8 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.AnonymousNameHolder;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
-public class LoupsGarousChatChannel implements LGChatChannel, AnonymizedChatChannel {
+public class LoupsGarousChatChannel extends AbstractLGChatChannel implements AnonymizedChatChannel {
     public static final String[] ANONYMIZED_NAMES = {
             "Loup sympa",
             "Loup bizarre",
@@ -29,8 +27,10 @@ public class LoupsGarousChatChannel implements LGChatChannel, AnonymizedChatChan
     private final AnonymizedNamesProvider anonymizedNamesProvider;
 
     @Inject
-    LoupsGarousChatChannel(AnonymizedNamesProvider anonymizedNamesProvider) {
-        this.anonymizedNamesProvider = anonymizedNamesProvider;
+    LoupsGarousChatChannel(LGGameOrchestrator orchestrator,
+                           AnonymizedNamesProvider.Factory anonymizedNamesProviderFactory) {
+        super(orchestrator);
+        this.anonymizedNamesProvider = anonymizedNamesProviderFactory.create(ANONYMIZED_NAMES);
     }
 
     @Override
@@ -44,12 +44,12 @@ public class LoupsGarousChatChannel implements LGChatChannel, AnonymizedChatChan
     }
 
     @Override
-    public boolean isReadable(LGPlayer recipient, LGGameOrchestrator orchestrator) {
+    public boolean isReadable(LGPlayer recipient) {
         return hasAccess(recipient);
     }
 
     @Override
-    public boolean isWritable(LGPlayer sender, LGGameOrchestrator orchestrator) {
+    public boolean isWritable(LGPlayer sender) {
         return hasAccess(sender);
     }
 
@@ -58,18 +58,18 @@ public class LoupsGarousChatChannel implements LGChatChannel, AnonymizedChatChan
     }
 
     @Override
-    public boolean shouldAnonymizeTo(LGPlayer recipient, LGGameOrchestrator orchestrator) {
+    public boolean shouldAnonymizeTo(LGPlayer recipient) {
         return false;
     }
 
     @Override
-    public String anonymizeName(LGPlayer player, LGGameOrchestrator orchestrator) {
+    public String anonymizeName(LGPlayer player) {
         if (!(player.getCard() instanceof AnonymousNameHolder))
             throw new IllegalArgumentException(
                     "The player's card (" + player.getCard().getClass().getName() + ") is not an AnonymousNameHolder.");
 
         AnonymousNameHolder anonymousNameHolder = (AnonymousNameHolder) player.getCard();
 
-        return anonymizedNamesProvider.createAnonymousNameOrGet(orchestrator, anonymousNameHolder, this, ANONYMIZED_NAMES);
+        return anonymizedNamesProvider.createAnonymousNameOrGet(anonymousNameHolder);
     }
 }

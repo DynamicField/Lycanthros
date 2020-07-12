@@ -9,10 +9,6 @@ import com.google.common.collect.ImmutableSet;
 public class MaireTagRevealer implements TagRevealer {
     @Override
     public ImmutableSet<LGTag> getTagsRevealed(LGPlayer viewer, LGPlayer playerToReveal, LGGameOrchestrator orchestrator) {
-        if (playerToReveal.getTags().contains(LGTags.MAIRE)) {
-            return ImmutableSet.of(LGTags.MAIRE);
-        }
-
-        return ImmutableSet.of();
+        return ImmutableSet.of(LGTags.MAIRE);
     }
 }

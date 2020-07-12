@@ -14,7 +14,7 @@ import org.bukkit.event.Listener;
 import java.util.Optional;
 import java.util.Set;
 
-public final class CheckWinConditionsListener implements Listener {
+public class CheckWinConditionsListener implements Listener {
     private final Set<WinCondition> winConditions;
 
     @Inject
