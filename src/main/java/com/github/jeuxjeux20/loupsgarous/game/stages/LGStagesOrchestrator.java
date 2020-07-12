@@ -11,7 +11,8 @@ import com.github.jeuxjeux20.loupsgarous.game.stages.overrides.StageOverride;
  */
 public interface LGStagesOrchestrator extends LGGameOrchestratorDependent {
     /**
-     * Insert a stage factory to the current game that will be created and run as soon as possible (LIFO).
+     * Insert the given stage factory to the current game that
+     * will be created and run as soon as possible (LIFO).
      *
      * @param stageFactory the stage factory to insert
      */

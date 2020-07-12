@@ -7,6 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVotable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.VillageVoteKillReason;
 import com.google.inject.Inject;
 import org.bukkit.ChatColor;
@@ -59,8 +60,7 @@ public class VillageVoteStage extends CountdownLGStage {
 
     @Override
     protected void finish() {
-        votable.closeAndReportException();
-        computeVoteOutcome();
+        votable.conclude();
     }
 
     @Override
@@ -72,17 +72,7 @@ public class VillageVoteStage extends CountdownLGStage {
     public String getTitle() {
         return "Le village va voter";
     }
-
-    private void computeVoteOutcome() {
-        Optional<LGPlayer> maybeMajority = votable.getOutcome().getElected();
-
-        if (maybeMajority.isPresent()) {
-            orchestrator.kills().instantly(maybeMajority.get(), VillageVoteKillReason.INSTANCE);
-        } else {
-            orchestrator.chat().sendToEveryone(info("Le village n'a pas pu se décider !"));
-        }
-    }
-
+    
     public VillageVotable votes() {
         return votable;
     }
@@ -92,6 +82,19 @@ public class VillageVoteStage extends CountdownLGStage {
         @Inject
         VillageVotable(LGGameOrchestrator orchestrator) {
             super(orchestrator);
+        }
+
+        @Override
+        protected boolean conclude(VoteOutcome<LGPlayer> outcome) {
+            Optional<LGPlayer> maybeMajority = outcome.getElected();
+
+            if (maybeMajority.isPresent()) {
+                orchestrator.kills().instantly(maybeMajority.get(), VillageVoteKillReason.INSTANCE);
+            } else {
+                orchestrator.chat().sendToEveryone(info("Le village n'a pas pu se décider !"));
+            }
+
+            return maybeMajority.isPresent();
         }
 
         @Override

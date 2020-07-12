@@ -10,6 +10,7 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPi
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVotable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.NightKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
@@ -26,8 +27,6 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 public class LoupGarouVoteStage extends CountdownLGStage {
     private final LoupGarouVotable votable;
     private final LoupsGarousVoteChatChannel voteChannel;
-
-    private boolean isVoteSuccessful;
 
     @Inject
     LoupGarouVoteStage(LGGameOrchestrator orchestrator,
@@ -54,9 +53,9 @@ public class LoupGarouVoteStage extends CountdownLGStage {
 
     @Override
     protected void finish() {
-        votable.closeAndReportException();
-        computeVoteOutcome();
-        howl();
+        if (votable.conclude()) {
+            howl();
+        }
     }
 
     @Override
@@ -74,28 +73,7 @@ public class LoupGarouVoteStage extends CountdownLGStage {
         return BarColor.RED;
     }
 
-    private void computeVoteOutcome() {
-        Optional<LGPlayer> maybeMajority = votable.getOutcome().getElected();
-        isVoteSuccessful = maybeMajority.isPresent();
-
-        if (isVoteSuccessful) {
-            LGPlayer majority = maybeMajority.get();
-
-            orchestrator.kills().pending().add(LGKill.of(majority, NightKillReason.INSTANCE));
-            orchestrator.chat().sendMessage(voteChannel,
-                    ChatColor.AQUA + "Les loups ont décidé de tuer " +
-                    player(majority.getName()) + ChatColor.AQUA + "."
-            );
-        } else {
-            orchestrator.chat().sendMessage(voteChannel,
-                    ChatColor.AQUA + "Les loups n'ont pas pu se décider !"
-            );
-        }
-    }
-
     private void howl() {
-        if (!isVoteSuccessful) return;
-
         orchestrator.game().getPlayers().stream()
                 .filter(voteChannel::isReadable)
                 .map(LGPlayer::getMinecraftPlayer)
@@ -116,6 +94,27 @@ public class LoupGarouVoteStage extends CountdownLGStage {
                          LoupsGarousVoteChatChannel voteChannel) {
             super(orchestrator);
             this.voteChannel = voteChannel;
+        }
+
+        @Override
+        protected boolean conclude(VoteOutcome<LGPlayer> outcome) {
+            Optional<LGPlayer> maybeMajority = outcome.getElected();
+
+            if (maybeMajority.isPresent()) {
+                LGPlayer majority = maybeMajority.get();
+
+                orchestrator.kills().pending().add(LGKill.of(majority, NightKillReason.INSTANCE));
+                orchestrator.chat().sendMessage(voteChannel,
+                        ChatColor.AQUA + "Les loups ont décidé de tuer " +
+                        player(majority.getName()) + ChatColor.AQUA + "."
+                );
+            } else {
+                orchestrator.chat().sendMessage(voteChannel,
+                        ChatColor.AQUA + "Les loups n'ont pas pu se décider !"
+                );
+            }
+
+            return maybeMajority.isPresent();
         }
 
         @Override

@@ -9,6 +9,7 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.Pickable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVotable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.game.tags.LGTags;
 import com.google.inject.Inject;
 import org.bukkit.ChatColor;
@@ -20,14 +21,12 @@ import java.util.stream.Collectors;
 
 @MajorityVoteShortensCountdown(LGInteractableKeys.Names.PLAYER_VOTE)
 public class MaireElectionStage extends CountdownLGStage {
-    private final Random random;
     private final MaireVotable votable;
 
     @Inject
-    MaireElectionStage(LGGameOrchestrator orchestrator, Random random, MaireVotable votable) {
+    MaireElectionStage(LGGameOrchestrator orchestrator, MaireVotable votable) {
         super(orchestrator);
 
-        this.random = random;
         this.votable = votable;
 
         registerInteractable(votable);
@@ -40,23 +39,7 @@ public class MaireElectionStage extends CountdownLGStage {
 
     @Override
     protected void finish() {
-        votable.closeAndReportException();
-        computeVoteOutcome();
-    }
-
-    private void computeVoteOutcome() {
-        LGPlayer electedPlayer = votable.getOutcome().getElected().orElseGet(this::drawRandomPlayer);
-
-        orchestrator.tags().add(electedPlayer, LGTags.MAIRE);
-        orchestrator.chat().sendToEveryone(
-                ChatColor.DARK_AQUA + ChatColor.BOLD.toString() + electedPlayer.getName() +
-                ChatColor.DARK_AQUA + " a été élu maire."
-        );
-    }
-
-    private LGPlayer drawRandomPlayer() {
-        List<LGPlayer> players = votable.getEligibleTargets().collect(Collectors.toList());
-        return players.get(random.nextInt(players.size()));
+        votable.conclude();
     }
 
     @Override
@@ -85,9 +68,12 @@ public class MaireElectionStage extends CountdownLGStage {
 
     @OrchestratorScoped
     public static class MaireVotable extends AbstractPlayerVotable {
+        private final Random random;
+
         @Inject
-        MaireVotable(LGGameOrchestrator orchestrator) {
+        MaireVotable(LGGameOrchestrator orchestrator, Random random) {
             super(orchestrator);
+            this.random = random;
         }
 
         @Override
@@ -103,6 +89,24 @@ public class MaireElectionStage extends CountdownLGStage {
         @Override
         public String getPointingText() {
             return "vote pour";
+        }
+
+        @Override
+        protected boolean conclude(VoteOutcome<LGPlayer> outcome) {
+            LGPlayer electedPlayer = outcome.getElected().orElseGet(this::drawRandomPlayer);
+
+            orchestrator.tags().add(electedPlayer, LGTags.MAIRE);
+            orchestrator.chat().sendToEveryone(
+                    ChatColor.DARK_AQUA + ChatColor.BOLD.toString() + electedPlayer.getName() +
+                    ChatColor.DARK_AQUA + " a été élu maire."
+            );
+
+            return true;
+        }
+
+        private LGPlayer drawRandomPlayer() {
+            List<LGPlayer> players = getEligibleTargets().collect(Collectors.toList());
+            return players.get(random.nextInt(players.size()));
         }
 
         @Override

@@ -19,12 +19,12 @@ public final class LGInteractionVoteModule extends VoteOutcomeModifiersModule {
     @Override
     protected void configureBindings() {
         bindInterceptor(Matchers.subclassesOf(Votable.class),
-                Matchers.returns(Matchers.subclassesOf(VoteOutcome.class)).and(new AbstractMatcher<Method>() {
+                new AbstractMatcher<Method>() {
                     @Override
                     public boolean matches(Method method) {
-                        return method.getName().equals("getOutcome");
+                        return method.getName().equals("getOutcome") && method.getParameterCount() == 0;
                     }
-                }),
+                },
                 new ApplyVoteModifiersInterceptor(
                         getProvider(Key.get(new TypeLiteral<Map<TypeLiteral<?>, List<VoteOutcomeModifier<?>>>>(){}))
                 ));

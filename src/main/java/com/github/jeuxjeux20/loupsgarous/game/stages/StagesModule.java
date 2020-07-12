@@ -44,7 +44,17 @@ public abstract class StagesModule extends AbstractModule {
         stagesBinder.addBinding().to(stage).in(OrchestratorScoped.class);
         bind(stage).in(OrchestratorScoped.class);
 
-        registerStageFactory(stage);
+        registerStageFactory(stage, true);
+    }
+
+    private <T extends RunnableLGStage> void registerStageFactory(TypeLiteral<T> stage, boolean addInMultibinder) {
+        ProviderRunnableStageFactory<T> factory = new ProviderRunnableStageFactory<>(getProvider(Key.get(stage)));
+
+        bind(createFactoryType(stage)).toInstance(factory);
+
+        if (addInMultibinder) {
+            stageFactoriesBinder.addBinding().toInstance(factory);
+        }
     }
 
     protected final <T extends RunnableLGStage> void registerStageFactory(Class<T> stage) {
@@ -52,10 +62,7 @@ public abstract class StagesModule extends AbstractModule {
     }
 
     protected final <T extends RunnableLGStage> void registerStageFactory(TypeLiteral<T> stage) {
-        ProviderRunnableStageFactory<T> factory = new ProviderRunnableStageFactory<>(getProvider(Key.get(stage)));
-
-        bind(createFactoryType(stage)).toInstance(factory);
-        stageFactoriesBinder.addBinding().toInstance(factory);
+        registerStageFactory(stage, false);
     }
 
     @SuppressWarnings("unchecked")

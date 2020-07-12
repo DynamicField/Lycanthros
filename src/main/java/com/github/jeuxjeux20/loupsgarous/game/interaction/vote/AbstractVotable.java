@@ -8,13 +8,13 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.*;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multiset;
-import com.google.inject.Inject;
-import com.google.inject.TypeLiteral;
 import me.lucko.helper.Events;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public abstract class AbstractVotable<T>
@@ -47,6 +47,17 @@ public abstract class AbstractVotable<T>
     public Multiset<T> getVotes() {
         return HashMultiset.create(getPicks().values());
     }
+
+    @Override
+    public final boolean conclude() {
+        throwIfClosed();
+        closeAndReportException();
+
+        VoteOutcome<T> outcome = getOutcome();
+        return conclude(outcome);
+    }
+
+    protected abstract boolean conclude(VoteOutcome<T> outcome);
 
     @Override
     protected final void safePick(LGPlayer picker, T target) {

@@ -25,6 +25,14 @@ public interface Votable<T> extends StatefulPickable<T> {
     VoteOutcome<T> getOutcome();
 
     /**
+     * Closes this vote, and execute actions based on the outcome.
+     *
+     * @throws IllegalStateException when the vote is already closed
+     * @return {@code true} if the conclusion led to a significant action, {@code false} if not
+     */
+    boolean conclude();
+
+    /**
      * Gets a multiset representing the occurrences of each vote.
      * <p>
      * <b>Example:</b>

@@ -41,7 +41,7 @@ public final class ApplyVoteModifiersInterceptor implements MethodInterceptor {
     }
 
     private <T> VoteOutcomeContext<T> createContext(Votable<T> self) {
-        return new VoteOutcomeContext<>(self.getVotes(), self.getPicks(), self.getClass(), self.gameOrchestrator());
+        return new VoteOutcomeContext<>(self.getVotes(), self.getPicks(), self, self.gameOrchestrator());
     }
 
     @SuppressWarnings("unchecked")
