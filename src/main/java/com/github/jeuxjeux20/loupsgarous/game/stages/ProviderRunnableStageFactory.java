@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScope;
+import com.google.common.base.MoreObjects;
 import com.google.inject.Provider;
 
 class ProviderRunnableStageFactory<T extends RunnableLGStage> implements RunnableLGStage.Factory<T> {
@@ -16,5 +17,12 @@ class ProviderRunnableStageFactory<T extends RunnableLGStage> implements Runnabl
         try (OrchestratorScope.Block block = gameOrchestrator.scope()) {
             return provider.get();
         }
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("provider", provider)
+                .toString();
     }
 }

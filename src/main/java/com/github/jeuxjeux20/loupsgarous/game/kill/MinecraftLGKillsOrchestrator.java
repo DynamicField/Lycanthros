@@ -2,58 +2,40 @@ package com.github.jeuxjeux20.loupsgarous.game.kill;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.MutableLGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.MutableLGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGKillEvent;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import me.lucko.helper.Events;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.STARTED;
 
 @OrchestratorScoped
 public class MinecraftLGKillsOrchestrator implements LGKillsOrchestrator {
     private final MutableLGGameOrchestrator gameOrchestrator;
-
-    private final Set<LGKill> pendingKills = new HashSet<>();
+    private final PendingKillRegistry pendingKillRegistry;
+    private final PlayerKiller playerKiller;
 
     @Inject
-    MinecraftLGKillsOrchestrator(MutableLGGameOrchestrator gameOrchestrator) {
+    MinecraftLGKillsOrchestrator(MutableLGGameOrchestrator gameOrchestrator,
+                                 PendingKillRegistry pendingKillRegistry,
+                                 PlayerKiller playerKiller) {
         this.gameOrchestrator = gameOrchestrator;
+        this.pendingKillRegistry = pendingKillRegistry;
+        this.playerKiller = playerKiller;
     }
 
     @Override
-    public Set<LGKill> pending() {
+    public PendingKillRegistry pending() {
         gameOrchestrator.state().mustBe(STARTED);
 
-        return pendingKills;
-    }
-
-    @Override
-    public void revealPending() {
-        gameOrchestrator.state().mustBe(STARTED);
-
-        ImmutableList<LGKill> kills = ImmutableList.copyOf(pendingKills);
-        pendingKills.clear();
-
-        for (LGKill kill : kills) {
-            if (kill.getWhoDied().isAlive()) {
-                killPlayer(kill);
-            }
-        }
-
-        Events.call(new LGKillEvent(gameOrchestrator, kills));
+        return pendingKillRegistry;
     }
 
     @Override
     public void instantly(LGKill kill) {
         gameOrchestrator.state().mustBe(STARTED);
 
-        killPlayer(kill);
+        playerKiller.killPlayer(kill);
 
         Events.call(new LGKillEvent(gameOrchestrator, kill));
     }
@@ -61,17 +43,5 @@ public class MinecraftLGKillsOrchestrator implements LGKillsOrchestrator {
     @Override
     public LGGameOrchestrator gameOrchestrator() {
         return gameOrchestrator;
-    }
-
-    private void killPlayer(LGKill kill) {
-        MutableLGPlayer whoDied = gameOrchestrator.game().getPlayer(kill.getWhoDied())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "The player" + kill.getWhoDied().getName() + " is not present in the game's players."
-                ));
-
-        Preconditions.checkArgument(whoDied.isAlive(),
-                "Cannot kill player " + whoDied.getName() + " because they are dead.");
-
-        whoDied.setDead(true);
     }
 }

@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.tags.revealers;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGGame;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.tags.LGTag;
 import com.google.common.collect.ImmutableSet;
@@ -17,9 +17,9 @@ class TagRevealerAggregator implements TagRevealer {
     }
 
     @Override
-    public ImmutableSet<LGTag> getTagsRevealed(LGPlayer viewer, LGPlayer playerToReveal, LGGameOrchestrator orchestrator) {
+    public ImmutableSet<LGTag> getTagsRevealed(LGPlayer viewer, LGPlayer playerToReveal, LGGame game) {
         return tagRevealers.stream()
-                .flatMap(x -> x.getTagsRevealed(viewer, playerToReveal, orchestrator).stream())
+                .flatMap(x -> x.getTagsRevealed(viewer, playerToReveal, game).stream())
                 .filter(playerToReveal.getTags()::contains)
                 .collect(ImmutableSet.toImmutableSet());
     }

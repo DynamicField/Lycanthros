@@ -75,6 +75,11 @@ public class MinecraftLGLobbyCompositionManager implements LGLobbyCompositionMan
                 .orElse(null);
     }
 
+    @Override
+    public boolean isValid() {
+        return getWorstProblemType() != CompositionValidator.Problem.Type.IMPOSSIBLE;
+    }
+
 
     private final class LobbyComposition extends MutableComposition {
         public LobbyComposition(Composition composition) {

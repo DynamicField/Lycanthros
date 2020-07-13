@@ -49,7 +49,7 @@ public class VillageVoteStage extends CountdownLGStage {
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.turn().getTime() == LGGameTurnTime.DAY &&
+        return orchestrator.game().getTurn().getTime() == LGGameTurnTime.DAY &&
                votable.canSomeonePick();
     }
 

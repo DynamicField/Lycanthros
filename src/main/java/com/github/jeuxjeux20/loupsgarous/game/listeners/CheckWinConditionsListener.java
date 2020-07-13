@@ -33,7 +33,7 @@ public class CheckWinConditionsListener implements Listener {
         }
 
         for (WinCondition winCondition : winConditions) {
-            Optional<LGEnding> ending = winCondition.check(orchestrator);
+            Optional<LGEnding> ending = winCondition.check(orchestrator.game());
             if (ending.isPresent()) {
                 orchestrator.finish(ending.get());
                 return;

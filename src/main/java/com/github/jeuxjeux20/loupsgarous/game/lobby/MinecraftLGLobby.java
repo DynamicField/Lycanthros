@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
 import com.github.jeuxjeux20.loupsgarous.game.*;
-import com.github.jeuxjeux20.loupsgarous.game.event.LGGameInitializeEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.LGGameInitializedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyOwnerChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerQuitEvent;
@@ -23,8 +23,6 @@ class MinecraftLGLobby implements LGLobby {
     private final LGGameManager gameManager;
     private final LGLobbyCompositionManager compositionManager;
 
-    private MutableLGPlayer owner;
-
     @Inject
     MinecraftLGLobby(@Assisted LGGameBootstrapData bootstrapData,
                      @Assisted MutableLGGameOrchestrator orchestrator,
@@ -39,7 +37,7 @@ class MinecraftLGLobby implements LGLobby {
         lobbyTeleporter.bindWith(orchestrator);
 
         try {
-            this.owner = addPlayer(bootstrapData.getOwner());
+            getGame().setOwner(addPlayer(bootstrapData.getOwner()));
         } catch (PlayerJoinException e) {
             throw new InvalidOwnerException(e);
         }
@@ -88,7 +86,7 @@ class MinecraftLGLobby implements LGLobby {
         } else {
             // Wait until the game initializes so we can do the usual stuff.
             // -> We don't TP the player until the game is initialized.
-            Events.subscribe(LGGameInitializeEvent.class)
+            Events.subscribe(LGGameInitializedEvent.class)
                     .filter(orchestrator::isMyEvent)
                     .expireAfter(1)
                     .handler(e -> onPlayerAdd(player, lgPlayer));
@@ -114,7 +112,7 @@ class MinecraftLGLobby implements LGLobby {
             getGame().removePlayer(playerUUID);
         }
 
-        if (player == owner) {
+        if (getGame().getOwner() == null) {
             putRandomOwner();
         }
 
@@ -128,10 +126,6 @@ class MinecraftLGLobby implements LGLobby {
     private void putRandomOwner() {
         if (!getGame().isEmpty()) {
             setOwner(getGame().getPlayers().iterator().next());
-        } else {
-            // SPECIAL CASE: Here the game is empty, however, we don't want the owner to be null.
-            // So, let's just make the current owner away.
-            owner.setAway(true);
         }
     }
 
@@ -149,17 +143,17 @@ class MinecraftLGLobby implements LGLobby {
 
     @Override
     public LGPlayer getOwner() {
-        return owner;
+        MutableLGPlayer owner = getGame().getOwner();
+        return owner == null ? LGPlayer.NULL : owner;
     }
 
     @Override
     public void setOwner(LGPlayer owner) {
-        MutableLGPlayer newOwner = getGame().getPlayer(owner.getPlayerUUID())
-                .orElseThrow(() -> new IllegalArgumentException("The given owner isn't present in the lobby."));
+        MutableLGPlayer newOwner = getGame().ensurePresent(owner);
 
-        if (owner == this.owner) return;
+        if (owner == getGame().getOwner()) return;
 
-        this.owner = newOwner;
+        getGame().setOwner(newOwner);
 
         Events.call(new LGLobbyOwnerChangeEvent(orchestrator, owner));
     }

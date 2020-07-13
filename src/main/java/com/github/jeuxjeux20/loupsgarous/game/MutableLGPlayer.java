@@ -18,6 +18,8 @@ public final class MutableLGPlayer implements LGPlayer {
     private boolean isDead;
     private boolean isAway;
 
+    private final MetadataMap metadataMap = MetadataMap.create();
+
     public MutableLGPlayer(Player player) {
         this(player.getUniqueId(), new LGCard.Unknown());
     }
@@ -70,7 +72,7 @@ public final class MutableLGPlayer implements LGPlayer {
 
     @Override
     public MetadataMap metadata() {
-        return LGMetadata.provideForPlayer(this);
+        return metadataMap;
     }
 
     @Override

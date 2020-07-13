@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards.revealers;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGGame;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.google.inject.Inject;
 
@@ -15,9 +15,9 @@ public final class CardRevealerAggregator implements CardRevealer {
     }
 
     @Override
-    public boolean willReveal(LGPlayer viewer, LGPlayer playerToReveal, LGGameOrchestrator orchestrator) {
+    public boolean willReveal(LGPlayer viewer, LGPlayer playerToReveal, LGGame game) {
         for (CardRevealer cardRevealer : cardRevealers) {
-            if (cardRevealer.willReveal(viewer, playerToReveal, orchestrator)) {
+            if (cardRevealer.willReveal(viewer, playerToReveal, game)) {
                 return true;
             }
         }

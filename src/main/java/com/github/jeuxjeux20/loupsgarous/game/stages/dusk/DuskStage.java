@@ -40,7 +40,8 @@ public class DuskStage extends CountdownLGStage {
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.turn().getTime() == LGGameTurnTime.NIGHT && !actionsToRun.isEmpty();
+        return orchestrator.game().getTurn().getTime() == LGGameTurnTime.NIGHT &&
+               !actionsToRun.isEmpty();
     }
 
     @Override

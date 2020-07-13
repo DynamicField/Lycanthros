@@ -1,10 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.actionbar.LGActionBarManager;
 import com.github.jeuxjeux20.loupsgarous.game.bossbar.LGBossBarManager;
-import com.github.jeuxjeux20.loupsgarous.game.tags.LGTagsOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeamsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.SnapshotComposition;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatOrchestrator;
@@ -18,12 +15,14 @@ import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameBootstrapData;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LobbyCreationException;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.tags.LGTagsOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeamsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.common.collect.ImmutableSet;
-import me.lucko.helper.metadata.MetadataMap;
 import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Logger;
@@ -31,9 +30,6 @@ import java.util.stream.Stream;
 
 /**
  * Manages a Loups-Garous game instance.
- * <p>
- * Orchestrators contain additional state apart from the {@link #game()} to ensure that the game runs correctly,
- * with the {@link #state()} and {@link #stages()}.
  * <p>
  * The game {@link #state()} can be changed using the appropriate methods:
  * {@link #initialize()}, {@link #start()}, {@link #finish(LGEnding)} and {@link #delete()}.
@@ -61,12 +57,10 @@ import java.util.stream.Stream;
 public interface LGGameOrchestrator extends TerminableConsumer {
     LGGame game();
 
-    LGGameState state();
+    Plugin plugin();
 
-    LoupsGarous plugin();
-
-    default LGGameTurn turn() {
-        return game().getTurn();
+    default LGGameState state() {
+        return game().getState();
     }
 
     default World world() {
@@ -143,8 +137,6 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     LGLobby lobby();
 
     OrchestratorScope.Block scope();
-
-    MetadataMap metadata();
 
     Logger logger();
 

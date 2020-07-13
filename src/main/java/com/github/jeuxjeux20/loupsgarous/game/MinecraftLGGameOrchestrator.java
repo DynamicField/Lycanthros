@@ -3,6 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game;
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.actionbar.LGActionBarManager;
 import com.github.jeuxjeux20.loupsgarous.game.bossbar.LGBossBarManager;
+import com.github.jeuxjeux20.loupsgarous.game.cards.distribution.CardDistributor;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.event.*;
@@ -26,10 +27,10 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
-import me.lucko.helper.metadata.MetadataMap;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
 import java.util.function.Function;
@@ -46,9 +47,9 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     private final LGGameOrchestratorLogger logger;
     // Game state
     private final MutableLGGame game;
-    private LGGameState state = LGGameState.UNINITIALIZED;
     // Components
     private final LGLobby lobby;
+    private final CardDistributor cardDistributor;
     private DelayedDependencies delayedDependencies;
     private final Provider<DelayedDependencies> delayedDependenciesProvider;
     private final OrchestratorScope scope;
@@ -57,13 +58,16 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     MinecraftLGGameOrchestrator(@Assisted LGGameBootstrapData bootstrapData,
                                 LoupsGarous plugin,
                                 LGLobby.Factory lobbyFactory,
+                                CardDistributor cardDistributor,
                                 OrchestratorScope scope,
                                 Provider<DelayedDependencies> delayedDependenciesProvider) throws GameCreationException {
         this.plugin = plugin;
+        this.cardDistributor = cardDistributor;
         this.scope = scope;
         this.game = new MutableLGGame(bootstrapData.getId());
-        this.delayedDependenciesProvider = delayedDependenciesProvider;
         this.logger = new LGGameOrchestratorLogger(this);
+        this.delayedDependenciesProvider = delayedDependenciesProvider;
+
         this.lobby = lobbyFactory.create(bootstrapData, this);
 
         registerLobbyEvents();
@@ -75,43 +79,27 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     }
 
     @Override
-    public LGGameState state() {
-        return state;
-    }
-
-    @Override
     public void initialize() {
-        state.mustBe(UNINITIALIZED);
+        state().mustBe(UNINITIALIZED);
 
         try (OrchestratorScope.Block block = scope()) {
             delayedDependencies = delayedDependenciesProvider.get();
         }
-
-        initializeRecurrentDependenciesUpdates();
-
-        Events.call(new LGGameInitializeEvent(this));
 
         updateLobbyState();
 
         if (stages().current() instanceof LGStage.Null) {
             stages().next();
         }
-    }
 
-    private void initializeRecurrentDependenciesUpdates() {
-        bindModule(actionBar().createUpdateModule());
-        bindModule(bossBar().createUpdateModule());
-
-        delayedDependencies.scoreboardManager.registerEvents();
-        delayedDependencies.inventoryManager.registerEvents();
+        Events.call(new LGGameInitializedEvent(this));
     }
 
     @Override
     public void start() {
-        state.mustNotBe(UNINITIALIZED);
-        state.mustBe(READY_TO_START);
+        state().mustBe(READY_TO_START);
 
-        game.distributeCards(lobby.composition().get());
+        game.distributeCards(cardDistributor, lobby.composition().get());
 
         changeStateTo(STARTED, LGGameStartEvent::new);
 
@@ -122,7 +110,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
     @Override
     public void finish(LGEnding ending) {
-        state.mustNotBe(UNINITIALIZED, FINISHED, DELETING, DELETED);
+        state().mustNotBe(UNINITIALIZED, FINISHED, DELETING, DELETED);
 
         game.setEnding(ending);
 
@@ -133,7 +121,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
     @Override
     public void delete() {
-        state.mustNotBe(DELETING, DELETED);
+        state().mustNotBe(DELETING, DELETED);
 
         changeStateTo(DELETING, LGGameDeletingEvent::new);
 
@@ -145,7 +133,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
     @Override
     public void nextTimeOfDay() {
-        state.mustBe(STARTED);
+        state().mustBe(STARTED);
 
         MutableLGGameTurn turn = game.getTurn();
         if (turn.getTime() == LGGameTurnTime.DAY) {
@@ -165,7 +153,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     }
 
     private void updateLobbyState() {
-        state.mustBe(UNINITIALIZED, WAITING_FOR_PLAYERS, READY_TO_START);
+        state().mustBe(UNINITIALIZED, WAITING_FOR_PLAYERS, READY_TO_START);
 
         if (lobby.isFull() && lobby.composition().isValid()) {
             changeStateTo(READY_TO_START, LGGameReadyToStartEvent::new);
@@ -187,7 +175,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
         Events.merge(LGEvent.class, LGPlayerJoinEvent.class, LGPlayerQuitEvent.class, LGLobbyCompositionChangeEvent.class)
                 .filter(this::isMyEvent)
-                .filter(o -> !lobby.isLocked() && state != LGGameState.UNINITIALIZED)
+                .filter(o -> !lobby.isLocked() && state() != LGGameState.UNINITIALIZED)
                 .handler(e -> updateLobbyState())
                 .bindWith(this);
     }
@@ -202,7 +190,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
 
         if (isGameRunning() && e.getLGPlayer().isAlive()) {
             kills().instantly(e.getLGPlayer(), PlayerQuitKillReason.INSTANCE);
-        } else if (state.isEnabled()) { // Let's not write quit messages while deleting.
+        } else if (state().isEnabled()) { // Let's not write quit messages while deleting.
             chat().sendToEveryone(player(offlinePlayer.getName()) + lobbyMessage(" a quitté la partie ! ") +
                                   slots(lobby.getSlotsDisplay()));
         }
@@ -212,7 +200,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     }
 
     @Override
-    public LoupsGarous plugin() {
+    public Plugin plugin() {
         return plugin;
     }
 
@@ -278,11 +266,6 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     }
 
     @Override
-    public MetadataMap metadata() {
-        return LGMetadata.provideForGame(this);
-    }
-
-    @Override
     public Logger logger() {
         return logger;
     }
@@ -296,7 +279,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("id", game.getId())
-                .add("state", state)
+                .add("state", state())
                 .toString();
     }
 
@@ -316,10 +299,10 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
      */
     private void changeStateTo(LGGameState state,
                                Function<? super LGGameOrchestrator, ? extends LGEvent> eventFunction) {
-        if (this.state == state) return;
+        if (this.state() == state) return;
 
-        LGGameState oldState = this.state;
-        this.state = state;
+        LGGameState oldState = this.state();
+        game.setState(state);
 
         logger.fine("State changed: " + oldState + " -> " + state);
 

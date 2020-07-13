@@ -38,9 +38,11 @@ class MinecraftLGScoreboardManager implements LGScoreboardManager {
                                  Set<ScoreboardComponent> components) {
         this.componentRenderer = componentRenderer;
         this.components = components;
+
+        registerEvents();
     }
 
-    public void registerEvents() {
+    private void registerEvents() {
         if (hasEvents) return;
 
         Class<? extends LGEvent>[] classes = ClassArrayUtils.merge(components.stream().map(HasTriggers::getUpdateTriggers));

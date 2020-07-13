@@ -15,7 +15,7 @@ public class RevealAllKillsStage extends LogicLGStage {
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.turn().getTime() == LGGameTurnTime.DAY;
+        return orchestrator.game().getTurn().getTime() == LGGameTurnTime.DAY;
     }
 
     @Override
@@ -25,6 +25,6 @@ public class RevealAllKillsStage extends LogicLGStage {
                     killMessage(SKULL_SYMBOL + " Le village se lève... et personne n'est mort !")
             );
         }
-        orchestrator.kills().revealPending();
+        orchestrator.kills().pending().reveal();
     }
 }

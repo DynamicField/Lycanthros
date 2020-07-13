@@ -33,6 +33,11 @@ public interface LGLobby extends LGGameOrchestratorDependent {
     boolean isLocked();
 
 
+    /**
+     * Gets the owner of the game.
+     *
+     * @return the owner of the game, or {@link LGPlayer#NULL} if there are no players
+     */
     LGPlayer getOwner();
 
     void setOwner(LGPlayer owner);

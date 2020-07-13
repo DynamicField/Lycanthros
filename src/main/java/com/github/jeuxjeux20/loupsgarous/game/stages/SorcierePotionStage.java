@@ -97,7 +97,7 @@ public class SorcierePotionStage extends CountdownLGStage {
                         .decoration(BOLD, true));
 
         if (card.hasHealPotion()) {
-            Set<LGKill> pendingKills = orchestrator.kills().pending();
+            Set<LGKill> pendingKills = orchestrator.kills().pending().getAll();
 
             builder.append(TextComponent.of("\n" + HEAL_SYMBOL + " ").color(GREEN));
 
@@ -208,7 +208,7 @@ public class SorcierePotionStage extends CountdownLGStage {
             SorciereCard card = (SorciereCard) healer.getCard();
 
             card.useHealPotion();
-            orchestrator.kills().pending().removeIf(x -> x.getWhoDied() == target);
+            orchestrator.kills().pending().remove(target);
 
             healer.getMinecraftPlayer().ifPresent(player ->
                     player.sendMessage(
@@ -223,7 +223,7 @@ public class SorcierePotionStage extends CountdownLGStage {
         }
 
         private boolean willDieTonight(LGPlayer player) {
-            return orchestrator.kills().willDie(player);
+            return orchestrator.kills().pending().contains(player);
         }
     }
 
@@ -247,7 +247,7 @@ public class SorcierePotionStage extends CountdownLGStage {
             SorciereCard card = (SorciereCard) killer.getCard();
 
             card.useKillPotion();
-            orchestrator.kills().pending().add(LGKill.of(target, NightKillReason.INSTANCE));
+            orchestrator.kills().pending().put(target, NightKillReason.INSTANCE);
 
             killer.getMinecraftPlayer().ifPresent(player ->
                     player.sendMessage(

@@ -26,9 +26,6 @@ class MinecraftLGTagsOrchestrator implements LGTagsOrchestrator {
     }
 
     private MutableLGPlayer asMutable(LGPlayer player) {
-        return gameOrchestrator.game().getPlayer(player)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "The given player (" + player + ") is not present in this game orchestrator " +
-                        "(" + gameOrchestrator + ")."));
+        return gameOrchestrator.game().ensurePresent(player);
     }
 }

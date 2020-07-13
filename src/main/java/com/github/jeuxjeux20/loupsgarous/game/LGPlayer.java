@@ -12,6 +12,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface LGPlayer {
+    LGPlayer NULL = Null.INSTANCE;
+
     UUID getPlayerUUID();
 
     LGCard getCard();
@@ -66,5 +68,44 @@ public interface LGPlayer {
      */
     default OfflinePlayer getOfflineMinecraftPlayer() {
         return Bukkit.getOfflinePlayer(getPlayerUUID());
+    }
+
+    class Null implements LGPlayer {
+        public static final Null INSTANCE = new Null();
+
+        private final MetadataMap metadataMap = MetadataMap.create();
+
+        private Null() {
+        }
+
+        @Override
+        public UUID getPlayerUUID() {
+            return new UUID(0, 0);
+        }
+
+        @Override
+        public LGCard getCard() {
+            return new LGCard.Unknown();
+        }
+
+        @Override
+        public boolean isDead() {
+            return false;
+        }
+
+        @Override
+        public boolean isAway() {
+            return true;
+        }
+
+        @Override
+        public ImmutableSet<LGTag> getTags() {
+            return ImmutableSet.of();
+        }
+
+        @Override
+        public MetadataMap metadata() {
+            return metadataMap;
+        }
     }
 }

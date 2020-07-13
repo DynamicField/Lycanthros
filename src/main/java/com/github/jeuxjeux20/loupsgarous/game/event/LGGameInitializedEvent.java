@@ -4,10 +4,10 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class LGGameInitializeEvent extends LGEvent {
+public class LGGameInitializedEvent extends LGEvent {
     private static final HandlerList handlerList = new HandlerList();
 
-    public LGGameInitializeEvent(LGGameOrchestrator orchestrator) {
+    public LGGameInitializedEvent(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }
 

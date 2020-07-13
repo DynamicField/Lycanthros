@@ -5,5 +5,6 @@ import com.google.inject.AbstractModule;
 public final class LGKillModule extends AbstractModule {
     protected void configure() {
         bind(LGKillsOrchestrator.class).to(MinecraftLGKillsOrchestrator.class);
+        bind(PendingKillRegistry.class).to(MinecraftPendingKillRegistry.class);
     }
 }

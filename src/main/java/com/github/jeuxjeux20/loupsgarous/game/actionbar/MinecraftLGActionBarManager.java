@@ -31,6 +31,8 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
     @Inject
     MinecraftLGActionBarManager(LGGameOrchestrator orchestrator) {
         this.orchestrator = orchestrator;
+
+        new UpdateModule().setup(orchestrator);
     }
 
     @Override
@@ -38,11 +40,6 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
         for (LGPlayer player : orchestrator.game().getPlayers()) {
             update(player);
         }
-    }
-
-    @Override
-    public TerminableModule createUpdateModule() {
-        return new UpdateModule();
     }
 
     private void update(LGPlayer player) {
@@ -92,8 +89,8 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
 
             components.add(cardComponent);
         } else if (orchestrator.state() == LGGameState.FINISHED) {
-            LGEnding ending = orchestrator.game().getEnding()
-                    .orElseThrow(() -> new AssertionError("How is the ending null? The game's finished."));
+            LGEnding ending = orchestrator.game().getEnding();
+            assert ending != null;
 
             switch (ending.getOutcomeFor(player)) {
                 case WIN:

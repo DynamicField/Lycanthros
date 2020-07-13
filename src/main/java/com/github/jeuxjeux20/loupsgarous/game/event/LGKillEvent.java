@@ -2,21 +2,21 @@ package com.github.jeuxjeux20.loupsgarous.game.event;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 public class LGKillEvent extends LGEvent {
     private static final HandlerList handlerList = new HandlerList();
 
-    private final ImmutableList<LGKill> kills;
+    private final ImmutableSet<LGKill> kills;
 
-    public LGKillEvent(LGGameOrchestrator orchestrator, List<LGKill> kills) {
+    public LGKillEvent(LGGameOrchestrator orchestrator, Collection<LGKill> kills) {
         super(orchestrator);
-        this.kills = ImmutableList.copyOf(kills);
+        this.kills = ImmutableSet.copyOf(kills);
     }
 
     public LGKillEvent(LGGameOrchestrator orchestrator, LGKill kill) {
@@ -27,7 +27,7 @@ public class LGKillEvent extends LGEvent {
         return handlerList;
     }
 
-    public ImmutableList<LGKill> getKills() {
+    public ImmutableSet<LGKill> getKills() {
         return kills;
     }
 

@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.commands;
 
 import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
+import com.github.jeuxjeux20.loupsgarous.game.LGGame;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
@@ -65,7 +66,7 @@ public class LGPlayersCommand implements HelperCommandRegisterer {
 
             messageBuilder.append(player.getName());
 
-            List<String> labels = getLabels(sender, player, orchestrator);
+            List<String> labels = getLabels(sender, player, orchestrator.game());
             messageBuilder.append(String.join(LABEL_SEPARATOR, labels));
 
             messageBuilder.append('\n');
@@ -76,20 +77,20 @@ public class LGPlayersCommand implements HelperCommandRegisterer {
         context.reply(messageBuilder.toString());
     }
 
-    private List<String> getLabels(LGPlayer sender, LGPlayer player, LGGameOrchestrator orchestrator) {
+    private List<String> getLabels(LGPlayer sender, LGPlayer player, LGGame game) {
         List<String> labels = new ArrayList<>();
 
-        if (cardRevealer.willReveal(sender, player, orchestrator)) {
+        if (cardRevealer.willReveal(sender, player, game)) {
             LGCard card = player.getCard();
 
             labels.add(card.getColor() + card.getName());
         }
 
-        for (LGTeam team : teamRevealer.getTeamsRevealed(sender, player, orchestrator)) {
+        for (LGTeam team : teamRevealer.getTeamsRevealed(sender, player, game)) {
             labels.add(team.getColor() + team.getName());
         }
 
-        for (LGTag tag : tagRevealer.getTagsRevealed(sender, player, orchestrator)) {
+        for (LGTag tag : tagRevealer.getTagsRevealed(sender, player, game)) {
             labels.add(tag.getColor() + tag.getName());
         }
 

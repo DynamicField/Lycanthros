@@ -16,19 +16,16 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Hashtable;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.*;
 
 @Singleton
 class MinecraftLGGameManager implements LGGameManager {
     private final LGGameOrchestrator.Factory orchestratorFactory;
 
-    private final CopyOnWriteArrayList<LGGameOrchestrator> ongoingGames = new CopyOnWriteArrayList<>();
+    private final List<LGGameOrchestrator> ongoingGames = new ArrayList<>();
 
-    private final Hashtable<String, LGGameOrchestrator> gamesById = new Hashtable<>();
-    private final Hashtable<UUID, LGPlayerAndGame> playerGames = new Hashtable<>();
+    private final Map<String, LGGameOrchestrator> gamesById = new HashMap<>();
+    private final Map<UUID, LGPlayerAndGame> playerGames = new HashMap<>();
 
     @Inject
     MinecraftLGGameManager(LGGameOrchestrator.Factory orchestratorFactory) {

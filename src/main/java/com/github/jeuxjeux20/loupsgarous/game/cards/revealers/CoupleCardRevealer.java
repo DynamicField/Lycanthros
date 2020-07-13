@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards.revealers;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGGame;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public final class CoupleCardRevealer implements CardRevealer {
     @Override
-    public boolean willReveal(LGPlayer viewer, LGPlayer playerToReveal, LGGameOrchestrator orchestrator) {
+    public boolean willReveal(LGPlayer viewer, LGPlayer playerToReveal, LGGame game) {
         List<LGTeam> playerCouples = getCouples(playerToReveal);
         List<LGTeam> targetCouples = getCouples(viewer);
 

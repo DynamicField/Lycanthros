@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.teams.revealers;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGGame;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.google.common.collect.ImmutableSet;
@@ -17,9 +17,9 @@ public final class TeamRevealerAggregator implements TeamRevealer {
     }
 
     @Override
-    public ImmutableSet<LGTeam> getTeamsRevealed(LGPlayer viewer, LGPlayer playerToReveal, LGGameOrchestrator orchestrator) {
+    public ImmutableSet<LGTeam> getTeamsRevealed(LGPlayer viewer, LGPlayer playerToReveal, LGGame game) {
         return teamRevealers.stream()
-                .flatMap(x -> x.getTeamsRevealed(viewer, playerToReveal, orchestrator).stream())
+                .flatMap(x -> x.getTeamsRevealed(viewer, playerToReveal, game).stream())
                 .filter(playerToReveal.getCard().getTeams()::contains)
                 .collect(ImmutableSet.toImmutableSet());
     }

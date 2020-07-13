@@ -12,9 +12,7 @@ public interface LGLobbyCompositionManager {
 
     @Nullable CompositionValidator.Problem.Type getWorstProblemType();
 
-    default boolean isValid() {
-        return getWorstProblemType() != CompositionValidator.Problem.Type.IMPOSSIBLE;
-    }
+    boolean isValid();
 
     interface Factory {
         LGLobbyCompositionManager create(LGGameOrchestrator orchestrator, LGGameBootstrapData bootstrapData);

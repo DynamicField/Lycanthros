@@ -43,10 +43,11 @@ public class MinecraftLGInventoryManager implements LGInventoryManager {
     MinecraftLGInventoryManager(Set<InventoryItem> inventoryItems, LGGameManager gameManager) {
         this.inventoryItems = inventoryItems;
         this.gameManager = gameManager;
+
+        registerEvents();
     }
 
-    @Override
-    public void registerEvents() {
+    private void registerEvents() {
         if (hasEvents) return;
         hasEvents = true;
 

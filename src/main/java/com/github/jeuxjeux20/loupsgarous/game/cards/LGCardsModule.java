@@ -1,13 +1,15 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.LGCompositionModule;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.LGCardCompositionModule;
+import com.github.jeuxjeux20.loupsgarous.game.cards.distribution.LGCardDistributionModule;
 import com.github.jeuxjeux20.loupsgarous.game.cards.revealers.LGCardRevealersModule;
 
 public final class LGCardsModule extends CardsModule {
     @Override
     protected void configureBindings() {
-        install(new LGCompositionModule());
+        install(new LGCardCompositionModule());
         install(new LGCardRevealersModule());
+        install(new LGCardDistributionModule());
     }
 
     @Override

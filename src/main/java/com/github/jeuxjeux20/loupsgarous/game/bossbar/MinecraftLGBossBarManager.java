@@ -29,6 +29,8 @@ public class MinecraftLGBossBarManager implements LGBossBarManager {
         this.orchestrator = orchestrator;
 
         this.bossBar = Bukkit.createBossBar("", BarColor.GREEN, BarStyle.SOLID);
+
+        new UpdateModule().setup(orchestrator);
     }
 
     @Override
@@ -55,11 +57,6 @@ public class MinecraftLGBossBarManager implements LGBossBarManager {
         } else {
             bossBar.setProgress(1);
         }
-    }
-
-    @Override
-    public TerminableModule createUpdateModule() {
-        return new UpdateModule();
     }
 
     @Override
