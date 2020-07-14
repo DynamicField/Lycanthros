@@ -21,12 +21,12 @@ public final class ApplyVoteModifiersInterceptor implements MethodInterceptor {
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
-        Votable<?> self = (Votable<?>) invocation.getThis();
+        Vote<?> self = (Vote<?>) invocation.getThis();
         return run(self, invocation);
     }
 
     @SuppressWarnings("unchecked")
-    private <T> VoteOutcome<T> run(Votable<T> self, MethodInvocation invocation) throws Throwable {
+    private <T> VoteOutcome<T> run(Vote<T> self, MethodInvocation invocation) throws Throwable {
         List<VoteOutcomeModifier<T>> outcomeModifiers = getOutcomeModifiers(self);
 
         VoteOutcomeContext<T> context = createContext(self);
@@ -40,13 +40,13 @@ public final class ApplyVoteModifiersInterceptor implements MethodInterceptor {
         return outcome;
     }
 
-    private <T> VoteOutcomeContext<T> createContext(Votable<T> self) {
+    private <T> VoteOutcomeContext<T> createContext(Vote<T> self) {
         return new VoteOutcomeContext<>(self.getVotes(), self.getPicks(), self, self.gameOrchestrator());
     }
 
     @SuppressWarnings("unchecked")
-    private <T> @Nullable List<VoteOutcomeModifier<T>> getOutcomeModifiers(Votable<T> votable) {
-        TypeLiteral<?> parameterizedVotable = TypeLiteral.get(votable.getClass()).getSupertype(Votable.class);
+    private <T> @Nullable List<VoteOutcomeModifier<T>> getOutcomeModifiers(Vote<T> vote) {
+        TypeLiteral<?> parameterizedVotable = TypeLiteral.get(vote.getClass()).getSupertype(Vote.class);
         Type argument = ((ParameterizedType) parameterizedVotable.getType()).getActualTypeArguments()[0];
         TypeLiteral<?> argumentLiteral = TypeLiteral.get(argument);
 

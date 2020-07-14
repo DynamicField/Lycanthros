@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public final class LGInteractionVoteModule extends VoteOutcomeModifiersModule {
     @Override
     protected void configureBindings() {
-        bindInterceptor(Matchers.subclassesOf(Votable.class),
+        bindInterceptor(Matchers.subclassesOf(Vote.class),
                 new AbstractMatcher<Method>() {
                     @Override
                     public boolean matches(Method method) {

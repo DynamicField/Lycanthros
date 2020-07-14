@@ -7,7 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.ChasseurCard;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerPickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerPick;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
@@ -79,7 +79,7 @@ public class ChasseurKillStage extends CountdownLGStage {
         ChasseurKillStage create(LGGameOrchestrator orchestrator, LGPlayer chasseur);
     }
 
-    public final class ChasseurKillable extends AbstractPlayerPickable {
+    public final class ChasseurKillable extends AbstractPlayerPick {
         boolean killed = false;
 
         private ChasseurKillable() {

@@ -8,8 +8,8 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVotable;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVote;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Vote;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.game.kill.causes.NightKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
@@ -28,13 +28,13 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
         color = StageColor.RED
 )
 public class LoupGarouVoteStage extends CountdownLGStage {
-    private final LoupGarouVotable votable;
+    private final LoupGarouVote votable;
     private final LoupsGarousVoteChatChannel voteChannel;
 
     @Inject
     LoupGarouVoteStage(LGGameOrchestrator orchestrator,
                        LoupsGarousVoteChatChannel voteChannel,
-                       LoupGarouVotable votable) {
+                       LoupGarouVote votable) {
         super(orchestrator);
 
         this.voteChannel = voteChannel;
@@ -69,17 +69,17 @@ public class LoupGarouVoteStage extends CountdownLGStage {
                 .forEach(LGSoundStuff::howl);
     }
 
-    public LoupGarouVotable votes() {
+    public LoupGarouVote votes() {
         return votable;
     }
 
     @OrchestratorScoped
-    public static class LoupGarouVotable extends AbstractPlayerVotable {
+    public static class LoupGarouVote extends AbstractPlayerVote {
         private final LoupsGarousVoteChatChannel voteChannel;
 
         @Inject
-        LoupGarouVotable(LGGameOrchestrator orchestrator,
-                         LoupsGarousVoteChatChannel voteChannel) {
+        LoupGarouVote(LGGameOrchestrator orchestrator,
+                      LoupsGarousVoteChatChannel voteChannel) {
             super(orchestrator);
             this.voteChannel = voteChannel;
         }
@@ -106,7 +106,7 @@ public class LoupGarouVoteStage extends CountdownLGStage {
         }
 
         @Override
-        public InteractableEntry<Votable<LGPlayer>> getEntry() {
+        public InteractableEntry<Vote<LGPlayer>> getEntry() {
             return new InteractableEntry<>(LGInteractableKeys.PLAYER_VOTE, this);
         }
 

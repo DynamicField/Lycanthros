@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.ComponentTemplates;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.cards.SorciereCard;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerPickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerPick;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.PickableConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
@@ -153,7 +153,7 @@ public class SorcierePotionStage extends CountdownLGStage {
         LGSoundStuff.ding(minecraftPlayer);
     }
 
-    // Pick stuff
+    // PickData stuff
 
     @OrchestratorScoped
     private static final class BaseConditions {
@@ -163,10 +163,10 @@ public class SorcierePotionStage extends CountdownLGStage {
         }
     }
 
-    private static abstract class SorcierePickable extends AbstractPlayerPickable {
+    private static abstract class SorcierePick extends AbstractPlayerPick {
         private final BaseConditions baseConditions;
 
-        protected SorcierePickable(LGGameOrchestrator orchestrator, BaseConditions baseConditions) {
+        protected SorcierePick(LGGameOrchestrator orchestrator, BaseConditions baseConditions) {
             super(orchestrator);
             this.baseConditions = baseConditions;
         }
@@ -183,7 +183,7 @@ public class SorcierePotionStage extends CountdownLGStage {
     }
 
     @OrchestratorScoped
-    public static class SorciereHealable extends SorcierePickable {
+    public static class SorciereHealable extends SorcierePick {
         @Inject
         SorciereHealable(LGGameOrchestrator orchestrator, BaseConditions baseConditions) {
             super(orchestrator, baseConditions);
@@ -222,7 +222,7 @@ public class SorcierePotionStage extends CountdownLGStage {
     }
 
     @OrchestratorScoped
-    public static class SorciereKillable extends SorcierePickable {
+    public static class SorciereKillable extends SorcierePick {
         @Inject
         SorciereKillable(LGGameOrchestrator orchestrator, BaseConditions baseConditions) {
             super(orchestrator, baseConditions);

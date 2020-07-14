@@ -6,7 +6,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.game.cards.CupidonCard;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractCouplePickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractCouplePick;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.Couple;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
@@ -74,7 +74,7 @@ public class CupidonCoupleStage extends CountdownLGStage {
     }
 
     @OrchestratorScoped
-    public static class CupidonCoupleCreator extends AbstractCouplePickable {
+    public static class CupidonCoupleCreator extends AbstractCouplePick {
         private final Map<LGPlayer, Couple> couplePicks = new HashMap<>();
         private final Random random;
 

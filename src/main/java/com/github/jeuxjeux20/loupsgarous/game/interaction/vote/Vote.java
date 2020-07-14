@@ -1,10 +1,10 @@
 package com.github.jeuxjeux20.loupsgarous.game.interaction.vote;
 
-import com.github.jeuxjeux20.loupsgarous.game.interaction.StatefulPickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.StatefulPick;
 import com.google.common.collect.Multiset;
 import org.bukkit.ChatColor;
 
-public interface Votable<T> extends StatefulPickable<T> {
+public interface Vote<T> extends StatefulPick<T> {
     /**
      * Gets the text used in the middle of a vote message.
      * The vote message uses this template:

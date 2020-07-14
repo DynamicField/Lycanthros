@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.event.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Pick;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.PickData;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,8 +10,8 @@ public final class LGPickRemovedEvent extends LGPickEventBase {
 
     private final boolean isInvalidate;
 
-    public LGPickRemovedEvent(LGGameOrchestrator orchestrator, Pick<?, ?> pick, boolean isInvalidate) {
-        super(orchestrator, pick);
+    public LGPickRemovedEvent(LGGameOrchestrator orchestrator, PickData<?, ?> pickData, boolean isInvalidate) {
+        super(orchestrator, pickData);
         this.isInvalidate = isInvalidate;
     }
 

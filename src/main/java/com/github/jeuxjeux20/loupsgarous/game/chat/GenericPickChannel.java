@@ -2,9 +2,9 @@ package com.github.jeuxjeux20.loupsgarous.game.chat;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Pickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Pick;
 
-public class GenericPickChannel<T extends Pickable<?>> extends AbstractLGChatChannel {
+public class GenericPickChannel<T extends Pick<?>> extends AbstractLGChatChannel {
     private final T pickableProvider;
 
     public GenericPickChannel(T pickableProvider, LGGameOrchestrator orchestrator) {
@@ -14,7 +14,7 @@ public class GenericPickChannel<T extends Pickable<?>> extends AbstractLGChatCha
 
     @Override
     public String getName() {
-        return "Pick";
+        return "PickData";
     }
 
     @Override

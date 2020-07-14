@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.interaction.condition;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.InvalidPickException;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Pick;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.PickData;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 
 import java.util.function.Function;
@@ -16,8 +16,8 @@ public interface PickConditions<T> {
 
     Check checkPick(LGPlayer picker, T target);
 
-    default Check checkPick(Pick<T, ?> pick) {
-        return checkPick(pick.getPicker(), pick.getTarget());
+    default Check checkPick(PickData<T, ?> pickData) {
+        return checkPick(pickData.getPicker(), pickData.getTarget());
     }
 
     /**

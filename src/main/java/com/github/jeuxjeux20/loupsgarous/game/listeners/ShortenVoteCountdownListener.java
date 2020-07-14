@@ -3,7 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game.listeners;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Vote;
 import com.github.jeuxjeux20.loupsgarous.game.stages.CountdownTimedStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.MajorityVoteShortensCountdown;
@@ -37,34 +37,34 @@ public class ShortenVoteCountdownListener implements Listener {
             return;
         }
 
-        Votable<?> votable = orchestrator.interactables().findKey(annotation.value())
-                .flatMap(key -> key.cast(Votable.class))
+        Vote<?> vote = orchestrator.interactables().findKey(annotation.value())
+                .flatMap(key -> key.cast(Vote.class))
                 .flatMap(key -> orchestrator.interactables().single(key).getOptional())
                 .orElse(null);
 
-        if (votable == null) {
-            orchestrator.logger().warning("MajorityVoteShortensCountdown: No votable with a key named " + annotation.value() + " found.");
+        if (vote == null) {
+            orchestrator.logger().warning("MajorityVoteShortensCountdown: No vote with a key named " + annotation.value() + " found.");
             return;
         }
 
         // Nothing will change anyway, we're under the time left.
         if (countdownStage.getCountdown().getStartSnapshot().getTimerNow() <= annotation.timeLeft()) return;
 
-        if (shouldShorten(annotation, votable)) {
+        if (shouldShorten(annotation, vote)) {
             shortenTime(annotation, countdownStage);
         } else {
             cancelShortenedTime(countdownStage);
         }
     }
 
-    private boolean shouldShorten(MajorityVoteShortensCountdown annotation, Votable<?> votable) {
-        Object elected = votable.getOutcome().getElected().orElse(null);
+    private boolean shouldShorten(MajorityVoteShortensCountdown annotation, Vote<?> vote) {
+        Object elected = vote.getOutcome().getElected().orElse(null);
         if (elected == null) {
             return false;
         }
 
-        int playerVoteCount = votable.getVotes().count(elected);
-        int totalVoteCount = votable.getVotes().size();
+        int playerVoteCount = vote.getVotes().count(elected);
+        int totalVoteCount = vote.getVotes().size();
 
         int percentage = (int) (((float) playerVoteCount / totalVoteCount) * 100);
 

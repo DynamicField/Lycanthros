@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Vote;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.google.inject.Inject;
 import org.bukkit.ChatColor;
@@ -24,7 +24,7 @@ public class LGDevoteCommand extends LGGameCommand {
                           Player player, Command command, String label, String[] args) {
         if (args.length != 0) return false;
 
-        SafeResult<Votable<LGPlayer>> maybeVotable = orchestrator.interactables().single(LGInteractableKeys.PLAYER_VOTE)
+        SafeResult<Vote<LGPlayer>> maybeVotable = orchestrator.interactables().single(LGInteractableKeys.PLAYER_VOTE)
                 .check(x -> x.conditions().checkPicker(lgPlayer))
                 .failureMessage("Ce n'est pas l'heure de voter !")
                 .get();

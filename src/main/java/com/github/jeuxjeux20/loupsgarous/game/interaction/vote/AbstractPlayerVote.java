@@ -6,18 +6,14 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.CriticalPickableCondit
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
-import com.google.inject.Inject;
-import com.google.inject.TypeLiteral;
 
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.error;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
-public abstract class AbstractPlayerVotable extends AbstractVotable<LGPlayer> {
-    public AbstractPlayerVotable(LGGameOrchestrator orchestrator) {
+public abstract class AbstractPlayerVote extends AbstractVote<LGPlayer> {
+    public AbstractPlayerVote(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }
 

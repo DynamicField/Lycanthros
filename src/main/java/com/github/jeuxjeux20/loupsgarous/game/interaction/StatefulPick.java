@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.google.common.collect.ImmutableMap;
 import org.jetbrains.annotations.Nullable;
 
-public interface StatefulPickable<T> extends Pickable<T> {
+public interface StatefulPick<T> extends Pick<T> {
     ImmutableMap<LGPlayer, T> getPicks();
 
     @Nullable T removePick(LGPlayer picker);

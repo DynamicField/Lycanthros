@@ -14,11 +14,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public abstract class AbstractStatefulPickable<T> extends AbstractPickable<T> implements StatefulPickable<T> {
+public abstract class AbstractStatefulPick<T> extends AbstractPick<T> implements StatefulPick<T> {
     private final Map<LGPlayer, T> picks = new HashMap<>();
     private final MergedSubscription<LGEvent> invalidateEventSubscription;
 
-    public AbstractStatefulPickable(LGGameOrchestrator orchestrator) {
+    public AbstractStatefulPick(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
         invalidateEventSubscription =

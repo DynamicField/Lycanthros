@@ -3,7 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game.commands;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableKey;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Pickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Pick;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.handler.InteractableCommandHandler;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.google.inject.Inject;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public final class PickableCommandBuilder<P extends Pickable<?>, H extends InteractableCommandHandler<? super P>> {
+public final class PickableCommandBuilder<P extends Pick<?>, H extends InteractableCommandHandler<? super P>> {
     private InteractableKey<P> key;
     private final H handler;
     private final InGameHandlerCondition inGameHandlerCondition;

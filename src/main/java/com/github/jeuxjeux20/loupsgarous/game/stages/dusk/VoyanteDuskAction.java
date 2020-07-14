@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.VoyanteCard;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerPickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerPick;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
@@ -61,7 +61,7 @@ public class VoyanteDuskAction extends DuskAction {
         return lookable;
     }
 
-    private static final class VoyanteLookable extends AbstractPlayerPickable {
+    private static final class VoyanteLookable extends AbstractPlayerPick {
         private final List<LGPlayer> playersWhoLooked = new ArrayList<>();
 
         private VoyanteLookable(LGGameOrchestrator orchestrator) {

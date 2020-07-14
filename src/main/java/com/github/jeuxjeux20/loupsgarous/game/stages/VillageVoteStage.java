@@ -5,8 +5,8 @@ import com.github.jeuxjeux20.loupsgarous.game.atmosphere.VoteStructure;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVotable;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVote;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Vote;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.game.kill.causes.VillageVoteKillReason;
 import com.google.inject.Inject;
@@ -22,13 +22,13 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
         title = "Le village va voter."
 )
 public class VillageVoteStage extends CountdownLGStage {
-    private final VillageVotable votable;
+    private final VillageVote votable;
     private final VoteStructure voteStructure;
 
     @Inject
     VillageVoteStage(LGGameOrchestrator orchestrator,
                      VoteStructure.Factory voteStructureFactory,
-                     VillageVotable votable) {
+                     VillageVote votable) {
         super(orchestrator);
 
         this.votable = votable;
@@ -67,14 +67,14 @@ public class VillageVoteStage extends CountdownLGStage {
         votable.conclude();
     }
 
-    public VillageVotable votes() {
+    public VillageVote votes() {
         return votable;
     }
 
     @OrchestratorScoped
-    public static class VillageVotable extends AbstractPlayerVotable {
+    public static class VillageVote extends AbstractPlayerVote {
         @Inject
-        VillageVotable(LGGameOrchestrator orchestrator) {
+        VillageVote(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }
 
@@ -92,7 +92,7 @@ public class VillageVoteStage extends CountdownLGStage {
         }
 
         @Override
-        public InteractableEntry<Votable<LGPlayer>> getEntry() {
+        public InteractableEntry<Vote<LGPlayer>> getEntry() {
             return new InteractableEntry<>(LGInteractableKeys.PLAYER_VOTE, this);
         }
 

@@ -4,8 +4,8 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableTypes;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Pick;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.PickData;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Vote;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -17,16 +17,16 @@ public class TellPlayerVoteListener implements Listener {
 
     @EventHandler
     public void onPick(LGPickEvent event) {
-        event.getPick().cast(LGInteractableTypes.PLAYER_VOTABLE).ifPresent(p -> onVote(event, p));
+        event.getPickData().cast(LGInteractableTypes.PLAYER_VOTABLE).ifPresent(p -> onVote(event, p));
     }
 
-    private void onVote(LGPickEvent event, Pick<LGPlayer, Votable<LGPlayer>> pick) {
-        Votable<LGPlayer> votable = pick.getEntry().getValue();
+    private void onVote(LGPickEvent event, PickData<LGPlayer, Vote<LGPlayer>> pickData) {
+        Vote<LGPlayer> vote = pickData.getEntry().getValue();
 
-        LGChatChannel channel = votable.getInfoMessagesChannel();
-        String message = vote(player(pick.getPicker().getName())) +
-                         vote(" " + votable.getPointingText() + " ") +
-                         vote(player(pick.getTarget().getName()));
+        LGChatChannel channel = vote.getInfoMessagesChannel();
+        String message = vote(player(pickData.getPicker().getName())) +
+                         vote(" " + vote.getPointingText() + " ") +
+                         vote(player(pickData.getTarget().getName()));
 
         event.getOrchestrator().chat().sendMessage(channel, message);
     }

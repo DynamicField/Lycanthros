@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.LGMessages;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.Couple;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Pickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Pick;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import me.lucko.helper.command.context.CommandContext;
 import me.lucko.helper.command.functional.FunctionalCommandBuilder;
@@ -13,14 +13,14 @@ import org.bukkit.entity.Player;
 
 import java.util.Optional;
 
-public class CoupleInteractableCommandHandler implements InteractableCommandHandler<Pickable<Couple>> {
+public class CoupleInteractableCommandHandler implements InteractableCommandHandler<Pick<Couple>> {
     @Override
     public void configure(FunctionalCommandBuilder<Player> builder) {
         builder.assertUsage("<partenaire1> <partenaire2>", "{usage}");
     }
 
     @Override
-    public void pick(CommandContext<Player> context, LGPlayer player, Pickable<Couple> interactable, LGGameOrchestrator orchestrator) {
+    public void pick(CommandContext<Player> context, LGPlayer player, Pick<Couple> interactable, LGGameOrchestrator orchestrator) {
         String partner1Name = context.arg(0).value().orElseThrow(AssertionError::new);
         String partner2Name = context.arg(1).value().orElseThrow(AssertionError::new);
 

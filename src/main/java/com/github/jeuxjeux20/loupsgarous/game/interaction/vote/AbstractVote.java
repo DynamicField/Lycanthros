@@ -17,10 +17,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class AbstractVotable<T>
-        extends AbstractStatefulPickable<T>
-        implements Votable<T>, SelfAwareInteractable {
-    public AbstractVotable(LGGameOrchestrator orchestrator) {
+public abstract class AbstractVote<T>
+        extends AbstractStatefulPick<T>
+        implements Vote<T>, SelfAwareInteractable {
+    public AbstractVote(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }
 
@@ -79,8 +79,8 @@ public abstract class AbstractVotable<T>
         return removedTarget;
     }
 
-    private Pick<T, ?> createPick(LGPlayer picker, T target) {
-        return new Pick<>(getEntry(), picker, target);
+    private PickData<T, ?> createPick(LGPlayer picker, T target) {
+        return new PickData<>(getEntry(), picker, target);
     }
 
     private boolean canCallEvent() {
@@ -88,7 +88,7 @@ public abstract class AbstractVotable<T>
     }
 
     @Override
-    public abstract InteractableEntry<? extends Pickable<T>> getEntry();
+    public abstract InteractableEntry<? extends Pick<T>> getEntry();
 
     @NotNull
     private List<Multiset.Entry<T>> getHighestSameVotesCandidates(Multiset<T> votes) {

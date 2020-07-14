@@ -6,9 +6,9 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Pickable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Pick;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVotable;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVote;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.game.tags.LGTags;
 import com.google.inject.Inject;
@@ -26,10 +26,10 @@ import java.util.stream.Collectors;
         isTemporary = true
 )
 public class MaireElectionStage extends CountdownLGStage {
-    private final MaireVotable votable;
+    private final MaireVote votable;
 
     @Inject
-    MaireElectionStage(LGGameOrchestrator orchestrator, MaireVotable votable) {
+    MaireElectionStage(LGGameOrchestrator orchestrator, MaireVote votable) {
         super(orchestrator);
 
         this.votable = votable;
@@ -47,16 +47,16 @@ public class MaireElectionStage extends CountdownLGStage {
         votable.conclude();
     }
 
-    public MaireVotable votes() {
+    public MaireVote votes() {
         return votable;
     }
 
     @OrchestratorScoped
-    public static class MaireVotable extends AbstractPlayerVotable {
+    public static class MaireVote extends AbstractPlayerVote {
         private final Random random;
 
         @Inject
-        MaireVotable(LGGameOrchestrator orchestrator, Random random) {
+        MaireVote(LGGameOrchestrator orchestrator, Random random) {
             super(orchestrator);
             this.random = random;
         }
@@ -67,7 +67,7 @@ public class MaireElectionStage extends CountdownLGStage {
         }
 
         @Override
-        public InteractableEntry<? extends Pickable<LGPlayer>> getEntry() {
+        public InteractableEntry<? extends Pick<LGPlayer>> getEntry() {
             return new InteractableEntry<>(LGInteractableKeys.PLAYER_VOTE, this);
         }
 

@@ -4,8 +4,8 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 
-public abstract class AbstractPlayerPickable extends AbstractPickable<LGPlayer> {
-    protected AbstractPlayerPickable(LGGameOrchestrator orchestrator) {
+public abstract class AbstractPlayerPick extends AbstractPick<LGPlayer> {
+    protected AbstractPlayerPick(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }
 
