@@ -13,7 +13,7 @@ import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableRegistry;
 import com.github.jeuxjeux20.loupsgarous.game.inventory.LGInventoryManager;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.PlayerQuitKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.causes.PlayerQuitKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameBootstrapData;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardManager;

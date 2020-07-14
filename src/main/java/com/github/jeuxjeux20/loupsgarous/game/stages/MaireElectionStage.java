@@ -13,13 +13,18 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.game.tags.LGTags;
 import com.google.inject.Inject;
 import org.bukkit.ChatColor;
-import org.bukkit.boss.BarColor;
 
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 @MajorityVoteShortensCountdown(LGInteractableKeys.Names.PLAYER_VOTE)
+@StageInfo(
+        name = "Élection du maire",
+        title = "Le village va élire un maire.",
+        color = StageColor.BLUE,
+        isTemporary = true
+)
 public class MaireElectionStage extends CountdownLGStage {
     private final MaireVotable votable;
 
@@ -40,26 +45,6 @@ public class MaireElectionStage extends CountdownLGStage {
     @Override
     protected void finish() {
         votable.conclude();
-    }
-
-    @Override
-    public boolean isTemporary() {
-        return true;
-    }
-
-    @Override
-    public String getTitle() {
-        return "Le village va élire un maire.";
-    }
-
-    @Override
-    public String getName() {
-        return "Élection du maire";
-    }
-
-    @Override
-    public BarColor getBarColor() {
-        return BarColor.BLUE;
     }
 
     public MaireVotable votes() {

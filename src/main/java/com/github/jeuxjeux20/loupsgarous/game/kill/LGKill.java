@@ -1,29 +1,33 @@
 package com.github.jeuxjeux20.loupsgarous.game.kill;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.LGKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.causes.LGKillCause;
 
 import java.util.Objects;
 
 public final class LGKill {
-    private final LGPlayer player;
-    private final LGKillReason reason;
+    private final LGPlayer victim;
+    private final LGKillCause cause;
 
-    public LGKill(LGPlayer player, LGKillReason reason) {
-        this.player = Objects.requireNonNull(player, "player is null");
-        this.reason = Objects.requireNonNull(reason, "reason is null");
+    public LGKill(LGPlayer victim, LGKillCause cause) {
+        this.victim = Objects.requireNonNull(victim, "player is null");
+        this.cause = Objects.requireNonNull(cause, "reason is null");
     }
 
-    public static LGKill of(LGPlayer player, LGKillReason reason) {
+    public static LGKill of(LGPlayer player, LGKillCause reason) {
         return new LGKill(player, reason);
     }
 
-    public LGPlayer getWhoDied() {
-        return player;
+    public boolean canTakeEffect() {
+        return getVictim().isAlive();
     }
 
-    public LGKillReason getReason() {
-        return reason;
+    public LGPlayer getVictim() {
+        return victim;
+    }
+
+    public LGKillCause getCause() {
+        return cause;
     }
 
     @Override
@@ -31,11 +35,11 @@ public final class LGKill {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LGKill lgKill = (LGKill) o;
-        return player.equals(lgKill.player);
+        return victim.equals(lgKill.victim);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(player);
+        return Objects.hash(victim);
     }
 }

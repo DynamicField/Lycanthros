@@ -16,7 +16,7 @@ public class PlayerDiesOnKillListener implements Listener {
     public void onLGKill(LGKillEvent event) {
         World world = event.getOrchestrator().world();
         for (LGKill kill : event.getKills()) {
-            Optional<Player> maybePlayer = kill.getWhoDied().getMinecraftPlayer();
+            Optional<Player> maybePlayer = kill.getVictim().getMinecraftPlayer();
 
             Location location = maybePlayer.map(Entity::getLocation).orElse(world.getSpawnLocation());
             world.strikeLightningEffect(location);

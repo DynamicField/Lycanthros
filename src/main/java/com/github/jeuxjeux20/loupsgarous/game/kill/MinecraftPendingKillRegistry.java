@@ -3,15 +3,15 @@ package com.github.jeuxjeux20.loupsgarous.game.kill;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
-import com.github.jeuxjeux20.loupsgarous.game.event.LGKillEvent;
-import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.LGKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.causes.LGKillCause;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import me.lucko.helper.Events;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.STARTED;
 
@@ -20,7 +20,7 @@ public class MinecraftPendingKillRegistry implements PendingKillRegistry {
     private final LGGameOrchestrator orchestrator;
     private final PlayerKiller playerKiller;
 
-    private final Map<LGPlayer, LGKillReason> kills = new HashMap<>();
+    private final Map<LGPlayer, LGKillCause> kills = new HashMap<>();
 
     @Inject
     MinecraftPendingKillRegistry(LGGameOrchestrator orchestrator, PlayerKiller playerKiller) {
@@ -36,13 +36,13 @@ public class MinecraftPendingKillRegistry implements PendingKillRegistry {
     }
 
     @Override
-    public Optional<LGKillReason> get(LGPlayer player) {
+    public Optional<LGKillCause> get(LGPlayer player) {
         return Optional.ofNullable(kills.get(player));
     }
 
     @Override
-    public void put(LGPlayer player, LGKillReason killReason) {
-        kills.put(player, killReason);
+    public void add(LGPlayer victim, LGKillCause cause) {
+        kills.put(victim, cause);
     }
 
     @Override
@@ -66,12 +66,10 @@ public class MinecraftPendingKillRegistry implements PendingKillRegistry {
 
         ImmutableSet<LGKill> kills = getAll();
 
-        for (LGKill kill : kills) {
-            if (kill.getWhoDied().isAlive()) {
-                playerKiller.killPlayer(kill);
-            }
-        }
+        List<LGKill> applicableKills = kills.stream()
+                .filter(LGKill::canTakeEffect)
+                .collect(Collectors.toList());
 
-        Events.call(new LGKillEvent(orchestrator, kills));
+        playerKiller.applyKills(applicableKills);
     }
 }

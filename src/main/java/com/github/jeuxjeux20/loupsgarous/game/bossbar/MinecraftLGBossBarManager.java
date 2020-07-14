@@ -7,6 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.StageEventUtils;
 import com.github.jeuxjeux20.loupsgarous.game.stages.TimedStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.descriptor.LGStageDescriptor;
 import com.google.inject.Inject;
 import me.lucko.helper.Events;
 import me.lucko.helper.terminable.TerminableConsumer;
@@ -36,10 +37,11 @@ public class MinecraftLGBossBarManager implements LGBossBarManager {
     @Override
     public void update() {
         LGStage stage = orchestrator.stages().current();
+        LGStageDescriptor descriptor = orchestrator.stages().descriptors().get(stage.getClass());
 
         if (stage.isLogic()) return;
 
-        if (stage.getName() == null) {
+        if (descriptor.getName() == null) {
             bossBar.setVisible(false);
             return;
         }
@@ -48,8 +50,8 @@ public class MinecraftLGBossBarManager implements LGBossBarManager {
         orchestrator.getAllMinecraftPlayers().forEach(bossBar::addPlayer);
 
         bossBar.setVisible(true);
-        bossBar.setTitle(stage.getName());
-        bossBar.setColor(stage.getBarColor());
+        bossBar.setTitle(descriptor.getName());
+        bossBar.setColor(descriptor.getColor().toBarColor(BarColor.GREEN));
 
         if (stage instanceof TimedStage) {
             TimedStage timedStage = (TimedStage) stage;

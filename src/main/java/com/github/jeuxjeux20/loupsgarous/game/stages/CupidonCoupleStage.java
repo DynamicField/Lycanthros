@@ -15,7 +15,6 @@ import com.github.jeuxjeux20.loupsgarous.game.teams.CoupleTeam;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
-import org.bukkit.boss.BarColor;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,6 +22,12 @@ import java.util.stream.Stream;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 
+@StageInfo(
+        name = "Cupidon",
+        title = "Cupidon va tirer sa flèche et former un couple.",
+        color = StageColor.BLUE,
+        isTemporary = true
+)
 public class CupidonCoupleStage extends CountdownLGStage {
     private final CupidonCoupleCreator coupleCreator;
 
@@ -52,26 +57,6 @@ public class CupidonCoupleStage extends CountdownLGStage {
     @Override
     protected void finish() {
         coupleCreator.createRandomCouples();
-    }
-
-    @Override
-    public String getName() {
-        return "Cupidon";
-    }
-
-    @Override
-    public String getTitle() {
-        return "Cupidon va tirer sa flèche et former un couple.";
-    }
-
-    @Override
-    public boolean isTemporary() {
-        return true;
-    }
-
-    @Override
-    public BarColor getBarColor() {
-        return BarColor.BLUE;
     }
 
     private void sendTipNotification(LGPlayer cupidon) {

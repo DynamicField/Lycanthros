@@ -3,7 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game.listeners;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGKillEvent;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
-import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.CouplePartnerKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.causes.CouplePartnerKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import org.bukkit.event.EventHandler;
@@ -16,7 +16,7 @@ public class KillCoupleOnPartnerDeadListener implements Listener {
     @EventHandler
     public void onLGKill(LGKillEvent event) {
         for (LGKill kill : event.getKills()) {
-            LGPlayer whoDied = kill.getWhoDied();
+            LGPlayer whoDied = kill.getVictim();
 
             Optional<LGTeam> coupleTeam = whoDied.getCard().getTeams().stream().filter(LGTeams::isCouple).findFirst();
 

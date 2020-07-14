@@ -4,8 +4,6 @@ import com.github.jeuxjeux20.loupsgarous.SafeCast;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
 import me.lucko.helper.terminable.TerminableConsumer;
-import org.bukkit.boss.BarColor;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
@@ -27,17 +25,6 @@ import javax.annotation.Nonnull;
  */
 public interface LGStage extends SafeCast, TerminableConsumer, LGGameOrchestratorDependent {
     /**
-     * Determines whether or not this stage should be deleted after it has been ran.
-     * <p>
-     * This defaults to {@code false}.
-     *
-     * @return {@code true} if it is temporary, {@code false} if it is not.
-     */
-    default boolean isTemporary() {
-        return false;
-    }
-
-    /**
      * Defines if the stage is considered as being used for game logic only,
      * and do not require any user interaction.
      * <p>
@@ -49,35 +36,6 @@ public interface LGStage extends SafeCast, TerminableConsumer, LGGameOrchestrato
      */
     default boolean isLogic() {
         return false;
-    }
-
-    /**
-     * Gets the title of the stage, which is shown in the chat and as a subtitle
-     * when the stage starts.
-     * <p>
-     * If the returned string is {@code null}, no title will be shown.
-     *
-     * @return the title, or {@code null} if there isn't
-     */
-    @Nullable String getTitle();
-
-    /**
-     * Gets the name of this stage, which is shown on the boss bar.
-     * <p>
-     * If this method returns {@code null}, no boss bar will be shown.
-     * Which is the case with {@linkplain #isLogic() game logic} stages.
-     *
-     * @return the name of this stage, or {@code null} if there isn't
-     */
-    @Nullable String getName();
-
-    /**
-     * Gets the color of the boss bar.
-     *
-     * @return the boss bar color
-     */
-    default BarColor getBarColor() {
-        return BarColor.GREEN;
     }
 
     /**
@@ -103,16 +61,6 @@ public interface LGStage extends SafeCast, TerminableConsumer, LGGameOrchestrato
 
         public Null(LGGameOrchestrator orchestrator) {
             this.orchestrator = orchestrator;
-        }
-
-        @Override
-        public String getName() {
-            return null;
-        }
-
-        @Override
-        public String getTitle() {
-            return null;
         }
 
         @Override

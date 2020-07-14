@@ -8,7 +8,7 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditio
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVotable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.VoteOutcome;
-import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.VillageVoteKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.causes.VillageVoteKillReason;
 import com.google.inject.Inject;
 import org.bukkit.ChatColor;
 
@@ -17,6 +17,10 @@ import java.util.Optional;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
 @MajorityVoteShortensCountdown(LGInteractableKeys.Names.PLAYER_VOTE)
+@StageInfo(
+        name = "Vote du village",
+        title = "Le village va voter."
+)
 public class VillageVoteStage extends CountdownLGStage {
     private final VillageVotable votable;
     private final VoteStructure voteStructure;
@@ -63,16 +67,6 @@ public class VillageVoteStage extends CountdownLGStage {
         votable.conclude();
     }
 
-    @Override
-    public String getName() {
-        return "Vote du village";
-    }
-
-    @Override
-    public String getTitle() {
-        return "Le village va voter";
-    }
-    
     public VillageVotable votes() {
         return votable;
     }

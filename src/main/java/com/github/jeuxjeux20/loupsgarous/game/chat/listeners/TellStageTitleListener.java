@@ -2,6 +2,8 @@ package com.github.jeuxjeux20.loupsgarous.game.chat.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartingEvent;
+import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.descriptor.LGStageDescriptor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -13,7 +15,10 @@ public class TellStageTitleListener implements Listener {
     public void onLGStageStarted(LGStageStartingEvent event) {
         LGGameOrchestrator orchestrator = event.getOrchestrator();
 
-        String title = event.getStage().getTitle();
+        LGStage stage = event.getStage();
+        LGStageDescriptor descriptor = orchestrator.stages().descriptors().get(stage.getClass());
+
+        String title = descriptor.getTitle();
         if (title != null) {
             orchestrator.chat().sendToEveryone(importantInfo(title));
 

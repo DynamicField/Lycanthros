@@ -11,7 +11,7 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerPickable
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
-import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.ChasseurKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.causes.ChasseurKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.winconditions.PostponesWinConditions;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -21,6 +21,11 @@ import me.lucko.helper.text.TextComponent;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 
 @PostponesWinConditions
+@StageInfo(
+        name = "Tir du chasseur",
+        title = "Le chasseur va tirer sa balle (ou non) !", // TODO: Add player's name
+        isTemporary = true
+)
 public class ChasseurKillStage extends CountdownLGStage {
     private final LGPlayer chasseur;
 
@@ -64,21 +69,6 @@ public class ChasseurKillStage extends CountdownLGStage {
         if (!killable.killed) {
             orchestrator.chat().sendToEveryone(info("Le chasseur n'a pas tiré."));
         }
-    }
-
-    @Override
-    public String getName() {
-        return "Tir du chasseur";
-    }
-
-    @Override
-    public String getTitle() {
-        return "Le chasseur " + chasseur.getName() + " va tirer sa balle (ou non) !";
-    }
-
-    @Override
-    public boolean isTemporary() {
-        return true;
     }
 
     public ChasseurKillable kills() {

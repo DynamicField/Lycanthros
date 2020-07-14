@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game.kill.reasons;
+package com.github.jeuxjeux20.loupsgarous.game.kill.causes;
 
 import com.github.jeuxjeux20.loupsgarous.LGChatStuff;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
@@ -9,7 +9,7 @@ import java.util.Set;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.killMessage;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
-public final class NightKillReason extends LGKillReason {
+public final class NightKillReason extends LGKillCause {
     public static final NightKillReason INSTANCE = new NightKillReason();
 
     private NightKillReason() {}

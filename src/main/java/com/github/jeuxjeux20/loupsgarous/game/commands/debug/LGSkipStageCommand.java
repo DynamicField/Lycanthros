@@ -1,11 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.game.commands.debug;
 
 import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
-import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.commands.InGameHandlerCondition;
-import com.github.jeuxjeux20.loupsgarous.game.stages.CountdownTimedStage;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
 import me.lucko.helper.command.context.CommandContext;
@@ -30,8 +28,6 @@ public class LGSkipStageCommand implements HelperCommandRegisterer {
     }
 
     private void handle(CommandContext<Player> context, LGPlayer player, LGGameOrchestrator orchestrator) {
-        orchestrator.stages().current().safeCast(CountdownTimedStage.class)
-                .map(CountdownTimedStage::getCountdown)
-                .ifPresent(Countdown::interrupt);
+        orchestrator.stages().current().stop();
     }
 }

@@ -21,7 +21,7 @@ public class ChasseurKillOnDeathListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onLGKill(LGKillEvent event) {
         for (LGKill kill : event.getKills()) {
-            LGPlayer whoDied = kill.getWhoDied();
+            LGPlayer whoDied = kill.getVictim();
 
             if (!(whoDied.getCard() instanceof ChasseurCard) ||
                 whoDied.isAway()) return;

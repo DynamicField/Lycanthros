@@ -22,16 +22,6 @@ public class GameStartStage extends CountdownLGStage {
         return new GameStartCountdown();
     }
 
-    @Override
-    public String getName() {
-        return null;
-    }
-
-    @Override
-    public String getTitle() {
-        return null;
-    }
-
     static class ResetTimerListener implements Listener {
         @EventHandler(ignoreCancelled = true)
         public void onLGLobbyCompositionChange(LGLobbyCompositionChangeEvent event) {

@@ -6,6 +6,7 @@ import com.github.jeuxjeux20.loupsgarous.game.bossbar.LGBossBarModule;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCardsModule;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatModule;
 import com.github.jeuxjeux20.loupsgarous.game.commands.LGCommandsModule;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractionModule;
 import com.github.jeuxjeux20.loupsgarous.game.inventory.LGInventoryModule;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillModule;
 import com.github.jeuxjeux20.loupsgarous.game.listeners.LGListenersModule;
@@ -32,6 +33,7 @@ public final class LGGameModule extends AbstractModule {
         install(new LGScoreboardModule());
         install(new LGLobbyModule());
         install(new LGWinConditionsModule());
+        install(new LGInteractionModule());
         install(new LGTeamsModule());
         install(new LGSignsModule());
         install(new LGInventoryModule());

@@ -5,12 +5,14 @@ import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.stages.CountdownLGStage;
+import com.github.jeuxjeux20.loupsgarous.game.stages.StageColor;
+import com.github.jeuxjeux20.loupsgarous.game.stages.StageInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import org.bukkit.boss.BarColor;
 
 import java.util.Set;
 
+@StageInfo(name = "Crépuscule", color = StageColor.PURPLE)
 public class DuskStage extends CountdownLGStage {
     private final ImmutableList<DuskAction> actionsToRun;
 
@@ -58,21 +60,6 @@ public class DuskStage extends CountdownLGStage {
         for (DuskAction action : actionsToRun) {
             action.onDuskEnd();
         }
-    }
-
-    @Override
-    public String getName() {
-        return "Crépuscule";
-    }
-
-    @Override
-    public String getTitle() {
-        return null;
-    }
-
-    @Override
-    public BarColor getBarColor() {
-        return BarColor.PURPLE;
     }
 
     public ImmutableList<DuskAction> getActions() {

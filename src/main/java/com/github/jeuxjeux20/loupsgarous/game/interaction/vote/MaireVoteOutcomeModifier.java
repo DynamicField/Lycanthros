@@ -7,7 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.game.tags.LGTags;
 public class MaireVoteOutcomeModifier implements VoteOutcomeModifier<LGPlayer> {
     @Override
     public VoteOutcome<LGPlayer> modifyOutcome(VoteOutcomeContext<LGPlayer> context, VoteOutcome<LGPlayer> outcome) {
-        if (context.getVotable() instanceof VillageVoteStage.VillageVotable) {
+        if (!(context.getVotable() instanceof VillageVoteStage.VillageVotable)) {
             return outcome;
         }
 

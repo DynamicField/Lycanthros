@@ -11,7 +11,7 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.PickableConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
-import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.NightKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.causes.NightKillReason;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
 import me.lucko.helper.text.Text;
@@ -30,6 +30,10 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 import static me.lucko.helper.text.format.TextColor.*;
 import static me.lucko.helper.text.format.TextDecoration.BOLD;
 
+@StageInfo(
+        name = "Sorcière",
+        title = "La sorcière va utiliser ses potions..."
+)
 public class SorcierePotionStage extends CountdownLGStage {
     private final SorciereHealable healable;
     private final SorciereKillable killable;
@@ -63,16 +67,6 @@ public class SorcierePotionStage extends CountdownLGStage {
         orchestrator.game().getPlayers().stream()
                 .filter(Check.predicate(baseConditions::canAct))
                 .forEach(this::sendNotification);
-    }
-
-    @Override
-    public String getName() {
-        return "Sorcière";
-    }
-
-    @Override
-    public String getTitle() {
-        return "La sorcière va utiliser ses potions...";
     }
 
     public SorciereHealable heals() {
@@ -109,7 +103,7 @@ public class SorcierePotionStage extends CountdownLGStage {
 
                 for (Iterator<LGKill> iterator = pendingKills.iterator(); iterator.hasNext(); i++) {
                     LGKill kill = iterator.next();
-                    String victimName = kill.getWhoDied().getName();
+                    String victimName = kill.getVictim().getName();
 
                     builder.append(TextComponent.of(victimName + " ", RED, Collections.singleton(BOLD)));
 
@@ -247,7 +241,7 @@ public class SorcierePotionStage extends CountdownLGStage {
             SorciereCard card = (SorciereCard) killer.getCard();
 
             card.useKillPotion();
-            orchestrator.kills().pending().put(target, NightKillReason.INSTANCE);
+            orchestrator.kills().pending().add(target, NightKillReason.INSTANCE);
 
             killer.getMinecraftPlayer().ifPresent(player ->
                     player.sendMessage(

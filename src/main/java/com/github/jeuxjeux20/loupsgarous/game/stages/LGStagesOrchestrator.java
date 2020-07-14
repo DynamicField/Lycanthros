@@ -3,6 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
+import com.github.jeuxjeux20.loupsgarous.game.stages.descriptor.LGStageDescriptorRegistry;
 import com.github.jeuxjeux20.loupsgarous.game.stages.overrides.StageOverride;
 
 /**
@@ -34,4 +35,10 @@ public interface LGStagesOrchestrator extends LGGameOrchestratorDependent {
      * @return the current stage, or {@link LGStage.Null}
      */
     LGStage current();
+
+    /**
+     * Returns the descriptor registry.
+     * @return the descriptor registry
+     */
+    LGStageDescriptorRegistry descriptors();
 }

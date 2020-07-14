@@ -11,18 +11,22 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditio
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVotable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Votable;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.VoteOutcome;
-import com.github.jeuxjeux20.loupsgarous.game.kill.reasons.NightKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.causes.NightKillReason;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.inject.Inject;
 import org.bukkit.ChatColor;
-import org.bukkit.boss.BarColor;
 
 import java.util.Optional;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
 @MajorityVoteShortensCountdown(value = LGInteractableKeys.Names.PLAYER_VOTE, timeLeft = 10)
+@StageInfo(
+        name = "Loups-garous",
+        title = "Les loups vont dévorer un innocent...",
+        color = StageColor.RED
+)
 public class LoupGarouVoteStage extends CountdownLGStage {
     private final LoupGarouVotable votable;
     private final LoupsGarousVoteChatChannel voteChannel;
@@ -57,21 +61,6 @@ public class LoupGarouVoteStage extends CountdownLGStage {
         }
     }
 
-    @Override
-    public String getName() {
-        return "Loups-Garous";
-    }
-
-    @Override
-    public String getTitle() {
-        return "Les loups vont dévorer un innocent...";
-    }
-
-    @Override
-    public BarColor getBarColor() {
-        return BarColor.RED;
-    }
-
     private void howl() {
         orchestrator.game().getPlayers().stream()
                 .filter(voteChannel::isReadable)
@@ -102,7 +91,7 @@ public class LoupGarouVoteStage extends CountdownLGStage {
             if (maybeMajority.isPresent()) {
                 LGPlayer majority = maybeMajority.get();
 
-                orchestrator.kills().pending().put(majority, NightKillReason.INSTANCE);
+                orchestrator.kills().pending().add(majority, NightKillReason.INSTANCE);
                 orchestrator.chat().sendMessage(voteChannel,
                         ChatColor.AQUA + "Les loups ont décidé de tuer " +
                         player(majority.getName()) + ChatColor.AQUA + "."

@@ -2,6 +2,8 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
+import com.github.jeuxjeux20.loupsgarous.game.stages.descriptor.LGStageDescriptor;
+import com.github.jeuxjeux20.loupsgarous.game.stages.descriptor.LGStageDescriptorRegistry;
 import com.github.jeuxjeux20.loupsgarous.game.stages.overrides.StageOverride;
 import com.github.jeuxjeux20.loupsgarous.util.FutureExceptionUtils;
 import com.google.inject.Inject;
@@ -21,6 +23,7 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     private final LGGameOrchestrator gameOrchestrator;
 
     private final LinkedList<RunnableLGStage.Factory<?>> stageFactories;
+    private final LGStageDescriptorRegistry descriptorRegistry;
     private ListIterator<RunnableLGStage.Factory<?>> stageIterator;
     private @Nullable RunnableLGStage currentStage;
     private final Set<StageOverride> stageOverrides;
@@ -29,9 +32,11 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     @Inject
     MinecraftLGStagesOrchestrator(LGGameOrchestrator gameOrchestrator,
                                   Set<RunnableLGStage.Factory<?>> stageFactories,
-                                  Set<StageOverride> stageOverrides) {
+                                  Set<StageOverride> stageOverrides,
+                                  LGStageDescriptorRegistry descriptorRegistry) {
         this.gameOrchestrator = gameOrchestrator;
         this.stageFactories = new LinkedList<>(stageFactories);
+        this.descriptorRegistry = descriptorRegistry;
         this.stageIterator = this.stageFactories.listIterator();
         this.stageOverrides = stageOverrides;
         this.logger = gameOrchestrator.logger();
@@ -57,8 +62,9 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
 
         RunnableLGStage.Factory<?> factory = stageIterator.next();
         RunnableLGStage stage = factory.create(gameOrchestrator);
+        LGStageDescriptor descriptor = descriptorRegistry.get(stage.getClass());
 
-        if (stage.isTemporary())
+        if (descriptor.isTemporary())
             stageIterator.remove();
 
         if (stage.shouldRun()) {
@@ -82,6 +88,11 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     @Override
     public LGStage current() {
         return currentStage == null ? new LGStage.Null(gameOrchestrator) : currentStage;
+    }
+
+    @Override
+    public LGStageDescriptorRegistry descriptors() {
+        return descriptorRegistry;
     }
 
     private boolean callStageOverride() {

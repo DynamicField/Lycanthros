@@ -3,9 +3,9 @@ package com.github.jeuxjeux20.loupsgarous.game.kill;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.MutableLGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
-import com.github.jeuxjeux20.loupsgarous.game.event.LGKillEvent;
 import com.google.inject.Inject;
-import me.lucko.helper.Events;
+
+import java.util.Collection;
 
 import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.STARTED;
 
@@ -32,12 +32,10 @@ public class MinecraftLGKillsOrchestrator implements LGKillsOrchestrator {
     }
 
     @Override
-    public void instantly(LGKill kill) {
+    public void instantly(Collection<LGKill> kills) {
         gameOrchestrator.state().mustBe(STARTED);
 
-        playerKiller.killPlayer(kill);
-
-        Events.call(new LGKillEvent(gameOrchestrator, kill));
+        playerKiller.applyKills(kills);
     }
 
     @Override

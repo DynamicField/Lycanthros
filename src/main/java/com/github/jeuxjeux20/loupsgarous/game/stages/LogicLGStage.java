@@ -27,13 +27,4 @@ public abstract class LogicLGStage extends RunnableLGStage {
         return true;
     }
 
-    @Override
-    public String getName() {
-        return null;
-    }
-
-    @Override
-    public String getTitle() {
-        return null;
-    }
 }
