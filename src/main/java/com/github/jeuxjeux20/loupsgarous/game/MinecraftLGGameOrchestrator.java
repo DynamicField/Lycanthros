@@ -13,7 +13,7 @@ import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableRegistry;
 import com.github.jeuxjeux20.loupsgarous.game.inventory.LGInventoryManager;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.kill.causes.PlayerQuitKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.causes.PlayerQuitKillCause;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameBootstrapData;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardManager;
@@ -189,7 +189,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(e.getPlayerUUID());
 
         if (isGameRunning() && e.getLGPlayer().isAlive()) {
-            kills().instantly(e.getLGPlayer(), PlayerQuitKillReason.INSTANCE);
+            kills().instantly(e.getLGPlayer(), PlayerQuitKillCause.INSTANCE);
         } else if (state().isEnabled()) { // Let's not write quit messages while deleting.
             chat().sendToEveryone(player(offlinePlayer.getName()) + lobbyMessage(" a quitté la partie ! ") +
                                   slots(lobby.getSlotsDisplay()));

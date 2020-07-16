@@ -11,7 +11,7 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerPick;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
-import com.github.jeuxjeux20.loupsgarous.game.kill.causes.ChasseurKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.causes.ChasseurKillCause;
 import com.github.jeuxjeux20.loupsgarous.game.winconditions.PostponesWinConditions;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -101,7 +101,7 @@ public class ChasseurKillStage extends CountdownLGStage {
             conditions().throwIfInvalid(picker, target);
 
             killed = true;
-            orchestrator.kills().instantly(target, ChasseurKillReason.INSTANCE);
+            orchestrator.kills().instantly(target, ChasseurKillCause.INSTANCE);
             getCountdown().interrupt();
         }
 

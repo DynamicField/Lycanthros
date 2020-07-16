@@ -1,15 +1,17 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages.descriptor;
 
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.StageInfo;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.function.Consumer;
 
-// TODO: Provide an API to edit descriptors upon request.
-public class MinecraftLGStageDescriptorFinder implements LGStageDescriptorFinder {
+@OrchestratorScoped
+public class IntrinsicLGStageDescriptorFactory
+        implements LGStageDescriptor.Factory {
     @Override
-    public LGStageDescriptor find(Class<? extends LGStage> stageClass) {
+    public LGStageDescriptor create(Class<? extends LGStage> stageClass) {
         LGStageDescriptor descriptor = new LGStageDescriptor(stageClass);
 
         applyAnnotation(stageClass, descriptor);

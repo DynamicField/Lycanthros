@@ -23,7 +23,7 @@ import java.util.Set;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.banner;
 
 public class LGPlayersCommand implements HelperCommandRegisterer {
-    private static final String LABEL_SEPARATOR = ChatColor.DARK_AQUA + " - ";
+    private static final String LABEL_SEPARATOR = ChatColor.RESET + " - ";
 
     private final CardRevealer cardRevealer;
     private final TeamRevealer teamRevealer;
@@ -59,15 +59,16 @@ public class LGPlayersCommand implements HelperCommandRegisterer {
         for (LGPlayer player : players) {
             messageBuilder.append(ChatColor.RESET);
 
-            messageBuilder.append(ChatColor.DARK_AQUA);
-
             if (player.isDead())
                 messageBuilder.append(ChatColor.STRIKETHROUGH);
 
             messageBuilder.append(player.getName());
 
             List<String> labels = getLabels(sender, player, orchestrator.game());
-            messageBuilder.append(String.join(LABEL_SEPARATOR, labels));
+            if (!labels.isEmpty()) {
+                messageBuilder.append(" ")
+                        .append(String.join(LABEL_SEPARATOR, labels));
+            }
 
             messageBuilder.append('\n');
         }

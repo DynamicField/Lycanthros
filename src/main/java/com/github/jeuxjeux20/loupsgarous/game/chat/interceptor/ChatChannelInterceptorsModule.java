@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.chat.interceptor;
 
+import com.github.jeuxjeux20.loupsgarous.LGMatchers;
 import com.github.jeuxjeux20.loupsgarous.Plugin;
 import com.google.inject.*;
 import com.google.inject.assistedinject.FactoryModuleBuilder;

@@ -4,15 +4,14 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 
-public final class ChasseurKillReason extends SingleLGKillReason {
-    public static final ChasseurKillReason INSTANCE = new ChasseurKillReason();
+public final class VillageVoteKillCause extends SingleLGKillCause {
+    public static final VillageVoteKillCause INSTANCE = new VillageVoteKillCause();
 
-    private ChasseurKillReason() {
-    }
+    private VillageVoteKillCause() {}
 
     @Override
     public String getKillMessage(LGPlayer player) {
-        return killMessage("Le chasseur a tiré sa balle sur ") + player(player.getName()) +
+        return killMessage("Le village a décidé de tuer ") + player(player.getName()) +
                killMessage(", qui était ") + role(player.getCard().getName()) + killMessage(".");
     }
 }

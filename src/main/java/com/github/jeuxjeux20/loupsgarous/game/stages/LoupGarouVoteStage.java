@@ -11,7 +11,7 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditio
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVote;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Vote;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.VoteOutcome;
-import com.github.jeuxjeux20.loupsgarous.game.kill.causes.NightKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.causes.NightKillCause;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.inject.Inject;
@@ -91,7 +91,7 @@ public class LoupGarouVoteStage extends CountdownLGStage {
             if (maybeMajority.isPresent()) {
                 LGPlayer majority = maybeMajority.get();
 
-                orchestrator.kills().pending().add(majority, NightKillReason.INSTANCE);
+                orchestrator.kills().pending().add(majority, NightKillCause.INSTANCE);
                 orchestrator.chat().sendMessage(voteChannel,
                         ChatColor.AQUA + "Les loups ont décidé de tuer " +
                         player(majority.getName()) + ChatColor.AQUA + "."

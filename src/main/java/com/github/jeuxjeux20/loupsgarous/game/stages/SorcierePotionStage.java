@@ -11,7 +11,7 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.PickableConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
-import com.github.jeuxjeux20.loupsgarous.game.kill.causes.NightKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.causes.NightKillCause;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
 import me.lucko.helper.text.Text;
@@ -241,7 +241,7 @@ public class SorcierePotionStage extends CountdownLGStage {
             SorciereCard card = (SorciereCard) killer.getCard();
 
             card.useKillPotion();
-            orchestrator.kills().pending().add(target, NightKillReason.INSTANCE);
+            orchestrator.kills().pending().add(target, NightKillCause.INSTANCE);
 
             killer.getMinecraftPlayer().ifPresent(player ->
                     player.sendMessage(

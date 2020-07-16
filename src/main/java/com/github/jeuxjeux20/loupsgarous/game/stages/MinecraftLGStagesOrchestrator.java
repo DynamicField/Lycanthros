@@ -3,7 +3,6 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.game.stages.descriptor.LGStageDescriptor;
-import com.github.jeuxjeux20.loupsgarous.game.stages.descriptor.LGStageDescriptorRegistry;
 import com.github.jeuxjeux20.loupsgarous.game.stages.overrides.StageOverride;
 import com.github.jeuxjeux20.loupsgarous.util.FutureExceptionUtils;
 import com.google.inject.Inject;
@@ -23,7 +22,7 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     private final LGGameOrchestrator gameOrchestrator;
 
     private final LinkedList<RunnableLGStage.Factory<?>> stageFactories;
-    private final LGStageDescriptorRegistry descriptorRegistry;
+    private final LGStageDescriptor.Registry descriptorRegistry;
     private ListIterator<RunnableLGStage.Factory<?>> stageIterator;
     private @Nullable RunnableLGStage currentStage;
     private final Set<StageOverride> stageOverrides;
@@ -33,7 +32,7 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     MinecraftLGStagesOrchestrator(LGGameOrchestrator gameOrchestrator,
                                   Set<RunnableLGStage.Factory<?>> stageFactories,
                                   Set<StageOverride> stageOverrides,
-                                  LGStageDescriptorRegistry descriptorRegistry) {
+                                  LGStageDescriptor.Registry descriptorRegistry) {
         this.gameOrchestrator = gameOrchestrator;
         this.stageFactories = new LinkedList<>(stageFactories);
         this.descriptorRegistry = descriptorRegistry;
@@ -91,7 +90,7 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     }
 
     @Override
-    public LGStageDescriptorRegistry descriptors() {
+    public LGStageDescriptor.Registry descriptors() {
         return descriptorRegistry;
     }
 

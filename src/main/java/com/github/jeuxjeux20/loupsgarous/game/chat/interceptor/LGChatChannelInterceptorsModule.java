@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.chat.interceptor;
 
+import com.github.jeuxjeux20.loupsgarous.LGMatchers;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LoupsGarousChatChannel;
 
 public final class LGChatChannelInterceptorsModule extends ChatChannelInterceptorsModule {

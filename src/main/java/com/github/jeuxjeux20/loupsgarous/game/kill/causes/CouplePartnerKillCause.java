@@ -7,10 +7,10 @@ import java.util.Objects;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 
-public final class CouplePartnerKillReason extends SingleLGKillReason {
+public final class CouplePartnerKillCause extends SingleLGKillCause {
     private final LGPlayer partner;
 
-    public CouplePartnerKillReason(LGPlayer partner) {
+    public CouplePartnerKillCause(LGPlayer partner) {
         this.partner = Objects.requireNonNull(partner, "partner is null");
     }
 
@@ -29,7 +29,7 @@ public final class CouplePartnerKillReason extends SingleLGKillReason {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CouplePartnerKillReason that = (CouplePartnerKillReason) o;
+        CouplePartnerKillCause that = (CouplePartnerKillCause) o;
         return Objects.equals(partner, that.partner);
     }
 

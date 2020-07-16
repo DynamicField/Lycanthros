@@ -8,7 +8,7 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditio
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVote;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Vote;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.VoteOutcome;
-import com.github.jeuxjeux20.loupsgarous.game.kill.causes.VillageVoteKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.causes.VillageVoteKillCause;
 import com.google.inject.Inject;
 import org.bukkit.ChatColor;
 
@@ -83,7 +83,7 @@ public class VillageVoteStage extends CountdownLGStage {
             Optional<LGPlayer> maybeMajority = outcome.getElected();
 
             if (maybeMajority.isPresent()) {
-                orchestrator.kills().instantly(maybeMajority.get(), VillageVoteKillReason.INSTANCE);
+                orchestrator.kills().instantly(maybeMajority.get(), VillageVoteKillCause.INSTANCE);
             } else {
                 orchestrator.chat().sendToEveryone(info("Le village n'a pas pu se décider !"));
             }

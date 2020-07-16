@@ -3,7 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game.listeners;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGKillEvent;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
-import com.github.jeuxjeux20.loupsgarous.game.kill.causes.CouplePartnerKillReason;
+import com.github.jeuxjeux20.loupsgarous.game.kill.causes.CouplePartnerKillCause;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import org.bukkit.event.EventHandler;
@@ -30,6 +30,6 @@ public class KillCoupleOnPartnerDeadListener implements Listener {
     }
 
     private void killPartner(LGPlayer partner, LGPlayer me, LGKillEvent event) {
-        event.getOrchestrator().kills().instantly(partner, new CouplePartnerKillReason(me));
+        event.getOrchestrator().kills().instantly(partner, new CouplePartnerKillCause(me));
     }
 }

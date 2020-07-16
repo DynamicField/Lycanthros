@@ -1,19 +1,20 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages.descriptor;
 
+import com.github.jeuxjeux20.loupsgarous.game.descriptor.Descriptor;
+import com.github.jeuxjeux20.loupsgarous.game.descriptor.DescriptorFactory;
+import com.github.jeuxjeux20.loupsgarous.game.descriptor.DescriptorRegistry;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.StageColor;
 import org.jetbrains.annotations.Nullable;
 
-public class LGStageDescriptor {
+public final class LGStageDescriptor extends Descriptor<LGStage> {
     private @Nullable String name = null;
     private @Nullable String title = null;
     private StageColor color = StageColor.DEFAULT;
     private boolean isTemporary = false;
 
-    private final Class<? extends LGStage> stageClass;
-
-    public LGStageDescriptor(Class<? extends LGStage> stageClass) {
-        this.stageClass = stageClass;
+    public LGStageDescriptor(Class<? extends LGStage> describedClass) {
+        super(describedClass);
     }
 
     /**
@@ -109,12 +110,9 @@ public class LGStageDescriptor {
         isTemporary = temporary;
     }
 
-    /**
-     * Gets the class that this descriptor describes.
-     *
-     * @return the class that this descriptor describes
-     */
-    public Class<? extends LGStage> getStageClass() {
-        return stageClass;
+    public interface Registry extends DescriptorRegistry<LGStageDescriptor, LGStage> {
+    }
+
+    public interface Factory extends DescriptorFactory<LGStageDescriptor, LGStage> {
     }
 }

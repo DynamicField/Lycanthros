@@ -18,7 +18,7 @@ public enum PlayerGameOutcome {
      */
     SHRUG;
 
-    public static final String SHRUG_EMOJI = "\u00AF\\_(\u30C4)_/\u00AF"; // ¯\_(ツ)_/¯;
+    public static final String SHRUG_EMOJI = "\u00AF\\_(\u30C4)_/\u00AF"; // ¯\_(ツ)_/¯
 
     public static PlayerGameOutcome wonWhen(Boolean won) {
         return won ? WIN : LOSE;

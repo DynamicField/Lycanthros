@@ -1,13 +1,12 @@
 package com.github.jeuxjeux20.loupsgarous.game.interaction.vote;
 
+import com.github.jeuxjeux20.loupsgarous.LGMatchers;
 import com.google.inject.Key;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
-import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.matcher.Matchers;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -19,12 +18,7 @@ public final class LGInteractionVoteModule extends VoteOutcomeModifiersModule {
     @Override
     protected void configureBindings() {
         bindInterceptor(Matchers.subclassesOf(Vote.class),
-                new AbstractMatcher<Method>() {
-                    @Override
-                    public boolean matches(Method method) {
-                        return method.getName().equals("getOutcome") && method.getParameterCount() == 0;
-                    }
-                },
+                LGMatchers.predicate(m -> m.getName().equals("getOutcome") && m.getParameterCount() == 0),
                 new ApplyVoteModifiersInterceptor(
                         getProvider(Key.get(new TypeLiteral<Map<TypeLiteral<?>, List<VoteOutcomeModifier<?>>>>(){}))
                 ));

@@ -9,10 +9,10 @@ import java.util.Set;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.killMessage;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
-public final class NightKillReason extends LGKillCause {
-    public static final NightKillReason INSTANCE = new NightKillReason();
+public final class NightKillCause extends LGKillCause {
+    public static final NightKillCause INSTANCE = new NightKillCause();
 
-    private NightKillReason() {}
+    private NightKillCause() {}
 
     @Override
     public String getKillMessage(Set<LGPlayer> players) {

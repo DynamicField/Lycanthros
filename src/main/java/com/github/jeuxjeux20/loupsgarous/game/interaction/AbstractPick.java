@@ -9,7 +9,7 @@ import com.github.jeuxjeux20.loupsgarous.util.Check;
 import java.util.Objects;
 
 /**
- * The base class for any pickable. It is highly recommended that you extend this class instead
+ * The base class for any pick. It is highly recommended that you extend this class instead
  * of implementing {@link Pick}.
  *
  * @param <T> the type of the target

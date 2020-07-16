@@ -70,7 +70,7 @@ class MinecraftLGLobby implements LGLobby {
         }
 
         if (gameManager.getPlayerInGame(player).isPresent()) {
-            throw new PlayerAlreadyPresentException(player);
+            throw new PlayerAlreadyInGameException(player);
         }
     }
 
