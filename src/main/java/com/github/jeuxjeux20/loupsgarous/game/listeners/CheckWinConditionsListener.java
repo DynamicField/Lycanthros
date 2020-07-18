@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartingEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
-import com.github.jeuxjeux20.loupsgarous.game.winconditions.PostponesWinConditions;
+import com.github.jeuxjeux20.loupsgarous.game.stages.descriptor.LGStageDescriptor;
 import com.github.jeuxjeux20.loupsgarous.game.winconditions.WinCondition;
 import com.google.inject.Inject;
 import org.bukkit.event.EventHandler;
@@ -26,9 +26,9 @@ public class CheckWinConditionsListener implements Listener {
     public void onLGStageStarting(LGStageStartingEvent event) {
         LGGameOrchestrator orchestrator = event.getOrchestrator();
         LGStage stage = event.getStage();
+        LGStageDescriptor descriptor = orchestrator.stages().descriptors().get(stage.getClass());
 
-        if (!orchestrator.isGameRunning() ||
-            stage.getClass().isAnnotationPresent(PostponesWinConditions.class)) {
+        if (!orchestrator.isGameRunning() || descriptor.postponesWinConditions()) {
             return;
         }
 

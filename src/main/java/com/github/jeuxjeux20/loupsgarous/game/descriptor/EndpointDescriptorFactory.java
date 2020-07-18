@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.descriptor;
 
+import com.github.jeuxjeux20.loupsgarous.game.Intrinsic;
 import com.google.inject.Inject;
 
 public class EndpointDescriptorFactory<D extends Descriptor<T>, T>

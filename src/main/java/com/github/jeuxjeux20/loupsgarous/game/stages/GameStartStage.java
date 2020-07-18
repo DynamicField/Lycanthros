@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-public class GameStartStage extends CountdownLGStage {
+public final class GameStartStage extends CountdownLGStage {
     @Inject
     GameStartStage(LGGameOrchestrator orchestrator) {
         super(orchestrator);
@@ -28,7 +28,7 @@ public class GameStartStage extends CountdownLGStage {
             LGStage currentStage = event.getOrchestrator().stages().current();
             if (currentStage instanceof GameStartStage) {
                 GameStartStage stage = (GameStartStage) currentStage;
-                stage.getCountdown().setTimer(stage.getCountdown().getBiggestTimerValue());
+                stage.getCountdown().resetBiggestTimerValue();
             }
         }
     }

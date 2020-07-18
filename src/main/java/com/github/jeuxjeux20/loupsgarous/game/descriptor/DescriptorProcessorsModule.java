@@ -32,7 +32,7 @@ public abstract class DescriptorProcessorsModule<D extends Descriptor<?>> extend
     }
 
     TypeLiteral<DescriptorProcessor<D>> createDescriptorProcessorType() {
-        return toLiteral(
+        return toLiteralUnchecked(
                 parameterized(
                         DescriptorProcessor.class,
                         createDescriptorType()
@@ -49,7 +49,8 @@ public abstract class DescriptorProcessorsModule<D extends Descriptor<?>> extend
     }
 
     protected final void addDescriptorProcessor(TypeLiteral<? extends DescriptorProcessor<D>> descriptorProcessor) {
-        Preconditions.checkState(descriptorProcessorBinder != null, "addDescriptorProcessor can only be used inside configureDescriptorProcessors()");
+        Preconditions.checkState(descriptorProcessorBinder != null,
+                "addDescriptorProcessor can only be used inside configureDescriptorProcessors()");
 
         descriptorProcessorBinder.addBinding().to(descriptorProcessor);
     }

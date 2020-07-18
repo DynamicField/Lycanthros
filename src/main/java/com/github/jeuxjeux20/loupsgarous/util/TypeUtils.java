@@ -11,7 +11,7 @@ public final class TypeUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> TypeLiteral<T> toLiteral(Type type) {
+    public static <T> TypeLiteral<T> toLiteralUnchecked(Type type) {
         return (TypeLiteral<T>) TypeLiteral.get(type);
     }
 

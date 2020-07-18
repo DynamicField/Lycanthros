@@ -23,21 +23,26 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
 @PostponesWinConditions
 @StageInfo(
         name = "Tir du chasseur",
-        title = "Le chasseur va tirer sa balle (ou non) !", // TODO: Add player's name
         isTemporary = true
 )
-public class ChasseurKillStage extends CountdownLGStage {
+public final class ChasseurKillStage extends CountdownLGStage {
     private final LGPlayer chasseur;
 
-    private final ChasseurKillable killable;
+    private final ChasseurKill killable;
 
     @Inject
     ChasseurKillStage(@Assisted LGGameOrchestrator orchestrator, @Assisted LGPlayer chasseur) {
         super(orchestrator);
         this.chasseur = chasseur;
-        this.killable = new ChasseurKillable();
+        this.killable = new ChasseurKill();
 
         registerInteractable(LGInteractableKeys.KILL, killable);
+
+        orchestrator.stages().descriptors().get(getClass())
+                .setTitle("Le chasseur " + chasseur.getName() + " va tirer sa balle (ou non) !");
+
+        // Reset the title after the stage ends.
+        bind(() -> this.orchestrator.stages().descriptors().invalidate(getClass()));
     }
 
     @Override
@@ -71,7 +76,7 @@ public class ChasseurKillStage extends CountdownLGStage {
         }
     }
 
-    public ChasseurKillable kills() {
+    public ChasseurKill kills() {
         return killable;
     }
 
@@ -79,10 +84,10 @@ public class ChasseurKillStage extends CountdownLGStage {
         ChasseurKillStage create(LGGameOrchestrator orchestrator, LGPlayer chasseur);
     }
 
-    public final class ChasseurKillable extends AbstractPlayerPick {
+    public final class ChasseurKill extends AbstractPlayerPick {
         boolean killed = false;
 
-        private ChasseurKillable() {
+        private ChasseurKill() {
             super(ChasseurKillStage.super.orchestrator);
         }
 

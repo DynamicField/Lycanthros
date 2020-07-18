@@ -12,6 +12,7 @@ public final class LGStageDescriptor extends Descriptor<LGStage> {
     private @Nullable String title = null;
     private StageColor color = StageColor.DEFAULT;
     private boolean isTemporary = false;
+    private boolean postponesWinConditions = false;
 
     public LGStageDescriptor(Class<? extends LGStage> describedClass) {
         super(describedClass);
@@ -108,6 +109,14 @@ public final class LGStageDescriptor extends Descriptor<LGStage> {
      */
     public void setTemporary(boolean temporary) {
         isTemporary = temporary;
+    }
+
+    public boolean postponesWinConditions() {
+        return postponesWinConditions;
+    }
+
+    public void setPostponesWinConditions(boolean postponesWinConditions) {
+        this.postponesWinConditions = postponesWinConditions;
     }
 
     public interface Registry extends DescriptorRegistry<LGStageDescriptor, LGStage> {

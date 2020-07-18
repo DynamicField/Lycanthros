@@ -28,7 +28,7 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
         color = StageColor.BLUE,
         isTemporary = true
 )
-public class CupidonCoupleStage extends CountdownLGStage {
+public final class CupidonCoupleStage extends CountdownLGStage {
     private final CupidonCoupleCreator coupleCreator;
 
     @Inject

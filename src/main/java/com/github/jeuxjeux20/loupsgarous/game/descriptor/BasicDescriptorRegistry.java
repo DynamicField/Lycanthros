@@ -13,7 +13,7 @@ public abstract class BasicDescriptorRegistry<D extends Descriptor<T>, T>
 
     protected BasicDescriptorRegistry(DescriptorFactory<D, T> descriptorFactory) {
         this.descriptorFactory = descriptorFactory;
-        this.descriptorCache = CacheBuilder.newBuilder().build(new DescriptorFinderLoader());
+        this.descriptorCache = CacheBuilder.newBuilder().build(new DescriptorFactoryLoader());
     }
 
     public D get(Class<? extends T> describedClass) {
@@ -24,7 +24,7 @@ public abstract class BasicDescriptorRegistry<D extends Descriptor<T>, T>
         descriptorCache.invalidate(describedClass);
     }
 
-    private final class DescriptorFinderLoader
+    private final class DescriptorFactoryLoader
             extends CacheLoader<Class<? extends T>, D> {
         @Override
         public D load(@NotNull Class<? extends T> key) {

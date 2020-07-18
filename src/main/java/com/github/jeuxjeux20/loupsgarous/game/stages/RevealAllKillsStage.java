@@ -7,7 +7,7 @@ import com.google.inject.Inject;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.SKULL_SYMBOL;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.killMessage;
 
-public class RevealAllKillsStage extends LogicLGStage {
+public final class RevealAllKillsStage extends LogicLGStage {
     @Inject
     RevealAllKillsStage(LGGameOrchestrator orchestrator) {
         super(orchestrator);

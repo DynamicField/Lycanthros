@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game.interaction.vote;
+package com.github.jeuxjeux20.loupsgarous.game.interaction.vote.outcome;
 
 import org.jetbrains.annotations.NotNull;
 

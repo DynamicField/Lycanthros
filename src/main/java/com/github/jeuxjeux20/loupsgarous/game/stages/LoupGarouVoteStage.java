@@ -10,7 +10,7 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPi
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVote;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Vote;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.VoteOutcome;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.outcome.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.game.kill.causes.NightKillCause;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
@@ -27,7 +27,7 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
         title = "Les loups vont dévorer un innocent...",
         color = StageColor.RED
 )
-public class LoupGarouVoteStage extends CountdownLGStage {
+public final class LoupGarouVoteStage extends CountdownLGStage {
     private final LoupGarouVote votable;
     private final LoupsGarousVoteChatChannel voteChannel;
 
@@ -74,13 +74,14 @@ public class LoupGarouVoteStage extends CountdownLGStage {
     }
 
     @OrchestratorScoped
-    public static class LoupGarouVote extends AbstractPlayerVote {
+    public static final class LoupGarouVote extends AbstractPlayerVote {
         private final LoupsGarousVoteChatChannel voteChannel;
 
         @Inject
         LoupGarouVote(LGGameOrchestrator orchestrator,
+                      Dependencies dependencies,
                       LoupsGarousVoteChatChannel voteChannel) {
-            super(orchestrator);
+            super(orchestrator, dependencies);
             this.voteChannel = voteChannel;
         }
 

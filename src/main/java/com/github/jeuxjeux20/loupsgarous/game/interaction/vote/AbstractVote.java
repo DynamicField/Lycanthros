@@ -5,9 +5,12 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.*;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.outcome.VoteOutcome;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.outcome.VoteOutcomeContext;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.outcome.VoteOutcomeDeterminer;
 import com.google.common.collect.HashMultiset;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multiset;
+import com.google.inject.Inject;
 import me.lucko.helper.Events;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,27 +23,20 @@ import java.util.stream.Collectors;
 public abstract class AbstractVote<T>
         extends AbstractStatefulPick<T>
         implements Vote<T>, SelfAwareInteractable {
-    public AbstractVote(LGGameOrchestrator orchestrator) {
+    private final VoteOutcomeDeterminer<T> voteOutcomeDeterminer;
+
+    public AbstractVote(LGGameOrchestrator orchestrator, Dependencies<T> dependencies) {
         super(orchestrator);
+        this.voteOutcomeDeterminer = dependencies.voteOutcomeDeterminer;
     }
 
     @Override
     public VoteOutcome<T> getOutcome() {
-        if (getPicks().size() == 0) {
-            return new NoVotesVoteOutcome<>();
-        }
+        return voteOutcomeDeterminer.determine(createContext());
+    }
 
-        List<Multiset.Entry<T>> sameVotesCandidates = getHighestSameVotesCandidates(getVotes());
-
-        if (sameVotesCandidates.size() == 1) {
-            return new RelativeMajorityVoteOutcome<>(sameVotesCandidates.get(0).getElement());
-        } else {
-            ImmutableList<T> conflictingCandidates = sameVotesCandidates.stream()
-                    .map(Multiset.Entry::getElement)
-                    .collect(ImmutableList.toImmutableList());
-
-            return new IndecisiveVoteOutcome<>(conflictingCandidates);
-        }
+    private VoteOutcomeContext<T> createContext() {
+        return new VoteOutcomeContext<>(getVotes(), getPicks(), getClass(), orchestrator.game());
     }
 
     @Override
@@ -112,4 +108,12 @@ public abstract class AbstractVote<T>
         return results;
     }
 
+    protected static class Dependencies<T> {
+        public final VoteOutcomeDeterminer<T> voteOutcomeDeterminer;
+
+        @Inject
+        Dependencies(VoteOutcomeDeterminer<T> voteOutcomeDeterminer) {
+            this.voteOutcomeDeterminer = voteOutcomeDeterminer;
+        }
+    }
 }

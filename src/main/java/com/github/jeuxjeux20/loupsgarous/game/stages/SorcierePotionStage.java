@@ -34,7 +34,7 @@ import static me.lucko.helper.text.format.TextDecoration.BOLD;
         name = "Sorcière",
         title = "La sorcière va utiliser ses potions..."
 )
-public class SorcierePotionStage extends CountdownLGStage {
+public final class SorcierePotionStage extends CountdownLGStage {
     private final SorciereHealable healable;
     private final SorciereKillable killable;
     private final BaseConditions baseConditions;

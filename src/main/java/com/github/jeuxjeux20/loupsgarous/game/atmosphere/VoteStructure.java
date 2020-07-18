@@ -1,9 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.atmosphere;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickEventBase;
 import com.github.jeuxjeux20.loupsgarous.game.event.interaction.LGPickRemovedEvent;
@@ -43,7 +41,6 @@ public class VoteStructure implements Structure {
     private final Location location;
     private final World world;
     private final Vote<LGPlayer> vote;
-    private final LGGameManager gameManager;
 
     private final int spacing = 3;
     private final Material blockMaterial = Material.OAK_WOOD;
@@ -51,13 +48,12 @@ public class VoteStructure implements Structure {
     private BackedStructure backedStructure = BackedStructure.EMPTY;
 
     @Inject
-    VoteStructure(@Assisted LGGameOrchestrator orchestrator, @Assisted Location location, @Assisted Vote<LGPlayer> vote,
-                  LGGameManager gameManager) {
+    VoteStructure(@Assisted LGGameOrchestrator orchestrator, @Assisted Location location,
+                  @Assisted Vote<LGPlayer> vote) {
         this.orchestrator = orchestrator;
         this.location = location;
         this.world = location.getWorld();
         this.vote = vote;
-        this.gameManager = gameManager;
     }
 
     public void build() {
@@ -165,28 +161,26 @@ public class VoteStructure implements Structure {
                     .bindWith(consumer);
         }
 
-        private void handleEntityInteraction(PlayerInteractAtEntityEvent e) {
-            LGPlayer player = gameManager.getPlayerInGame(e.getPlayer())
-                    .filter(x -> x.getOrchestrator() == orchestrator)
-                    .map(LGPlayerAndGame::getPlayer)
+        private void handleEntityInteraction(PlayerInteractAtEntityEvent event) {
+            LGPlayer player = orchestrator.game().getPlayer(event.getPlayer().getUniqueId())
                     .orElse(null);
 
             if (player == null) {
                 return;
             }
 
-            Entity rightClicked = e.getRightClicked();
+            Entity rightClicked = event.getRightClicked();
 
             Metadata.provideForEntity(rightClicked).get(ARMOR_STAND_PLAYER_KEY)
                     .ifPresent(target -> {
-                        e.setCancelled(true);
+                        event.setCancelled(true);
 
                         Check check = vote.conditions().checkPick(player, target);
 
                         if (check.isSuccess()) {
                             vote.togglePick(player, target);
                         } else {
-                            e.getPlayer().sendMessage(ChatColor.RED + check.getErrorMessage());
+                            event.getPlayer().sendMessage(ChatColor.RED + check.getErrorMessage());
                         }
                     });
         }

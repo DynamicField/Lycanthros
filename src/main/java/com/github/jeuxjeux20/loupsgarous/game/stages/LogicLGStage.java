@@ -26,5 +26,4 @@ public abstract class LogicLGStage extends RunnableLGStage {
     public boolean isLogic() {
         return true;
     }
-
 }

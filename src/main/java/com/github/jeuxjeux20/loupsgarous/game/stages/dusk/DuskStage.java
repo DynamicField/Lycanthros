@@ -13,7 +13,7 @@ import com.google.inject.Inject;
 import java.util.Set;
 
 @StageInfo(name = "Crépuscule", color = StageColor.PURPLE)
-public class DuskStage extends CountdownLGStage {
+public final class DuskStage extends CountdownLGStage {
     private final ImmutableList<DuskAction> actionsToRun;
 
     @Inject

@@ -7,7 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVote;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Vote;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.VoteOutcome;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.outcome.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.game.kill.causes.VillageVoteKillCause;
 import com.google.inject.Inject;
 import org.bukkit.ChatColor;
@@ -21,7 +21,7 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
         name = "Vote du village",
         title = "Le village va voter."
 )
-public class VillageVoteStage extends CountdownLGStage {
+public final class VillageVoteStage extends CountdownLGStage {
     private final VillageVote votable;
     private final VoteStructure voteStructure;
 
@@ -72,10 +72,10 @@ public class VillageVoteStage extends CountdownLGStage {
     }
 
     @OrchestratorScoped
-    public static class VillageVote extends AbstractPlayerVote {
+    public static final class VillageVote extends AbstractPlayerVote {
         @Inject
-        VillageVote(LGGameOrchestrator orchestrator) {
-            super(orchestrator);
+        VillageVote(LGGameOrchestrator orchestrator, Dependencies dependencies) {
+            super(orchestrator, dependencies);
         }
 
         @Override

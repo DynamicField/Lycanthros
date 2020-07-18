@@ -1,31 +1,39 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages.descriptor;
 
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.StageInfo;
+import com.github.jeuxjeux20.loupsgarous.game.winconditions.PostponesWinConditions;
+import com.google.inject.Singleton;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.function.Consumer;
 
-@OrchestratorScoped
-public class IntrinsicLGStageDescriptorFactory
+@Singleton
+class IntrinsicLGStageDescriptorFactory
         implements LGStageDescriptor.Factory {
     @Override
     public LGStageDescriptor create(Class<? extends LGStage> stageClass) {
         LGStageDescriptor descriptor = new LGStageDescriptor(stageClass);
 
-        applyAnnotation(stageClass, descriptor);
+        applyInfoAnnotation(descriptor);
+        applyPostponesWinConditionsAnnotation(descriptor);
 
         return descriptor;
     }
 
-    private void applyAnnotation(Class<? extends LGStage> stageClass, LGStageDescriptor descriptor) {
-        StageInfo annotation = stageClass.getAnnotation(StageInfo.class);
+    private void applyInfoAnnotation(LGStageDescriptor descriptor) {
+        StageInfo annotation = descriptor.getDescribedClass().getAnnotation(StageInfo.class);
         if (annotation != null) {
             whenNotEmpty(annotation.name(), descriptor::setName);
             whenNotEmpty(annotation.title(), descriptor::setTitle);
             descriptor.setTemporary(annotation.isTemporary());
             descriptor.setColor(annotation.color());
+        }
+    }
+
+    private void applyPostponesWinConditionsAnnotation(LGStageDescriptor descriptor) {
+        if (descriptor.getDescribedClass().isAnnotationPresent(PostponesWinConditions.class)) {
+            descriptor.setPostponesWinConditions(true);
         }
     }
 

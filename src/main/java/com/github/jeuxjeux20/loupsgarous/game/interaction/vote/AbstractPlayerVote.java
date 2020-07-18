@@ -5,7 +5,9 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.CriticalPickableConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.outcome.VoteOutcomeDeterminer;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
+import com.google.inject.Inject;
 
 import java.util.stream.Stream;
 
@@ -13,8 +15,8 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.error;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 
 public abstract class AbstractPlayerVote extends AbstractVote<LGPlayer> {
-    public AbstractPlayerVote(LGGameOrchestrator orchestrator) {
-        super(orchestrator);
+    public AbstractPlayerVote(LGGameOrchestrator orchestrator, Dependencies dependencies) {
+        super(orchestrator, dependencies);
     }
 
     @Override
@@ -51,4 +53,10 @@ public abstract class AbstractPlayerVote extends AbstractVote<LGPlayer> {
         return "Impossible de voter, car vous êtes mort !";
     }
 
+    protected static class Dependencies extends AbstractVote.Dependencies<LGPlayer> {
+        @Inject
+        Dependencies(VoteOutcomeDeterminer<LGPlayer> voteOutcomeDeterminer) {
+            super(voteOutcomeDeterminer);
+        }
+    }
 }

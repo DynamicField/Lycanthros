@@ -9,7 +9,7 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.Pick;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVote;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.VoteOutcome;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.outcome.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.game.tags.LGTags;
 import com.google.inject.Inject;
 import org.bukkit.ChatColor;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
         color = StageColor.BLUE,
         isTemporary = true
 )
-public class MaireElectionStage extends CountdownLGStage {
+public final class MaireElectionStage extends CountdownLGStage {
     private final MaireVote votable;
 
     @Inject
@@ -52,12 +52,12 @@ public class MaireElectionStage extends CountdownLGStage {
     }
 
     @OrchestratorScoped
-    public static class MaireVote extends AbstractPlayerVote {
+    public static final class MaireVote extends AbstractPlayerVote {
         private final Random random;
 
         @Inject
-        MaireVote(LGGameOrchestrator orchestrator, Random random) {
-            super(orchestrator);
+        MaireVote(LGGameOrchestrator orchestrator, Dependencies dependencies, Random random) {
+            super(orchestrator, dependencies);
             this.random = random;
         }
 

@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.inject.Inject;
 
 @StageInfo(name = "Fin !", color = StageColor.YELLOW)
-public class GameEndStage extends CountdownLGStage {
+public final class GameEndStage extends CountdownLGStage {
     @Inject
     GameEndStage(LGGameOrchestrator orchestrator) {
         super(orchestrator);

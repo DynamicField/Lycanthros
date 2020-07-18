@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.interaction.vote;
 
 import com.github.jeuxjeux20.loupsgarous.game.interaction.StatefulPick;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.outcome.VoteOutcome;
 import com.google.common.collect.Multiset;
 import org.bukkit.ChatColor;
 

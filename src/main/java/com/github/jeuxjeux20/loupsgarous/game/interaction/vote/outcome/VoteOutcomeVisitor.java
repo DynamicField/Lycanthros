@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game.interaction.vote;
+package com.github.jeuxjeux20.loupsgarous.game.interaction.vote.outcome;
 
 public abstract class VoteOutcomeVisitor<T, V> {
     public V visit(ForcedVoteOutcome<T> forcedVoteOutcome) {
