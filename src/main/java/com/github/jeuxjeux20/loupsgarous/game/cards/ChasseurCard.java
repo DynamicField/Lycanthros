@@ -1,8 +1,11 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.annotations.Unique;
+import com.github.jeuxjeux20.loupsgarous.game.powers.ChasseurPower;
+import com.github.jeuxjeux20.loupsgarous.game.powers.LGPower;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
+import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.item.ItemStackBuilder;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -37,6 +40,11 @@ public final class ChasseurCard extends MutableLGCard {
     public String getDescription() {
         return "Il doit tuer les loups-garous. Juste avant de mourir, il peut tirer une balle sur la personne " +
                "de son choix. Nice.";
+    }
+
+    @Override
+    public ImmutableSet<LGPower> createPowers() {
+        return ImmutableSet.of(new ChasseurPower(this));
     }
 
     @Override

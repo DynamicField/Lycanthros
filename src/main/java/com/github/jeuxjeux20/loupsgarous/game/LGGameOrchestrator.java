@@ -14,6 +14,7 @@ import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameBootstrapData;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LobbyCreationException;
+import com.github.jeuxjeux20.loupsgarous.game.powers.LGPowersOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.tags.LGTagsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeamsOrchestrator;
@@ -127,6 +128,8 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     LGTagsOrchestrator tags();
 
     LGKillsOrchestrator kills();
+
+    LGPowersOrchestrator powers();
 
     LGActionBarManager actionBar();
 

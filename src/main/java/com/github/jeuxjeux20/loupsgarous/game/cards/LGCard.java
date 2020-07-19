@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
+import com.github.jeuxjeux20.loupsgarous.game.powers.LGPower;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.item.ItemStackBuilder;
@@ -42,6 +43,8 @@ public interface LGCard {
         return getTeams().contains(team);
     }
 
+    ImmutableSet<LGPower> createPowers();
+
     /**
      * Gets the description, shown at the start of the game, of this card.
      *
@@ -71,6 +74,11 @@ public interface LGCard {
 
         @Override
         public ImmutableSet<LGTeam> getTeams() {
+            return ImmutableSet.of();
+        }
+
+        @Override
+        public ImmutableSet<LGPower> createPowers() {
             return ImmutableSet.of();
         }
 

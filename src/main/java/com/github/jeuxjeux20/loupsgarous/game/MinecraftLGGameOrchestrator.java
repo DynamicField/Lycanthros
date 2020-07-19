@@ -16,6 +16,7 @@ import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.kill.causes.PlayerQuitKillCause;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameBootstrapData;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
+import com.github.jeuxjeux20.loupsgarous.game.powers.LGPowersOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardManager;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
@@ -240,6 +241,13 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     }
 
     @Override
+    public LGPowersOrchestrator powers() {
+        checkDelayedDependencies();
+
+        return delayedDependencies.powersOrchestrator;
+    }
+
+    @Override
     public LGLobby lobby() {
         return lobby;
     }
@@ -326,6 +334,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         final LGStagesOrchestrator stagesOrchestrator;
         final LGKillsOrchestrator killsOrchestrator;
         final InteractableRegistry interactableRegistry;
+        final LGPowersOrchestrator powersOrchestrator;
 
         @Inject
         DelayedDependencies(LGScoreboardManager scoreboardManager,
@@ -337,7 +346,8 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
                             LGTagsOrchestrator tagsOrchestrator,
                             LGStagesOrchestrator stagesOrchestrator,
                             LGKillsOrchestrator killsOrchestrator,
-                            InteractableRegistry interactableRegistry) {
+                            InteractableRegistry interactableRegistry,
+                            LGPowersOrchestrator powersOrchestrator) {
             this.scoreboardManager = scoreboardManager;
             this.inventoryManager = inventoryManager;
             this.chatOrchestrator = chatOrchestrator;
@@ -348,6 +358,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
             this.stagesOrchestrator = stagesOrchestrator;
             this.killsOrchestrator = killsOrchestrator;
             this.interactableRegistry = interactableRegistry;
+            this.powersOrchestrator = powersOrchestrator;
         }
     }
 }

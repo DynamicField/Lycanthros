@@ -1,13 +1,16 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
+import com.github.jeuxjeux20.loupsgarous.game.powers.LGPower;
 import com.github.jeuxjeux20.loupsgarous.game.tags.LGTag;
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.metadata.MetadataMap;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,6 +26,26 @@ public interface LGPlayer extends UserFriendlyNamed {
     boolean isAway();
 
     ImmutableSet<LGTag> getTags();
+
+    ImmutableClassToInstanceMap<LGPower> getPowers();
+
+    default boolean hasPower(Class<? extends LGPower> power) {
+        return getPowers().containsKey(power);
+    }
+
+    default <T extends LGPower> Optional<T> getPower(Class<T> powerClass) {
+        return Optional.ofNullable(getPowers().getInstance(powerClass));
+    }
+
+    default <T extends LGPower> T getPowerOrThrow(Class<T> powerClass) {
+        T power = getPowers().getInstance(powerClass);
+
+        if (power == null) {
+            throw new NoSuchElementException("No power with class " + powerClass + " found.");
+        }
+
+        return power;
+    }
 
     MetadataMap metadata();
 
@@ -106,6 +129,11 @@ public interface LGPlayer extends UserFriendlyNamed {
         @Override
         public ImmutableSet<LGTag> getTags() {
             return ImmutableSet.of();
+        }
+
+        @Override
+        public ImmutableClassToInstanceMap<LGPower> getPowers() {
+            return ImmutableClassToInstanceMap.of();
         }
 
         @Override

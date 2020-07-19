@@ -11,6 +11,7 @@ import com.github.jeuxjeux20.loupsgarous.game.inventory.LGInventoryModule;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillModule;
 import com.github.jeuxjeux20.loupsgarous.game.listeners.LGListenersModule;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobbyModule;
+import com.github.jeuxjeux20.loupsgarous.game.powers.LGPowersModule;
 import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardModule;
 import com.github.jeuxjeux20.loupsgarous.game.signs.LGSignsModule;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesModule;
@@ -42,6 +43,7 @@ public final class LGGameModule extends AbstractModule {
         install(new LGAtmosphereModule());
         install(new LGBossBarModule());
         install(new LGTagsModule());
+        install(new LGPowersModule());
 
         bind(LGGameManager.class).to(MinecraftLGGameManager.class);
 

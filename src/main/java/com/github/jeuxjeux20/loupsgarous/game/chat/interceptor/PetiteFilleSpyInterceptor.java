@@ -1,9 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.game.chat.interceptor;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.cards.PetiteFilleCard;
 import com.github.jeuxjeux20.loupsgarous.game.chat.AnonymizedChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
+import com.github.jeuxjeux20.loupsgarous.game.powers.PetiteFillePower;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -19,7 +19,7 @@ public class PetiteFilleSpyInterceptor extends LGChatChannelInterceptor implemen
     }
 
     private boolean canSpy(LGPlayer sender) {
-        return sender.getCard() instanceof PetiteFilleCard &&
+        return sender.hasPower(PetiteFillePower.class) &&
                sender.isAlive();
     }
 

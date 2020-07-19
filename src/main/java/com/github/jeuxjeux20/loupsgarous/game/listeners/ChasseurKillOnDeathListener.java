@@ -1,9 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.game.listeners;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.cards.ChasseurCard;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGKillEvent;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
+import com.github.jeuxjeux20.loupsgarous.game.powers.ChasseurPower;
 import com.github.jeuxjeux20.loupsgarous.game.stages.ChasseurKillStage;
 import com.google.inject.Inject;
 import org.bukkit.event.EventHandler;
@@ -21,12 +21,11 @@ public class ChasseurKillOnDeathListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onLGKill(LGKillEvent event) {
         for (LGKill kill : event.getKills()) {
-            LGPlayer whoDied = kill.getVictim();
+            LGPlayer victim = kill.getVictim();
 
-            if (!(whoDied.getCard() instanceof ChasseurCard) ||
-                whoDied.isAway()) return;
-
-            event.getOrchestrator().stages().insert(o -> chasseurStageFactory.create(o, whoDied));
+            if (victim.hasPower(ChasseurPower.class) && victim.isPresent()) {
+                event.getOrchestrator().stages().insert(o -> chasseurStageFactory.create(o, victim));
+            }
         }
     }
 }

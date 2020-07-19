@@ -4,12 +4,15 @@ import com.github.jeuxjeux20.loupsgarous.ComponentStyles;
 import com.github.jeuxjeux20.loupsgarous.ComponentTemplates;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.*;
-import com.github.jeuxjeux20.loupsgarous.game.cards.SorciereCard;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.*;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerPick;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableRegisterer;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.PickableConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.game.kill.causes.NightKillCause;
+import com.github.jeuxjeux20.loupsgarous.game.powers.SorcierePower;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.google.inject.Inject;
 import me.lucko.helper.text.Text;
@@ -80,14 +83,14 @@ public final class SorcierePotionStage extends CountdownLGStage {
 
     // This is really long.
     private void sendNotification(LGPlayer player, Player minecraftPlayer) {
-        SorciereCard card = ((SorciereCard) player.getCard()); // The checks ensure that it is a SorciereCard.
+        SorcierePower power = player.getPowerOrThrow(SorcierePower.class);
 
         TextComponent.Builder builder = TextComponent.builder("")
                 .append(TextComponent.of("==== Vous êtes la sorcière !")
                         .color(TextColor.LIGHT_PURPLE)
                         .decoration(BOLD, true));
 
-        if (card.hasHealPotion()) {
+        if (power.hasHealPotion()) {
             Set<LGKill> pendingKills = orchestrator.kills().pending().getAll();
 
             builder.append(TextComponent.of("\n" + HEAL_SYMBOL + " ").color(GREEN));
@@ -125,7 +128,7 @@ public final class SorcierePotionStage extends CountdownLGStage {
             }
         }
 
-        if (card.hasKillPotion()) {
+        if (power.hasKillPotion()) {
             TextComponent poison = TextComponent.of("\n" + SKULL_SYMBOL + " Vous avez votre potion de poison !")
                     .color(RED);
 
@@ -138,7 +141,7 @@ public final class SorcierePotionStage extends CountdownLGStage {
             builder.append(poison).append(tipBuilder.build());
         }
 
-        if (!card.hasKillPotion() && !card.hasHealPotion()) {
+        if (!power.hasKillPotion() && !power.hasHealPotion()) {
             builder.append(TextComponent.of("\nVous n'avez plus de potions.").color(YELLOW));
         }
 
@@ -156,7 +159,7 @@ public final class SorcierePotionStage extends CountdownLGStage {
     private static final class BaseConditions {
         public Check canAct(LGPlayer player) {
             return Check.ensure(player.isAlive(), "Vous êtes mort !")
-                    .and(player.getCard() instanceof SorciereCard, "Vous n'êtes pas une sorcière !");
+                    .and(player.hasPower(SorcierePower.class), "Vous n'êtes pas une sorcière !");
         }
     }
 
@@ -196,9 +199,9 @@ public final class SorcierePotionStage extends CountdownLGStage {
 
         @Override
         protected void safePick(LGPlayer healer, LGPlayer target) {
-            SorciereCard card = (SorciereCard) healer.getCard();
+            SorcierePower power = healer.getPowerOrThrow(SorcierePower.class);
 
-            card.useHealPotion();
+            power.useHealPotion();
             orchestrator.kills().pending().remove(target);
 
             healer.getMinecraftPlayer().ifPresent(player ->
@@ -210,7 +213,7 @@ public final class SorcierePotionStage extends CountdownLGStage {
         }
 
         private boolean hasHealPotion(LGPlayer player) {
-            return ((SorciereCard) player.getCard()).hasHealPotion();
+            return player.getPowerOrThrow(SorcierePower.class).hasHealPotion();
         }
 
         private boolean willDieTonight(LGPlayer player) {
@@ -236,9 +239,9 @@ public final class SorcierePotionStage extends CountdownLGStage {
 
         @Override
         protected void safePick(LGPlayer killer, LGPlayer target) {
-            SorciereCard card = (SorciereCard) killer.getCard();
+            SorcierePower power = killer.getPowerOrThrow(SorcierePower.class);
 
-            card.useKillPotion();
+            power.useKillPotion();
             orchestrator.kills().pending().add(target, NightKillCause.INSTANCE);
 
             killer.getMinecraftPlayer().ifPresent(player ->
@@ -250,7 +253,7 @@ public final class SorcierePotionStage extends CountdownLGStage {
         }
 
         private boolean hasKillPotion(LGPlayer player) {
-            return ((SorciereCard) player.getCard()).hasKillPotion();
+            return player.getPowerOrThrow(SorcierePower.class).hasKillPotion();
         }
 
         private boolean willNotDie(LGPlayer player) {

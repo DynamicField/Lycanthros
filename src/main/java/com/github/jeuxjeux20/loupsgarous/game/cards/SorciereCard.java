@@ -1,9 +1,11 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.annotations.Unique;
+import com.github.jeuxjeux20.loupsgarous.game.powers.LGPower;
+import com.github.jeuxjeux20.loupsgarous.game.powers.SorcierePower;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
-import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.item.ItemStackBuilder;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -14,9 +16,6 @@ import org.bukkit.inventory.meta.BannerMeta;
 
 @Unique
 public final class SorciereCard extends MutableLGCard {
-    private boolean hasKillPotion = true;
-    private boolean hasHealPotion = true;
-
     @Override
     protected LGTeam getMainTeam() {
         return LGTeams.VILLAGEOIS;
@@ -43,22 +42,9 @@ public final class SorciereCard extends MutableLGCard {
                "tuer quelqu'un ou sauver une personne des loups-garous. ";
     }
 
-    public boolean hasKillPotion() {
-        return hasKillPotion;
-    }
-
-    public void useKillPotion() {
-        Preconditions.checkState(hasKillPotion, "No kill potion to use.");
-        hasKillPotion = false;
-    }
-
-    public boolean hasHealPotion() {
-        return hasHealPotion;
-    }
-
-    public void useHealPotion() {
-        Preconditions.checkState(hasHealPotion, "No heal potion to use.");
-        hasHealPotion = false;
+    @Override
+    public ImmutableSet<LGPower> createPowers() {
+        return ImmutableSet.of(new SorcierePower(this));
     }
 
     @Override

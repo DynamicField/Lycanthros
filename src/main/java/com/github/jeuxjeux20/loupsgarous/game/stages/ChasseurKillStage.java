@@ -6,13 +6,14 @@ import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.cards.ChasseurCard;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerPick;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableRegisterer;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.kill.causes.ChasseurKillCause;
+import com.github.jeuxjeux20.loupsgarous.game.powers.ChasseurPower;
+import com.github.jeuxjeux20.loupsgarous.game.powers.SorcierePower;
 import com.github.jeuxjeux20.loupsgarous.game.winconditions.PostponesWinConditions;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -58,6 +59,8 @@ public final class ChasseurKillStage extends CountdownLGStage {
 
     @Override
     protected void start() {
+        orchestrator.powers().add(chasseur, new SorcierePower(this));
+
         chasseur.getMinecraftPlayer().ifPresent(player -> {
             player.spigot().respawn();
 
@@ -112,7 +115,7 @@ public final class ChasseurKillStage extends CountdownLGStage {
         }
 
         private boolean isChasseur(LGPlayer picker) {
-            return picker.getCard() instanceof ChasseurCard;
+            return picker.hasPower(ChasseurPower.class);
         }
 
         private boolean isTheirTurn(LGPlayer picker) {

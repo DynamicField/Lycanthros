@@ -4,12 +4,12 @@ import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
-import com.github.jeuxjeux20.loupsgarous.game.cards.VoyanteCard;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerPick;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableRegisterer;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
+import com.github.jeuxjeux20.loupsgarous.game.powers.VoyantePower;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.inject.Inject;
@@ -17,6 +17,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.VOYANTE_SYMBOL;
@@ -87,8 +88,7 @@ public class VoyanteDuskAction extends DuskAction {
         protected void safePick(LGPlayer picker, LGPlayer target) {
             playersWhoLooked.add(picker);
 
-            VoyanteCard voyanteCard = (VoyanteCard) picker.getCard();
-            voyanteCard.getPlayersSaw().add(target);
+            picker.metadata().getOrPut(VoyantePower.PLAYERS_SAW_KEY, HashSet::new).add(target);
 
             picker.getMinecraftPlayer().ifPresent(player -> {
                 player.sendMessage(
@@ -106,7 +106,7 @@ public class VoyanteDuskAction extends DuskAction {
         }
 
         private boolean isVoyante(LGPlayer player) {
-            return player.getCard() instanceof VoyanteCard;
+            return player.hasPower(VoyantePower.class);
         }
     }
 }

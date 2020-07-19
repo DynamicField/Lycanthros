@@ -1,8 +1,11 @@
 package com.github.jeuxjeux20.loupsgarous.game.cards;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.annotations.Unique;
+import com.github.jeuxjeux20.loupsgarous.game.powers.LGPower;
+import com.github.jeuxjeux20.loupsgarous.game.powers.PetiteFillePower;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
+import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.item.ItemStackBuilder;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -36,6 +39,11 @@ public final class PetiteFilleCard extends MutableLGCard {
     @Override
     public String getDescription() {
         return "La voyante peut espionner ce que disent les loups-garous.";
+    }
+
+    @Override
+    public ImmutableSet<LGPower> createPowers() {
+        return ImmutableSet.of(new PetiteFillePower(this));
     }
 
     @Override

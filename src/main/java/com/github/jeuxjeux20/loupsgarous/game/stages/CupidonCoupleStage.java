@@ -5,10 +5,13 @@ import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
-import com.github.jeuxjeux20.loupsgarous.game.cards.CupidonCard;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.*;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractCouplePick;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.Couple;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableRegisterer;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
+import com.github.jeuxjeux20.loupsgarous.game.powers.CupidonPower;
 import com.github.jeuxjeux20.loupsgarous.game.teams.CoupleTeam;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
@@ -180,7 +183,7 @@ public final class CupidonCoupleStage extends CountdownLGStage {
         }
 
         private boolean isCupidon(LGPlayer picker) {
-            return picker.getCard() instanceof CupidonCard;
+            return picker.hasPower(CupidonPower.class);
         }
 
         private boolean isPowerAvailable(LGPlayer picker) {

@@ -1,9 +1,13 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
+import com.github.jeuxjeux20.loupsgarous.game.powers.LGPower;
 import com.github.jeuxjeux20.loupsgarous.game.tags.LGTag;
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.ClassToInstanceMap;
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.MutableClassToInstanceMap;
 import me.lucko.helper.metadata.MetadataMap;
 import org.bukkit.entity.Player;
 
@@ -14,6 +18,7 @@ import java.util.UUID;
 public final class MutableLGPlayer implements LGPlayer {
     private final UUID playerUUID;
     private final Set<LGTag> tags = new HashSet<>();
+    private final ClassToInstanceMap<LGPower> powers = MutableClassToInstanceMap.create();
     private LGCard card;
     private boolean isDead;
     private boolean isAway;
@@ -68,6 +73,15 @@ public final class MutableLGPlayer implements LGPlayer {
 
     public Set<LGTag> getMutableTags() {
         return tags;
+    }
+
+    @Override
+    public ImmutableClassToInstanceMap<LGPower> getPowers() {
+        return ImmutableClassToInstanceMap.copyOf(powers);
+    }
+
+    public ClassToInstanceMap<LGPower> getMutablePowers() {
+        return powers;
     }
 
     @Override
