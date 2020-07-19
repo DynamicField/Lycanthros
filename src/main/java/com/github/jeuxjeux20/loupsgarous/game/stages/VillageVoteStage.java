@@ -2,11 +2,10 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.atmosphere.VoteStructure;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableRegisterer;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVote;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Vote;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.outcome.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.game.kill.causes.VillageVoteKillCause;
 import com.google.inject.Inject;
@@ -22,20 +21,22 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
         title = "Le village va voter."
 )
 public final class VillageVoteStage extends CountdownLGStage {
-    private final VillageVote votable;
+    private final VillageVote vote;
     private final VoteStructure voteStructure;
 
     @Inject
     VillageVoteStage(LGGameOrchestrator orchestrator,
                      VoteStructure.Factory voteStructureFactory,
-                     VillageVote votable) {
+                     InteractableRegisterer<VillageVote> vote) {
         super(orchestrator);
 
-        this.votable = votable;
-        this.voteStructure =
-                voteStructureFactory.create(orchestrator, orchestrator.world().getSpawnLocation(), votable);
+        this.vote = vote.as(LGInteractableKeys.PLAYER_VOTE).boundWith(this);
 
-        registerInteractable(votable);
+        this.voteStructure = voteStructureFactory.create(
+                orchestrator,
+                orchestrator.world().getSpawnLocation(),
+                this.vote
+        );
 
         bind(voteStructure);
         bindModule(voteStructure.createInteractionModule());
@@ -54,7 +55,7 @@ public final class VillageVoteStage extends CountdownLGStage {
     @Override
     public boolean shouldRun() {
         return orchestrator.game().getTurn().getTime() == LGGameTurnTime.DAY &&
-               votable.canSomeonePick();
+               vote.canSomeonePick();
     }
 
     @Override
@@ -64,11 +65,11 @@ public final class VillageVoteStage extends CountdownLGStage {
 
     @Override
     protected void finish() {
-        votable.conclude();
+        vote.conclude();
     }
 
     public VillageVote votes() {
-        return votable;
+        return vote;
     }
 
     @OrchestratorScoped
@@ -89,11 +90,6 @@ public final class VillageVoteStage extends CountdownLGStage {
             }
 
             return maybeMajority.isPresent();
-        }
-
-        @Override
-        public InteractableEntry<Vote<LGPlayer>> getEntry() {
-            return new InteractableEntry<>(LGInteractableKeys.PLAYER_VOTE, this);
         }
 
         @Override

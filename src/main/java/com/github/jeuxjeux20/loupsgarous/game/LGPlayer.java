@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface LGPlayer {
+public interface LGPlayer extends UserFriendlyNamed {
     LGPlayer NULL = Null.INSTANCE;
 
     UUID getPlayerUUID();
@@ -37,6 +37,11 @@ public interface LGPlayer {
     default String getName() {
         String name = getOfflineMinecraftPlayer().getName();
         return name == null ? "[Inconnu]" : name;
+    }
+
+    @Override
+    default String getUserFriendlyName() {
+        return getName();
     }
 
     /**

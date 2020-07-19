@@ -16,38 +16,9 @@ public interface InteractableRegistry extends Terminable, LGGameOrchestratorDepe
 
     <T extends Interactable> SafeSingleBuilder<T> single(InteractableKey<T> key);
 
+    <T extends Interactable> boolean register(InteractableKey<? super T> key, T value);
 
-    <T extends Interactable> boolean put(InteractableKey<T> key, T value);
-
-    default <T extends Interactable> boolean put(InteractableEntry<T> entry) {
-        return put(entry.getKey(), entry.getValue());
-    }
-
-    default boolean put(SelfAwareInteractable interactable) {
-        return put(interactable.getEntry());
-    }
-
-
-    <T extends Interactable> boolean remove(InteractableKey<T> key, T value);
-
-    default <T extends Interactable> boolean remove(InteractableEntry<T> entry) {
-        return remove(entry.getKey(), entry.getValue());
-    }
-
-    default boolean remove(SelfAwareInteractable interactable) {
-        return remove(interactable.getEntry());
-    }
-
-
-    <T extends Interactable> boolean has(InteractableKey<T> key, T value);
-
-    default <T extends Interactable> boolean has(InteractableEntry<T> entry) {
-        return has(entry.getKey(), entry.getValue());
-    }
-
-    default boolean has(SelfAwareInteractable interactable) {
-        return has(interactable.getEntry());
-    }
+    <T extends Interactable> boolean remove(InteractableKey<? super T> key, T value);
 
     Optional<InteractableKey<?>> findKey(String name);
 

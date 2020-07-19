@@ -3,8 +3,10 @@ package com.github.jeuxjeux20.loupsgarous.game.stages.dusk;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.game.cards.VoyanteCard;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerPick;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableRegisterer;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
@@ -21,33 +23,34 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.VOYANTE_SYMBOL;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.importantTip;
 
 public class VoyanteDuskAction extends DuskAction {
-    private final VoyanteLookable lookable;
+    private final VoyanteLookable look;
 
     @Inject
-    VoyanteDuskAction(LGGameOrchestrator orchestrator) {
+    VoyanteDuskAction(LGGameOrchestrator orchestrator,
+                      InteractableRegisterer<VoyanteLookable> look) {
         super(orchestrator);
 
-        lookable = new VoyanteLookable(orchestrator);
+        this.look = look.as(LGInteractableKeys.LOOK).boundWith(this);
     }
 
     @Override
     protected boolean shouldRun() {
-        return orchestrator.game().getPlayers().stream().anyMatch(Check.predicate(lookable.conditions()::checkPicker));
+        return orchestrator.game().getPlayers().stream()
+                .anyMatch(Check.predicate(look.conditions()::checkPicker));
     }
 
     @Override
     protected void onDuskStart() {
-        registerInteractable(LGInteractableKeys.LOOK, lookable);
-
         orchestrator.game().getPlayers().stream()
-                .filter(Check.predicate(lookable.conditions()::checkPicker))
+                .filter(Check.predicate(look.conditions()::checkPicker))
                 .map(LGPlayer::getMinecraftPlayer)
                 .flatMap(OptionalUtils::stream)
                 .forEach(this::sendNotification);
     }
 
     private void sendNotification(Player player) {
-        String text = VOYANTE_SYMBOL + "Vous êtes une voyante ! Faites /lglook <joueur> pour voir le rôle de quelqu'un !";
+        String text = VOYANTE_SYMBOL +
+                      "Vous êtes une voyante ! Faites /lglook <joueur> pour voir le rôle de quelqu'un !";
         player.sendMessage(importantTip(text));
         LGSoundStuff.ding(player);
     }
@@ -58,13 +61,15 @@ public class VoyanteDuskAction extends DuskAction {
     }
 
     public VoyanteLookable look() {
-        return lookable;
+        return look;
     }
 
+    @OrchestratorScoped
     private static final class VoyanteLookable extends AbstractPlayerPick {
         private final List<LGPlayer> playersWhoLooked = new ArrayList<>();
 
-        private VoyanteLookable(LGGameOrchestrator orchestrator) {
+        @Inject
+        VoyanteLookable(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }
 

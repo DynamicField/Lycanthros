@@ -5,9 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.ComponentTemplates;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.cards.SorciereCard;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerPick;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.PickableConditions;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.*;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.kill.LGKill;
@@ -35,20 +33,19 @@ import static me.lucko.helper.text.format.TextDecoration.BOLD;
         title = "La sorcière va utiliser ses potions..."
 )
 public final class SorcierePotionStage extends CountdownLGStage {
-    private final SorciereHealable healable;
-    private final SorciereKillable killable;
+    private final SorciereHeal heal;
+    private final SorciereKill kill;
     private final BaseConditions baseConditions;
 
     @Inject
     SorcierePotionStage(LGGameOrchestrator orchestrator, BaseConditions baseConditions,
-                        SorciereHealable healable, SorciereKillable killable) {
+                        InteractableRegisterer<SorciereHeal> heal,
+                        InteractableRegisterer<SorciereKill> kill) {
         super(orchestrator);
         this.baseConditions = baseConditions;
-        this.healable = healable;
-        this.killable = killable;
 
-        registerInteractable(LGInteractableKeys.HEAL, healable);
-        registerInteractable(LGInteractableKeys.KILL, killable);
+        this.heal = heal.as(LGInteractableKeys.HEAL).boundWith(this);
+        this.kill = kill.as(LGInteractableKeys.KILL).boundWith(this);
     }
 
     @Override
@@ -69,12 +66,12 @@ public final class SorcierePotionStage extends CountdownLGStage {
                 .forEach(this::sendNotification);
     }
 
-    public SorciereHealable heals() {
-        return healable;
+    public SorciereHeal heals() {
+        return heal;
     }
 
-    public SorciereKillable kills() {
-        return killable;
+    public SorciereKill kills() {
+        return kill;
     }
 
     private void sendNotification(LGPlayer player) {
@@ -183,9 +180,9 @@ public final class SorcierePotionStage extends CountdownLGStage {
     }
 
     @OrchestratorScoped
-    public static class SorciereHealable extends SorcierePick {
+    public static class SorciereHeal extends SorcierePick {
         @Inject
-        SorciereHealable(LGGameOrchestrator orchestrator, BaseConditions baseConditions) {
+        SorciereHeal(LGGameOrchestrator orchestrator, BaseConditions baseConditions) {
             super(orchestrator, baseConditions);
         }
 
@@ -222,9 +219,9 @@ public final class SorcierePotionStage extends CountdownLGStage {
     }
 
     @OrchestratorScoped
-    public static class SorciereKillable extends SorcierePick {
+    public static class SorciereKill extends SorcierePick {
         @Inject
-        SorciereKillable(LGGameOrchestrator orchestrator, BaseConditions baseConditions) {
+        SorciereKill(LGGameOrchestrator orchestrator, BaseConditions baseConditions) {
             super(orchestrator, baseConditions);
         }
 
@@ -233,6 +230,7 @@ public final class SorcierePotionStage extends CountdownLGStage {
             return FunctionalPickConditions.<LGPlayer>builder()
                     .apply(PickableConditions::ensureKillTargetAlive)
                     .ensurePicker(this::hasKillPotion, "Vous avez déjà utilisé votre potion de mort !")
+                    .ensureTarget(this::willNotDie, "Ce joueur va déjà mourir !")
                     .build();
         }
 
@@ -253,6 +251,10 @@ public final class SorcierePotionStage extends CountdownLGStage {
 
         private boolean hasKillPotion(LGPlayer player) {
             return ((SorciereCard) player.getCard()).hasKillPotion();
+        }
+
+        private boolean willNotDie(LGPlayer player) {
+            return !orchestrator.kills().pending().contains(player);
         }
     }
 }

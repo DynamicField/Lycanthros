@@ -4,9 +4,8 @@ import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableRegisterer;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Pick;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVote;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.outcome.VoteOutcome;
@@ -26,15 +25,14 @@ import java.util.stream.Collectors;
         isTemporary = true
 )
 public final class MaireElectionStage extends CountdownLGStage {
-    private final MaireVote votable;
+    private final MaireVote vote;
 
     @Inject
-    MaireElectionStage(LGGameOrchestrator orchestrator, MaireVote votable) {
+    MaireElectionStage(LGGameOrchestrator orchestrator,
+                       InteractableRegisterer<MaireVote> vote) {
         super(orchestrator);
 
-        this.votable = votable;
-
-        registerInteractable(votable);
+        this.vote = vote.as(LGInteractableKeys.PLAYER_VOTE).boundWith(this);
     }
 
     @Override
@@ -44,11 +42,11 @@ public final class MaireElectionStage extends CountdownLGStage {
 
     @Override
     protected void finish() {
-        votable.conclude();
+        vote.conclude();
     }
 
     public MaireVote votes() {
-        return votable;
+        return vote;
     }
 
     @OrchestratorScoped
@@ -64,11 +62,6 @@ public final class MaireElectionStage extends CountdownLGStage {
         @Override
         protected PickConditions<LGPlayer> additionalVoteConditions() {
             return PickConditions.empty();
-        }
-
-        @Override
-        public InteractableEntry<? extends Pick<LGPlayer>> getEntry() {
-            return new InteractableEntry<>(LGInteractableKeys.PLAYER_VOTE, this);
         }
 
         @Override

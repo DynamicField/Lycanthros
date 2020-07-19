@@ -11,21 +11,27 @@ import static com.github.jeuxjeux20.loupsgarous.game.interaction.vote.outcome.Vo
 /**
  * This module enables all the functionality needed for using {@code Vote<T>}:
  * <ul>
- *     <li><b>an intrinsic {@code VoteOutcomeDeterminer<T>}</b> which essentially
+ *     <li>
+ *     <b>an intrinsic {@code VoteOutcomeDeterminer<T>}</b> which essentially
  *     determines the vote outcome using a relative majority algorithm.
- *     Retrievable using the @{@link Intrinsic} binding annotation.</li>
- *     <li><b>an aggregating {@code VoteOutcomeTransformer<T>}</b> which applies all the
- *     transformers from the {@code Set<VoteOutcomeTransformer<T>>}.</li>
- *     <li><b>an endpoint {@code VoteOutcomeDeterminer<T>}</b> which retrieves the result
+ *     Retrievable using the @{@link Intrinsic} binding annotation.
+ *     </li>
+ *     <li>
+ *     <b>an aggregating {@code VoteOutcomeTransformer<T>}</b> which applies all the
+ *     transformers from the {@code Set<VoteOutcomeTransformer<T>>}.
+ *     </li>
+ *     <li>
+ *     <b>an endpoint {@code VoteOutcomeDeterminer<T>}</b> which retrieves the result
  *     of the intrinsic {@code VoteOutcomeDeterminer<T>} and applies the aggregating
- *     {@code VoteOutcomeTransformer<T>} on the result.</li>
+ *     {@code VoteOutcomeTransformer<T>} on the result.
+ *     </li>
  * </ul>
  *
+ * @param <T> the candidate type
  * @see Vote
  * @see VoteOutcomeDeterminer
  * @see VoteOutcomeTransformer
  * @see VoteOutcomeTransformersModule
- * @param <T> the candidate type
  */
 public class VoteModule<T> extends AbstractModule {
     private final TypeLiteral<T> voteCandidateType;

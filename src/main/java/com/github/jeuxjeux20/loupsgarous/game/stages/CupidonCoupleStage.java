@@ -6,9 +6,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.game.cards.CupidonCard;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractCouplePick;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.Couple;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.*;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.teams.CoupleTeam;
@@ -32,11 +30,10 @@ public final class CupidonCoupleStage extends CountdownLGStage {
     private final CupidonCoupleCreator coupleCreator;
 
     @Inject
-    CupidonCoupleStage(LGGameOrchestrator orchestrator, CupidonCoupleCreator coupleCreator) {
+    CupidonCoupleStage(LGGameOrchestrator orchestrator,
+                       InteractableRegisterer<CupidonCoupleCreator> coupleCreator) {
         super(orchestrator);
-        this.coupleCreator = coupleCreator;
-
-        registerInteractable(LGInteractableKeys.COUPLE_CREATOR, coupleCreator);
+        this.coupleCreator = coupleCreator.as(LGInteractableKeys.COUPLE_CREATOR).boundWith(this);
     }
 
     @Override
@@ -125,7 +122,8 @@ public final class CupidonCoupleStage extends CountdownLGStage {
         void sendCoupleMessages(LGPlayer cupidon, Couple couple) {
             cupidon.getMinecraftPlayer().ifPresent(player -> {
                 String message = info(HEART_SYMBOL + " ") +
-                                 player(couple.getPartner1().getName()) + info(" et ") + player(couple.getPartner2().getName()) +
+                                 player(couple.getPartner1().getName()) + info(" et ") +
+                                 player(couple.getPartner2().getName()) +
                                  info(" sont maintenant en couple !");
                 player.sendMessage(message);
 

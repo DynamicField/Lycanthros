@@ -43,7 +43,8 @@ public class ShortenVoteCountdownListener implements Listener {
                 .orElse(null);
 
         if (vote == null) {
-            orchestrator.logger().warning("MajorityVoteShortensCountdown: No vote with a key named " + annotation.value() + " found.");
+            orchestrator.logger().warning("MajorityVoteShortensCountdown: No vote with a key named "
+                                          + annotation.value() + " found.");
             return;
         }
 

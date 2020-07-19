@@ -2,7 +2,6 @@ package com.github.jeuxjeux20.loupsgarous.game.stages.dusk;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.SelfBoundOrchestratorInteractableRegisterer;
 import com.google.inject.Inject;
 import me.lucko.helper.terminable.Terminable;
 import me.lucko.helper.terminable.TerminableConsumer;
@@ -12,7 +11,7 @@ import me.lucko.helper.terminable.composite.CompositeTerminable;
 import javax.annotation.Nonnull;
 
 public abstract class DuskAction
-        implements Terminable, TerminableConsumer, LGGameOrchestratorDependent, SelfBoundOrchestratorInteractableRegisterer {
+        implements Terminable, TerminableConsumer, LGGameOrchestratorDependent {
     private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
 
     protected final LGGameOrchestrator orchestrator;

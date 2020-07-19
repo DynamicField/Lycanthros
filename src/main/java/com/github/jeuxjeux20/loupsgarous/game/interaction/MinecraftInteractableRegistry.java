@@ -21,7 +21,8 @@ import java.util.stream.Collectors;
 class MinecraftInteractableRegistry implements InteractableRegistry {
     private final LGGameOrchestrator orchestrator;
 
-    private final SetMultimap<InteractableKey<?>, Interactable> map = MultimapBuilder.hashKeys().hashSetValues().build();
+    private final SetMultimap<InteractableKey<?>, Interactable> map =
+            MultimapBuilder.hashKeys().hashSetValues().build();
 
     @Inject
     MinecraftInteractableRegistry(LGGameOrchestrator orchestrator) {
@@ -32,9 +33,9 @@ class MinecraftInteractableRegistry implements InteractableRegistry {
     @SuppressWarnings("unchecked")
     @Override
     public <T extends Interactable> ImmutableSet<T> get(InteractableKey<T> key) {
-        cleanTerminatedValues(key);
+        ensureValidKey(key);
 
-        // Safe because we check the key type every time we put something.
+        // Safe because we check the key type every time we register something.
         Set<? extends T> interactables = (Set<? extends T>) map.get(key);
 
         return ImmutableSet.copyOf(interactables);
@@ -42,32 +43,29 @@ class MinecraftInteractableRegistry implements InteractableRegistry {
 
     @Override
     public <T extends Interactable> SafeSingleBuilder<T> single(InteractableKey<T> key) {
+        ensureValidKey(key);
+
         return new SafeSingleBuilderImpl<>(key);
     }
 
     @Override
-    public <T extends Interactable> boolean put(InteractableKey<T> key, T value) {
-        checkKeyType(key);
-        Preconditions.checkArgument(value.gameOrchestrator() == orchestrator,
-                "The interactable value's orchestrator (" + value.gameOrchestrator() + ") " +
-                "is not the same as this registry's orchestrator: " + orchestrator);
+    public <T extends Interactable> boolean register(InteractableKey<? super T> key, T value) {
+        ensureValidKey(key);
+        ensureNotTerminated(value);
+        ensureSameOrchestrator(value);
 
-        return map.put(key, value);
+        boolean hasBeenAdded = map.put(key, value);
+        if (hasBeenAdded) {
+            value.addTerminationListener(i -> remove(key, value));
+        }
+        return hasBeenAdded;
     }
 
     @Override
-    public <T extends Interactable> boolean remove(InteractableKey<T> key, T value) {
-        // Close the interactable before we remove it.
-        value.closeAndReportException();
+    public <T extends Interactable> boolean remove(InteractableKey<? super T> key, T value) {
+        ensureValidKey(key);
 
         return map.remove(key, value);
-    }
-
-    @Override
-    public <T extends Interactable> boolean has(InteractableKey<T> key, T value) {
-        cleanTerminatedValues(key);
-
-        return map.containsEntry(key, value);
     }
 
     @Override
@@ -77,8 +75,6 @@ class MinecraftInteractableRegistry implements InteractableRegistry {
 
     @Override
     public ImmutableSetMultimap<InteractableKey<?>, Interactable> getAll() {
-        ImmutableSet.copyOf(map.keySet()).forEach(this::cleanTerminatedValues);
-
         return ImmutableSetMultimap.copyOf(map);
     }
 
@@ -108,7 +104,7 @@ class MinecraftInteractableRegistry implements InteractableRegistry {
         return orchestrator;
     }
 
-    private void checkKeyType(InteractableKey<?> key) {
+    private void ensureValidKey(InteractableKey<?> key) {
         Optional<InteractableKey<?>> maybeActualKey = findKey(key.getName());
 
         maybeActualKey.ifPresent(actualKey -> {
@@ -119,8 +115,16 @@ class MinecraftInteractableRegistry implements InteractableRegistry {
         });
     }
 
-    private void cleanTerminatedValues(InteractableKey<?> key) {
-        map.get(key).removeIf(Interactable::isClosed);
+    private void ensureNotTerminated(Interactable interactable) {
+        if (interactable.isClosed()) {
+            throw new IllegalStateException("The given value has already been closed.");
+        }
+    }
+
+    private void ensureSameOrchestrator(Interactable interactable) {
+        Preconditions.checkArgument(interactable.gameOrchestrator() == orchestrator,
+                "The interactable value's orchestrator (" + interactable.gameOrchestrator() + ") " +
+                "is not the same as this registry's orchestrator: " + orchestrator);
     }
 
     private final class SafeSingleBuilderImpl<T extends Interactable> implements SafeSingleBuilder<T> {

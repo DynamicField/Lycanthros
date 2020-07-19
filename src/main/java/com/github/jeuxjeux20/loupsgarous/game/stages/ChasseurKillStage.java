@@ -8,6 +8,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.cards.ChasseurCard;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.AbstractPlayerPick;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableRegisterer;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
@@ -34,9 +35,9 @@ public final class ChasseurKillStage extends CountdownLGStage {
     ChasseurKillStage(@Assisted LGGameOrchestrator orchestrator, @Assisted LGPlayer chasseur) {
         super(orchestrator);
         this.chasseur = chasseur;
-        this.killable = new ChasseurKill();
-
-        registerInteractable(LGInteractableKeys.KILL, killable);
+        this.killable = InteractableRegisterer.of(ChasseurKill::new)
+                .as(LGInteractableKeys.KILL)
+                .boundWith(this);
 
         orchestrator.stages().descriptors().get(getClass())
                 .setTitle("Le chasseur " + chasseur.getName() + " va tirer sa balle (ou non) !");

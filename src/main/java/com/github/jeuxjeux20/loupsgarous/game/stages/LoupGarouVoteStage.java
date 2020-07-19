@@ -4,12 +4,11 @@ import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatChannel;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LoupsGarousVoteChatChannel;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableEntry;
+import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableRegisterer;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.AbstractPlayerVote;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.Vote;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.vote.outcome.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.game.kill.causes.NightKillCause;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
@@ -34,13 +33,11 @@ public final class LoupGarouVoteStage extends CountdownLGStage {
     @Inject
     LoupGarouVoteStage(LGGameOrchestrator orchestrator,
                        LoupsGarousVoteChatChannel voteChannel,
-                       LoupGarouVote votable) {
+                       InteractableRegisterer<LoupGarouVote> votable) {
         super(orchestrator);
 
         this.voteChannel = voteChannel;
-        this.votable = votable;
-
-        registerInteractable(votable);
+        this.votable = votable.as(LGInteractableKeys.PLAYER_VOTE).boundWith(this);
     }
 
     @Override
@@ -104,11 +101,6 @@ public final class LoupGarouVoteStage extends CountdownLGStage {
             }
 
             return maybeMajority.isPresent();
-        }
-
-        @Override
-        public InteractableEntry<Vote<LGPlayer>> getEntry() {
-            return new InteractableEntry<>(LGInteractableKeys.PLAYER_VOTE, this);
         }
 
         @Override

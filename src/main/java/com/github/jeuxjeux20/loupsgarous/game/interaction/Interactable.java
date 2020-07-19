@@ -23,4 +23,6 @@ public interface Interactable extends Terminable, LGGameOrchestratorDependent {
      */
     @Override
     boolean isClosed();
+
+    void addTerminationListener(TerminationListener<? super Interactable> listener);
 }
