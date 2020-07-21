@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableSet;
 public final class LoupsGarousTeamRevealer implements TeamRevealer {
     @Override
     public ImmutableSet<LGTeam> getTeamsRevealed(LGPlayer viewer, LGPlayer playerToReveal, LGGame game) {
-        if (viewer.isInTeam(LGTeams.LOUPS_GAROUS)) {
+        if (viewer.teams().has(LGTeams.LOUPS_GAROUS)) {
             return ImmutableSet.of(LGTeams.LOUPS_GAROUS);
         }
 

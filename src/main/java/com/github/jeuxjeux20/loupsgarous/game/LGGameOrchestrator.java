@@ -14,10 +14,7 @@ import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameBootstrapData;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LobbyCreationException;
-import com.github.jeuxjeux20.loupsgarous.game.powers.LGPowersOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.tags.LGTagsOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeamsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.terminable.TerminableConsumer;
@@ -42,7 +39,6 @@ import java.util.stream.Stream;
  * <ul>
  *     <li>{@link #chat()}: Send messages using channels. ({@link LGChatOrchestrator}) </li>
  *     <li>{@link #stages()}: Manages the stages of the game. ({@link LGStagesOrchestrator})</li>
- *     <li>{@link #teams()}: Manages cards and their teams. ({@link LGTeamsOrchestrator})</li>
  *     <li>{@link #lobby()}: Manages the lobby and the composition of the game. ({@link LGLobby})</li>
  *     <li>{@link #kills()}: Kill people instantly, or at a later time. ({@link LGKillsOrchestrator})</li>
  * </ul>
@@ -50,7 +46,6 @@ import java.util.stream.Stream;
  * @author jeuxjeux20
  * @see LGChatOrchestrator
  * @see LGStagesOrchestrator
- * @see LGTeamsOrchestrator
  * @see LGKillsOrchestrator
  * @see LGLobby
  * @see LGGameState
@@ -123,13 +118,7 @@ public interface LGGameOrchestrator extends TerminableConsumer {
 
     LGStagesOrchestrator stages();
 
-    LGTeamsOrchestrator teams();
-
-    LGTagsOrchestrator tags();
-
     LGKillsOrchestrator kills();
-
-    LGPowersOrchestrator powers();
 
     LGActionBarManager actionBar();
 

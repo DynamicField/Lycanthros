@@ -54,7 +54,7 @@ public class LoupsGarousChatChannel extends AbstractLGChatChannel implements Ano
     }
 
     protected boolean hasAccess(LGPlayer sender) {
-        return sender.isInTeam(LGTeams.LOUPS_GAROUS);
+        return sender.teams().has(LGTeams.LOUPS_GAROUS);
     }
 
     @Override

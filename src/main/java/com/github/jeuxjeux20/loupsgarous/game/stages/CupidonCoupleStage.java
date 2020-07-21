@@ -101,7 +101,7 @@ public final class CupidonCoupleStage extends CountdownLGStage {
 
         Check partnerCheck(LGPlayer partner) {
             return Check.ensure(partner.isAlive(), partner.getName() + " est mort !")
-                    .and(partner.getTeams().stream().noneMatch(LGTeams::isCouple), partner.getName()
+                    .and(partner.teams().get().stream().noneMatch(LGTeams::isCouple), partner.getName()
                                                                                              + " est déjà en couple !");
         }
 
@@ -112,7 +112,7 @@ public final class CupidonCoupleStage extends CountdownLGStage {
             CoupleTeam coupleTeam = LGTeams.newCouple();
 
             for (LGPlayer partner : couple.getPartners()) {
-                orchestrator.teams().add(partner, coupleTeam);
+                partner.teams().add(coupleTeam);
             }
 
             sendCoupleMessages(cupidon, couple);
@@ -183,7 +183,7 @@ public final class CupidonCoupleStage extends CountdownLGStage {
         }
 
         private boolean isCupidon(LGPlayer picker) {
-            return picker.hasPower(CupidonPower.class);
+            return picker.powers().has(CupidonPower.class);
         }
 
         private boolean isPowerAvailable(LGPlayer picker) {

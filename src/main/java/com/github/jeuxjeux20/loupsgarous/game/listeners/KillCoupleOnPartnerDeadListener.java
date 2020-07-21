@@ -18,11 +18,11 @@ public class KillCoupleOnPartnerDeadListener implements Listener {
         for (LGKill kill : event.getKills()) {
             LGPlayer whoDied = kill.getVictim();
 
-            Optional<LGTeam> coupleTeam = whoDied.getTeams().stream().filter(LGTeams::isCouple).findFirst();
+            Optional<LGTeam> coupleTeam = whoDied.teams().get().stream().filter(LGTeams::isCouple).findFirst();
 
             coupleTeam.ifPresent(team -> {
                 Stream<LGPlayer> partners = event.getGame().getAlivePlayers()
-                        .filter(x -> x.getTeams().contains(team));
+                        .filter(x -> x.teams().get().contains(team));
 
                 partners.forEach(partner -> killPartner(partner, whoDied, event));
             });

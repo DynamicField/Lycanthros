@@ -18,6 +18,6 @@ public final class CoupleWonEnding extends LGEnding {
 
     @Override
     public PlayerGameOutcome getOutcomeFor(LGPlayer player) {
-        return PlayerGameOutcome.wonWhen(player.isInTeam(coupleTeam));
+        return PlayerGameOutcome.wonWhen(player.teams().has(coupleTeam));
     }
 }

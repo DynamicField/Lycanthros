@@ -23,7 +23,7 @@ public class ChasseurKillOnDeathListener implements Listener {
         for (LGKill kill : event.getKills()) {
             LGPlayer victim = kill.getVictim();
 
-            if (victim.hasPower(ChasseurPower.class) && victim.isPresent()) {
+            if (victim.powers().has(ChasseurPower.class) && victim.isPresent()) {
                 event.getOrchestrator().stages().insert(o -> chasseurStageFactory.create(o, victim));
             }
         }

@@ -13,7 +13,6 @@ import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.FunctionalPi
 import com.github.jeuxjeux20.loupsgarous.game.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.game.kill.causes.ChasseurKillCause;
 import com.github.jeuxjeux20.loupsgarous.game.powers.ChasseurPower;
-import com.github.jeuxjeux20.loupsgarous.game.powers.SorcierePower;
 import com.github.jeuxjeux20.loupsgarous.game.winconditions.PostponesWinConditions;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -59,8 +58,6 @@ public final class ChasseurKillStage extends CountdownLGStage {
 
     @Override
     protected void start() {
-        orchestrator.powers().add(chasseur, new SorcierePower(this));
-
         chasseur.getMinecraftPlayer().ifPresent(player -> {
             player.spigot().respawn();
 
@@ -110,12 +107,12 @@ public final class ChasseurKillStage extends CountdownLGStage {
             conditions().throwIfInvalid(picker, target);
 
             killed = true;
-            orchestrator.kills().instantly(target, ChasseurKillCause.INSTANCE);
+            target.die(ChasseurKillCause.INSTANCE);
             getCountdown().interrupt();
         }
 
         private boolean isChasseur(LGPlayer picker) {
-            return picker.hasPower(ChasseurPower.class);
+            return picker.powers().has(ChasseurPower.class);
         }
 
         private boolean isTheirTurn(LGPlayer picker) {

@@ -89,7 +89,7 @@ public final class LoupGarouVoteStage extends CountdownLGStage {
             if (maybeMajority.isPresent()) {
                 LGPlayer majority = maybeMajority.get();
 
-                orchestrator.kills().pending().add(majority, NightKillCause.INSTANCE);
+                majority.dieLater(NightKillCause.INSTANCE);
                 orchestrator.chat().sendMessage(voteChannel,
                         ChatColor.AQUA + "Les loups ont décidé de tuer " +
                         player(majority.getName()) + ChatColor.AQUA + "."
@@ -126,7 +126,7 @@ public final class LoupGarouVoteStage extends CountdownLGStage {
         }
 
         private boolean isLoupGarou(LGPlayer picker) {
-            return picker.isInTeam(LGTeams.LOUPS_GAROUS);
+            return picker.teams().has(LGTeams.LOUPS_GAROUS);
         }
     }
 }

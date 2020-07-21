@@ -83,7 +83,7 @@ public final class SorcierePotionStage extends CountdownLGStage {
 
     // This is really long.
     private void sendNotification(LGPlayer player, Player minecraftPlayer) {
-        SorcierePower power = player.getPowerOrThrow(SorcierePower.class);
+        SorcierePower power = player.powers().getOrThrow(SorcierePower.class);
 
         TextComponent.Builder builder = TextComponent.builder("")
                 .append(TextComponent.of("==== Vous êtes la sorcière !")
@@ -159,7 +159,7 @@ public final class SorcierePotionStage extends CountdownLGStage {
     private static final class BaseConditions {
         public Check canAct(LGPlayer player) {
             return Check.ensure(player.isAlive(), "Vous êtes mort !")
-                    .and(player.hasPower(SorcierePower.class), "Vous n'êtes pas une sorcière !");
+                    .and(player.powers().has(SorcierePower.class), "Vous n'êtes pas une sorcière !");
         }
     }
 
@@ -193,16 +193,16 @@ public final class SorcierePotionStage extends CountdownLGStage {
         protected PickConditions<LGPlayer> powerConditions() {
             return FunctionalPickConditions.<LGPlayer>builder()
                     .ensurePicker(this::hasHealPotion, "Vous avez déjà utilisé votre potion de soin !")
-                    .ensureTarget(this::willDieTonight, "Ce joueur ne va pas mourir ce tour ci.")
+                    .ensureTarget(LGPlayer::willDie, "Ce joueur ne va pas mourir ce tour ci.")
                     .build();
         }
 
         @Override
         protected void safePick(LGPlayer healer, LGPlayer target) {
-            SorcierePower power = healer.getPowerOrThrow(SorcierePower.class);
+            SorcierePower power = healer.powers().getOrThrow(SorcierePower.class);
 
             power.useHealPotion();
-            orchestrator.kills().pending().remove(target);
+            target.cancelFutureDeath();
 
             healer.getMinecraftPlayer().ifPresent(player ->
                     player.sendMessage(
@@ -213,11 +213,7 @@ public final class SorcierePotionStage extends CountdownLGStage {
         }
 
         private boolean hasHealPotion(LGPlayer player) {
-            return player.getPowerOrThrow(SorcierePower.class).hasHealPotion();
-        }
-
-        private boolean willDieTonight(LGPlayer player) {
-            return orchestrator.kills().pending().contains(player);
+            return player.powers().getOrThrow(SorcierePower.class).hasHealPotion();
         }
     }
 
@@ -233,16 +229,16 @@ public final class SorcierePotionStage extends CountdownLGStage {
             return FunctionalPickConditions.<LGPlayer>builder()
                     .apply(PickableConditions::ensureKillTargetAlive)
                     .ensurePicker(this::hasKillPotion, "Vous avez déjà utilisé votre potion de mort !")
-                    .ensureTarget(this::willNotDie, "Ce joueur va déjà mourir !")
+                    .ensureTarget(LGPlayer::willNotDie, "Ce joueur va déjà mourir !")
                     .build();
         }
 
         @Override
         protected void safePick(LGPlayer killer, LGPlayer target) {
-            SorcierePower power = killer.getPowerOrThrow(SorcierePower.class);
+            SorcierePower power = killer.powers().getOrThrow(SorcierePower.class);
 
             power.useKillPotion();
-            orchestrator.kills().pending().add(target, NightKillCause.INSTANCE);
+            target.dieLater(NightKillCause.INSTANCE);
 
             killer.getMinecraftPlayer().ifPresent(player ->
                     player.sendMessage(
@@ -253,11 +249,7 @@ public final class SorcierePotionStage extends CountdownLGStage {
         }
 
         private boolean hasKillPotion(LGPlayer player) {
-            return player.getPowerOrThrow(SorcierePower.class).hasKillPotion();
-        }
-
-        private boolean willNotDie(LGPlayer player) {
-            return !orchestrator.kills().pending().contains(player);
+            return player.powers().getOrThrow(SorcierePower.class).hasKillPotion();
         }
     }
 }

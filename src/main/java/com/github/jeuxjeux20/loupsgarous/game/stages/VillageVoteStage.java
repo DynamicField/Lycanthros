@@ -84,7 +84,7 @@ public final class VillageVoteStage extends CountdownLGStage {
             Optional<LGPlayer> maybeMajority = outcome.getElected();
 
             if (maybeMajority.isPresent()) {
-                orchestrator.kills().instantly(maybeMajority.get(), VillageVoteKillCause.INSTANCE);
+                maybeMajority.get().die(VillageVoteKillCause.INSTANCE);
             } else {
                 orchestrator.chat().sendToEveryone(info("Le village n'a pas pu se décider !"));
             }

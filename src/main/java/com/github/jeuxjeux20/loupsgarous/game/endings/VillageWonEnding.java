@@ -12,6 +12,6 @@ public final class VillageWonEnding extends LGEnding {
 
     @Override
     public PlayerGameOutcome getOutcomeFor(LGPlayer player) {
-        return PlayerGameOutcome.wonWhen(player.isInTeam(LGTeams.VILLAGEOIS));
+        return PlayerGameOutcome.wonWhen(player.teams().has(LGTeams.VILLAGEOIS));
     }
 }

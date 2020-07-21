@@ -19,7 +19,7 @@ public class PetiteFilleSpyInterceptor extends LGChatChannelInterceptor implemen
     }
 
     private boolean canSpy(LGPlayer sender) {
-        return sender.hasPower(PetiteFillePower.class) &&
+        return sender.powers().has(PetiteFillePower.class) &&
                sender.isAlive();
     }
 

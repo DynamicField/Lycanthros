@@ -1,9 +1,13 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
+import com.github.jeuxjeux20.loupsgarous.game.kill.causes.LGKillCause;
 import com.github.jeuxjeux20.loupsgarous.game.powers.LGPower;
+import com.github.jeuxjeux20.loupsgarous.game.powers.PowerRegistry;
 import com.github.jeuxjeux20.loupsgarous.game.tags.LGTag;
+import com.github.jeuxjeux20.loupsgarous.game.tags.TagRegistry;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
+import com.github.jeuxjeux20.loupsgarous.game.teams.TeamRegistry;
 import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.metadata.MetadataMap;
@@ -11,7 +15,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,45 +27,37 @@ public interface LGPlayer extends UserFriendlyNamed {
 
     boolean isDead();
 
-    boolean isAway();
-
-    ImmutableSet<LGTag> getTags();
-
-    ImmutableSet<LGTeam> getTeams();
-
-    default boolean isInTeam(LGTeam team) {
-        return getTeams().contains(team);
-    }
-
-    ImmutableClassToInstanceMap<LGPower> getPowers();
-
-    default boolean hasPower(Class<? extends LGPower> power) {
-        return getPowers().containsKey(power);
-    }
-
-    default <T extends LGPower> Optional<T> getPower(Class<T> powerClass) {
-        return Optional.ofNullable(getPowers().getInstance(powerClass));
-    }
-
-    default <T extends LGPower> T getPowerOrThrow(Class<T> powerClass) {
-        T power = getPowers().getInstance(powerClass);
-
-        if (power == null) {
-            throw new NoSuchElementException("No power with class " + powerClass + " found.");
-        }
-
-        return power;
-    }
-
-    MetadataMap metadata();
-
     default boolean isAlive() {
         return !isDead();
     }
 
+    boolean isAway();
+
     default boolean isPresent() {
         return !isAway();
     }
+
+    TeamRegistry teams();
+
+    TagRegistry tags();
+
+    PowerRegistry powers();
+
+    MetadataMap metadata();
+
+    void changeCard(LGCard newCard);
+
+    boolean willDie();
+
+    default boolean willNotDie() {
+        return !willDie();
+    }
+
+    void die(LGKillCause cause);
+
+    void dieLater(LGKillCause cause);
+
+    void cancelFutureDeath();
 
     default String getName() {
         String name = getOfflineMinecraftPlayer().getName();
@@ -134,18 +129,113 @@ public interface LGPlayer extends UserFriendlyNamed {
         }
 
         @Override
-        public ImmutableSet<LGTag> getTags() {
-            return ImmutableSet.of();
+        public TeamRegistry teams() {
+            return new TeamRegistry() {
+                @Override
+                public ImmutableSet<LGTeam> get() {
+                    return ImmutableSet.of();
+                }
+
+                @Override
+                public boolean add(LGTeam item) {
+                    return false;
+                }
+
+                @Override
+                public boolean has(LGTeam item) {
+                    return false;
+                }
+
+                @Override
+                public boolean remove(LGTeam item) {
+                    return false;
+                }
+            };
         }
 
         @Override
-        public ImmutableSet<LGTeam> getTeams() {
-            return ImmutableSet.of();
+        public TagRegistry tags() {
+            return new TagRegistry() {
+                @Override
+                public ImmutableSet<LGTag> get() {
+                    return ImmutableSet.of();
+                }
+
+                @Override
+                public boolean add(LGTag item) {
+                    return false;
+                }
+
+                @Override
+                public boolean has(LGTag item) {
+                    return false;
+                }
+
+                @Override
+                public boolean remove(LGTag item) {
+                    return false;
+                }
+            };
         }
 
         @Override
-        public ImmutableClassToInstanceMap<LGPower> getPowers() {
-            return ImmutableClassToInstanceMap.of();
+        public PowerRegistry powers() {
+           return new PowerRegistry() {
+               @Override
+               public ImmutableClassToInstanceMap<LGPower> get() {
+                   return ImmutableClassToInstanceMap.of();
+               }
+
+               @Override
+               public <T extends LGPower> Optional<T> get(Class<T> powerClass) {
+                   return Optional.empty();
+               }
+
+               @Override
+               public <T extends LGPower> T getOrThrow(Class<T> powerClass) {
+                   return null;
+               }
+
+               @Override
+               public void put(LGPower power) {
+
+               }
+
+               @Override
+               public boolean has(Class<? extends LGPower> powerClass) {
+                   return false;
+               }
+
+               @Override
+               public boolean remove(Class<? extends LGPower> powerClass) {
+                   return false;
+               }
+           };
+        }
+
+        @Override
+        public void changeCard(LGCard newCard) {
+
+        }
+
+        @Override
+        public boolean willDie() {
+            return false;
+        }
+
+        @Override
+        public void die(LGKillCause cause) {
+
+        }
+
+        @Override
+        public void dieLater(LGKillCause cause) {
+
+        }
+
+        @Override
+        public void cancelFutureDeath() {
+
         }
 
         @Override

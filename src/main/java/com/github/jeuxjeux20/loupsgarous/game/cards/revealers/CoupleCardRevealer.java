@@ -19,6 +19,6 @@ public final class CoupleCardRevealer implements CardRevealer {
     }
 
     private List<LGTeam> getCouples(LGPlayer player) {
-        return player.getTeams().stream().filter(LGTeams::isCouple).collect(Collectors.toList());
+        return player.teams().get().stream().filter(LGTeams::isCouple).collect(Collectors.toList());
     }
 }

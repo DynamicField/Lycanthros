@@ -75,10 +75,12 @@ class MinecraftLGLobby implements LGLobby {
     }
 
     @Override
-    public MutableLGPlayer addPlayer(Player player) throws PlayerJoinException {
+    public LGPlayer addPlayer(Player player) throws PlayerJoinException {
         checkPlayer(player);
 
-        MutableLGPlayer lgPlayer = new MutableLGPlayer(player);
+        InternalLGPlayer lgPlayer = new OrchestratedLGPlayer(
+                new BackingLGPlayer(player), orchestrator
+        );
         getGame().addPlayer(lgPlayer);
 
         if (orchestrator.state() != LGGameState.UNINITIALIZED) {
@@ -95,17 +97,17 @@ class MinecraftLGLobby implements LGLobby {
         return lgPlayer;
     }
 
-    private void onPlayerAdd(Player player, MutableLGPlayer lgPlayer) {
+    private void onPlayerAdd(Player player, LGPlayer lgPlayer) {
         Events.call(new LGPlayerJoinEvent(orchestrator, player, lgPlayer));
         lobbyTeleporter.teleportPlayerIn(player);
     }
 
     @Override
     public boolean removePlayer(UUID playerUUID) {
-        MutableLGPlayer player = getGame().getPlayer(playerUUID).filter(LGPlayer::isPresent).orElse(null);
+        InternalLGPlayer player = getGame().getPlayer(playerUUID).filter(LGPlayer::isPresent).orElse(null);
         if (player == null) return false;
 
-        player.setAway(true);
+        player.goAway();
         if (!isLocked()) {
             // Let's not remove the player when the game's locked.
             // This would lead to weird reference issues.
@@ -143,13 +145,13 @@ class MinecraftLGLobby implements LGLobby {
 
     @Override
     public LGPlayer getOwner() {
-        MutableLGPlayer owner = getGame().getOwner();
+        LGPlayer owner = getGame().getOwner();
         return owner == null ? LGPlayer.NULL : owner;
     }
 
     @Override
     public void setOwner(LGPlayer owner) {
-        MutableLGPlayer newOwner = getGame().ensurePresent(owner);
+        LGPlayer newOwner = getGame().ensurePresent(owner);
 
         if (owner == getGame().getOwner()) return;
 

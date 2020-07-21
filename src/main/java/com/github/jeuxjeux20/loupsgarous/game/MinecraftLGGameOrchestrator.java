@@ -16,12 +16,9 @@ import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.kill.causes.PlayerQuitKillCause;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameBootstrapData;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
-import com.github.jeuxjeux20.loupsgarous.game.powers.LGPowersOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardManager;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.tags.LGTagsOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeamsOrchestrator;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
@@ -220,31 +217,10 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     }
 
     @Override
-    public LGTeamsOrchestrator teams() {
-        checkDelayedDependencies();
-
-        return delayedDependencies.teamsOrchestrator;
-    }
-
-    @Override
-    public LGTagsOrchestrator tags() {
-        checkDelayedDependencies();
-
-        return delayedDependencies.tagsOrchestrator;
-    }
-
-    @Override
     public LGKillsOrchestrator kills() {
         checkDelayedDependencies();
 
         return delayedDependencies.killsOrchestrator;
-    }
-
-    @Override
-    public LGPowersOrchestrator powers() {
-        checkDelayedDependencies();
-
-        return delayedDependencies.powersOrchestrator;
     }
 
     @Override
@@ -329,12 +305,9 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         final LGChatOrchestrator chatOrchestrator;
         final LGBossBarManager bossBarManager;
         final LGActionBarManager actionBarManager;
-        final LGTeamsOrchestrator teamsOrchestrator;
-        final LGTagsOrchestrator tagsOrchestrator;
         final LGStagesOrchestrator stagesOrchestrator;
         final LGKillsOrchestrator killsOrchestrator;
         final InteractableRegistry interactableRegistry;
-        final LGPowersOrchestrator powersOrchestrator;
 
         @Inject
         DelayedDependencies(LGScoreboardManager scoreboardManager,
@@ -342,23 +315,17 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
                             LGChatOrchestrator chatOrchestrator,
                             LGBossBarManager bossBarManager,
                             LGActionBarManager actionBarManager,
-                            LGTeamsOrchestrator teamsOrchestrator,
-                            LGTagsOrchestrator tagsOrchestrator,
                             LGStagesOrchestrator stagesOrchestrator,
                             LGKillsOrchestrator killsOrchestrator,
-                            InteractableRegistry interactableRegistry,
-                            LGPowersOrchestrator powersOrchestrator) {
+                            InteractableRegistry interactableRegistry) {
             this.scoreboardManager = scoreboardManager;
             this.inventoryManager = inventoryManager;
             this.chatOrchestrator = chatOrchestrator;
             this.bossBarManager = bossBarManager;
             this.actionBarManager = actionBarManager;
-            this.teamsOrchestrator = teamsOrchestrator;
-            this.tagsOrchestrator = tagsOrchestrator;
             this.stagesOrchestrator = stagesOrchestrator;
             this.killsOrchestrator = killsOrchestrator;
             this.interactableRegistry = interactableRegistry;
-            this.powersOrchestrator = powersOrchestrator;
         }
     }
 }

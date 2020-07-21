@@ -7,7 +7,5 @@ public final class LGTagsModule extends AbstractModule {
     @Override
     protected void configure() {
         install(new LGTagRevealersModule());
-
-        bind(LGTagsOrchestrator.class).to(MinecraftLGTagsOrchestrator.class);
     }
 }

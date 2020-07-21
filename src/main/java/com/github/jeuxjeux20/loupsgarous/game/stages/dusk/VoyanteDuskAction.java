@@ -106,7 +106,7 @@ public class VoyanteDuskAction extends DuskAction {
         }
 
         private boolean isVoyante(LGPlayer player) {
-            return player.hasPower(VoyantePower.class);
+            return player.powers().has(VoyantePower.class);
         }
     }
 }

@@ -65,21 +65,21 @@ public final class MaireElectionStage extends CountdownLGStage {
         }
 
         @Override
-        public String getPointingText() {
-            return "vote pour";
-        }
-
-        @Override
         protected boolean conclude(VoteOutcome<LGPlayer> outcome) {
             LGPlayer electedPlayer = outcome.getElected().orElseGet(this::drawRandomPlayer);
 
-            orchestrator.tags().add(electedPlayer, LGTags.MAIRE);
+            electedPlayer.tags().add(LGTags.MAIRE);
             orchestrator.chat().sendToEveryone(
                     ChatColor.DARK_AQUA + ChatColor.BOLD.toString() + electedPlayer.getName() +
                     ChatColor.DARK_AQUA + " a été élu maire."
             );
 
             return true;
+        }
+
+        @Override
+        public String getPointingText() {
+            return "vote pour";
         }
 
         private LGPlayer drawRandomPlayer() {

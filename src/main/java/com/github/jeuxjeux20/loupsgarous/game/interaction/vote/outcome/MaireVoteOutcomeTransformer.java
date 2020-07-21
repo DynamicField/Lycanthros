@@ -15,7 +15,7 @@ public class MaireVoteOutcomeTransformer implements VoteOutcomeTransformer<LGPla
             @Override
             public VoteOutcome<LGPlayer> visit(IndecisiveVoteOutcome<LGPlayer> indecisiveVoteOutcome) {
                 for (LGPlayer conflictingCandidate : indecisiveVoteOutcome.getConflictingCandidates()) {
-                    if (conflictingCandidate.getTags().contains(LGTags.MAIRE)) {
+                    if (conflictingCandidate.tags().has(LGTags.MAIRE)) {
                         return new RelativeMajorityVoteOutcome<>(conflictingCandidate);
                     }
                 }

@@ -27,6 +27,6 @@ public class OnlyAliveTeamWinCondition implements WinCondition {
     }
 
     private boolean allSameTeam(LGPlayer x) {
-        return x.getTeams().stream().allMatch(n -> n.equals(team));
+        return x.teams().get().stream().allMatch(n -> n.equals(team));
     }
 }

@@ -6,8 +6,6 @@ import com.github.jeuxjeux20.loupsgarous.game.tags.LGTag;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ClassToInstanceMap;
-import com.google.common.collect.ImmutableClassToInstanceMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.MutableClassToInstanceMap;
 import me.lucko.helper.metadata.MetadataMap;
 import org.bukkit.entity.Player;
@@ -16,7 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public final class MutableLGPlayer implements LGPlayer {
+public final class BackingLGPlayer {
     private final UUID playerUUID;
     private final Set<LGTag> tags = new HashSet<>();
     private final Set<LGTeam> teams = new HashSet<>();
@@ -27,21 +25,19 @@ public final class MutableLGPlayer implements LGPlayer {
 
     private final MetadataMap metadataMap = MetadataMap.create();
 
-    public MutableLGPlayer(Player player) {
+    public BackingLGPlayer(Player player) {
         this(player.getUniqueId(), new LGCard.Unknown());
     }
 
-    public MutableLGPlayer(UUID playerUUID, LGCard card) {
+    public BackingLGPlayer(UUID playerUUID, LGCard card) {
         this.playerUUID = playerUUID;
         this.card = card;
     }
 
-    @Override
     public UUID getPlayerUUID() {
         return playerUUID;
     }
 
-    @Override
     public LGCard getCard() {
         return card;
     }
@@ -50,7 +46,6 @@ public final class MutableLGPlayer implements LGPlayer {
         this.card = card;
     }
 
-    @Override
     public boolean isDead() {
         return isDead;
     }
@@ -59,7 +54,6 @@ public final class MutableLGPlayer implements LGPlayer {
         isDead = dead;
     }
 
-    @Override
     public boolean isAway() {
         return isAway;
     }
@@ -68,34 +62,18 @@ public final class MutableLGPlayer implements LGPlayer {
         this.isAway = isAway;
     }
 
-    @Override
-    public ImmutableSet<LGTag> getTags() {
-        return ImmutableSet.copyOf(tags);
-    }
-
-    public Set<LGTag> getMutableTags() {
+    public Set<LGTag> getTags() {
         return tags;
     }
 
-    @Override
-    public ImmutableSet<LGTeam> getTeams() {
-        return ImmutableSet.copyOf(teams);
-    }
-
-    public Set<LGTeam> getMutableTeams() {
+    public Set<LGTeam> getTeams() {
         return teams;
     }
 
-    @Override
-    public ImmutableClassToInstanceMap<LGPower> getPowers() {
-        return ImmutableClassToInstanceMap.copyOf(powers);
-    }
-
-    public ClassToInstanceMap<LGPower> getMutablePowers() {
+    public ClassToInstanceMap<LGPower> getPowers() {
         return powers;
     }
 
-    @Override
     public MetadataMap metadata() {
         return metadataMap;
     }

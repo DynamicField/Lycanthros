@@ -12,6 +12,6 @@ public final class LoupsGarousWonEnding extends LGEnding {
 
     @Override
     public PlayerGameOutcome getOutcomeFor(LGPlayer player) {
-        return PlayerGameOutcome.wonWhen(player.isInTeam(LGTeams.LOUPS_GAROUS));
+        return PlayerGameOutcome.wonWhen(player.teams().has(LGTeams.LOUPS_GAROUS));
     }
 }

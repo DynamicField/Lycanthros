@@ -7,7 +7,5 @@ public final class LGTeamsModule extends AbstractModule {
     @Override
     protected void configure() {
         install(new LGTeamRevealersModule());
-
-        bind(LGTeamsOrchestrator.class).to(MinecraftLGTeamsOrchestrator.class);
     }
 }
