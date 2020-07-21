@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.MutableLGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.InternalLGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -64,7 +64,7 @@ public interface LGLobby extends LGGameOrchestratorDependent {
 
 
     interface Factory {
-        LGLobby create(LGGameBootstrapData lobbyInfo, MutableLGGameOrchestrator orchestrator)
+        LGLobby create(LGGameBootstrapData lobbyInfo, InternalLGGameOrchestrator orchestrator)
                 throws LobbyCreationException;
     }
 }

@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.kill;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.MutableLGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.InternalLGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.google.inject.Inject;
 
@@ -11,12 +11,12 @@ import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.STARTED;
 
 @OrchestratorScoped
 public class MinecraftLGKillsOrchestrator implements LGKillsOrchestrator {
-    private final MutableLGGameOrchestrator gameOrchestrator;
+    private final InternalLGGameOrchestrator gameOrchestrator;
     private final PendingKillRegistry pendingKillRegistry;
     private final PlayerKiller playerKiller;
 
     @Inject
-    MinecraftLGKillsOrchestrator(MutableLGGameOrchestrator gameOrchestrator,
+    MinecraftLGKillsOrchestrator(InternalLGGameOrchestrator gameOrchestrator,
                                  PendingKillRegistry pendingKillRegistry,
                                  PlayerKiller playerKiller) {
         this.gameOrchestrator = gameOrchestrator;

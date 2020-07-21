@@ -16,7 +16,7 @@ import me.lucko.helper.metadata.MetadataMap;
 
 import java.util.*;
 
-public class OrchestratedLGPlayer implements InternalLGPlayer {
+public class OrchestratedLGPlayer implements LGPlayer {
     private final BackingLGPlayer backingPlayer;
     private final LGGameOrchestrator orchestrator;
 
@@ -234,7 +234,6 @@ public class OrchestratedLGPlayer implements InternalLGPlayer {
 
     // Internal methods
 
-    @Override
     public void dieSilently() {
         if (backingPlayer.isDead()) {
             throw new IllegalStateException("This player is already dead."); // NANI???
@@ -242,7 +241,6 @@ public class OrchestratedLGPlayer implements InternalLGPlayer {
         backingPlayer.setDead(true);
     }
 
-    @Override
     public void goAway() {
         if (backingPlayer.isAway()) {
             throw new IllegalStateException("This player is already away.");

@@ -14,17 +14,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-public final class MutableLGGame implements LGGame {
+public final class OrchestratedLGGame implements LGGame {
     private final String id;
-    private final Map<UUID, InternalLGPlayer> playersByUUID = new HashMap<>();
+    private final Map<UUID, OrchestratedLGPlayer> playersByUUID = new HashMap<>();
     private final MutableLGGameTurn turn = new MutableLGGameTurn();
     private final MetadataMap metadataMap = MetadataMap.create();
 
     private LGGameState state = LGGameState.UNINITIALIZED;
     private @Nullable LGEnding ending;
-    private InternalLGPlayer owner;
+    private OrchestratedLGPlayer owner;
 
-    public MutableLGGame(String id) {
+    public OrchestratedLGGame(String id) {
         this.id = id;
     }
 
@@ -73,7 +73,7 @@ public final class MutableLGGame implements LGGame {
     }
 
     @Override
-    public InternalLGPlayer getOwner() {
+    public @Nullable OrchestratedLGPlayer getOwner() {
         return owner;
     }
 
@@ -87,13 +87,13 @@ public final class MutableLGGame implements LGGame {
     }
 
     @Override
-    public Optional<InternalLGPlayer> getPlayer(UUID playerUUID) {
+    public Optional<OrchestratedLGPlayer> getPlayer(UUID playerUUID) {
         return Optional.ofNullable(playersByUUID.get(playerUUID));
     }
 
     @Override
-    public InternalLGPlayer getPlayerOrThrow(UUID playerUUID) {
-        InternalLGPlayer player = playersByUUID.get(playerUUID);
+    public OrchestratedLGPlayer getPlayerOrThrow(UUID playerUUID) {
+        OrchestratedLGPlayer player = playersByUUID.get(playerUUID);
         if (player == null) {
             throw new PlayerAbsentException(
                     "The given player UUID " + playerUUID +
@@ -103,15 +103,15 @@ public final class MutableLGGame implements LGGame {
     }
 
     @Override
-    public InternalLGPlayer ensurePresent(LGPlayer player) {
-        if (!(player instanceof InternalLGPlayer) || !playersByUUID.containsValue(player)) {
+    public OrchestratedLGPlayer ensurePresent(LGPlayer player) {
+        if (!(player instanceof OrchestratedLGPlayer) || !playersByUUID.containsValue(player)) {
             throw new PlayerAbsentException(
                     "The given player " + player + " is not present in game " + this);
         }
-        return (InternalLGPlayer) player;
+        return (OrchestratedLGPlayer) player;
     }
 
-    public void addPlayer(InternalLGPlayer player) {
+    public void addPlayer(OrchestratedLGPlayer player) {
         if (playersByUUID.containsValue(player)) {
             throw new IllegalArgumentException("This player is already present.");
         }

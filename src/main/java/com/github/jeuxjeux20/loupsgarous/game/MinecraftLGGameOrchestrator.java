@@ -37,14 +37,14 @@ import java.util.logging.Logger;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.*;
 
-class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
+class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
     // Terminables
     private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
     // Base dependencies
     private final LoupsGarous plugin;
     private final LGGameOrchestratorLogger logger;
     // Game state
-    private final MutableLGGame game;
+    private final OrchestratedLGGame game;
     // Components
     private final LGLobby lobby;
     private final CardDistributor cardDistributor;
@@ -62,7 +62,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
         this.plugin = plugin;
         this.cardDistributor = cardDistributor;
         this.scope = scope;
-        this.game = new MutableLGGame(bootstrapData.getId());
+        this.game = new OrchestratedLGGame(bootstrapData.getId());
         this.logger = new LGGameOrchestratorLogger(this);
         this.delayedDependenciesProvider = delayedDependenciesProvider;
 
@@ -72,7 +72,7 @@ class MinecraftLGGameOrchestrator implements MutableLGGameOrchestrator {
     }
 
     @Override
-    public MutableLGGame game() {
+    public OrchestratedLGGame game() {
         return game;
     }
 

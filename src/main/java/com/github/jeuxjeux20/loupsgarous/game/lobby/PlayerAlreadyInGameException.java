@@ -7,7 +7,7 @@ public class PlayerAlreadyInGameException extends PlayerJoinException {
     }
 
     public PlayerAlreadyInGameException(Player player) {
-        this("The player '" + player + "' is already in a game.");
+        this("The player '" + player.getName() + "' is already in a game.");
     }
 
     public PlayerAlreadyInGameException(String message) {

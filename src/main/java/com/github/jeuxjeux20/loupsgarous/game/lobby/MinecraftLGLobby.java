@@ -18,14 +18,14 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.util.UUID;
 
 class MinecraftLGLobby implements LGLobby {
-    private final MutableLGGameOrchestrator orchestrator;
+    private final InternalLGGameOrchestrator orchestrator;
     private final LobbyTeleporter lobbyTeleporter;
     private final LGGameManager gameManager;
     private final LGLobbyCompositionManager compositionManager;
 
     @Inject
     MinecraftLGLobby(@Assisted LGGameBootstrapData bootstrapData,
-                     @Assisted MutableLGGameOrchestrator orchestrator,
+                     @Assisted InternalLGGameOrchestrator orchestrator,
                      LobbyTeleporter.Factory lobbyTeleporterFactory,
                      LGGameManager gameManager,
                      LGLobbyCompositionManager.Factory compositionManagerFactory) throws LobbyCreationException {
@@ -78,7 +78,7 @@ class MinecraftLGLobby implements LGLobby {
     public LGPlayer addPlayer(Player player) throws PlayerJoinException {
         checkPlayer(player);
 
-        InternalLGPlayer lgPlayer = new OrchestratedLGPlayer(
+        OrchestratedLGPlayer lgPlayer = new OrchestratedLGPlayer(
                 new BackingLGPlayer(player), orchestrator
         );
         getGame().addPlayer(lgPlayer);
@@ -104,7 +104,9 @@ class MinecraftLGLobby implements LGLobby {
 
     @Override
     public boolean removePlayer(UUID playerUUID) {
-        InternalLGPlayer player = getGame().getPlayer(playerUUID).filter(LGPlayer::isPresent).orElse(null);
+        OrchestratedLGPlayer player = getGame().getPlayer(playerUUID)
+                .filter(LGPlayer::isPresent)
+                .orElse(null);
         if (player == null) return false;
 
         player.goAway();
@@ -178,7 +180,7 @@ class MinecraftLGLobby implements LGLobby {
                 .bindWith(orchestrator);
     }
 
-    private MutableLGGame getGame() {
+    private OrchestratedLGGame getGame() {
         return orchestrator.game();
     }
 }
