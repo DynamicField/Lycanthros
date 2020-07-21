@@ -3,6 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.powers.LGPower;
 import com.github.jeuxjeux20.loupsgarous.game.tags.LGTag;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ClassToInstanceMap;
 import com.google.common.collect.ImmutableClassToInstanceMap;
@@ -18,6 +19,7 @@ import java.util.UUID;
 public final class MutableLGPlayer implements LGPlayer {
     private final UUID playerUUID;
     private final Set<LGTag> tags = new HashSet<>();
+    private final Set<LGTeam> teams = new HashSet<>();
     private final ClassToInstanceMap<LGPower> powers = MutableClassToInstanceMap.create();
     private LGCard card;
     private boolean isDead;
@@ -73,6 +75,15 @@ public final class MutableLGPlayer implements LGPlayer {
 
     public Set<LGTag> getMutableTags() {
         return tags;
+    }
+
+    @Override
+    public ImmutableSet<LGTeam> getTeams() {
+        return ImmutableSet.copyOf(teams);
+    }
+
+    public Set<LGTeam> getMutableTeams() {
+        return teams;
     }
 
     @Override

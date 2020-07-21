@@ -126,7 +126,7 @@ public final class LoupGarouVoteStage extends CountdownLGStage {
         }
 
         private boolean isLoupGarou(LGPlayer picker) {
-            return picker.getCard().isInTeam(LGTeams.LOUPS_GAROUS);
+            return picker.isInTeam(LGTeams.LOUPS_GAROUS);
         }
     }
 }

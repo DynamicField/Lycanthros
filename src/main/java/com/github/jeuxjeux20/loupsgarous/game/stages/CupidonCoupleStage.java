@@ -101,7 +101,7 @@ public final class CupidonCoupleStage extends CountdownLGStage {
 
         Check partnerCheck(LGPlayer partner) {
             return Check.ensure(partner.isAlive(), partner.getName() + " est mort !")
-                    .and(partner.getCard().getTeams().stream().noneMatch(LGTeams::isCouple), partner.getName()
+                    .and(partner.getTeams().stream().noneMatch(LGTeams::isCouple), partner.getName()
                                                                                              + " est déjà en couple !");
         }
 

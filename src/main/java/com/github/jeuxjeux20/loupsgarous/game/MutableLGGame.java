@@ -4,6 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.distribution.CardDistributor;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
+import com.github.jeuxjeux20.loupsgarous.game.powers.LGPower;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.metadata.MetadataMap;
@@ -31,6 +32,10 @@ public final class MutableLGGame implements LGGame {
             MutableLGPlayer player = ensurePresent(entry.getKey());
 
             player.setCard(card);
+            player.getMutableTeams().addAll(card.getTeams());
+            for (LGPower power : card.createPowers()) {
+                player.getMutablePowers().put(power.getClass(), power);
+            }
         }
     }
 

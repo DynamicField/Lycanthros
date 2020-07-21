@@ -31,17 +31,11 @@ public interface LGCard {
     boolean isFeminineName();
 
     /**
-     * Gets the teams that this card has.
-     * <p>
-     * Those may change, depending on the events of the game.
+     * Gets the teams that this card is part of.
      *
      * @return an immutable set of teams
      */
     ImmutableSet<LGTeam> getTeams();
-
-    default boolean isInTeam(LGTeam team) {
-        return getTeams().contains(team);
-    }
 
     ImmutableSet<LGPower> createPowers();
 

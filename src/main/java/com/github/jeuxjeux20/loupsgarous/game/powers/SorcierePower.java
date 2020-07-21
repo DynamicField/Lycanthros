@@ -3,8 +3,8 @@ package com.github.jeuxjeux20.loupsgarous.game.powers;
 import com.google.common.base.Preconditions;
 
 public final class SorcierePower extends LGPower {
-    private boolean hasHealPotion;
-    private boolean hasKillPotion;
+    private boolean hasHealPotion = true;
+    private boolean hasKillPotion = true;
 
     public SorcierePower(Object source) {
         super(source);

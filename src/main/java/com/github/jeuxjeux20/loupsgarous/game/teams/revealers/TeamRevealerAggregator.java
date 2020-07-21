@@ -20,7 +20,7 @@ public final class TeamRevealerAggregator implements TeamRevealer {
     public ImmutableSet<LGTeam> getTeamsRevealed(LGPlayer viewer, LGPlayer playerToReveal, LGGame game) {
         return teamRevealers.stream()
                 .flatMap(x -> x.getTeamsRevealed(viewer, playerToReveal, game).stream())
-                .filter(playerToReveal.getCard().getTeams()::contains)
+                .filter(playerToReveal.getTeams()::contains)
                 .collect(ImmutableSet.toImmutableSet());
     }
 }

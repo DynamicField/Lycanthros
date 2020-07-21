@@ -22,7 +22,7 @@ public final class CoupleWinCondition implements WinCondition {
         // two couples on two players, but in what kind of parallel universe
         // does someone have two couples with the same person anyway?
         for (LGPlayer player : alivePlayers) {
-            List<LGTeam> playerCouples = player.getCard().getTeams().stream()
+            List<LGTeam> playerCouples = player.getTeams().stream()
                     .filter(LGTeams::isCouple).collect(Collectors.toList());
 
             // There can only be ONE couple.

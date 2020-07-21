@@ -3,6 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.powers.LGPower;
 import com.github.jeuxjeux20.loupsgarous.game.tags.LGTag;
+import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
 import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.metadata.MetadataMap;
@@ -26,6 +27,12 @@ public interface LGPlayer extends UserFriendlyNamed {
     boolean isAway();
 
     ImmutableSet<LGTag> getTags();
+
+    ImmutableSet<LGTeam> getTeams();
+
+    default boolean isInTeam(LGTeam team) {
+        return getTeams().contains(team);
+    }
 
     ImmutableClassToInstanceMap<LGPower> getPowers();
 
@@ -128,6 +135,11 @@ public interface LGPlayer extends UserFriendlyNamed {
 
         @Override
         public ImmutableSet<LGTag> getTags() {
+            return ImmutableSet.of();
+        }
+
+        @Override
+        public ImmutableSet<LGTeam> getTeams() {
             return ImmutableSet.of();
         }
 
