@@ -4,25 +4,19 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.SnapshotComposition;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.gui.CompositionGui;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator;
-import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
-import com.github.jeuxjeux20.loupsgarous.game.event.LGGameDeletedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.event.LGGameStartEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyCompositionChangeEvent;
-import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyOwnerChangeEvent;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
+import java.util.Optional;
 
 public class MinecraftLGLobbyCompositionManager implements LGLobbyCompositionManager {
     private final LGGameOrchestrator orchestrator;
     private final CompositionValidator compositionValidator;
-    private final CompositionGui.Factory compositionGuiFactory;
 
     private final LobbyComposition composition;
     private @Nullable CompositionValidator.Problem.Type worseCompositionProblemType;
@@ -30,11 +24,9 @@ public class MinecraftLGLobbyCompositionManager implements LGLobbyCompositionMan
     @Inject
     MinecraftLGLobbyCompositionManager(@Assisted LGGameOrchestrator orchestrator,
                                        @Assisted LGGameBootstrapData bootstrapData,
-                                       CompositionValidator compositionValidator,
-                                       CompositionGui.Factory compositionGuiFactory) {
+                                       CompositionValidator compositionValidator) {
         this.orchestrator = orchestrator;
         this.compositionValidator = compositionValidator;
-        this.compositionGuiFactory = compositionGuiFactory;
 
         this.composition = new LobbyComposition(bootstrapData.getComposition());
 
@@ -42,24 +34,18 @@ public class MinecraftLGLobbyCompositionManager implements LGLobbyCompositionMan
     }
 
     @Override
-    public void openOwnerGui() {
-        if (orchestrator.lobby().isLocked()) return;
-
-        Player player = orchestrator.lobby().getOwner().getMinecraftPlayer().orElseThrow(AssertionError::new);
-        CompositionGui gui = compositionGuiFactory.create(player, composition);
-        gui.open();
-
-        Events.merge(LGEvent.class,
-                LGGameStartEvent.class, LGGameDeletedEvent.class, LGLobbyOwnerChangeEvent.class)
-                .expireIf(x -> !gui.isValid())
-                .filter(x -> x.getOrchestrator() == orchestrator)
-                .handler(e -> gui.close())
-                .bindWith(gui);
+    public Composition get() {
+        return new SnapshotComposition(composition);
     }
 
     @Override
-    public Composition get() {
-        return new SnapshotComposition(composition);
+    public Optional<MutableComposition> getMutable() {
+        if (orchestrator.lobby().isLocked()) {
+            return Optional.empty();
+        }
+        else {
+            return Optional.of(composition);
+        }
     }
 
     @Override

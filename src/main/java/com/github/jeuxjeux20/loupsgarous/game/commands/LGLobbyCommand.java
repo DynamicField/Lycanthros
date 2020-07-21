@@ -3,6 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.game.commands;
 import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.gui.CompositionGuiOpener;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
 import me.lucko.helper.command.context.CommandContext;
@@ -12,10 +13,12 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.error;
 
 public class LGLobbyCommand implements HelperCommandRegisterer {
     private final InGameHandlerCondition inGameHandlerCondition;
+    private final CompositionGuiOpener compositionGuiOpener;
 
     @Inject
-    LGLobbyCommand(InGameHandlerCondition inGameHandlerCondition) {
+    LGLobbyCommand(InGameHandlerCondition inGameHandlerCondition, CompositionGuiOpener compositionGuiOpener) {
         this.inGameHandlerCondition = inGameHandlerCondition;
+        this.compositionGuiOpener = compositionGuiOpener;
     }
 
     @Override
@@ -36,6 +39,6 @@ public class LGLobbyCommand implements HelperCommandRegisterer {
             return;
         }
 
-        orchestrator.lobby().composition().openOwnerGui();
+        compositionGuiOpener.open(orchestrator);
     }
 }
