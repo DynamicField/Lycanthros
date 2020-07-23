@@ -14,12 +14,12 @@ public final class LGCardsModule extends CardsModule {
 
     @Override
     protected void configureCards() {
-        addCard(ChasseurCard.class);
-        addCard(CupidonCard.class);
-        addCard(LoupGarouCard.class);
-        addCard(PetiteFilleCard.class);
-        addCard(SorciereCard.class);
-        addCard(VillageoisCard.class);
-        addCard(VoyanteCard.class);
+        addCard(ChasseurCard.INSTANCE);
+        addCard(CupidonCard.INSTANCE);
+        addCard(LoupGarouCard.INSTANCE);
+        addCard(PetiteFilleCard.INSTANCE);
+        addCard(SorciereCard.INSTANCE);
+        addCard(VillageoisCard.INSTANCE);
+        addCard(VoyanteCard.INSTANCE);
     }
 }

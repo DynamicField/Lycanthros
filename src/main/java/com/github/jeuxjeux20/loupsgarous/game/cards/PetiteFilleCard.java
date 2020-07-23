@@ -15,7 +15,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
 @Unique
-public final class PetiteFilleCard extends MutableLGCard {
+public final class PetiteFilleCard extends AbstractLGCard {
+    public static final PetiteFilleCard INSTANCE = new PetiteFilleCard();
+
+    private PetiteFilleCard() {
+    }
+
     @Override
     public String getName() {
         return "Petite fille";

@@ -5,10 +5,10 @@ import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class LGLobbyCompositionChangeEvent extends LGEvent {
+public class LGLobbyCompositionUpdateEvent extends LGEvent {
     private static final HandlerList handlerList = new HandlerList();
 
-    public LGLobbyCompositionChangeEvent(LGGameOrchestrator orchestrator) {
+    public LGLobbyCompositionUpdateEvent(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }
 

@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.SnapshotComposition;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.ImmutableComposition;
 import org.bukkit.entity.Player;
 
 /**
@@ -14,7 +14,7 @@ public final class LGGameBootstrapData {
 
     public LGGameBootstrapData(Player owner, Composition composition, String id) {
         this.owner = owner;
-        this.composition = new SnapshotComposition(composition);
+        this.composition = new ImmutableComposition(composition);
         this.id = id;
     }
 

@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
-import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyCompositionChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyCompositionUpdateEvent;
 import com.google.inject.Inject;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -24,7 +24,7 @@ public final class GameStartStage extends CountdownLGStage {
 
     static class ResetTimerListener implements Listener {
         @EventHandler(ignoreCancelled = true)
-        public void onLGLobbyCompositionChange(LGLobbyCompositionChangeEvent event) {
+        public void onLGLobbyCompositionChange(LGLobbyCompositionUpdateEvent event) {
             LGStage currentStage = event.getOrchestrator().stages().current();
             if (currentStage instanceof GameStartStage) {
                 GameStartStage stage = (GameStartStage) currentStage;

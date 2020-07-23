@@ -71,9 +71,9 @@ public interface CompositionValidator {
         }
 
         public static ImmutableSet<Problem> uniqueCard(Composition composition,
-                                                       Class<? extends LGCard> cardClass,
+                                                       LGCard card,
                                                        LongFunction<? extends Problem> problemProvider) {
-            long count = composition.getCards().stream().filter(card -> card.getClass() == cardClass).count();
+            long count = composition.getContents().count(card);
 
             if (count > 1) {
                 Problem problem = problemProvider.apply(count);

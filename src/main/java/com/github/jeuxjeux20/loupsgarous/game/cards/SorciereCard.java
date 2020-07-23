@@ -15,7 +15,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
 @Unique
-public final class SorciereCard extends MutableLGCard {
+public final class SorciereCard extends AbstractLGCard {
+    public static final SorciereCard INSTANCE = new SorciereCard();
+
+    private SorciereCard() {
+    }
+
     @Override
     protected LGTeam getMainTeam() {
         return LGTeams.VILLAGEOIS;

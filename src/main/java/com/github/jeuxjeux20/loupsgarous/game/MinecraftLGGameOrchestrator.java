@@ -7,7 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.distribution.CardDistributor
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.event.*;
-import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyCompositionChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyCompositionUpdateEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableRegistry;
@@ -171,7 +171,7 @@ class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
                 .handler(this::handlePlayerJoin)
                 .bindWith(this);
 
-        Events.merge(LGEvent.class, LGPlayerJoinEvent.class, LGPlayerQuitEvent.class, LGLobbyCompositionChangeEvent.class)
+        Events.merge(LGEvent.class, LGPlayerJoinEvent.class, LGPlayerQuitEvent.class, LGLobbyCompositionUpdateEvent.class)
                 .filter(this::isMyEvent)
                 .filter(o -> !lobby.isLocked() && state() != LGGameState.UNINITIALIZED)
                 .handler(e -> updateLobbyState())

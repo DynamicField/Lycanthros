@@ -15,7 +15,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
 @Unique
-public final class ChasseurCard extends MutableLGCard {
+public final class ChasseurCard extends AbstractLGCard {
+    public static final ChasseurCard INSTANCE = new ChasseurCard();
+
+    private ChasseurCard() {
+    }
+
     @Override
     protected LGTeam getMainTeam() {
         return LGTeams.VILLAGEOIS;

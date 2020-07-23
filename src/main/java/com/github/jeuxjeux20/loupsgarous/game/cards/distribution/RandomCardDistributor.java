@@ -18,7 +18,7 @@ public class RandomCardDistributor implements CardDistributor {
 
     @Override
     public Map<LGPlayer, LGCard> distribute(Composition composition, Set<LGPlayer> players) {
-        List<LGCard> cards = new ArrayList<>(composition.getCards());
+        List<LGCard> cards = new ArrayList<>(composition.getContents());
 
         Preconditions.checkArgument(players.size() == cards.size(),
                 "There isn't as much players as cards.");

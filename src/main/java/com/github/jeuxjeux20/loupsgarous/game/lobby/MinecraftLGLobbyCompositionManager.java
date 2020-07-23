@@ -1,24 +1,26 @@
 package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
+import com.github.jeuxjeux20.loupsgarous.game.cards.VillageoisCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.SnapshotComposition;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.ImmutableComposition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator;
-import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyCompositionChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyCompositionUpdateEvent;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.HashMultiset;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
-import java.util.Optional;
 
 public class MinecraftLGLobbyCompositionManager implements LGLobbyCompositionManager {
     private final LGGameOrchestrator orchestrator;
     private final CompositionValidator compositionValidator;
 
-    private final LobbyComposition composition;
+    private ImmutableComposition composition;
     private @Nullable CompositionValidator.Problem.Type worseCompositionProblemType;
 
     @Inject
@@ -28,24 +30,31 @@ public class MinecraftLGLobbyCompositionManager implements LGLobbyCompositionMan
         this.orchestrator = orchestrator;
         this.compositionValidator = compositionValidator;
 
-        this.composition = new LobbyComposition(bootstrapData.getComposition());
+        this.composition = new ImmutableComposition(bootstrapData.getComposition());
 
         updateCompositionProblemType();
     }
 
     @Override
-    public Composition get() {
-        return new SnapshotComposition(composition);
+    public ImmutableComposition get() {
+        return composition;
     }
 
     @Override
-    public Optional<MutableComposition> getMutable() {
-        if (orchestrator.lobby().isLocked()) {
-            return Optional.empty();
+    public void update(Composition composition) {
+        Preconditions.checkArgument(!orchestrator.lobby().isLocked(),
+                "Impossible to change the composition while lobby is locked.");
+
+        HashMultiset<LGCard> cards = HashMultiset.create(composition.getContents());
+
+        // Add some cards if there are not enough cards for the players we have.
+        while (cards.size() < orchestrator.lobby().getSlotsTaken()) {
+            cards.add(VillageoisCard.INSTANCE);
         }
-        else {
-            return Optional.of(composition);
-        }
+
+        this.composition = new ImmutableComposition(cards);
+        updateCompositionProblemType();
+        Events.call(new LGLobbyCompositionUpdateEvent(orchestrator));
     }
 
     @Override
@@ -64,24 +73,5 @@ public class MinecraftLGLobbyCompositionManager implements LGLobbyCompositionMan
     @Override
     public boolean isValid() {
         return getWorstProblemType() != CompositionValidator.Problem.Type.IMPOSSIBLE;
-    }
-
-
-    private final class LobbyComposition extends MutableComposition {
-        public LobbyComposition(Composition composition) {
-            super(composition);
-        }
-
-        @Override
-        public boolean isValidPlayerCount(int playerCount) {
-            return super.isValidPlayerCount(playerCount) &&
-                   orchestrator.game().getPlayers().size() <= playerCount;
-        }
-
-        @Override
-        protected void onChange() {
-            updateCompositionProblemType();
-            Events.call(new LGLobbyCompositionChangeEvent(orchestrator));
-        }
     }
 }

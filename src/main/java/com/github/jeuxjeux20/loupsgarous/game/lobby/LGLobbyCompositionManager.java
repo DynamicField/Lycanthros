@@ -2,17 +2,14 @@ package com.github.jeuxjeux20.loupsgarous.game.lobby;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.ImmutableComposition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 public interface LGLobbyCompositionManager {
+    ImmutableComposition get();
 
-    Composition get();
-
-    Optional<MutableComposition> getMutable();
+    void update(Composition composition);
 
     @Nullable CompositionValidator.Problem.Type getWorstProblemType();
 

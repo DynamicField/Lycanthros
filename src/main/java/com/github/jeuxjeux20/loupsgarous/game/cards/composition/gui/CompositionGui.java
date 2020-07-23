@@ -2,13 +2,12 @@ package com.github.jeuxjeux20.loupsgarous.game.cards.composition.gui;
 
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.MutableComposition;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
+import com.github.jeuxjeux20.loupsgarous.game.cards.composition.ImmutableComposition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.util.CompositionFormatUtil;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator.Problem;
-import com.github.jeuxjeux20.loupsgarous.util.CollectorUtils;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.item.ItemStackBuilder;
 import me.lucko.helper.menu.Gui;
@@ -21,7 +20,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.ChatPaginator;
 
 import java.util.*;
-import java.util.function.Function;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public final class CompositionGui extends Gui {
@@ -47,25 +47,24 @@ public final class CompositionGui extends Gui {
 
     private static final char BULLET = '\u2022'; // Bullet: •
 
-    private final MutableComposition composition;
+    private final Supplier<ImmutableComposition> compositionGetter;
+    private final Consumer<? super Composition> compositionSetter;
 
-    private final Map<LGCard, Provider<LGCard>> cardsToProvider;
+    private final List<LGCard> cards;
     private final CompositionValidator compositionValidator;
 
     @Inject
-    public CompositionGui(@Assisted Player player, @Assisted MutableComposition composition,
-                          Collection<Provider<LGCard>> cardProviders,
+    public CompositionGui(@Assisted Player player,
+                          @Assisted Supplier<ImmutableComposition> compositionGetter,
+                          @Assisted Consumer<? super Composition> compositionSetter,
+                          Set<LGCard> cards,
                           CompositionValidator compositionValidator) {
         super(player, 6, "Composition");
-        this.composition = composition;
-        this.cardsToProvider = cardProviders.stream()
-                .collect(Collectors.toMap(Provider::get, Function.identity(),
-                        CollectorUtils::throwDuplicate, this::createSortedCardsMap));
+        this.compositionGetter = compositionGetter;
+        this.compositionSetter = compositionSetter;
+        this.cards = cards.stream().sorted(Comparator.comparing(LGCard::getName))
+                .collect(Collectors.toList());
         this.compositionValidator = compositionValidator;
-    }
-
-    private <K extends LGCard, V extends Provider<K>> TreeMap<K, V> createSortedCardsMap() {
-        return new TreeMap<>(Comparator.comparing(LGCard::getName));
     }
 
     @Override
@@ -97,7 +96,7 @@ public final class CompositionGui extends Gui {
     }
 
     private Map<Problem.Type, List<Problem>> getValidationProblemsPerType() {
-        return compositionValidator.validate(composition).stream()
+        return compositionValidator.validate(compositionGetter.get()).stream()
                 .collect(Collectors.groupingBy(Problem::getType, TreeMap::new, Collectors.toList()));
     }
 
@@ -141,9 +140,9 @@ public final class CompositionGui extends Gui {
     }
 
     private void drawTopBarBook() {
-        int playerCount = composition.getPlayerCount();
+        int playerCount = getComposition().getPlayerCount();
 
-        String[] compositionLore = CompositionFormatUtil.format(composition).split("\n");
+        String[] compositionLore = CompositionFormatUtil.format(getComposition()).split("\n");
 
         Item item = ItemStackBuilder.of(Material.BOOK)
                 .name(ChatColor.GOLD.toString() + ChatColor.BOLD + "Partie")
@@ -156,17 +155,14 @@ public final class CompositionGui extends Gui {
 
     private void drawCards() {
         MenuPopulator populator = CARDS.newPopulator(this);
-        for (LGCard card : cardsToProvider.keySet()) {
-            int amount = (int) composition.getCards().stream().filter(x -> x.getClass() == card.getClass()).count();
-
-            boolean canAddCard = composition.canAddCard();
-            boolean canRemoveCard = composition.canRemoveCard();
+        for (LGCard card : cards) {
+            int amount = getComposition().getContents().count(card);
 
             ItemStackBuilder builder = ItemStackBuilder.of(card.createGuiItem())
                     .name(card.getColor() + card.getName())
                     .lore(ChatColor.GOLD.toString() + ChatColor.BOLD + "Quantité : " + amount)
-                    .lore(canAddCard ? new String[]{LEFT_CLICK_LORE} : new String[0])
-                    .lore(canRemoveCard ? new String[]{RIGHT_CLICK_LORE} : new String[0])
+                    .lore(new String[]{LEFT_CLICK_LORE})
+                    .lore(new String[]{RIGHT_CLICK_LORE})
                     .lore("")
                     .lore(ChatPaginator.wordWrap(card.getDescription(), 35))
                     .amount(Math.max(1, amount));
@@ -178,31 +174,34 @@ public final class CompositionGui extends Gui {
     }
 
     private void addCard(LGCard card) {
-        Provider<LGCard> cardProvider = cardsToProvider.get(card);
-        LGCard newCard = cardProvider.get();
+        ImmutableComposition newComposition = getComposition().with(cards -> cards.add(card));
 
-        if (composition.addCard(newCard)) {
-            LGSoundStuff.ding(getPlayer());
-        } else {
-            getPlayer().sendMessage(ChatColor.RED + "Impossible d'ajouter la carte");
-            LGSoundStuff.nah(getPlayer());
-        }
+        updateComposition(newComposition);
+        LGSoundStuff.ding(getPlayer());
 
         redraw();
     }
 
     private void removeCard(LGCard card) {
-        if (composition.removeCardOfClass(card.getClass())) {
-            LGSoundStuff.remove(getPlayer());
-        } else {
-            getPlayer().sendMessage(ChatColor.RED + "Impossible de retirer la carte");
-            LGSoundStuff.nah(getPlayer());
-        }
+        ImmutableComposition newComposition = getComposition().with(cards -> cards.remove(card));
+
+        updateComposition(newComposition);
+        LGSoundStuff.remove(getPlayer());
 
         redraw();
     }
 
+    private ImmutableComposition getComposition() {
+        return compositionGetter.get();
+    }
+
+    private void updateComposition(Composition composition) {
+        compositionSetter.accept(composition);
+    }
+
     public interface Factory {
-        CompositionGui create(Player player, MutableComposition composition);
+        CompositionGui create(Player player,
+                              Supplier<ImmutableComposition> compositionGetter,
+                              Consumer<? super Composition> compositionSetter);
     }
 }

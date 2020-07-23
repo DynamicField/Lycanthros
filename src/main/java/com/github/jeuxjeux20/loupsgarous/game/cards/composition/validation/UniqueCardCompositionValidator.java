@@ -5,22 +5,17 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.annotations.Unique;
 import com.google.common.collect.ImmutableSet;
 
-import java.util.List;
-import java.util.Map;
-
 public final class UniqueCardCompositionValidator implements CompositionValidator {
     @Override
     public ImmutableSet<Problem> validate(Composition composition) {
         ImmutableSet.Builder<Problem> problemsBuilder = ImmutableSet.builder();
 
-        for (Map.Entry<Class<? extends LGCard>, List<LGCard>> cardGroup : composition.getCardGroups().entrySet()) {
-            Class<? extends LGCard> cardClass = cardGroup.getKey();
-            LGCard card = cardGroup.getValue().get(0); // The first card will do.
-            Unique uniqueAnnotation = cardClass.getAnnotation(Unique.class);
+        for (LGCard card : composition.getContents().elementSet()) {
+            Unique annotation = card.getClass().getAnnotation(Unique.class);
 
-            if (uniqueAnnotation != null) {
+            if (annotation != null) {
                 problemsBuilder.addAll(
-                        Checks.uniqueCard(composition, cardClass, count -> createProblem(card, uniqueAnnotation, count))
+                        Checks.uniqueCard(composition, card, c -> createProblem(card, annotation, c))
                 );
             }
         }

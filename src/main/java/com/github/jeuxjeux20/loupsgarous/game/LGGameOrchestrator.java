@@ -3,7 +3,6 @@ package com.github.jeuxjeux20.loupsgarous.game;
 import com.github.jeuxjeux20.loupsgarous.game.actionbar.LGActionBarManager;
 import com.github.jeuxjeux20.loupsgarous.game.bossbar.LGBossBarManager;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.SnapshotComposition;
 import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
@@ -16,7 +15,7 @@ import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.game.lobby.LobbyCreationException;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableMultiset;
 import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -147,9 +146,10 @@ public interface LGGameOrchestrator extends TerminableConsumer {
 
     default Composition getCurrentComposition() {
         if (state() == LGGameState.WAITING_FOR_PLAYERS || state() == LGGameState.READY_TO_START) {
-            return new SnapshotComposition(lobby().composition().get());
+            return lobby().composition().get();
         } else {
-            return () -> game().getAlivePlayers().map(LGPlayer::getCard).collect(ImmutableSet.toImmutableSet());
+            return () -> game().getAlivePlayers().map(LGPlayer::getCard)
+                    .collect(ImmutableMultiset.toImmutableMultiset());
         }
     }
 

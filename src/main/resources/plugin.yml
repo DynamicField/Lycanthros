@@ -73,10 +73,7 @@ commands:
   color:
     usage: /color <stuff>
     description: debuggi debuggo
-  guitest:
-    usage: /guitest
-    description: i like to test
-
+    
 permissions:
   loupsgarous.game.list:
     description: Permet de lister les parties

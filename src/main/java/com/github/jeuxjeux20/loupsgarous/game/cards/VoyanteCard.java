@@ -15,7 +15,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
 @Unique
-public final class VoyanteCard extends MutableLGCard {
+public final class VoyanteCard extends AbstractLGCard {
+    public static final VoyanteCard INSTANCE = new VoyanteCard();
+
+    private VoyanteCard() {
+    }
+
     @Override
     protected LGTeam getMainTeam() {
         return LGTeams.VILLAGEOIS;

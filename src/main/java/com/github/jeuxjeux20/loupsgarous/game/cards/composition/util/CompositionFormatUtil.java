@@ -2,13 +2,12 @@ package com.github.jeuxjeux20.loupsgarous.game.cards.composition.util;
 
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
+import com.google.common.collect.ImmutableMultiset;
+import com.google.common.collect.Multiset;
 import org.bukkit.ChatColor;
 
 import java.text.Collator;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public final class CompositionFormatUtil {
     private static final Collator FR_COLLATOR = Collator.getInstance(Locale.FRENCH);
@@ -17,31 +16,32 @@ public final class CompositionFormatUtil {
     }
 
     public static String format(Composition composition) {
-        Map<Class<? extends LGCard>, List<LGCard>> cardsByType
-                = composition.getCards().stream().collect(Collectors.groupingBy(LGCard::getClass));
+        ImmutableMultiset<LGCard> contents = composition.getContents();
 
-        if (cardsByType.isEmpty()) return ChatColor.GOLD.toString() + ChatColor.BOLD + "[Rien]";
+        if (contents.isEmpty()) return ChatColor.GOLD.toString() + ChatColor.BOLD + "[Rien]";
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        cardsByType.entrySet().stream().sorted(Map.Entry.comparingByValue((o1, o2) -> {
-            LGCard card1 = o1.get(0);
-            LGCard card2 = o2.get(0);
-            return FR_COLLATOR.compare(card1.getName(), card2.getName());
-        })).forEach(entry -> {
-            int count = entry.getValue().size();
-            LGCard card = entry.getValue().get(0);
+        contents.entrySet().stream()
+                .sorted(CompositionFormatUtil::compareByName)
+                .forEach(entry -> {
+                    int count = entry.getCount();
+                    LGCard card = entry.getElement();
 
-            stringBuilder.append(card.getColor())
-                    .append(card.getName());
+                    stringBuilder.append(card.getColor())
+                            .append(card.getName());
 
-            if (count > 1) {
-                stringBuilder.append(" \u00D7 ") // Multiplication sign
-                        .append(count);
-            }
-            stringBuilder.append('\n');
-        });
+                    if (count > 1) {
+                        stringBuilder.append(" \u00D7 ") // Multiplication sign
+                                .append(count);
+                    }
+                    stringBuilder.append('\n');
+                });
         stringBuilder.deleteCharAt(stringBuilder.length() - 1); // Remove the last new line
         return stringBuilder.toString();
+    }
+
+    private static int compareByName(Multiset.Entry<LGCard> o1, Multiset.Entry<LGCard> o2) {
+        return FR_COLLATOR.compare(o1.getElement().getName(), o2.getElement().getName());
     }
 }

@@ -12,8 +12,10 @@ import org.bukkit.block.banner.PatternType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
-public final class LoupGarouCard extends MutableLGCard implements AnonymousNameHolder {
-    private transient String anonymizedName;
+public final class LoupGarouCard extends AbstractLGCard {
+    public static final LoupGarouCard INSTANCE = new LoupGarouCard();
+
+    private LoupGarouCard()  {}
 
     @Override
     public String getName() {
@@ -43,14 +45,6 @@ public final class LoupGarouCard extends MutableLGCard implements AnonymousNameH
     @Override
     public ImmutableSet<LGPower> createPowers() {
         return ImmutableSet.of();
-    }
-
-    public String getAnonymizedName() {
-        return anonymizedName;
-    }
-
-    public void setAnonymizedName(String anonymizedName) {
-        this.anonymizedName = anonymizedName;
     }
 
     @Override

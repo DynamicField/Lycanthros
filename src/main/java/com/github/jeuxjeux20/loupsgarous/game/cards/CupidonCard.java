@@ -15,7 +15,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
 @Unique
-public final class CupidonCard extends MutableLGCard {
+public final class CupidonCard extends AbstractLGCard {
+    public static final CupidonCard INSTANCE = new CupidonCard();
+
+    private CupidonCard()  {}
+
     @Override
     protected LGTeam getMainTeam() {
         return LGTeams.VILLAGEOIS;

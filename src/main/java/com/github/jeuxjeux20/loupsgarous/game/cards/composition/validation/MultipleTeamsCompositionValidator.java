@@ -13,6 +13,6 @@ public class MultipleTeamsCompositionValidator implements CompositionValidator {
     }
 
     private long getDistinctTeamsCount(Composition composition) {
-        return composition.getCards().stream().flatMap(x -> x.getTeams().stream()).distinct().count();
+        return composition.getContents().stream().flatMap(x -> x.getTeams().stream()).distinct().count();
     }
 }

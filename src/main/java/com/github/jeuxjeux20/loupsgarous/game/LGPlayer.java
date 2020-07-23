@@ -18,7 +18,7 @@ import org.bukkit.entity.Player;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface LGPlayer extends UserFriendlyNamed {
+public interface LGPlayer extends UserFriendlyNamed, MetadataContainer {
     LGPlayer NULL = Null.INSTANCE;
 
     UUID getPlayerUUID();

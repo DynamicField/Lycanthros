@@ -5,6 +5,8 @@ import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation.CompositionValidator.Problem;
 import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.game.event.CountdownTickEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
+import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyCompositionUpdateEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.stage.LGStageStartedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.StageEventUtils;
 import com.github.jeuxjeux20.loupsgarous.game.stages.TimedStage;
@@ -180,7 +182,7 @@ class MinecraftLGActionBarManager implements LGActionBarManager {
                     .handler(e -> update())
                     .bindWith(consumer);
 
-            Events.subscribe(LGStageStartedEvent.class)
+            Events.merge(LGEvent.class, LGStageStartedEvent.class, LGLobbyCompositionUpdateEvent.class)
                     .filter(orchestrator::isMyEvent)
                     .handler(e -> update())
                     .bindWith(consumer);

@@ -2,7 +2,6 @@ package com.github.jeuxjeux20.loupsgarous.game.cards;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.AbstractModule;
-import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,13 +26,9 @@ public abstract class CardsModule extends AbstractModule {
         configureCards();
     }
 
-    protected final void addCard(Class<? extends LGCard> card) {
-        addCard(TypeLiteral.get(card));
-    }
-
-    protected final void addCard(TypeLiteral<? extends LGCard> card) {
+    protected final void addCard(LGCard card) {
         Preconditions.checkState(cardsBinder != null, "addCard can only be used inside configureCards()");
 
-        cardsBinder.addBinding().to(card);
+        cardsBinder.addBinding().toInstance(card);
     }
 }

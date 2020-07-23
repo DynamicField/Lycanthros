@@ -17,7 +17,12 @@ import org.bukkit.inventory.meta.BannerMeta;
  * <p>
  * <img src="doc-files/villageois.jpg" width="128">
  */
-public final class VillageoisCard extends MutableLGCard {
+public final class VillageoisCard extends AbstractLGCard {
+    public static final VillageoisCard INSTANCE = new VillageoisCard();
+
+    private VillageoisCard() {
+    }
+
     @Override
     public String getName() {
         return "Simple villageois";

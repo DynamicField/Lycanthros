@@ -3,17 +3,17 @@ package com.github.jeuxjeux20.loupsgarous.game.cards.composition.validation;
 import com.github.jeuxjeux20.loupsgarous.game.cards.CupidonCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.ImmutableSet;
 
 public final class PossibleCouplesCupidonCompositionValidator implements CompositionValidator {
     @Override
     public ImmutableSet<Problem> validate(Composition composition) {
-        ImmutableSet<LGCard> cards = composition.getCards();
+        ImmutableMultiset<LGCard> cards = composition.getContents();
 
-        int playerCount = cards.size();
-        long cupidonCount = cards.stream().filter(card -> card.getClass() == CupidonCard.class).count();
-        int possibleCoupleCount = playerCount / 2;
+        int cardsCount = cards.size();
+        long cupidonCount = cards.count(CupidonCard.INSTANCE);
+        int possibleCoupleCount = cardsCount / 2;
 
         if (cupidonCount > possibleCoupleCount) {
             return ImmutableSet.of(Problem.impossible(

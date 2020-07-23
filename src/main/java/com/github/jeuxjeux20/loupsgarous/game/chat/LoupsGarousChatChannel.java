@@ -2,7 +2,6 @@ package com.github.jeuxjeux20.loupsgarous.game.chat;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.cards.AnonymousNameHolder;
 import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeams;
 import com.google.inject.Inject;
 
@@ -64,12 +63,6 @@ public class LoupsGarousChatChannel extends AbstractLGChatChannel implements Ano
 
     @Override
     public String anonymizeName(LGPlayer player) {
-        if (!(player.getCard() instanceof AnonymousNameHolder))
-            throw new IllegalArgumentException(
-                    "The player's card (" + player.getCard().getClass().getName() + ") is not an AnonymousNameHolder.");
-
-        AnonymousNameHolder anonymousNameHolder = (AnonymousNameHolder) player.getCard();
-
-        return anonymizedNamesProvider.createAnonymousNameOrGet(anonymousNameHolder);
+        return anonymizedNamesProvider.updateAnonymousNameOrGet(player);
     }
 }
