@@ -27,14 +27,14 @@ import java.util.List;
 import java.util.Optional;
 
 @OrchestratorScoped
-class MinecraftLGActionBarManager implements LGActionBarManager {
-    private final LGGameOrchestrator orchestrator;
-
+class MinecraftLGActionBarManager
+        extends AbstractOrchestratorComponent
+        implements LGActionBarManager {
     @Inject
     MinecraftLGActionBarManager(LGGameOrchestrator orchestrator) {
-        this.orchestrator = orchestrator;
+        super(orchestrator);
 
-        new UpdateModule().setup(orchestrator);
+        bindModule(new UpdateModule());
     }
 
     @Override

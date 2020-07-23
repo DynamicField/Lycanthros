@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.kill;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGKillEvent;
 import com.github.jeuxjeux20.loupsgarous.game.kill.causes.LGKillCause;
 
@@ -11,7 +11,7 @@ import java.util.Collection;
 /**
  * Contains functionality for killing players with a reason. That sounds absolutely fine.
  */
-public interface LGKillsOrchestrator extends LGGameOrchestratorDependent {
+public interface LGKillsOrchestrator extends OrchestratorComponent {
     /**
      * Gets the pending kills of the game.
      *

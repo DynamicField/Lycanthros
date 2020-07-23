@@ -16,6 +16,7 @@ import com.github.jeuxjeux20.loupsgarous.game.lobby.LobbyCreationException;
 import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.common.collect.ImmutableMultiset;
+import me.lucko.helper.metadata.MetadataKey;
 import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -113,17 +114,31 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     void nextTimeOfDay();
 
 
-    LGChatOrchestrator chat();
+    <T extends OrchestratorComponent> T component(MetadataKey<T> key);
 
-    LGStagesOrchestrator stages();
+    default LGChatOrchestrator chat() {
+        return component(LGComponents.CHAT);
+    }
 
-    LGKillsOrchestrator kills();
+    default LGStagesOrchestrator stages() {
+        return component(LGComponents.STAGES);
+    }
 
-    LGActionBarManager actionBar();
+    default LGKillsOrchestrator kills() {
+        return component(LGComponents.KILLS);
+    }
 
-    LGBossBarManager bossBar();
+    default LGActionBarManager actionBar() {
+        return component(LGComponents.ACTION_BAR);
+    }
 
-    InteractableRegistry interactables();
+    default LGBossBarManager bossBar() {
+        return component(LGComponents.BOSS_BAR);
+    }
+
+    default InteractableRegistry interactables() {
+        return component(LGComponents.INTERACTABLES);
+    }
 
     LGLobby lobby();
 

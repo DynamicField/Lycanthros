@@ -10,11 +10,11 @@ import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.util.ClassArrayUtils;
 import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import me.lucko.helper.Events;
 import me.lucko.helper.metadata.Metadata;
 import me.lucko.helper.metadata.MetadataKey;
 import me.lucko.helper.protocol.Protocol;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -22,68 +22,81 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-@Singleton
-public class MinecraftLGInventoryManager implements LGInventoryManager {
-    private final Set<InventoryItem> inventoryItems;
-    private final LGGameManager gameManager;
-    private final MetadataKey<Map<Integer, InventoryItem>> itemsKey
+@OrchestratorScoped
+public class MinecraftLGInventoryManager
+        extends AbstractOrchestratorComponent
+        implements LGInventoryManager {
+    private static final MetadataKey<Map<Integer, InventoryItem>> ITEMS_KEY
             = MetadataKey.create("inv_manager", new TypeToken<Map<Integer, InventoryItem>>() {});
-
-    private boolean hasEvents;
+    private final Set<InventoryItem> inventoryItems;
 
     @Inject
-    MinecraftLGInventoryManager(Set<InventoryItem> inventoryItems, LGGameManager gameManager) {
+    MinecraftLGInventoryManager(LGGameOrchestrator orchestrator,
+                                Set<InventoryItem> inventoryItems) {
+        super(orchestrator);
         this.inventoryItems = inventoryItems;
-        this.gameManager = gameManager;
 
         registerEvents();
     }
 
     private void registerEvents() {
-        if (hasEvents) return;
-        hasEvents = true;
-
         registerUpdateItemsEvent();
 
         Events.subscribe(PlayerInteractEvent.class)
+                .filter(this::concernsMe)
                 .filter(e -> e.getAction() != Action.PHYSICAL)
-                .handler(e -> handleItemClick(e.getPlayer(), e.getPlayer().getInventory().getHeldItemSlot()));
+                .handler(e -> handleItemClick(e.getPlayer(), e.getPlayer().getInventory().getHeldItemSlot()))
+                .bindWith(this);
 
         Events.subscribe(InventoryClickEvent.class)
-                .handler(this::handleInventoryClick);
+                .filter(this::concernsMe)
+                .handler(this::handleInventoryClick)
+                .bindWith(this);
 
         Events.subscribe(InventoryDragEvent.class)
-                .handler(e -> cancelEvent(e.getWhoClicked().getUniqueId(), e));
+                .filter(this::concernsMe)
+                .handler(this::cancelEvent)
+                .bindWith(this);
 
         Events.subscribe(PlayerDropItemEvent.class)
-                .handler(e -> cancelEvent(e.getPlayer().getUniqueId(), e));
+                .filter(this::concernsMe)
+                .handler(this::cancelEvent)
+                .bindWith(this);
 
         Events.subscribe(LGPlayerQuitEvent.class)
-                .handler(this::clearPlayerInventory);
+                .filter(this::concernsMe)
+                .handler(e -> clearPlayerInventory(e.getPlayerUUID()))
+                .bindWith(this);
 
         Protocol.subscribe(PacketType.Play.Server.ENTITY_EQUIPMENT)
-                .handler(this::hideHeldItem);
+                .filter(this::concernsMe)
+                .handler(this::hideHeldItem)
+                .bindWith(this);
     }
 
     private void registerUpdateItemsEvent() {
-        Events.merge(LGEvent.class, ClassArrayUtils.merge(inventoryItems.stream().map(HasTriggers::getUpdateTriggers)))
-                .handler(e -> {
-                    for (LGPlayer player : e.getOrchestrator().game().getPlayers()) {
-                        update(player, e.getOrchestrator());
-                    }
-                });
+        Events.merge(LGEvent.class,
+                ClassArrayUtils.merge(inventoryItems.stream().map(HasTriggers::getUpdateTriggers)))
+                .filter(this::concernsMe)
+                .handler(this::updateAllInventories);
     }
 
     @Override
-    public void update(LGPlayer player, LGGameOrchestrator orchestrator) {
+    public void update(LGPlayer player) {
         Player minecraftPlayer = player.getMinecraftPlayer().orElse(null);
         if (minecraftPlayer == null) return;
 
@@ -91,7 +104,8 @@ public class MinecraftLGInventoryManager implements LGInventoryManager {
 
         inventory.clear();
 
-        Map<Integer, InventoryItem> itemSlots = Metadata.provideForPlayer(minecraftPlayer).getOrPut(itemsKey, HashMap::new);
+        Map<Integer, InventoryItem> itemSlots =
+                Metadata.provideForPlayer(minecraftPlayer).getOrPut(ITEMS_KEY, HashMap::new);
         int slot = 8;
         for (InventoryItem item : inventoryItems) {
             if (!item.isShown(player, orchestrator)) return;
@@ -106,58 +120,75 @@ public class MinecraftLGInventoryManager implements LGInventoryManager {
         }
     }
 
-    private Optional<Map<Integer, InventoryItem>> getMap(LGPlayerAndGame playerAndGame) {
-        return Metadata.provideForPlayer(playerAndGame.getPlayer().getPlayerUUID()).get(itemsKey);
-    }
+    private void handleInventoryClick(InventoryClickEvent event) {
+        if (event.getView().getBottomInventory().getType() != InventoryType.PLAYER) {
+            return;
+        }
 
-    private Optional<InventoryItem> getAt(LGPlayerAndGame playerAndGame, int slot) {
-        return getMap(playerAndGame).map(x -> x.get(slot));
+        event.setCancelled(true);
+
+        handleItemClick(event.getWhoClicked(), event.getSlot());
     }
 
     private void handleItemClick(HumanEntity player, int slot) {
-        UUID playerUUID = player.getUniqueId();
+        LGPlayer lgPlayer = orchestrator.game().getPlayerOrThrow(player.getUniqueId());
 
-        Optional<LGPlayerAndGame> playerInGame = gameManager.getPlayerInGame(playerUUID);
-
-        playerInGame.flatMap(x -> getAt(x, slot))
-                .ifPresent(inventory -> inventory.onClick(playerInGame.get()));
+        InventoryItem item = getItem(lgPlayer, slot);
+        if (item != null) {
+            item.onClick(lgPlayer, orchestrator);
+        }
     }
 
-    private void cancelEvent(UUID uuid, Cancellable e) {
-        gameManager.getPlayerInGame(uuid)
-                .ifPresent(pg -> e.setCancelled(true));
+    private @Nullable InventoryItem getItem(LGPlayer player, int slot) {
+        Map<Integer, InventoryItem> map =
+                Metadata.provideForPlayer(player.getPlayerUUID()).getOrNull(ITEMS_KEY);
+
+        return map == null ? null : map.get(slot);
     }
 
-    private void clearPlayerInventory(LGPlayerQuitEvent e) {
-        Player player = e.getLGPlayer().getOfflineMinecraftPlayer().getPlayer();
+    private void cancelEvent(Cancellable event) {
+        event.setCancelled(true);
+    }
+
+    private void clearPlayerInventory(UUID playerUUID) {
+        Player player = Bukkit.getPlayer(playerUUID);
         if (player != null) {
             player.getInventory().clear();
+            Metadata.provideForPlayer(player).remove(ITEMS_KEY);
         }
-
-        Metadata.provideForPlayer(e.getLGPlayer().getPlayerUUID()).remove(itemsKey);
     }
 
-    private void hideHeldItem(PacketEvent e) {
-        Player player = e.getPlayer();
-        PacketContainer packet = e.getPacket();
-
-        if (!gameManager.getPlayerInGame(player).isPresent()) {
-            return;
-        }
+    private void hideHeldItem(PacketEvent event) {
+        PacketContainer packet = event.getPacket();
 
         if (packet.getItemSlots().read(0) == EnumWrappers.ItemSlot.MAINHAND) {
             packet.getItemModifier().write(0, new ItemStack(Material.AIR));
         }
     }
 
-    private void handleInventoryClick(InventoryClickEvent e) {
-        if (!gameManager.getPlayerInGame(e.getWhoClicked().getUniqueId()).isPresent() ||
-            e.getView().getBottomInventory().getType() != InventoryType.PLAYER) {
-            return;
+    private void updateAllInventories(LGEvent e) {
+        for (LGPlayer player : e.getOrchestrator().game().getPlayers()) {
+            update(player);
         }
+    }
 
-        e.setCancelled(true);
+    private boolean concernsMe(PlayerEvent event) {
+        return isPlayerInGame(event.getPlayer());
+    }
 
-        handleItemClick(e.getWhoClicked(), e.getSlot());
+    private boolean concernsMe(PacketEvent event) {
+        return isPlayerInGame(event.getPlayer());
+    }
+
+    private boolean concernsMe(InventoryInteractEvent event) {
+        return isPlayerInGame(event.getWhoClicked());
+    }
+
+    private boolean concernsMe(LGEvent event) {
+        return orchestrator.isMyEvent(event);
+    }
+
+    private boolean isPlayerInGame(HumanEntity player) {
+        return orchestrator.game().getPlayer(player.getUniqueId()).isPresent();
     }
 }

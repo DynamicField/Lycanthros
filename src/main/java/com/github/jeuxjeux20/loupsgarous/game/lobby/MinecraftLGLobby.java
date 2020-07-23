@@ -123,7 +123,7 @@ class MinecraftLGLobby implements LGLobby {
         player.getMinecraftPlayerNoContext().ifPresent(lobbyTeleporter::teleportPlayerOut);
 
         Events.call(new LGPlayerQuitEvent(orchestrator, playerUUID, player));
-
+        
         return true;
     }
 

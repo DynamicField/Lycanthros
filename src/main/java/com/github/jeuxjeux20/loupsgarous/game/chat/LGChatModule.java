@@ -1,5 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.chat;
 
+import com.github.jeuxjeux20.loupsgarous.game.LGComponents;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponentsModule;
 import com.github.jeuxjeux20.loupsgarous.game.chat.interceptor.LGChatChannelInterceptorsModule;
 import com.github.jeuxjeux20.loupsgarous.game.chat.listeners.LGChatListenersModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
@@ -11,6 +13,13 @@ public final class LGChatModule extends ChatChannelsModule {
         install(new LGChatChannelInterceptorsModule());
 
         bind(LGChatOrchestrator.class).to(MinecraftLGChatOrchestrator.class);
+
+        install(new OrchestratorComponentsModule() {
+            @Override
+            protected void configureOrchestratorComponents() {
+                addOrchestratorComponent(LGComponents.CHAT, MinecraftLGChatOrchestrator.class);
+            }
+        });
 
         install(new FactoryModuleBuilder()
                 .implement(AnonymizedNamesProvider.class, RandomAnonymizedNamesProvider.class)

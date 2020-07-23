@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
+import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.util.Check;
@@ -18,16 +19,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @OrchestratorScoped
-class MinecraftInteractableRegistry implements InteractableRegistry {
-    private final LGGameOrchestrator orchestrator;
-
+class MinecraftInteractableRegistry
+        extends AbstractOrchestratorComponent
+        implements InteractableRegistry {
     private final SetMultimap<InteractableKey<?>, Interactable> map =
             MultimapBuilder.hashKeys().hashSetValues().build();
 
     @Inject
     MinecraftInteractableRegistry(LGGameOrchestrator orchestrator) {
-        this.orchestrator = orchestrator;
-        bindWith(orchestrator);
+        super(orchestrator);
+
+        bind(this::terminate);
     }
 
     @SuppressWarnings("unchecked")
@@ -78,8 +80,7 @@ class MinecraftInteractableRegistry implements InteractableRegistry {
         return ImmutableSetMultimap.copyOf(map);
     }
 
-    @Override
-    public void close() throws Exception {
+    private void terminate() throws CompositeClosingException {
         List<Exception> closingExceptions = new ArrayList<>();
 
         for (Interactable value : map.values()) {
@@ -97,11 +98,6 @@ class MinecraftInteractableRegistry implements InteractableRegistry {
         if (!closingExceptions.isEmpty()) {
             throw new CompositeClosingException(closingExceptions);
         }
-    }
-
-    @Override
-    public LGGameOrchestrator gameOrchestrator() {
-        return orchestrator;
     }
 
     private void ensureValidKey(InteractableKey<?> key) {

@@ -1,8 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.stages.descriptor.LGStageDescriptor;
 import com.github.jeuxjeux20.loupsgarous.game.stages.overrides.StageOverride;
 
@@ -10,7 +10,7 @@ import com.github.jeuxjeux20.loupsgarous.game.stages.overrides.StageOverride;
  * This is a component of {@link LGGameOrchestrator} managing the {@linkplain LGStage stages}
  * of a game.
  */
-public interface LGStagesOrchestrator extends LGGameOrchestratorDependent {
+public interface LGStagesOrchestrator extends OrchestratorComponent {
     /**
      * Insert the given stage factory to the current game that
      * will be created and run as soon as possible (LIFO).

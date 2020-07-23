@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.bossbar;
 
+import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.game.event.CountdownTickEvent;
@@ -20,18 +21,18 @@ import org.bukkit.boss.BossBar;
 import javax.annotation.Nonnull;
 
 @OrchestratorScoped
-public class MinecraftLGBossBarManager implements LGBossBarManager {
-    private final LGGameOrchestrator orchestrator;
-
+public class MinecraftLGBossBarManager
+        extends AbstractOrchestratorComponent
+        implements LGBossBarManager {
     private final BossBar bossBar;
 
     @Inject
     MinecraftLGBossBarManager(LGGameOrchestrator orchestrator) {
-        this.orchestrator = orchestrator;
-
+        super(orchestrator);
         this.bossBar = Bukkit.createBossBar("", BarColor.GREEN, BarStyle.SOLID);
 
-        new UpdateModule().setup(orchestrator);
+        bind(bossBar::removeAll);
+        bindModule(new UpdateModule());
     }
 
     @Override
@@ -61,11 +62,6 @@ public class MinecraftLGBossBarManager implements LGBossBarManager {
         }
     }
 
-    @Override
-    public void close() {
-        bossBar.removeAll();
-    }
-
     private final class UpdateModule implements TerminableModule {
         @Override
         public void setup(@Nonnull TerminableConsumer consumer) {
@@ -78,8 +74,6 @@ public class MinecraftLGBossBarManager implements LGBossBarManager {
                     .filter(orchestrator::isMyEvent)
                     .handler(e -> update())
                     .bindWith(consumer);
-
-            consumer.bind(MinecraftLGBossBarManager.this);
         }
     }
 }

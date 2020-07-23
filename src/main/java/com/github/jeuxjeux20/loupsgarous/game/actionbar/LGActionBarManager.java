@@ -1,5 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.actionbar;
 
-public interface LGActionBarManager {
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
+
+public interface LGActionBarManager extends OrchestratorComponent {
     void update();
 }

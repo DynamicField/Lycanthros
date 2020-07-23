@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.chat;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
+import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
@@ -17,14 +18,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @OrchestratorScoped
-class MinecraftLGChatOrchestrator implements LGChatOrchestrator {
-    private final LGGameOrchestrator orchestrator;
+class MinecraftLGChatOrchestrator
+        extends AbstractOrchestratorComponent
+        implements LGChatOrchestrator {
     private final Set<LGChatChannel> channels;
     private final LoupsGarous plugin;
 
     @Inject
     MinecraftLGChatOrchestrator(LGGameOrchestrator orchestrator, Set<LGChatChannel> channels, LoupsGarous plugin) {
-        this.orchestrator = orchestrator;
+        super(orchestrator);
         this.channels = new HashSet<>(channels);
         this.plugin = plugin;
     }

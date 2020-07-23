@@ -1,6 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.ListenersModule;
+import com.github.jeuxjeux20.loupsgarous.game.LGComponents;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponentsModule;
 import com.github.jeuxjeux20.loupsgarous.game.stages.descriptor.LGStagesDescriptorModule;
 import com.github.jeuxjeux20.loupsgarous.game.stages.dusk.LGStagesDuskModule;
 import com.github.jeuxjeux20.loupsgarous.game.stages.listeners.LGStagesListenersModule;
@@ -11,6 +13,12 @@ public final class LGStagesModule extends StagesModule {
     @Override
     protected void configureBindings() {
         bind(LGStagesOrchestrator.class).to(MinecraftLGStagesOrchestrator.class);
+        install(new OrchestratorComponentsModule() {
+            @Override
+            protected void configureOrchestratorComponents() {
+                addOrchestratorComponent(LGComponents.STAGES, MinecraftLGStagesOrchestrator.class);
+            }
+        });
 
         install(new LGStageOverridesModule());
         install(new LGStagesListenersModule());

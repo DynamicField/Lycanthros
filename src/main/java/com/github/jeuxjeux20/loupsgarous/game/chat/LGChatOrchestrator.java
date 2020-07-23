@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.chat;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import me.lucko.helper.text.Text;
 import me.lucko.helper.text.TextComponent;
 
@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 
-public interface LGChatOrchestrator extends LGGameOrchestratorDependent {
+public interface LGChatOrchestrator extends OrchestratorComponent {
     void redirectMessage(LGPlayer sender, String message, String format);
 
     default void sendMessage(LGChatChannel channel, String message) {

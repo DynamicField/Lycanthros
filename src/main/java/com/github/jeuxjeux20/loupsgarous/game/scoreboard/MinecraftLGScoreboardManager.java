@@ -1,14 +1,11 @@
 package com.github.jeuxjeux20.loupsgarous.game.scoreboard;
 
-import com.github.jeuxjeux20.loupsgarous.game.HasTriggers;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.util.ClassArrayUtils;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import me.lucko.helper.Events;
 import me.lucko.helper.metadata.Metadata;
 import me.lucko.helper.metadata.MetadataKey;
@@ -23,19 +20,21 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 import java.util.Set;
 
-@Singleton
-class MinecraftLGScoreboardManager implements LGScoreboardManager {
+@OrchestratorScoped
+class MinecraftLGScoreboardManager
+        extends AbstractOrchestratorComponent
+        implements LGScoreboardManager {
     private static final MetadataKey<Scoreboard> SCOREBOARD_KEY
             = MetadataKey.create("lg_scoreboard", Scoreboard.class);
 
     private final ScoreboardComponentRenderer componentRenderer;
     private final Set<ScoreboardComponent> components;
 
-    private boolean hasEvents;
-
     @Inject
-    MinecraftLGScoreboardManager(ScoreboardComponentRenderer componentRenderer,
+    MinecraftLGScoreboardManager(LGGameOrchestrator orchestrator,
+                                 ScoreboardComponentRenderer componentRenderer,
                                  Set<ScoreboardComponent> components) {
+        super(orchestrator);
         this.componentRenderer = componentRenderer;
         this.components = components;
 
@@ -43,33 +42,36 @@ class MinecraftLGScoreboardManager implements LGScoreboardManager {
     }
 
     private void registerEvents() {
-        if (hasEvents) return;
-
-        Class<? extends LGEvent>[] classes = ClassArrayUtils.merge(components.stream().map(HasTriggers::getUpdateTriggers));
+        Class<? extends LGEvent>[] classes =
+                ClassArrayUtils.merge(components.stream().map(HasTriggers::getUpdateTriggers));
 
         Events.merge(LGEvent.class, classes) // Safe because of getUpdateTriggers().
+                .filter(orchestrator::isMyEvent)
                 .handler(e -> {
                     for (LGPlayer player : e.getGame().getPlayers()) {
-                        updatePlayer(player, e.getOrchestrator());
+                        updatePlayer(player);
                     }
-                });
+                })
+                .bindWith(this);
 
         Events.subscribe(LGPlayerJoinEvent.class)
-                .handler(e -> updatePlayer(e.getLGPlayer(), e.getOrchestrator()));
+                .filter(orchestrator::isMyEvent)
+                .handler(e -> updatePlayer(e.getLGPlayer()))
+                .bindWith(this);
 
         Events.subscribe(LGPlayerQuitEvent.class)
-                .handler(e -> removePlayer(e.getLGPlayer()));
-
-        hasEvents = true;
+                .filter(orchestrator::isMyEvent)
+                .handler(e -> removePlayer(e.getLGPlayer()))
+                .bindWith(this);
     }
 
     @Override
-    public void updatePlayer(LGPlayer player, LGGameOrchestrator orchestrator) {
+    public void updatePlayer(LGPlayer player) {
         player.getMinecraftPlayer().ifPresent(minecraftPlayer -> {
             Scoreboard scoreboard = Metadata.provideForPlayer(minecraftPlayer).getOrPut(SCOREBOARD_KEY,
                     () -> Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard());
 
-            update(player, scoreboard, orchestrator);
+            update(player, scoreboard);
             minecraftPlayer.setScoreboard(scoreboard);
         });
     }
@@ -82,7 +84,7 @@ class MinecraftLGScoreboardManager implements LGScoreboardManager {
         });
     }
 
-    private void update(LGPlayer player, Scoreboard scoreboard, LGGameOrchestrator orchestrator) {
+    private void update(LGPlayer player, Scoreboard scoreboard) {
         Objective objective = recreateObjective(scoreboard);
 
         componentRenderer.renderObjective(objective, components, player, orchestrator);

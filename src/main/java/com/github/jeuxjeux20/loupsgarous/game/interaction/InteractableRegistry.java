@@ -1,17 +1,16 @@
 package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.util.CheckPredicate;
 import com.github.jeuxjeux20.loupsgarous.util.SafeResult;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
-import me.lucko.helper.terminable.Terminable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.Set;
 
-public interface InteractableRegistry extends Terminable, LGGameOrchestratorDependent {
+public interface InteractableRegistry extends OrchestratorComponent {
     <T extends Interactable> ImmutableSet<T> get(InteractableKey<T> key);
 
     <T extends Interactable> SafeSingleBuilder<T> single(InteractableKey<T> key);

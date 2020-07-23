@@ -1,8 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.kill;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.InternalLGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
+import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.google.inject.Inject;
 
 import java.util.Collection;
@@ -10,36 +8,37 @@ import java.util.Collection;
 import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.STARTED;
 
 @OrchestratorScoped
-public class MinecraftLGKillsOrchestrator implements LGKillsOrchestrator {
-    private final InternalLGGameOrchestrator gameOrchestrator;
+public class MinecraftLGKillsOrchestrator
+        extends AbstractOrchestratorComponent
+        implements LGKillsOrchestrator {
     private final PendingKillRegistry pendingKillRegistry;
     private final PlayerKiller playerKiller;
 
     @Inject
-    MinecraftLGKillsOrchestrator(InternalLGGameOrchestrator gameOrchestrator,
+    MinecraftLGKillsOrchestrator(LGGameOrchestrator orchestrator,
                                  PendingKillRegistry pendingKillRegistry,
                                  PlayerKiller playerKiller) {
-        this.gameOrchestrator = gameOrchestrator;
+        super(orchestrator);
         this.pendingKillRegistry = pendingKillRegistry;
         this.playerKiller = playerKiller;
     }
 
     @Override
     public PendingKillRegistry pending() {
-        gameOrchestrator.state().mustBe(STARTED);
+        orchestrator.state().mustBe(STARTED);
 
         return pendingKillRegistry;
     }
 
     @Override
     public void instantly(Collection<LGKill> kills) {
-        gameOrchestrator.state().mustBe(STARTED);
+        orchestrator.state().mustBe(STARTED);
 
         playerKiller.applyKills(kills);
     }
 
     @Override
     public LGGameOrchestrator gameOrchestrator() {
-        return gameOrchestrator;
+        return orchestrator;
     }
 }

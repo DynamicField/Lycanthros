@@ -1,11 +1,11 @@
 package com.github.jeuxjeux20.loupsgarous.game.scoreboard;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import org.bukkit.entity.Player;
 
-public interface LGScoreboardManager {
-    void updatePlayer(LGPlayer player, LGGameOrchestrator orchestrator);
+public interface LGScoreboardManager extends OrchestratorComponent {
+    void updatePlayer(LGPlayer player);
 
     void removePlayer(Player player);
 

@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.bossbar;
 
-import me.lucko.helper.terminable.Terminable;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 
-public interface LGBossBarManager extends Terminable {
+public interface LGBossBarManager extends OrchestratorComponent {
     void update();
 }

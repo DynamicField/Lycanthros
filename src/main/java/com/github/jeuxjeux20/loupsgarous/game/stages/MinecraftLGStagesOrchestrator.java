@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.stages;
 
+import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.game.stages.descriptor.LGStageDescriptor;
@@ -18,9 +19,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @OrchestratorScoped
-class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
-    private final LGGameOrchestrator gameOrchestrator;
-
+class MinecraftLGStagesOrchestrator
+        extends AbstractOrchestratorComponent
+        implements LGStagesOrchestrator {
     private final LinkedList<RunnableLGStage.Factory<?>> stageFactories;
     private final LGStageDescriptor.Registry descriptorRegistry;
     private ListIterator<RunnableLGStage.Factory<?>> stageIterator;
@@ -29,18 +30,18 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
     private final Logger logger;
 
     @Inject
-    MinecraftLGStagesOrchestrator(LGGameOrchestrator gameOrchestrator,
+    MinecraftLGStagesOrchestrator(LGGameOrchestrator orchestrator,
                                   Set<RunnableLGStage.Factory<?>> stageFactories,
                                   Set<StageOverride> stageOverrides,
                                   LGStageDescriptor.Registry descriptorRegistry) {
-        this.gameOrchestrator = gameOrchestrator;
+        super(orchestrator);
         this.stageFactories = new LinkedList<>(stageFactories);
         this.descriptorRegistry = descriptorRegistry;
         this.stageIterator = this.stageFactories.listIterator();
         this.stageOverrides = stageOverrides;
-        this.logger = gameOrchestrator.logger();
+        this.logger = orchestrator.logger();
 
-        gameOrchestrator.bind(new CurrentStageTerminable());
+        bind(new CurrentStageTerminable());
     }
 
     @Override
@@ -60,7 +61,7 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
             stageIterator = stageFactories.listIterator(); // Reset the iterator
 
         RunnableLGStage.Factory<?> factory = stageIterator.next();
-        RunnableLGStage stage = factory.create(gameOrchestrator);
+        RunnableLGStage stage = factory.create(orchestrator);
         LGStageDescriptor descriptor = descriptorRegistry.get(stage.getClass());
 
         if (descriptor.isTemporary())
@@ -86,7 +87,7 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
 
     @Override
     public LGStage current() {
-        return currentStage == null ? new LGStage.Null(gameOrchestrator) : currentStage;
+        return currentStage == null ? new LGStage.Null(orchestrator) : currentStage;
     }
 
     @Override
@@ -96,16 +97,16 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
 
     private boolean callStageOverride() {
         Optional<StageOverride> activeStageOverride = stageOverrides.stream()
-                .filter(x -> x.shouldOverride(gameOrchestrator))
+                .filter(x -> x.shouldOverride(orchestrator))
                 .findFirst();
 
         activeStageOverride.ifPresent(stageOverride -> {
             if (stageOverride.getStageClass().isInstance(currentStage)) return;
 
-            RunnableLGStage stage = stageOverride.getStageFactory().create(gameOrchestrator);
+            RunnableLGStage stage = stageOverride.getStageFactory().create(orchestrator);
 
             runStage(stage)
-                    .thenRun(() -> stageOverride.onceComplete(gameOrchestrator))
+                    .thenRun(() -> stageOverride.onceComplete(orchestrator))
                     .exceptionally(this::handlePostStageException);
         });
 
@@ -147,7 +148,7 @@ class MinecraftLGStagesOrchestrator implements LGStagesOrchestrator {
 
     @Override
     public LGGameOrchestrator gameOrchestrator() {
-        return gameOrchestrator;
+        return orchestrator;
     }
 
     private final class CurrentStageTerminable implements Terminable {
