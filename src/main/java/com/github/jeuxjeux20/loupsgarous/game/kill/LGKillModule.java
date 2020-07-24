@@ -6,13 +6,13 @@ import com.google.inject.AbstractModule;
 
 public final class LGKillModule extends AbstractModule {
     protected void configure() {
-        bind(LGKillsOrchestrator.class).to(MinecraftLGKillsOrchestrator.class);
-        bind(PendingKillRegistry.class).to(MinecraftPendingKillRegistry.class);
+        bind(LGKillsOrchestrator.class);
+        bind(PendingKillRegistry.class);
 
         install(new OrchestratorComponentsModule() {
             @Override
             protected void configureOrchestratorComponents() {
-                addOrchestratorComponent(LGComponents.KILLS, MinecraftLGKillsOrchestrator.class);
+                addOrchestratorComponent(LGComponents.KILLS, LGKillsOrchestrator.class);
             }
         });
     }

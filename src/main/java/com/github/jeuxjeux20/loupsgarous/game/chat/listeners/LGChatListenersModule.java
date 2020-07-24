@@ -9,7 +9,6 @@ public final class LGChatListenersModule extends ListenersModule {
         addListener(TellWinnerListener.class);
         addListener(TellPlayersKilledListener.class);
         addListener(TellPlayerVoteListener.class);
-        addListener(RedirectChatMessageListener.class);
         addListener(TellPlayerVoteRemovedListener.class);
         addListener(TellStageTitleListener.class);
         addListener(TellVoteTipsListener.class);

@@ -1,23 +1,39 @@
 package com.github.jeuxjeux20.loupsgarous.game.kill;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
+import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.game.event.LGKillEvent;
 import com.github.jeuxjeux20.loupsgarous.game.kill.causes.LGKillCause;
+import com.google.inject.Inject;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-/**
- * Contains functionality for killing players with a reason. That sounds absolutely fine.
- */
-public interface LGKillsOrchestrator extends OrchestratorComponent {
+import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.STARTED;
+
+@OrchestratorScoped
+public class LGKillsOrchestrator extends AbstractOrchestratorComponent {
+    private final PendingKillRegistry pendingKillRegistry;
+    private final PlayerKiller playerKiller;
+
+    @Inject
+    LGKillsOrchestrator(LGGameOrchestrator orchestrator,
+                        PendingKillRegistry pendingKillRegistry,
+                        PlayerKiller playerKiller) {
+        super(orchestrator);
+        this.pendingKillRegistry = pendingKillRegistry;
+        this.playerKiller = playerKiller;
+    }
+
     /**
      * Gets the pending kills of the game.
      *
      * @return the pending kills
      */
-    PendingKillRegistry pending();
+    public PendingKillRegistry pending() {
+        orchestrator.state().mustBe(STARTED);
+
+        return pendingKillRegistry;
+    }
 
     /**
      * Instantly kills all the victims of the given kills.
@@ -25,7 +41,11 @@ public interface LGKillsOrchestrator extends OrchestratorComponent {
      * @param kills the kills to apply
      * @see LGKillEvent
      */
-    void instantly(Collection<LGKill> kills);
+    public void instantly(Collection<LGKill> kills) {
+        orchestrator.state().mustBe(STARTED);
+
+        playerKiller.applyKills(kills);
+    }
 
     /**
      * Instantly kills all the victims of the given kills.
@@ -33,7 +53,7 @@ public interface LGKillsOrchestrator extends OrchestratorComponent {
      * @param kills the kills to apply
      * @see LGKillEvent
      */
-    default void instantly(LGKill... kills) {
+    public void instantly(LGKill... kills) {
         instantly(Arrays.asList(kills));
     }
 
@@ -44,7 +64,12 @@ public interface LGKillsOrchestrator extends OrchestratorComponent {
      * @param cause  the cause of victim's death
      * @see LGKillEvent
      */
-    default void instantly(LGPlayer victim, LGKillCause cause) {
+    public void instantly(LGPlayer victim, LGKillCause cause) {
         instantly(LGKill.of(victim, cause));
+    }
+
+    @Override
+    public LGGameOrchestrator gameOrchestrator() {
+        return orchestrator;
     }
 }

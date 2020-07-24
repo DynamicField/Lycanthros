@@ -37,7 +37,7 @@ public class LGStartCommand extends SelfConfiguredCommandExecutor {
         Player player = ((Player) sender);
 
         try {
-            gameManager.start(player, DefaultCompositions.villagerComposition(8));
+            gameManager.start(player, DefaultCompositions.villagerComposition(8), null);
         } catch (GameCreationException e) {
             sender.sendMessage(ChatColor.RED + "Impossible de créer la partie : " + e.getMessage());
         }

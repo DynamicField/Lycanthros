@@ -6,11 +6,11 @@ import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponentsModule;
 public final class LGInventoryModule extends InventoryItemsModule {
     @Override
     protected void configureBindings() {
-        bind(LGInventoryManager.class).to(MinecraftLGInventoryManager.class);
+        bind(LGInventoryManager.class);
         install(new OrchestratorComponentsModule() {
             @Override
             protected void configureOrchestratorComponents() {
-                addOrchestratorComponent(LGComponents.INVENTORY, MinecraftLGInventoryManager.class);
+                addOrchestratorComponent(LGComponents.INVENTORY, LGInventoryManager.class);
             }
         });
     }

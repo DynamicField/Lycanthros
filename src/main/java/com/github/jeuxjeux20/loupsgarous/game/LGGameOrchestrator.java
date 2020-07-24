@@ -21,7 +21,6 @@ import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -29,13 +28,14 @@ import java.util.stream.Stream;
 /**
  * Manages a Loups-Garous game instance.
  * <p>
- * The game {@link #state()} can be changed using the appropriate methods:
- * {@link #initialize()}, {@link #start()}, {@link #finish(LGEnding)} and {@link #delete()}.
+ * The game {@link #state()} can be changed using the appropriate methods: {@link #initialize()},
+ * {@link #start()}, {@link #finish(LGEnding)} and {@link #delete()}.
  * <p>
  * This also implements {@link TerminableConsumer}, where all the bound terminables get terminated
  * as soon as the orchestrator is in the {@link LGGameState#DELETING} state.
  * <p>
- * Other aspects of the game can be used using components that break up features into multiple methods:
+ * Other aspects of the game can be used using components that break up features into multiple
+ * methods:
  * <ul>
  *     <li>{@link #chat()}: Send messages using channels. ({@link LGChatOrchestrator}) </li>
  *     <li>{@link #stages()}: Manages the stages of the game. ({@link LGStagesOrchestrator})</li>
@@ -69,44 +69,44 @@ public interface LGGameOrchestrator extends TerminableConsumer {
 
 
     /**
-     * Initializes the game to be ready to accept new players. Usually, this method is called internally.
-     * This will change the state to {@link LGGameState#WAITING_FOR_PLAYERS}
-     * or {@link LGGameState#READY_TO_START}.
+     * Initializes the game to be ready to accept new players. Usually, this method is called
+     * internally. This will change the state to {@link LGGameState#WAITING_FOR_PLAYERS} or {@link
+     * LGGameState#READY_TO_START}.
      *
-     * @throws IllegalStateException when the game is not {@linkplain LGGameState#UNINITIALIZED uninitialized}
+     * @throws IllegalStateException when the game is not {@linkplain LGGameState#UNINITIALIZED
+     *                               uninitialized}
      */
     void initialize();
 
     /**
-     * Starts the game and calls the {@link LGGameStartEvent}.
-     * This will change the state to {@link LGGameState#STARTED}.
+     * Starts the game and calls the {@link LGGameStartEvent}. This will change the state to {@link
+     * LGGameState#STARTED}.
      *
-     * @throws IllegalStateException when the game is not {@linkplain LGGameState#READY_TO_START ready to start}
+     * @throws IllegalStateException when the game is not {@linkplain LGGameState#READY_TO_START
+     *                               ready to start}
      */
     void start();
 
     /**
-     * Finishes the game with the given ending and calls the {@link LGGameFinishedEvent}.
-     * This will change the state to {@link LGGameState#FINISHED}.
+     * Finishes the game with the given ending and calls the {@link LGGameFinishedEvent}. This will
+     * change the state to {@link LGGameState#FINISHED}.
      *
      * @param ending why the game ended
-     * @throws IllegalStateException when the game is
-     *                               {@linkplain LGGameState#UNINITIALIZED uninitialized},
-     *                               {@linkplain LGGameState#FINISHED finished},
-     *                               {@linkplain LGGameState#DELETING deleting} or
-     *                               {@linkplain LGGameState#DELETED deleted}
+     * @throws IllegalStateException when the game is {@linkplain LGGameState#UNINITIALIZED
+     *                               uninitialized}, {@linkplain LGGameState#FINISHED finished},
+     *                               {@linkplain LGGameState#DELETING deleting} or {@linkplain
+     *                               LGGameState#DELETED deleted}
      */
     void finish(LGEnding ending);
 
     /**
      * Deletes the game and calls the deletion events.
      * <p>
-     * This changes the state to {@link LGGameState#DELETING}, terminates every terminable
-     * bound to this orchestrator, teleports all players to the spawn,
-     * and finally changes the state to {@link LGGameState#DELETED}.
+     * This changes the state to {@link LGGameState#DELETING}, terminates every terminable bound to
+     * this orchestrator, teleports all players to the spawn, and finally changes the state to
+     * {@link LGGameState#DELETED}.
      *
-     * @throws IllegalStateException when the game is
-     *                               {@linkplain LGGameState#DELETING deleting} or
+     * @throws IllegalStateException when the game is {@linkplain LGGameState#DELETING deleting} or
      *                               {@linkplain LGGameState#DELETED deleted}
      */
     void delete();
@@ -151,7 +151,7 @@ public interface LGGameOrchestrator extends TerminableConsumer {
         return event.getOrchestrator() == this;
     }
 
-    default Stream<@NotNull Player> getAllMinecraftPlayers() {
+    default Stream<Player> getAllMinecraftPlayers() {
         return game().getPlayers().stream().map(LGPlayer::getMinecraftPlayer).flatMap(OptionalUtils::stream);
     }
 

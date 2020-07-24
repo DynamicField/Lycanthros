@@ -1,6 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.game.atmosphere.listeners;
 
-import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
@@ -15,7 +14,7 @@ public class PreventNightPlayerMovementListener implements Listener {
     private final LGGameManager gameManager;
 
     @Inject
-    PreventNightPlayerMovementListener(LGGameManager gameManager, LoupsGarous plugin) {
+    PreventNightPlayerMovementListener(LGGameManager gameManager) {
         this.gameManager = gameManager;
     }
 

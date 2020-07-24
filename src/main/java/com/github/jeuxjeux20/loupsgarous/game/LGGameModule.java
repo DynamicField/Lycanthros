@@ -43,7 +43,7 @@ public final class LGGameModule extends AbstractModule {
         install(new LGBossBarModule());
         install(new LGTagsModule());
 
-        bind(LGGameManager.class).to(MinecraftLGGameManager.class);
+        bind(LGGameManager.class);
 
         install(new FactoryModuleBuilder()
                 .implement(LGGameOrchestrator.class, MinecraftLGGameOrchestrator.class)

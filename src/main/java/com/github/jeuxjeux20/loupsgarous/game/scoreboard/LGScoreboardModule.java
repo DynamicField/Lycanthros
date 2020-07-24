@@ -6,12 +6,12 @@ import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponentsModule;
 public final class LGScoreboardModule extends ScoreboardComponentsModule {
     @Override
     protected void configureBindings() {
-        bind(LGScoreboardManager.class).to(MinecraftLGScoreboardManager.class);
+        bind(LGScoreboardManager.class);
         install(new OrchestratorComponentsModule() {
             @Override
             protected void configureOrchestratorComponents() {
                 addOrchestratorComponent(LGComponents.SCOREBOARD,
-                        MinecraftLGScoreboardManager.class);
+                        LGScoreboardManager.class);
             }
         });
     }

@@ -6,13 +6,13 @@ import com.google.inject.AbstractModule;
 
 public final class LGActionBarModule extends AbstractModule {
     protected void configure() {
-        bind(LGActionBarManager.class).to(MinecraftLGActionBarManager.class);
+        bind(LGActionBarManager.class);
 
         install(new OrchestratorComponentsModule() {
             @Override
             protected void configureOrchestratorComponents() {
                 addOrchestratorComponent(LGComponents.ACTION_BAR,
-                        MinecraftLGActionBarManager.class);
+                        LGActionBarManager.class);
             }
         });
     }

@@ -7,12 +7,12 @@ import com.google.inject.AbstractModule;
 public final class LGBossBarModule extends AbstractModule {
     @Override
     protected void configure() {
-        bind(LGBossBarManager.class).to(MinecraftLGBossBarManager.class);
+        bind(LGBossBarManager.class);
         install(new OrchestratorComponentsModule() {
             @Override
             protected void configureOrchestratorComponents() {
                 addOrchestratorComponent(LGComponents.BOSS_BAR,
-                        MinecraftLGBossBarManager.class);
+                        LGBossBarManager.class);
             }
         });
     }

@@ -12,11 +12,11 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 public final class LGStagesModule extends StagesModule {
     @Override
     protected void configureBindings() {
-        bind(LGStagesOrchestrator.class).to(MinecraftLGStagesOrchestrator.class);
+        bind(LGStagesOrchestrator.class);
         install(new OrchestratorComponentsModule() {
             @Override
             protected void configureOrchestratorComponents() {
-                addOrchestratorComponent(LGComponents.STAGES, MinecraftLGStagesOrchestrator.class);
+                addOrchestratorComponent(LGComponents.STAGES, LGStagesOrchestrator.class);
             }
         });
 

@@ -12,12 +12,12 @@ public final class LGChatModule extends ChatChannelsModule {
         install(new LGChatListenersModule());
         install(new LGChatChannelInterceptorsModule());
 
-        bind(LGChatOrchestrator.class).to(MinecraftLGChatOrchestrator.class);
+        bind(LGChatOrchestrator.class);
 
         install(new OrchestratorComponentsModule() {
             @Override
             protected void configureOrchestratorComponents() {
-                addOrchestratorComponent(LGComponents.CHAT, MinecraftLGChatOrchestrator.class);
+                addOrchestratorComponent(LGComponents.CHAT, LGChatOrchestrator.class);
             }
         });
 

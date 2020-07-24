@@ -11,12 +11,12 @@ public final class LGInteractionModule extends AbstractModule {
         install(new LGInteractionHandlersModule());
         install(new LGInteractionVoteModule());
 
-        bind(InteractableRegistry.class).to(MinecraftInteractableRegistry.class);
+        bind(InteractableRegistry.class);
         install(new OrchestratorComponentsModule() {
             @Override
             protected void configureOrchestratorComponents() {
                 addOrchestratorComponent(LGComponents.INTERACTABLES,
-                        MinecraftInteractableRegistry.class);
+                        InteractableRegistry.class);
             }
         });
     }
