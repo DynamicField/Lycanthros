@@ -1,9 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.game.chat;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorDependent;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 
-public interface LGChatChannel extends LGGameOrchestratorDependent {
+public interface LGChatChannel extends OrchestratorDependent {
     String getName();
 
     boolean isNameDisplayed();

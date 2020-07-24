@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.game.stages;
 
 import com.github.jeuxjeux20.loupsgarous.SafeCast;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorDependent;
 import me.lucko.helper.terminable.TerminableConsumer;
 
 import javax.annotation.Nonnull;
@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
  * <p>
  * The {@link LGStagesModule} contains all the stages of the classic game.
  */
-public interface LGStage extends SafeCast, TerminableConsumer, LGGameOrchestratorDependent {
+public interface LGStage extends SafeCast, TerminableConsumer, OrchestratorDependent {
     /**
      * Defines if the stage is considered as being used for game logic only,
      * and do not require any user interaction.

@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorDependent;
 import me.lucko.helper.terminable.Terminable;
 
 /**
@@ -9,7 +9,7 @@ import me.lucko.helper.terminable.Terminable;
  * Interactables have the following properties:
  * <ul>
  *     <li><b>Context awareness.</b> They must be aware of their game orchestrator,
- *     which is why they are {@link LGGameOrchestratorDependent}.</li>
+ *     which is why they are {@link OrchestratorDependent}.</li>
  *     <li><b>Disposability.</b> Interactables are {@link Terminable} and can be closed.
  *     Once they are closed, {@link #isClosed()} must <b>return {@code true}</b>, and
  *     any state must be <b>unmodifiable</b>.</li>
@@ -17,7 +17,7 @@ import me.lucko.helper.terminable.Terminable;
  *
  * @see AbstractInteractable
  */
-public interface Interactable extends Terminable, LGGameOrchestratorDependent {
+public interface Interactable extends Terminable, OrchestratorDependent {
     /**
      * {@inheritDoc}
      */

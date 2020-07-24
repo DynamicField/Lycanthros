@@ -165,18 +165,20 @@ class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
     private void registerLobbyEvents() {
         Events.subscribe(LGPlayerQuitEvent.class, EventPriority.MONITOR)
                 .filter(this::isMyEvent)
+                .filter(e -> state().isEnabled())
                 .handler(this::handlePlayerQuit)
                 .bindWith(this);
 
         Events.subscribe(LGPlayerJoinEvent.class, EventPriority.MONITOR)
                 .filter(this::isMyEvent)
+                .filter(e -> state().isEnabled())
                 .handler(this::handlePlayerJoin)
                 .bindWith(this);
 
         Events.merge(LGEvent.class,
                 LGPlayerJoinEvent.class, LGPlayerQuitEvent.class, LGLobbyCompositionUpdateEvent.class)
                 .filter(this::isMyEvent)
-                .filter(o -> !lobby.isLocked() && state() != LGGameState.UNINITIALIZED)
+                .filter(o -> !lobby.isLocked() && state() != UNINITIALIZED)
                 .handler(e -> updateLobbyState())
                 .bindWith(this);
     }
@@ -242,8 +244,8 @@ class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
     }
 
     /**
-     * Changes the current state to the specified {@code state}, and calls the event created using the given
-     * function.
+     * Changes the current state to the specified {@code state}, and calls the event created using
+     * the given function.
      *
      * @param state         the state to change to
      * @param eventFunction the function that creates the event to call
@@ -286,9 +288,7 @@ class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
             CompositeTerminable terminables = CompositeTerminable.create();
 
             for (Object value : componentMap.asMap().values()) {
-                if (value instanceof Terminable) {
-                    terminables.bind(((Terminable) value));
-                }
+                terminables.bind(((OrchestratorComponent) value));
             }
 
             terminables.close();

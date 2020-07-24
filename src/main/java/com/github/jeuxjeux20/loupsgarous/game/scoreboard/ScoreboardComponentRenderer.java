@@ -53,7 +53,7 @@ public final class ScoreboardComponentRenderer {
                 currentScore--;
             } else {
                 objective.getScore(content).setScore(position);
-                // Don't affect automatically positioned lines.
+                // Don't affect explicitly positioned lines.
             }
         }
     }

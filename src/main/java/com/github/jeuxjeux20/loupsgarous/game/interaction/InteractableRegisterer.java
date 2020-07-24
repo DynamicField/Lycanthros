@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestratorDependent;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorDependent;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import me.lucko.helper.terminable.TerminableConsumer;
@@ -28,7 +28,7 @@ public final class InteractableRegisterer<T extends Interactable> {
     public interface TerminableBuilder<T extends Interactable> {
         RegistrableBuilder<T> terminatesWith(TerminableConsumer target);
 
-        default <B extends TerminableConsumer & LGGameOrchestratorDependent>
+        default <B extends TerminableConsumer & OrchestratorDependent>
         T boundWith(B target) {
             return terminatesWith(target).in(target.gameOrchestrator());
         }

@@ -60,7 +60,8 @@ class MinecraftLGChatOrchestrator
     private String buildRedirectedMessage(LGPlayer sender, LGPlayer recipient, String message,
                                           LGChatChannel channel, String format) {
         if (channel.isNameDisplayed()) {
-            format = format + ChatColor.GRAY + "[" + channel.getName() + "]";
+            format = ChatColor.GRAY + "[" + channel.getName() + "]" +
+                     ChatColor.RESET + format;
         }
 
         String username = channel.formatUsername(sender, recipient);

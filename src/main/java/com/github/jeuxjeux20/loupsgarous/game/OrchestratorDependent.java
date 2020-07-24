@@ -1,5 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-public interface LGGameOrchestratorDependent {
+public interface OrchestratorDependent {
     LGGameOrchestrator gameOrchestrator();
 }
