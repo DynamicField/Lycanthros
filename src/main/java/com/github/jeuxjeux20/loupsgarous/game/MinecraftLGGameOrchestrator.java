@@ -193,7 +193,9 @@ class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
 
         if (isGameRunning() && e.getLGPlayer().isAlive()) {
             kills().instantly(e.getLGPlayer(), PlayerQuitKillCause.INSTANCE);
-        } else if (state().isEnabled()) { // Let's not write quit messages while deleting.
+        }
+
+        if (!lobby.isLocked()) {
             chat().sendToEveryone(player(offlinePlayer.getName()) + lobbyMessage(" a quitté la partie ! ") +
                                   slots(lobby.getSlotsDisplay()));
         }
