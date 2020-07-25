@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractVote<T>
         extends AbstractStatefulPick<T>
-        implements Vote<T>, Interactable {
+        implements Vote<T> {
     private final VoteOutcomeDeterminer<T> voteOutcomeDeterminer;
 
     public AbstractVote(LGGameOrchestrator orchestrator, Dependencies<T> dependencies) {
