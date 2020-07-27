@@ -1,12 +1,12 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.game.event.LGGameDeletedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerJoinEvent;
-import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerQuitEvent;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameBootstrapData;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.PlayerJoinException;
+import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
+import com.github.jeuxjeux20.loupsgarous.event.LGGameDeletedEvent;
+import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerJoinEvent;
+import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
+import com.github.jeuxjeux20.loupsgarous.lobby.LGGameBootstrapData;
+import com.github.jeuxjeux20.loupsgarous.lobby.PlayerJoinException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;

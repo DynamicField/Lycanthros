@@ -1,9 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.game.cards.distribution.CardDistributor;
-import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
+import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
+import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
+import com.github.jeuxjeux20.loupsgarous.cards.distribution.CardDistributor;
+import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.metadata.MetadataMap;

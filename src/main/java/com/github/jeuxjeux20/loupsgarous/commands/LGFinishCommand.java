@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
-import com.github.jeuxjeux20.loupsgarous.game.endings.FinishCommandEnding;
+import com.github.jeuxjeux20.loupsgarous.endings.FinishCommandEnding;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
 import org.bukkit.ChatColor;

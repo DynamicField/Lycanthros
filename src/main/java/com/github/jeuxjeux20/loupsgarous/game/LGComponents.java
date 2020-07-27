@@ -1,13 +1,13 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-import com.github.jeuxjeux20.loupsgarous.game.actionbar.LGActionBarManager;
-import com.github.jeuxjeux20.loupsgarous.game.bossbar.LGBossBarManager;
-import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableRegistry;
-import com.github.jeuxjeux20.loupsgarous.game.inventory.LGInventoryManager;
-import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.scoreboard.LGScoreboardManager;
-import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.actionbar.LGActionBarManager;
+import com.github.jeuxjeux20.loupsgarous.bossbar.LGBossBarManager;
+import com.github.jeuxjeux20.loupsgarous.chat.LGChatOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegistry;
+import com.github.jeuxjeux20.loupsgarous.inventory.LGInventoryManager;
+import com.github.jeuxjeux20.loupsgarous.kill.LGKillsOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.scoreboard.LGScoreboardManager;
+import com.github.jeuxjeux20.loupsgarous.stages.LGStagesOrchestrator;
 import me.lucko.helper.metadata.MetadataKey;
 
 public final class LGComponents {

@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.guicybukkit.command.CommandName;
 import com.github.jeuxjeux20.guicybukkit.command.SelfConfiguredCommandExecutor;
 import com.github.jeuxjeux20.loupsgarous.game.GameCreationException;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.util.DefaultCompositions;
+import com.github.jeuxjeux20.loupsgarous.cards.composition.util.DefaultCompositions;
 import com.google.inject.Inject;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

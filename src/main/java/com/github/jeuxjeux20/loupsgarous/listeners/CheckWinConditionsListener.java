@@ -1,0 +1,43 @@
+package com.github.jeuxjeux20.loupsgarous.listeners;
+
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
+import com.github.jeuxjeux20.loupsgarous.event.stage.LGStageStartingEvent;
+import com.github.jeuxjeux20.loupsgarous.stages.LGStage;
+import com.github.jeuxjeux20.loupsgarous.stages.descriptor.LGStageDescriptor;
+import com.github.jeuxjeux20.loupsgarous.winconditions.WinCondition;
+import com.google.inject.Inject;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+
+import java.util.Optional;
+import java.util.Set;
+
+public class CheckWinConditionsListener implements Listener {
+    private final Set<WinCondition> winConditions;
+
+    @Inject
+    CheckWinConditionsListener(Set<WinCondition> winConditions) {
+        this.winConditions = winConditions;
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onLGStageStarting(LGStageStartingEvent event) {
+        LGGameOrchestrator orchestrator = event.getOrchestrator();
+        LGStage stage = event.getStage();
+        LGStageDescriptor descriptor = orchestrator.stages().descriptors().get(stage.getClass());
+
+        if (!orchestrator.isGameRunning() || descriptor.postponesWinConditions()) {
+            return;
+        }
+
+        for (WinCondition winCondition : winConditions) {
+            Optional<LGEnding> ending = winCondition.check(orchestrator.game());
+            if (ending.isPresent()) {
+                orchestrator.finish(ending.get());
+                return;
+            }
+        }
+    }
+}

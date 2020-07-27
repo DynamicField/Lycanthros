@@ -1,16 +1,16 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
-import com.github.jeuxjeux20.loupsgarous.game.cards.distribution.CardDistributor;
-import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
-import com.github.jeuxjeux20.loupsgarous.game.event.*;
-import com.github.jeuxjeux20.loupsgarous.game.event.lobby.LGLobbyCompositionUpdateEvent;
-import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerJoinEvent;
-import com.github.jeuxjeux20.loupsgarous.game.event.player.LGPlayerQuitEvent;
-import com.github.jeuxjeux20.loupsgarous.game.kill.causes.PlayerQuitKillCause;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameBootstrapData;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
-import com.github.jeuxjeux20.loupsgarous.game.stages.LGStage;
+import com.github.jeuxjeux20.loupsgarous.cards.distribution.CardDistributor;
+import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
+import com.github.jeuxjeux20.loupsgarous.event.*;
+import com.github.jeuxjeux20.loupsgarous.event.lobby.LGLobbyCompositionUpdateEvent;
+import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerJoinEvent;
+import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
+import com.github.jeuxjeux20.loupsgarous.kill.causes.PlayerQuitKillCause;
+import com.github.jeuxjeux20.loupsgarous.lobby.LGGameBootstrapData;
+import com.github.jeuxjeux20.loupsgarous.lobby.LGLobby;
+import com.github.jeuxjeux20.loupsgarous.stages.LGStage;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;

@@ -1,19 +1,19 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-import com.github.jeuxjeux20.loupsgarous.game.actionbar.LGActionBarManager;
-import com.github.jeuxjeux20.loupsgarous.game.bossbar.LGBossBarManager;
-import com.github.jeuxjeux20.loupsgarous.game.cards.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
-import com.github.jeuxjeux20.loupsgarous.game.event.LGEvent;
-import com.github.jeuxjeux20.loupsgarous.game.event.LGGameFinishedEvent;
-import com.github.jeuxjeux20.loupsgarous.game.event.LGGameStartEvent;
-import com.github.jeuxjeux20.loupsgarous.game.interaction.InteractableRegistry;
-import com.github.jeuxjeux20.loupsgarous.game.kill.LGKillsOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.LGGameBootstrapData;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.LGLobby;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.LobbyCreationException;
-import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.actionbar.LGActionBarManager;
+import com.github.jeuxjeux20.loupsgarous.bossbar.LGBossBarManager;
+import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
+import com.github.jeuxjeux20.loupsgarous.chat.LGChatOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
+import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
+import com.github.jeuxjeux20.loupsgarous.event.LGGameFinishedEvent;
+import com.github.jeuxjeux20.loupsgarous.event.LGGameStartEvent;
+import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegistry;
+import com.github.jeuxjeux20.loupsgarous.kill.LGKillsOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.lobby.LGGameBootstrapData;
+import com.github.jeuxjeux20.loupsgarous.lobby.LGLobby;
+import com.github.jeuxjeux20.loupsgarous.lobby.LobbyCreationException;
+import com.github.jeuxjeux20.loupsgarous.stages.LGStagesOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.common.collect.ImmutableMultiset;
 import me.lucko.helper.metadata.MetadataKey;
@@ -152,7 +152,7 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     }
 
     default Stream<Player> getAllMinecraftPlayers() {
-        return game().getPlayers().stream().map(LGPlayer::getMinecraftPlayer).flatMap(OptionalUtils::stream);
+        return game().getPlayers().stream().map(LGPlayer::minecraft).flatMap(OptionalUtils::stream);
     }
 
     default void showSubtitle(String subtitle) {

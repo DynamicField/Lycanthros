@@ -1,13 +1,13 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-import com.github.jeuxjeux20.loupsgarous.game.cards.LGCard;
-import com.github.jeuxjeux20.loupsgarous.game.kill.causes.LGKillCause;
-import com.github.jeuxjeux20.loupsgarous.game.powers.LGPower;
-import com.github.jeuxjeux20.loupsgarous.game.powers.PowerRegistry;
-import com.github.jeuxjeux20.loupsgarous.game.tags.LGTag;
-import com.github.jeuxjeux20.loupsgarous.game.tags.TagRegistry;
-import com.github.jeuxjeux20.loupsgarous.game.teams.LGTeam;
-import com.github.jeuxjeux20.loupsgarous.game.teams.TeamRegistry;
+import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
+import com.github.jeuxjeux20.loupsgarous.kill.causes.LGKillCause;
+import com.github.jeuxjeux20.loupsgarous.powers.LGPower;
+import com.github.jeuxjeux20.loupsgarous.powers.PowerRegistry;
+import com.github.jeuxjeux20.loupsgarous.tags.LGTag;
+import com.github.jeuxjeux20.loupsgarous.tags.TagRegistry;
+import com.github.jeuxjeux20.loupsgarous.teams.LGTeam;
+import com.github.jeuxjeux20.loupsgarous.teams.TeamRegistry;
 import com.google.common.collect.ClassToInstanceMap;
 import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableSet;

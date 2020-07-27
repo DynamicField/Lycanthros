@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.guicybukkit.command.CommandConfigurator;
 import com.github.jeuxjeux20.guicybukkit.command.CommandNotFoundException;
 import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
 import com.github.jeuxjeux20.loupsgarous.config.*;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.MultiverseLobbiesModule;
+import com.github.jeuxjeux20.loupsgarous.lobby.MultiverseLobbiesModule;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Inject;

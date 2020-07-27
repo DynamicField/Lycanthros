@@ -1,8 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous;
 
 import com.github.jeuxjeux20.loupsgarous.commands.debug.ColorCommand;
-import com.github.jeuxjeux20.loupsgarous.game.commands.debug.LGCurrentInteractablesCommand;
-import com.github.jeuxjeux20.loupsgarous.game.commands.debug.LGSkipStageCommand;
+import com.github.jeuxjeux20.loupsgarous.commands.debug.LGCurrentInteractablesCommand;
+import com.github.jeuxjeux20.loupsgarous.commands.debug.LGSkipStageCommand;
 import com.google.inject.AbstractModule;
 
 public final class DebugModule extends AbstractModule {

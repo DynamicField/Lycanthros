@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-import com.github.jeuxjeux20.loupsgarous.game.endings.LGEnding;
+import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.metadata.MetadataMap;
 import org.jetbrains.annotations.Nullable;

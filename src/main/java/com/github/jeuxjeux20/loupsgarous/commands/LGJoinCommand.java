@@ -3,7 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.commands;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
-import com.github.jeuxjeux20.loupsgarous.game.lobby.PlayerJoinException;
+import com.github.jeuxjeux20.loupsgarous.lobby.PlayerJoinException;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;

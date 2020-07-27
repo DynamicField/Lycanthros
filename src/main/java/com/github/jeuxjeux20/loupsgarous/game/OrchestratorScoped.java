@@ -1,8 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-import com.github.jeuxjeux20.loupsgarous.game.chat.LGChatOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.stages.LGStagesOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.stages.dusk.DuskStage;
+import com.github.jeuxjeux20.loupsgarous.chat.LGChatOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.stages.LGStagesOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.stages.dusk.DuskStage;
 import com.google.inject.ScopeAnnotation;
 
 import java.lang.annotation.ElementType;
