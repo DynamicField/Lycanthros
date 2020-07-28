@@ -9,6 +9,8 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public interface LGCard {
+    LGCard UNKNOWN = new Unknown();
+
     /**
      * Gets the name of this card
      *
@@ -51,6 +53,8 @@ public interface LGCard {
     ItemStack createGuiItem();
 
     final class Unknown implements LGCard {
+        private Unknown() {}
+
         @Override
         public String getName() {
             return "Inconnu";

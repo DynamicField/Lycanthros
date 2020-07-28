@@ -100,11 +100,7 @@ public abstract class RunnableLGStage implements LGStage, Terminable {
             if (supportsInterruption()) {
                 currentFuture.cancel(true);
             } else {
-                try {
-                    currentFuture.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    // We just want it to complete.
-                }
+                ensureFutureComplete();
             }
         }
 
@@ -113,6 +109,17 @@ public abstract class RunnableLGStage implements LGStage, Terminable {
         }
 
         terminableRegistry.close();
+    }
+
+    private void ensureFutureComplete() {
+        if (currentFuture == null) {
+            return;
+        }
+        try {
+            currentFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            // We just want it to complete.
+        }
     }
 
     @Override
@@ -146,11 +153,7 @@ public abstract class RunnableLGStage implements LGStage, Terminable {
                 return currentFuture.complete(null);
             }
             else {
-                try {
-                    currentFuture.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    // Whatever
-                }
+                ensureFutureComplete();
                 return true;
             }
         }

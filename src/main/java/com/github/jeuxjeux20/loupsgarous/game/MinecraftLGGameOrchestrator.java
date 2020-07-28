@@ -125,7 +125,7 @@ class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
 
         changeStateTo(DELETING, LGGameDeletingEvent::new);
 
-        game.getPlayers().forEach(lobby::removePlayer);
+        game.getPlayers().forEach(lobby::leave);
         terminableRegistry.closeAndReportException();
 
         changeStateTo(DELETED, LGGameDeletedEvent::new);

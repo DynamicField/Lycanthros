@@ -103,8 +103,6 @@ public final class ChasseurKillStage extends CountdownLGStage {
 
         @Override
         protected void safePick(LGPlayer picker, LGPlayer target) {
-            conditions().throwIfInvalid(picker, target);
-
             killed = true;
             target.die(ChasseurKillCause.INSTANCE);
             getCountdown().interrupt();

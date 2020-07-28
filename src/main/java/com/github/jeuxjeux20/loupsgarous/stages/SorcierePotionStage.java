@@ -252,7 +252,7 @@ public final class SorcierePotionStage extends CountdownLGStage {
         }
 
         private boolean isSorciereAwareAboutPlayerDeath(LGPlayer picker, LGPlayer target) {
-            return getSorcierePower(picker).hasHealPotion() && target.isDead();
+            return getSorcierePower(picker).hasHealPotion() && target.willDie();
         }
     }
 }

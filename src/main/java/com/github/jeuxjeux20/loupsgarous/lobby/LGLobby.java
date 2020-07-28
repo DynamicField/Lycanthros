@@ -17,16 +17,16 @@ public interface LGLobby extends OrchestratorDependent {
     World getWorld();
 
 
-    LGPlayer addPlayer(Player player) throws PlayerJoinException;
+    LGPlayer join(Player player) throws PlayerJoinException;
 
-    boolean removePlayer(UUID playerUUID);
+    boolean leave(UUID playerUUID);
 
-    default boolean removePlayer(OfflinePlayer player) {
-        return removePlayer(player.getUniqueId());
+    default boolean leave(OfflinePlayer player) {
+        return leave(player.getUniqueId());
     }
 
-    default boolean removePlayer(LGPlayer player) {
-        return removePlayer(player.getPlayerUUID());
+    default boolean leave(LGPlayer player) {
+        return leave(player.getPlayerUUID());
     }
 
 

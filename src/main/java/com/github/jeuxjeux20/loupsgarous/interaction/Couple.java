@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.interaction;
 
+import com.github.jeuxjeux20.loupsgarous.UserFriendlyNamed;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
@@ -7,7 +8,7 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.Objects;
 
-public final class Couple {
+public final class Couple implements UserFriendlyNamed {
     private final LGPlayer partner1;
     private final LGPlayer partner2;
     private final ImmutableList<LGPlayer> partners;
@@ -62,5 +63,10 @@ public final class Couple {
                 .add("partner1", partner1)
                 .add("partner2", partner2)
                 .toString();
+    }
+
+    @Override
+    public String getUserFriendlyName() {
+        return partner1.getName() + " & " + partner2.getName();
     }
 }

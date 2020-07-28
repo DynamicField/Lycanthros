@@ -27,7 +27,7 @@ public class QuitGameItem implements InventoryItem {
 
     @Override
     public void onClick(LGPlayer player, LGGameOrchestrator orchestrator) {
-        orchestrator.lobby().removePlayer(player);
+        orchestrator.lobby().leave(player);
     }
 
     @Override

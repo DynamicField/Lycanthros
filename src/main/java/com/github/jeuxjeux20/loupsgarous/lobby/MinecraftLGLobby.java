@@ -37,7 +37,7 @@ class MinecraftLGLobby implements LGLobby {
         lobbyTeleporter.bindWith(orchestrator);
 
         try {
-            getGame().setOwner(addPlayer(bootstrapData.getOwner()));
+            getGame().setOwner(join(bootstrapData.getOwner()));
         } catch (PlayerJoinException e) {
             throw new InvalidOwnerException(e);
         }
@@ -75,35 +75,34 @@ class MinecraftLGLobby implements LGLobby {
     }
 
     @Override
-    public LGPlayer addPlayer(Player player) throws PlayerJoinException {
+    public LGPlayer join(Player player) throws PlayerJoinException {
         checkPlayer(player);
 
-        OrchestratedLGPlayer lgPlayer = new OrchestratedLGPlayer(
-                new BackingLGPlayer(player), orchestrator
-        );
+        OrchestratedLGPlayer lgPlayer =
+                new OrchestratedLGPlayer(player.getUniqueId(), orchestrator);
         getGame().addPlayer(lgPlayer);
 
         if (orchestrator.state() != LGGameState.UNINITIALIZED) {
-            onPlayerAdd(player, lgPlayer);
+            notifyPlayerJoin(player, lgPlayer);
         } else {
             // Wait until the game initializes so we can do the usual stuff.
             // -> We don't TP the player until the game is initialized.
             Events.subscribe(LGGameInitializedEvent.class)
                     .filter(orchestrator::isMyEvent)
                     .expireAfter(1)
-                    .handler(e -> onPlayerAdd(player, lgPlayer));
+                    .handler(e -> notifyPlayerJoin(player, lgPlayer));
         }
 
         return lgPlayer;
     }
 
-    private void onPlayerAdd(Player player, LGPlayer lgPlayer) {
-        Events.call(new LGPlayerJoinEvent(orchestrator, player, lgPlayer));
+    private void notifyPlayerJoin(Player player, LGPlayer lgPlayer) {
         lobbyTeleporter.teleportPlayerIn(player);
+        Events.call(new LGPlayerJoinEvent(orchestrator, player, lgPlayer));
     }
 
     @Override
-    public boolean removePlayer(UUID playerUUID) {
+    public boolean leave(UUID playerUUID) {
         OrchestratedLGPlayer player = getGame().getPlayer(playerUUID)
                 .filter(LGPlayer::isPresent)
                 .orElse(null);
@@ -170,13 +169,13 @@ class MinecraftLGLobby implements LGLobby {
     private void registerPlayerQuitEvents() {
         Events.merge(PlayerEvent.class, PlayerQuitEvent.class, PlayerKickEvent.class)
                 .expireIf(e -> orchestrator.state().isDisabled())
-                .handler(e -> removePlayer(e.getPlayer()))
+                .handler(e -> leave(e.getPlayer()))
                 .bindWith(orchestrator);
 
         Events.subscribe(PlayerChangedWorldEvent.class)
                 .expireIf(e -> orchestrator.state().isDisabled())
                 .filter(e -> e.getFrom() == getWorld())
-                .handler(e -> removePlayer(e.getPlayer()))
+                .handler(e -> leave(e.getPlayer()))
                 .bindWith(orchestrator);
     }
 

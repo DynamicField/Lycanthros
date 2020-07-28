@@ -91,7 +91,7 @@ public class LGGameManager {
         Optional<LGGameOrchestrator> existingGame = get(id);
 
         if (existingGame.isPresent()) {
-            existingGame.get().lobby().addPlayer(player);
+            existingGame.get().lobby().join(player);
         } else {
             start(player, composition, id);
         }

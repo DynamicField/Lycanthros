@@ -17,40 +17,48 @@ import me.lucko.helper.metadata.MetadataMap;
 import java.util.*;
 
 public class OrchestratedLGPlayer implements LGPlayer {
-    private final BackingLGPlayer backingPlayer;
+    private final UUID playerUUID;
+    private final Set<LGTag> tags = new HashSet<>();
+    private final Set<LGTeam> teams = new HashSet<>();
+    private final ClassToInstanceMap<LGPower> powers = MutableClassToInstanceMap.create();
+    private LGCard card = LGCard.UNKNOWN;
+    private boolean isDead;
+    private boolean isAway;
+    private final MetadataMap metadataMap = MetadataMap.create();
+
     private final LGGameOrchestrator orchestrator;
 
     private final Set<LGTeam> implicitCardTeams = new HashSet<>();
     private final ClassToInstanceMap<LGPower> implicitCardPowers = MutableClassToInstanceMap.create();
 
-    public OrchestratedLGPlayer(BackingLGPlayer backingPlayer, LGGameOrchestrator orchestrator) {
-        this.backingPlayer = backingPlayer;
+    public OrchestratedLGPlayer(UUID playerUUID, LGGameOrchestrator orchestrator) {
+        this.playerUUID = playerUUID;
         this.orchestrator = orchestrator;
     }
 
     @Override
     public UUID getPlayerUUID() {
-        return backingPlayer.getPlayerUUID();
+        return playerUUID;
     }
 
     @Override
     public LGCard getCard() {
-        return backingPlayer.getCard();
+        return card;
     }
 
     @Override
     public boolean isDead() {
-        return backingPlayer.isDead();
+        return isDead;
     }
 
     @Override
     public boolean isAway() {
-        return backingPlayer.isAway();
+        return isAway;
     }
 
     @Override
     public MetadataMap metadata() {
-        return backingPlayer.metadata();
+        return metadataMap;
     }
 
     @Override
@@ -58,7 +66,7 @@ public class OrchestratedLGPlayer implements LGPlayer {
         return new TeamRegistry() {
             @Override
             public ImmutableSet<LGTeam> get() {
-                return ImmutableSet.copyOf(backingPlayer.getTeams());
+                return ImmutableSet.copyOf(teams);
             }
 
             @Override
@@ -68,12 +76,12 @@ public class OrchestratedLGPlayer implements LGPlayer {
                 // Mark our team as explicit.
                 implicitCardTeams.remove(item);
 
-                return backingPlayer.getTeams().add(item);
+                return teams.add(item);
             }
 
             @Override
             public boolean has(LGTeam item) {
-                return backingPlayer.getTeams().contains(item);
+                return teams.contains(item);
             }
 
             @Override
@@ -82,7 +90,7 @@ public class OrchestratedLGPlayer implements LGPlayer {
 
                 implicitCardTeams.remove(item);
 
-                return backingPlayer.getTeams().remove(item);
+                return teams.remove(item);
             }
         };
     }
@@ -92,26 +100,26 @@ public class OrchestratedLGPlayer implements LGPlayer {
         return new TagRegistry() {
             @Override
             public ImmutableSet<LGTag> get() {
-                return ImmutableSet.copyOf(backingPlayer.getTags());
+                return ImmutableSet.copyOf(tags);
             }
 
             @Override
             public boolean add(LGTag item) {
                 orchestrator.state().mustBe(LGGameState.STARTED);
 
-                return backingPlayer.getTags().add(item);
+                return tags.add(item);
             }
 
             @Override
             public boolean has(LGTag item) {
-                return backingPlayer.getTags().contains(item);
+                return tags.contains(item);
             }
 
             @Override
             public boolean remove(LGTag item) {
                 orchestrator.state().mustBe(LGGameState.STARTED);
 
-                return backingPlayer.getTags().remove(item);
+                return tags.remove(item);
             }
         };
     }
@@ -121,17 +129,17 @@ public class OrchestratedLGPlayer implements LGPlayer {
         return new PowerRegistry() {
             @Override
             public ImmutableClassToInstanceMap<LGPower> get() {
-                return ImmutableClassToInstanceMap.copyOf(backingPlayer.getPowers());
+                return ImmutableClassToInstanceMap.copyOf(powers);
             }
 
             @Override
             public <T extends LGPower> Optional<T> get(Class<T> powerClass) {
-                return Optional.ofNullable(backingPlayer.getPowers().getInstance(powerClass));
+                return Optional.ofNullable(powers.getInstance(powerClass));
             }
 
             @Override
             public <T extends LGPower> T getOrThrow(Class<T> powerClass) {
-                T instance = backingPlayer.getPowers().getInstance(powerClass);
+                T instance = powers.getInstance(powerClass);
                 if (instance == null) {
                     throw new NoSuchElementException("No power " + powerClass + " found.");
                 }
@@ -144,12 +152,12 @@ public class OrchestratedLGPlayer implements LGPlayer {
 
                 implicitCardPowers.remove(power.getClass());
 
-                backingPlayer.getPowers().put(power.getClass(), power);
+                powers.put(power.getClass(), power);
             }
 
             @Override
             public boolean has(Class<? extends LGPower> powerClass) {
-                return backingPlayer.getPowers().containsKey(powerClass);
+                return powers.containsKey(powerClass);
             }
 
             @Override
@@ -158,30 +166,30 @@ public class OrchestratedLGPlayer implements LGPlayer {
 
                 implicitCardPowers.remove(powerClass);
 
-                return backingPlayer.getPowers().remove(powerClass) != null;
+                return powers.remove(powerClass) != null;
             }
         };
     }
 
     @Override
-    public void changeCard(LGCard newCard) {
-        if (newCard == getCard()) {
+    public void changeCard(LGCard card) {
+        if (card == getCard()) {
             return;
         }
 
         removeImplicitCardProperties();
 
-        backingPlayer.setCard(newCard);
+        this.card = card;
 
-        addImplicitCardProperties(newCard);
+        addImplicitCardProperties(card);
     }
 
     private void removeImplicitCardProperties() {
         for (Class<? extends LGPower> powerClass : implicitCardPowers.keySet()) {
-            backingPlayer.getPowers().remove(powerClass);
+            powers.remove(powerClass);
         }
         for (LGTeam team : implicitCardTeams) {
-            backingPlayer.getTeams().remove(team);
+            teams.remove(team);
         }
 
         implicitCardPowers.clear();
@@ -194,7 +202,7 @@ public class OrchestratedLGPlayer implements LGPlayer {
         // Here we make sure that any explicit power are not
         // marked as implicit
         for (LGPower power : cardPowers) {
-            if (!backingPlayer.getPowers().containsKey(power.getClass())) {
+            if (!powers.containsKey(power.getClass())) {
                 implicitCardPowers.put(power.getClass(), power);
             }
         }
@@ -202,14 +210,14 @@ public class OrchestratedLGPlayer implements LGPlayer {
         // Same thing for teams
         ImmutableSet<LGTeam> cardTeams = card.getTeams();
         for (LGTeam team : cardTeams) {
-            if (!backingPlayer.getTeams().contains(team)) {
+            if (!teams.contains(team)) {
                 implicitCardTeams.add(team);
             }
         }
 
         // Now add them all in the player's properties.
-        backingPlayer.getPowers().putAll(implicitCardPowers);
-        backingPlayer.getTeams().addAll(implicitCardTeams);
+        powers.putAll(implicitCardPowers);
+        teams.addAll(implicitCardTeams);
     }
 
     @Override
@@ -235,16 +243,16 @@ public class OrchestratedLGPlayer implements LGPlayer {
     // Internal methods
 
     public void dieSilently() {
-        if (backingPlayer.isDead()) {
+        if (isDead) {
             throw new IllegalStateException("This player is already dead."); // NANI???
         }
-        backingPlayer.setDead(true);
+        isDead = true;
     }
 
     public void goAway() {
-        if (backingPlayer.isAway()) {
+        if (isAway) {
             throw new IllegalStateException("This player is already away.");
         }
-        backingPlayer.setAway(true);
+        isAway = true;
     }
 }
