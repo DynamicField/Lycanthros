@@ -1,59 +1,63 @@
 package com.github.jeuxjeux20.loupsgarous.config;
 
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.configuration.serialization.SerializableAs;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.ScopedConfigurationNode;
+import org.spongepowered.configurate.objectmapping.ObjectMapper;
+import org.spongepowered.configurate.objectmapping.ObjectMappingException;
+import org.spongepowered.configurate.objectmapping.Setting;
+import org.spongepowered.configurate.serialize.ConfigSerializable;
 
-import java.util.HashMap;
-import java.util.Map;
+@ConfigSerializable
+public final class RootConfiguration {
+    static final ObjectMapper<RootConfiguration> MAPPER;
 
-@SerializableAs("Root")
-public final class RootConfiguration implements ConfigurationSerializable {
+    static {
+        try {
+            MAPPER = ObjectMapper.forClass(RootConfiguration.class);
+        } catch (ObjectMappingException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
+    static <N extends ScopedConfigurationNode<N>> RootConfiguration loadFrom(N node)
+            throws ObjectMappingException {
+        return MAPPER.bindToNew().populate(node);
+    }
+
+    @Setting(value = "world-pool")
     private WorldPoolConfiguration worldPool = new WorldPoolConfiguration();
+
+    @Setting(value = "default-world")
     private @Nullable String defaultWorld = "loups_garous";
+
+    @Setting
     private boolean debug = false;
-
-    public RootConfiguration() {
-    }
-
-    public RootConfiguration(Map<String, Object> data) {
-        Object worldPool = data.get("world-pool");
-        if (worldPool instanceof WorldPoolConfiguration) {
-            this.worldPool = ((WorldPoolConfiguration) worldPool);
-        }
-
-        Object defaultWorld = data.get("default-world");
-        if (defaultWorld != null) {
-            this.defaultWorld = defaultWorld.toString();
-        }
-
-        Object debug = data.get("debug");
-        if (debug instanceof Boolean) {
-            this.debug = (Boolean) debug;
-        }
-    }
 
     public WorldPoolConfiguration getWorldPool() {
         return worldPool;
+    }
+
+    public void setWorldPool(WorldPoolConfiguration worldPool) {
+        this.worldPool = worldPool;
     }
 
     public @Nullable String getDefaultWorld() {
         return defaultWorld;
     }
 
+    public void setDefaultWorld(@Nullable String defaultWorld) {
+        this.defaultWorld = defaultWorld;
+    }
+
     public boolean isDebug() {
         return debug;
     }
 
-    @Override
-    public @NotNull Map<String, Object> serialize() {
-        Map<String, Object> data = new HashMap<>();
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
 
-        data.put("world-pool", worldPool);
-        data.put("default-world", debug);
-        data.put("debug", debug);
-
-        return data;
+    <N extends ScopedConfigurationNode<N>> void saveTo(N node) throws ObjectMappingException {
+        MAPPER.bind(this).serialize(node);
     }
 }

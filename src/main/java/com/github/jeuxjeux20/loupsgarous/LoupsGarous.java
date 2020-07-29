@@ -4,7 +4,9 @@ import com.github.jeuxjeux20.guicybukkit.PluginDependencies;
 import com.github.jeuxjeux20.guicybukkit.command.CommandConfigurator;
 import com.github.jeuxjeux20.guicybukkit.command.CommandNotFoundException;
 import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
-import com.github.jeuxjeux20.loupsgarous.config.*;
+import com.github.jeuxjeux20.loupsgarous.config.ConfigurationModule;
+import com.github.jeuxjeux20.loupsgarous.config.LGConfiguration;
+import com.github.jeuxjeux20.loupsgarous.config.PluginLGConfiguration;
 import com.github.jeuxjeux20.loupsgarous.lobby.MultiverseLobbiesModule;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
@@ -13,7 +15,6 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import me.lucko.helper.plugin.ExtendedJavaPlugin;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,11 +24,6 @@ import java.util.Set;
  * The main loups-garous plugin! Woof!
  */
 public final class LoupsGarous extends ExtendedJavaPlugin {
-    static {
-        ConfigurationSerialization.registerClass(WorldPoolConfiguration.class);
-        ConfigurationSerialization.registerClass(RootConfiguration.class);
-    }
-
     @Override
     public void enable() {
         Injector injector = Guice.createInjector(getModules());
