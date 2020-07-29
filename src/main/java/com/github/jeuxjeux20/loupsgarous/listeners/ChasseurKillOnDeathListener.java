@@ -3,19 +3,19 @@ package com.github.jeuxjeux20.loupsgarous.listeners;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.event.LGKillEvent;
 import com.github.jeuxjeux20.loupsgarous.kill.LGKill;
+import com.github.jeuxjeux20.loupsgarous.phases.ChasseurKillPhase;
 import com.github.jeuxjeux20.loupsgarous.powers.ChasseurPower;
-import com.github.jeuxjeux20.loupsgarous.stages.ChasseurKillStage;
 import com.google.inject.Inject;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 public class ChasseurKillOnDeathListener implements Listener {
-    private final ChasseurKillStage.Factory chasseurStageFactory;
+    private final ChasseurKillPhase.Factory chasseurPhaseFactory;
 
     @Inject
-    ChasseurKillOnDeathListener(ChasseurKillStage.Factory chasseurStageFactory) {
-        this.chasseurStageFactory = chasseurStageFactory;
+    ChasseurKillOnDeathListener(ChasseurKillPhase.Factory chasseurPhaseFactory) {
+        this.chasseurPhaseFactory = chasseurPhaseFactory;
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -24,7 +24,7 @@ public class ChasseurKillOnDeathListener implements Listener {
             LGPlayer victim = kill.getVictim();
 
             if (victim.powers().has(ChasseurPower.class) && victim.isPresent()) {
-                event.getOrchestrator().stages().insert(o -> chasseurStageFactory.create(o, victim));
+                event.getOrchestrator().phases().insert(o -> chasseurPhaseFactory.create(o, victim));
             }
         }
     }

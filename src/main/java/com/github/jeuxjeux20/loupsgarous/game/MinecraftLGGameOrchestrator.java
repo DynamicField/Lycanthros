@@ -10,7 +10,7 @@ import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.PlayerQuitKillCause;
 import com.github.jeuxjeux20.loupsgarous.lobby.LGGameBootstrapData;
 import com.github.jeuxjeux20.loupsgarous.lobby.LGLobby;
-import com.github.jeuxjeux20.loupsgarous.stages.LGStage;
+import com.github.jeuxjeux20.loupsgarous.phases.LGPhase;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
@@ -88,8 +88,8 @@ class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
 
         updateLobbyState();
 
-        if (stages().current() instanceof LGStage.Null) {
-            stages().next();
+        if (phases().current() instanceof LGPhase.Null) {
+            phases().next();
         }
 
         Events.call(new LGGameInitializedEvent(this));
@@ -105,7 +105,7 @@ class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
 
         Events.call(new LGTurnChangeEvent(this));
 
-        stages().next();
+        phases().next();
     }
 
     @Override
@@ -116,7 +116,7 @@ class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
 
         changeStateTo(FINISHED, o -> new LGGameFinishedEvent(o, ending));
 
-        stages().next();
+        phases().next();
     }
 
     @Override

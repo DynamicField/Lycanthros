@@ -1,8 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.chat.LGChatOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.stages.LGStagesOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.stages.dusk.DuskStage;
+import com.github.jeuxjeux20.loupsgarous.phases.LGPhasesOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.phases.dusk.DuskPhase;
 import com.google.inject.ScopeAnnotation;
 
 import java.lang.annotation.ElementType;
@@ -16,9 +16,9 @@ import java.lang.annotation.Target;
  * <p>
  * Places where dependencies are injected in an orchestrator scope include:
  * <ul>
- *     <li>Stages created in a {@link LGStagesOrchestrator}</li>
+ *     <li>Phases created in a {@link LGPhasesOrchestrator}</li>
  *     <li>Chat channels in a {@link LGChatOrchestrator}</li>
- *     <li>Dusk actions of a {@link DuskStage}</li>
+ *     <li>Dusk actions of a {@link DuskPhase}</li>
  *     <li>Everything related to descriptors (finders, processors, registries...)</li>
  * </ul>
  * <p>

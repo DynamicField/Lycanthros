@@ -16,7 +16,7 @@ import com.github.jeuxjeux20.loupsgarous.listeners.LGListenersModule;
 import com.github.jeuxjeux20.loupsgarous.lobby.LGLobbyModule;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.LGScoreboardModule;
 import com.github.jeuxjeux20.loupsgarous.signs.LGSignsModule;
-import com.github.jeuxjeux20.loupsgarous.stages.LGStagesModule;
+import com.github.jeuxjeux20.loupsgarous.phases.LGPhasesModule;
 import com.github.jeuxjeux20.loupsgarous.tags.LGTagsModule;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeamsModule;
 import com.github.jeuxjeux20.loupsgarous.winconditions.LGWinConditionsModule;
@@ -39,7 +39,7 @@ public final class LoupsGarousModule extends PluginModule {
 
         install(new LGCardsModule());
         install(new LGListenersModule());
-        install(new LGStagesModule());
+        install(new LGPhasesModule());
         install(new LGCommandsModule());
         install(new LGChatModule());
         install(new LGScoreboardModule());

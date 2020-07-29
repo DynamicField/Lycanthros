@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous;
 
 import com.github.jeuxjeux20.loupsgarous.commands.debug.ColorCommand;
 import com.github.jeuxjeux20.loupsgarous.commands.debug.LGCurrentInteractablesCommand;
-import com.github.jeuxjeux20.loupsgarous.commands.debug.LGSkipStageCommand;
+import com.github.jeuxjeux20.loupsgarous.commands.debug.LGSkipPhaseCommand;
 import com.google.inject.AbstractModule;
 
 public final class DebugModule extends AbstractModule {
@@ -11,7 +11,7 @@ public final class DebugModule extends AbstractModule {
         install(new CommandsModule() {
             @Override
             protected void configureCommands() {
-                addCommand(LGSkipStageCommand.class);
+                addCommand(LGSkipPhaseCommand.class);
                 addCommand(ColorCommand.class);
                 addCommand(LGCurrentInteractablesCommand.class);
             }

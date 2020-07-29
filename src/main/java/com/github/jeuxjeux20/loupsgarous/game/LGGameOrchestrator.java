@@ -13,7 +13,7 @@ import com.github.jeuxjeux20.loupsgarous.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.lobby.LGGameBootstrapData;
 import com.github.jeuxjeux20.loupsgarous.lobby.LGLobby;
 import com.github.jeuxjeux20.loupsgarous.lobby.LobbyCreationException;
-import com.github.jeuxjeux20.loupsgarous.stages.LGStagesOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.phases.LGPhasesOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.common.collect.ImmutableMultiset;
 import me.lucko.helper.metadata.MetadataKey;
@@ -38,14 +38,14 @@ import java.util.stream.Stream;
  * methods:
  * <ul>
  *     <li>{@link #chat()}: Send messages using channels. ({@link LGChatOrchestrator}) </li>
- *     <li>{@link #stages()}: Manages the stages of the game. ({@link LGStagesOrchestrator})</li>
+ *     <li>{@link #phases()}: Manages the phases of the game. ({@link LGPhasesOrchestrator})</li>
  *     <li>{@link #lobby()}: Manages the lobby and the composition of the game. ({@link LGLobby})</li>
  *     <li>{@link #kills()}: Kill people instantly, or at a later time. ({@link LGKillsOrchestrator})</li>
  * </ul>
  *
  * @author jeuxjeux20
  * @see LGChatOrchestrator
- * @see LGStagesOrchestrator
+ * @see LGPhasesOrchestrator
  * @see LGKillsOrchestrator
  * @see LGLobby
  * @see LGGameState
@@ -120,8 +120,8 @@ public interface LGGameOrchestrator extends TerminableConsumer {
         return component(LGComponents.CHAT);
     }
 
-    default LGStagesOrchestrator stages() {
-        return component(LGComponents.STAGES);
+    default LGPhasesOrchestrator phases() {
+        return component(LGComponents.PHASES);
     }
 
     default LGKillsOrchestrator kills() {

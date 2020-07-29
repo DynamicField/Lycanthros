@@ -4,36 +4,36 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickRemovedEvent;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.Vote;
-import com.github.jeuxjeux20.loupsgarous.stages.CountdownTimedStage;
-import com.github.jeuxjeux20.loupsgarous.stages.LGStage;
-import com.github.jeuxjeux20.loupsgarous.stages.MajorityVoteShortensCountdown;
+import com.github.jeuxjeux20.loupsgarous.phases.CountdownTimedPhase;
+import com.github.jeuxjeux20.loupsgarous.phases.LGPhase;
+import com.github.jeuxjeux20.loupsgarous.phases.MajorityVoteShortensCountdown;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 public class ShortenVoteCountdownListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onLGPick(LGPickEvent event) {
-        updateStageCountdown(event.getOrchestrator().stages().current());
+        updatePhaseCountdown(event.getOrchestrator().phases().current());
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onLGPickRemoved(LGPickRemovedEvent event) {
-        updateStageCountdown(event.getOrchestrator().stages().current());
+        updatePhaseCountdown(event.getOrchestrator().phases().current());
     }
 
-    private void updateStageCountdown(LGStage stage) {
-        LGGameOrchestrator orchestrator = stage.gameOrchestrator();
+    private void updatePhaseCountdown(LGPhase phase) {
+        LGGameOrchestrator orchestrator = phase.gameOrchestrator();
 
-        MajorityVoteShortensCountdown annotation = stage.getClass().getAnnotation(MajorityVoteShortensCountdown.class);
+        MajorityVoteShortensCountdown annotation = phase.getClass().getAnnotation(MajorityVoteShortensCountdown.class);
         if (annotation == null) return;
 
-        CountdownTimedStage countdownStage = stage.safeCast(CountdownTimedStage.class).orElse(null);
+        CountdownTimedPhase countdownPhase = phase.safeCast(CountdownTimedPhase.class).orElse(null);
 
-        if (countdownStage == null) {
+        if (countdownPhase == null) {
             orchestrator.logger().warning("MajorityVoteShortensCountdown: " +
-                                          "Stage " + stage.getClass().getName() + " is annotated with " +
+                                          "Phase " + phase.getClass().getName() + " is annotated with " +
                                           "MajorityVoteShortensCountdown but doesn't implement " +
-                                          "CountdownTimedStage");
+                                          "CountdownTimedPhase");
             return;
         }
 
@@ -49,12 +49,12 @@ public class ShortenVoteCountdownListener implements Listener {
         }
 
         // Nothing will change anyway, we're under the time left.
-        if (countdownStage.getCountdown().getStartSnapshot().getTimerNow() <= annotation.timeLeft()) return;
+        if (countdownPhase.getCountdown().getStartSnapshot().getTimerNow() <= annotation.timeLeft()) return;
 
         if (shouldShorten(annotation, vote)) {
-            shortenTime(annotation, countdownStage);
+            shortenTime(annotation, countdownPhase);
         } else {
-            cancelShortenedTime(countdownStage);
+            cancelShortenedTime(countdownPhase);
         }
     }
 
@@ -76,17 +76,17 @@ public class ShortenVoteCountdownListener implements Listener {
         return percentage >= annotation.majorityPercentage();
     }
 
-    private void shortenTime(MajorityVoteShortensCountdown annotation, CountdownTimedStage stage) {
+    private void shortenTime(MajorityVoteShortensCountdown annotation, CountdownTimedPhase phase) {
         // The unmodified countdown represents the real time without any modification.
-        int timeLeft = Math.min(annotation.timeLeft(), stage.getCountdown().getStartSnapshot().getTimerNow());
+        int timeLeft = Math.min(annotation.timeLeft(), phase.getCountdown().getStartSnapshot().getTimerNow());
 
         // So we shorten this one.
-        stage.getCountdown().setTimer(timeLeft);
+        phase.getCountdown().setTimer(timeLeft);
     }
 
-    private void cancelShortenedTime(CountdownTimedStage stage) {
-        int unmodifiedTime = stage.getCountdown().getStartSnapshot().getTimerNow();
+    private void cancelShortenedTime(CountdownTimedPhase phase) {
+        int unmodifiedTime = phase.getCountdown().getStartSnapshot().getTimerNow();
 
-        stage.getCountdown().setTimer(unmodifiedTime);
+        phase.getCountdown().setTimer(unmodifiedTime);
     }
 }

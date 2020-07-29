@@ -4,11 +4,11 @@ import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.event.CountdownTickEvent;
-import com.github.jeuxjeux20.loupsgarous.event.stage.LGStageStartedEvent;
-import com.github.jeuxjeux20.loupsgarous.stages.LGStage;
-import com.github.jeuxjeux20.loupsgarous.stages.StageEventUtils;
-import com.github.jeuxjeux20.loupsgarous.stages.TimedStage;
-import com.github.jeuxjeux20.loupsgarous.stages.descriptor.LGStageDescriptor;
+import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseStartedEvent;
+import com.github.jeuxjeux20.loupsgarous.phases.LGPhase;
+import com.github.jeuxjeux20.loupsgarous.phases.PhaseEventUtils;
+import com.github.jeuxjeux20.loupsgarous.phases.TimedPhase;
+import com.github.jeuxjeux20.loupsgarous.phases.descriptor.LGPhaseDescriptor;
 import com.google.inject.Inject;
 import me.lucko.helper.Events;
 import me.lucko.helper.terminable.TerminableConsumer;
@@ -34,10 +34,10 @@ public class LGBossBarManager extends AbstractOrchestratorComponent {
     }
 
     public void update() {
-        LGStage stage = orchestrator.stages().current();
-        LGStageDescriptor descriptor = orchestrator.stages().descriptors().get(stage.getClass());
+        LGPhase phase = orchestrator.phases().current();
+        LGPhaseDescriptor descriptor = orchestrator.phases().descriptors().get(phase.getClass());
 
-        if (stage.isLogic()) return;
+        if (phase.isLogic()) return;
 
         if (descriptor.getName() == null) {
             bossBar.setVisible(false);
@@ -51,9 +51,9 @@ public class LGBossBarManager extends AbstractOrchestratorComponent {
         bossBar.setTitle(descriptor.getName());
         bossBar.setColor(descriptor.getColor().toBarColor(BarColor.GREEN));
 
-        if (stage instanceof TimedStage) {
-            TimedStage timedStage = (TimedStage) stage;
-            bossBar.setProgress(1 / (timedStage.getTotalSeconds() / (double) timedStage.getSecondsLeft()));
+        if (phase instanceof TimedPhase) {
+            TimedPhase timedPhase = (TimedPhase) phase;
+            bossBar.setProgress(1 / (timedPhase.getTotalSeconds() / (double) timedPhase.getSecondsLeft()));
         } else {
             bossBar.setProgress(1);
         }
@@ -63,11 +63,11 @@ public class LGBossBarManager extends AbstractOrchestratorComponent {
         @Override
         public void setup(@Nonnull TerminableConsumer consumer) {
             Events.subscribe(CountdownTickEvent.class)
-                    .filter(e -> StageEventUtils.isCurrentStageCountdownEvent(orchestrator, e))
+                    .filter(e -> PhaseEventUtils.isCurrentPhaseCountdownEvent(orchestrator, e))
                     .handler(e -> update())
                     .bindWith(consumer);
 
-            Events.subscribe(LGStageStartedEvent.class)
+            Events.subscribe(LGPhaseStartedEvent.class)
                     .filter(orchestrator::isMyEvent)
                     .handler(e -> update())
                     .bindWith(consumer);

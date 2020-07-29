@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickRemovedEvent;
-import com.github.jeuxjeux20.loupsgarous.event.stage.LGStageStartingEvent;
+import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseStartingEvent;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.Vote;
 import com.google.common.collect.ImmutableList;
@@ -44,6 +44,6 @@ public class CurrentVotesScoreboardComponent implements ScoreboardComponent {
 
     @Override
     public ImmutableList<Class<? extends LGEvent>> getUpdateTriggers() {
-        return ImmutableList.of(LGPickEvent.class, LGPickRemovedEvent.class, LGStageStartingEvent.class);
+        return ImmutableList.of(LGPickEvent.class, LGPickRemovedEvent.class, LGPhaseStartingEvent.class);
     }
 }

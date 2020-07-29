@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.chat;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.stages.LoupGarouVoteStage;
+import com.github.jeuxjeux20.loupsgarous.phases.LoupGarouVotePhase;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeams;
 import com.google.inject.Inject;
 
@@ -54,7 +54,7 @@ public class LoupsGarousChatChannel extends AbstractLGChatChannel implements Ano
     }
 
     protected boolean hasAccess(LGPlayer sender) {
-        return orchestrator.stages().current() instanceof LoupGarouVoteStage &&
+        return orchestrator.phases().current() instanceof LoupGarouVotePhase &&
                sender.teams().has(LGTeams.LOUPS_GAROUS);
     }
 

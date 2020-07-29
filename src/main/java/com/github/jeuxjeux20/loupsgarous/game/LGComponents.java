@@ -7,14 +7,14 @@ import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegistry;
 import com.github.jeuxjeux20.loupsgarous.inventory.LGInventoryManager;
 import com.github.jeuxjeux20.loupsgarous.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.LGScoreboardManager;
-import com.github.jeuxjeux20.loupsgarous.stages.LGStagesOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.phases.LGPhasesOrchestrator;
 import me.lucko.helper.metadata.MetadataKey;
 
 public final class LGComponents {
     private LGComponents() {}
 
-    public static final MetadataKey<LGStagesOrchestrator> STAGES =
-            MetadataKey.create("stages", LGStagesOrchestrator.class);
+    public static final MetadataKey<LGPhasesOrchestrator> PHASES =
+            MetadataKey.create("phases", LGPhasesOrchestrator.class);
 
     public static final MetadataKey<LGKillsOrchestrator> KILLS =
             MetadataKey.create("kills", LGKillsOrchestrator.class);

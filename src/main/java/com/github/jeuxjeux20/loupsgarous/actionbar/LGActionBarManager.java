@@ -7,9 +7,9 @@ import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.event.CountdownTickEvent;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.event.lobby.LGLobbyCompositionUpdateEvent;
-import com.github.jeuxjeux20.loupsgarous.event.stage.LGStageStartedEvent;
-import com.github.jeuxjeux20.loupsgarous.stages.StageEventUtils;
-import com.github.jeuxjeux20.loupsgarous.stages.TimedStage;
+import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseStartedEvent;
+import com.github.jeuxjeux20.loupsgarous.phases.PhaseEventUtils;
+import com.github.jeuxjeux20.loupsgarous.phases.TimedPhase;
 import com.google.inject.Inject;
 import me.lucko.helper.Events;
 import me.lucko.helper.terminable.TerminableConsumer;
@@ -65,9 +65,9 @@ public class LGActionBarManager extends AbstractOrchestratorComponent {
         } else if (orchestrator.state() == LGGameState.READY_TO_START) {
             components.add(new TextComponent("Départ dans "));
 
-            Optional<TimedStage> maybeTimedStage = orchestrator.stages().current().safeCast(TimedStage.class);
+            Optional<TimedPhase> maybeTimedPhase = orchestrator.phases().current().safeCast(TimedPhase.class);
 
-            TextComponent numberComponent = maybeTimedStage.map(this::numberComponent)
+            TextComponent numberComponent = maybeTimedPhase.map(this::numberComponent)
                     .orElseGet(() -> new TextComponent("?"));
             numberComponent.setColor(ChatColor.AQUA);
             numberComponent.setBold(true);
@@ -129,8 +129,8 @@ public class LGActionBarManager extends AbstractOrchestratorComponent {
 
             components.add(slotsComponent);
         } else if (orchestrator.state() == LGGameState.STARTED) {
-            orchestrator.stages().current().safeCast(TimedStage.class).ifPresent(timedStage -> {
-                Duration secondsLeftDuration = Duration.ofSeconds(timedStage.getSecondsLeft());
+            orchestrator.phases().current().safeCast(TimedPhase.class).ifPresent(timedPhase -> {
+                Duration secondsLeftDuration = Duration.ofSeconds(timedPhase.getSecondsLeft());
                 String formattedDuration = DurationFormatter.CONCISE.format(secondsLeftDuration);
 
                 TextComponent timeComponent = new TextComponent(formattedDuration);
@@ -162,8 +162,8 @@ public class LGActionBarManager extends AbstractOrchestratorComponent {
         }
     }
 
-    private TextComponent numberComponent(TimedStage timedStage) {
-        return new TextComponent(String.valueOf(timedStage.getSecondsLeft()));
+    private TextComponent numberComponent(TimedPhase timedPhase) {
+        return new TextComponent(String.valueOf(timedPhase.getSecondsLeft()));
     }
 
     @FunctionalInterface
@@ -175,11 +175,11 @@ public class LGActionBarManager extends AbstractOrchestratorComponent {
         @Override
         public void setup(@Nonnull TerminableConsumer consumer) {
             Events.subscribe(CountdownTickEvent.class)
-                    .filter(e -> StageEventUtils.isCurrentStageCountdownEvent(orchestrator, e))
+                    .filter(e -> PhaseEventUtils.isCurrentPhaseCountdownEvent(orchestrator, e))
                     .handler(e -> update())
                     .bindWith(consumer);
 
-            Events.merge(LGEvent.class, LGStageStartedEvent.class, LGLobbyCompositionUpdateEvent.class)
+            Events.merge(LGEvent.class, LGPhaseStartedEvent.class, LGLobbyCompositionUpdateEvent.class)
                     .filter(orchestrator::isMyEvent)
                     .handler(e -> update())
                     .bindWith(consumer);
