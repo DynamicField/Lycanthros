@@ -1,16 +1,15 @@
 package com.github.jeuxjeux20.loupsgarous.commands;
 
-import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
-import com.github.jeuxjeux20.loupsgarous.config.LGConfiguration;
+import com.github.jeuxjeux20.loupsgarous.config.RootConfiguration;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
 import org.bukkit.ChatColor;
 
 public class LGReloadConfigCommand implements HelperCommandRegisterer {
-    private final LGConfiguration configuration;
+    private final RootConfiguration.File configuration;
 
     @Inject
-    LGReloadConfigCommand(LGConfiguration configuration) {
+    LGReloadConfigCommand(RootConfiguration.File configuration) {
         this.configuration = configuration;
     }
 

@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.lobby;
 
 import com.github.jeuxjeux20.loupsgarous.Plugin;
-import com.github.jeuxjeux20.loupsgarous.config.LGConfiguration;
+import com.github.jeuxjeux20.loupsgarous.config.RootConfiguration;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.onarandombox.MultiverseCore.MultiverseCore;
@@ -21,7 +21,7 @@ class MinecraftMultiverseWorldPool implements MultiverseWorldPool {
     private static final String WORLD_PREFIX = "lg_lobby_";
 
     private final MultiverseCore multiverse;
-    private final LGConfiguration configuration;
+    private final RootConfiguration.File configuration;
     private final Logger logger;
 
     private final ConcurrentLinkedDeque<MultiverseWorld> availableWorlds = new ConcurrentLinkedDeque<>();
@@ -29,7 +29,7 @@ class MinecraftMultiverseWorldPool implements MultiverseWorldPool {
 
     @Inject
     MinecraftMultiverseWorldPool(MultiverseCore multiverse,
-                                 LGConfiguration configuration,
+                                 RootConfiguration.File configuration,
                                  @Plugin Logger logger) {
         this.multiverse = multiverse;
         this.logger = logger;

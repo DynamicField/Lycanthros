@@ -4,15 +4,10 @@ import com.github.jeuxjeux20.guicybukkit.PluginDependencies;
 import com.github.jeuxjeux20.guicybukkit.command.CommandConfigurator;
 import com.github.jeuxjeux20.guicybukkit.command.CommandNotFoundException;
 import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
-import com.github.jeuxjeux20.loupsgarous.config.ConfigurationModule;
-import com.github.jeuxjeux20.loupsgarous.config.LGConfiguration;
-import com.github.jeuxjeux20.loupsgarous.config.PluginLGConfiguration;
+import com.github.jeuxjeux20.loupsgarous.config.RootConfiguration;
 import com.github.jeuxjeux20.loupsgarous.lobby.MultiverseLobbiesModule;
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Module;
+import com.google.inject.*;
 import me.lucko.helper.plugin.ExtendedJavaPlugin;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.Listener;
@@ -33,15 +28,15 @@ public final class LoupsGarous extends ExtendedJavaPlugin {
     }
 
     private ImmutableList<Module> getModules() {
-        PluginLGConfiguration configuration = new PluginLGConfiguration(this);
+        RootConfiguration.File configuration = new RootConfiguration.BukkitFile(this);
 
         ImmutableList.Builder<Module> modulesBuilder = ImmutableList.<Module>builder()
                 .add(new LoupsGarousModule(this))
                 .add(new MultiverseLobbiesModule())
-                .add(new ConfigurationModule() {
+                .add(new AbstractModule() {
                     @Override
-                    protected void bindConfiguration() {
-                        bind(LGConfiguration.class).toInstance(configuration);
+                    protected void configure() {
+                        bind(RootConfiguration.File.class).toInstance(configuration);
                     }
                 });
 

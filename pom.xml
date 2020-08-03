@@ -27,7 +27,7 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <forceJavacCompilerUse>true</forceJavacCompilerUse>
+                    <compilerVersion>1.8</compilerVersion>
                 </configuration>
             </plugin>
             <plugin>

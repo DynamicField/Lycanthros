@@ -1,29 +1,16 @@
 package com.github.jeuxjeux20.loupsgarous.config;
 
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.configurate.ScopedConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ObjectMapper;
 import org.spongepowered.configurate.objectmapping.ObjectMappingException;
 import org.spongepowered.configurate.objectmapping.Setting;
 import org.spongepowered.configurate.serialize.ConfigSerializable;
 
+import java.nio.file.Path;
+
 @ConfigSerializable
 public final class RootConfiguration {
-    static final ObjectMapper<RootConfiguration> MAPPER;
-
-    static {
-        try {
-            MAPPER = ObjectMapper.forClass(RootConfiguration.class);
-        } catch (ObjectMappingException e) {
-            throw new ExceptionInInitializerError(e);
-        }
-    }
-
-    static <N extends ScopedConfigurationNode<N>> RootConfiguration loadFrom(N node)
-            throws ObjectMappingException {
-        return MAPPER.bindToNew().populate(node);
-    }
-
     @Setting(value = "world-pool")
     private WorldPoolConfiguration worldPool = new WorldPoolConfiguration();
 
@@ -57,7 +44,31 @@ public final class RootConfiguration {
         this.debug = debug;
     }
 
-    <N extends ScopedConfigurationNode<N>> void saveTo(N node) throws ObjectMappingException {
-        MAPPER.bind(this).serialize(node);
+    // File stuff
+
+    public interface File extends ConfigurationFile<RootConfiguration> {
+    }
+
+    public static class BukkitFile
+            extends MappedBukkitConfigurationFile<RootConfiguration>
+            implements RootConfiguration.File {
+        public BukkitFile(Plugin plugin) {
+            super(plugin);
+        }
+
+        @Override
+        protected ObjectMapper<RootConfiguration> getMapper() throws ObjectMappingException {
+            return ObjectMapper.forClass(RootConfiguration.class);
+        }
+
+        @Override
+        protected RootConfiguration getDefaultValue() {
+            return new RootConfiguration();
+        }
+
+        @Override
+        protected Path getPath(Path pluginDataFolder) {
+            return pluginDataFolder.resolve("config.yml");
+        }
     }
 }
