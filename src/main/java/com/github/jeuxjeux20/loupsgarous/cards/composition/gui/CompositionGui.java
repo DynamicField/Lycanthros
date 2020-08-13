@@ -7,8 +7,13 @@ import com.github.jeuxjeux20.loupsgarous.cards.composition.ImmutableComposition;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.util.CompositionFormatUtil;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator.Problem;
+import com.github.jeuxjeux20.loupsgarous.extensibility.GameBundle;
+import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
+import com.github.jeuxjeux20.loupsgarous.extensibility.PatateMod;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import io.reactivex.rxjava3.disposables.Disposable;
 import me.lucko.helper.item.ItemStackBuilder;
 import me.lucko.helper.menu.Gui;
 import me.lucko.helper.menu.Item;
@@ -17,11 +22,14 @@ import me.lucko.helper.menu.scheme.MenuScheme;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.ChatPaginator;
 
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public final class CompositionGui extends Gui {
@@ -47,24 +55,25 @@ public final class CompositionGui extends Gui {
 
     private static final char BULLET = '\u2022'; // Bullet: •
 
-    private final Supplier<ImmutableComposition> compositionGetter;
-    private final Consumer<? super Composition> compositionSetter;
+    private final LGGameOrchestrator orchestrator;
+    private final PatateMod patateMod;
 
-    private final List<LGCard> cards;
+    private List<LGCard> cards;
     private final CompositionValidator compositionValidator;
 
     @Inject
     public CompositionGui(@Assisted Player player,
-                          @Assisted Supplier<ImmutableComposition> compositionGetter,
-                          @Assisted Consumer<? super Composition> compositionSetter,
-                          Set<LGCard> cards,
-                          CompositionValidator compositionValidator) {
+                          @Assisted LGGameOrchestrator orchestrator,
+                          PatateMod patateMod) {
         super(player, 6, "Composition");
-        this.compositionGetter = compositionGetter;
-        this.compositionSetter = compositionSetter;
-        this.cards = cards.stream().sorted(Comparator.comparing(LGCard::getName))
-                .collect(Collectors.toList());
-        this.compositionValidator = compositionValidator;
+        this.orchestrator = orchestrator;
+        this.patateMod = patateMod;
+
+        bind(Disposable.toAutoCloseable(
+                orchestrator.reactiveBundle().observeWithCurrent().subscribe(this::updateCards)
+        ));
+
+        this.compositionValidator = orchestrator.bundle().handler(LGExtensionPoints.COMPOSITION_VALIDATORS);
     }
 
     @Override
@@ -72,6 +81,12 @@ public final class CompositionGui extends Gui {
         drawTopBarGlass();
         drawTopBarBook();
         drawCards();
+
+        setItems(Item.builder(new ItemStack(Material.POTATO))
+                .bind(ClickType.LEFT, () -> {
+                    orchestrator.lobby().mods()
+                            .update(modBundle -> modBundle.transform(builder -> builder.put(patateMod)));
+                }).build(), 30);
     }
 
     private void drawTopBarGlass() {
@@ -96,7 +111,7 @@ public final class CompositionGui extends Gui {
     }
 
     private Map<Problem.Type, List<Problem>> getValidationProblemsPerType() {
-        return compositionValidator.validate(compositionGetter.get()).stream()
+        return compositionValidator.validate(getComposition()).stream()
                 .collect(Collectors.groupingBy(Problem::getType, TreeMap::new, Collectors.toList()));
     }
 
@@ -192,16 +207,26 @@ public final class CompositionGui extends Gui {
     }
 
     private ImmutableComposition getComposition() {
-        return compositionGetter.get();
+        return orchestrator.lobby().composition().get();
     }
 
     private void updateComposition(Composition composition) {
-        compositionSetter.accept(composition);
+        orchestrator.lobby().composition().update(composition);
+    }
+
+    private void updateCards(GameBundle bundle) {
+        cards = orchestrator.bundle().contents(LGExtensionPoints.CARDS).stream()
+                .sorted(Comparator.comparing(LGCard::getName))
+                .collect(Collectors.toList());
+
+        orchestrator.logger().info("omg ça chanj");
+
+        if (isValid()) {
+            redraw();
+        }
     }
 
     public interface Factory {
-        CompositionGui create(Player player,
-                              Supplier<ImmutableComposition> compositionGetter,
-                              Consumer<? super Composition> compositionSetter);
+        CompositionGui create(Player player, LGGameOrchestrator orchestrator);
     }
 }

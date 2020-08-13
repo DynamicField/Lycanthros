@@ -1,10 +1,12 @@
 package com.github.jeuxjeux20.loupsgarous.lobby;
 
-import com.github.jeuxjeux20.loupsgarous.game.*;
+import com.github.jeuxjeux20.loupsgarous.ReactiveValue;
 import com.github.jeuxjeux20.loupsgarous.event.LGGameInitializedEvent;
 import com.github.jeuxjeux20.loupsgarous.event.lobby.LGLobbyOwnerChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
+import com.github.jeuxjeux20.loupsgarous.extensibility.ModBundle;
+import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
@@ -22,6 +24,22 @@ class MinecraftLGLobby implements LGLobby {
     private final LobbyTeleporter lobbyTeleporter;
     private final LGGameManager gameManager;
     private final LGLobbyCompositionManager compositionManager;
+
+    private final ReactiveValue<ModBundle> modsValue =
+            new ReactiveValue<ModBundle>() {
+                @Override
+                public ModBundle get() {
+                    return getGame().getMods();
+                }
+
+                @Override
+                protected void setNewValue(ModBundle value) {
+                    if (isLocked()) {
+                        throw new IllegalStateException("The lobby is locked.");
+                    }
+                    getGame().setMods(value);
+                }
+            };
 
     @Inject
     MinecraftLGLobby(@Assisted LGGameBootstrapData bootstrapData,
@@ -122,7 +140,7 @@ class MinecraftLGLobby implements LGLobby {
         player.minecraftNoContext(lobbyTeleporter::teleportPlayerOut);
 
         Events.call(new LGPlayerQuitEvent(orchestrator, playerUUID, player));
-        
+
         return true;
     }
 
@@ -159,6 +177,11 @@ class MinecraftLGLobby implements LGLobby {
         getGame().setOwner(newOwner);
 
         Events.call(new LGLobbyOwnerChangeEvent(orchestrator, owner));
+    }
+
+    @Override
+    public ReactiveValue<ModBundle> mods() {
+        return modsValue;
     }
 
     @Override

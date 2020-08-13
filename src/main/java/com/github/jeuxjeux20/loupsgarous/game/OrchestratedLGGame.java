@@ -4,6 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.cards.distribution.CardDistributor;
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
+import com.github.jeuxjeux20.loupsgarous.extensibility.ModBundle;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.metadata.MetadataMap;
@@ -20,12 +21,14 @@ public final class OrchestratedLGGame implements LGGame {
     private final MutableLGGameTurn turn = new MutableLGGameTurn();
     private final MetadataMap metadataMap = MetadataMap.create();
 
+    private ModBundle modBundle;
     private LGGameState state = LGGameState.UNINITIALIZED;
     private @Nullable LGEnding ending;
     private OrchestratedLGPlayer owner;
 
-    public OrchestratedLGGame(String id) {
+    public OrchestratedLGGame(String id, ModBundle modBundle) {
         this.id = id;
+        this.modBundle = modBundle;
     }
 
     public void distributeCards(CardDistributor distributor, Composition composition) {
@@ -79,6 +82,15 @@ public final class OrchestratedLGGame implements LGGame {
 
     public void setOwner(LGPlayer owner) {
         this.owner = ensurePresent(owner);
+    }
+
+    @Override
+    public ModBundle getMods() {
+        return modBundle;
+    }
+
+    public void setMods(ModBundle modBundle) {
+        this.modBundle = modBundle;
     }
 
     @Override

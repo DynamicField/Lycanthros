@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
+import com.github.jeuxjeux20.loupsgarous.ReactiveValue;
 import com.github.jeuxjeux20.loupsgarous.actionbar.LGActionBarManager;
 import com.github.jeuxjeux20.loupsgarous.bossbar.LGBossBarManager;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
@@ -8,6 +9,7 @@ import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.event.LGGameFinishedEvent;
 import com.github.jeuxjeux20.loupsgarous.event.LGGameStartEvent;
+import com.github.jeuxjeux20.loupsgarous.extensibility.GameBundle;
 import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegistry;
 import com.github.jeuxjeux20.loupsgarous.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.lobby.LGGameBootstrapData;
@@ -54,6 +56,10 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     LGGame game();
 
     Plugin plugin();
+
+    GameBundle bundle();
+
+    ReactiveValue<GameBundle> reactiveBundle();
 
     default LGGameState state() {
         return game().getState();
@@ -112,6 +118,8 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     void delete();
 
     void nextTimeOfDay();
+
+    <T> T create(Class<T> clazz);
 
 
     <T extends OrchestratorComponent> T component(MetadataKey<T> key);

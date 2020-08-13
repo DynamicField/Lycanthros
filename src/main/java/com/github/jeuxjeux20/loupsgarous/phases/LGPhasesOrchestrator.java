@@ -15,10 +15,14 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.PHASES;
+import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.PHASE_OVERRIDES;
 
 @OrchestratorScoped
 public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
-    private final LinkedList<RunnableLGPhase.Factory<?>> phaseFactories;
+    private final LinkedList<RunnableLGPhase.Factory<?>> phases;
     private final LGPhaseDescriptor.Registry descriptorRegistry;
     private ListIterator<RunnableLGPhase.Factory<?>> phaseIterator;
     private @Nullable RunnableLGPhase currentPhase;
@@ -27,17 +31,21 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
 
     @Inject
     LGPhasesOrchestrator(LGGameOrchestrator orchestrator,
-                         Set<RunnableLGPhase.Factory<?>> phaseFactories,
-                         Set<PhaseOverride> phaseOverrides,
                          LGPhaseDescriptor.Registry descriptorRegistry) {
         super(orchestrator);
-        this.phaseFactories = new LinkedList<>(phaseFactories);
+        this.phases = getPhaseFactories(orchestrator);
         this.descriptorRegistry = descriptorRegistry;
-        this.phaseIterator = this.phaseFactories.listIterator();
-        this.phaseOverrides = phaseOverrides;
+        this.phaseIterator = this.phases.listIterator();
+        this.phaseOverrides = orchestrator.bundle().contents(PHASE_OVERRIDES);
         this.logger = orchestrator.logger();
 
         bind(new CurrentPhaseTerminable());
+    }
+
+    private LinkedList<RunnableLGPhase.Factory<?>> getPhaseFactories(LGGameOrchestrator orchestrator) {
+        return orchestrator.bundle().contents(PHASES).stream()
+                .map(c -> (RunnableLGPhase.Factory<?>) o -> o.create(c))
+                .collect(Collectors.toCollection(LinkedList::new));
     }
 
     /**
@@ -61,11 +69,11 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
     public void next() {
         if (callPhaseOverride()) return;
 
-        if (phaseFactories.size() == 0)
+        if (phases.size() == 0)
             throw new IllegalStateException("No phases have been found.");
 
         if (!phaseIterator.hasNext())
-            phaseIterator = phaseFactories.listIterator(); // Reset the iterator
+            phaseIterator = phases.listIterator(); // Reset the iterator
 
         RunnableLGPhase.Factory<?> factory = phaseIterator.next();
         RunnableLGPhase phase = factory.create(orchestrator);

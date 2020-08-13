@@ -26,9 +26,7 @@ public class CompositionGuiOpener {
         Player minecraftPlayer = orchestrator.lobby().getOwner().minecraft()
                 .orElseThrow(AssertionError::new);
 
-        CompositionGui gui = factory.create(minecraftPlayer,
-                orchestrator.lobby().composition()::get,
-                orchestrator.lobby().composition()::update);
+        CompositionGui gui = factory.create(minecraftPlayer, orchestrator);
 
         gui.open();
 

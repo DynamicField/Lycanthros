@@ -1,14 +1,10 @@
 package com.github.jeuxjeux20.loupsgarous.commands;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGame;
+import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
-import com.github.jeuxjeux20.loupsgarous.cards.revealers.CardRevealer;
 import com.github.jeuxjeux20.loupsgarous.tags.LGTag;
-import com.github.jeuxjeux20.loupsgarous.tags.revealers.TagRevealer;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeam;
-import com.github.jeuxjeux20.loupsgarous.teams.revealers.TeamRevealer;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
 import me.lucko.helper.command.context.CommandContext;
@@ -20,23 +16,15 @@ import java.util.List;
 import java.util.Set;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.banner;
+import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.*;
 
 public class LGPlayersCommand implements HelperCommandRegisterer {
     private static final String LABEL_SEPARATOR = ChatColor.RESET + " - ";
 
-    private final CardRevealer cardRevealer;
-    private final TeamRevealer teamRevealer;
-    private final TagRevealer tagRevealer;
     private final InGameHandlerCondition inGameHandlerCondition;
 
     @Inject
-    LGPlayersCommand(CardRevealer cardRevealer,
-                     TeamRevealer teamRevealer,
-                     TagRevealer tagRevealer,
-                     InGameHandlerCondition inGameHandlerCondition) {
-        this.cardRevealer = cardRevealer;
-        this.teamRevealer = teamRevealer;
-        this.tagRevealer = tagRevealer;
+    LGPlayersCommand(InGameHandlerCondition inGameHandlerCondition) {
         this.inGameHandlerCondition = inGameHandlerCondition;
     }
 
@@ -63,7 +51,7 @@ public class LGPlayersCommand implements HelperCommandRegisterer {
 
             messageBuilder.append(player.getName());
 
-            List<String> labels = getLabels(sender, player, orchestrator.game());
+            List<String> labels = getLabels(sender, player, orchestrator);
             if (!labels.isEmpty()) {
                 messageBuilder.append(" ")
                         .append(String.join(LABEL_SEPARATOR, labels));
@@ -77,20 +65,20 @@ public class LGPlayersCommand implements HelperCommandRegisterer {
         context.reply(messageBuilder.toString());
     }
 
-    private List<String> getLabels(LGPlayer sender, LGPlayer player, LGGame game) {
+    private List<String> getLabels(LGPlayer sender, LGPlayer player, LGGameOrchestrator orchestrator) {
         List<String> labels = new ArrayList<>();
 
-        if (cardRevealer.willReveal(sender, player, game)) {
+        if (orchestrator.bundle().handler(CARD_REVEALERS).willReveal(sender, player)) {
             LGCard card = player.getCard();
 
             labels.add(card.getColor() + card.getName());
         }
 
-        for (LGTeam team : teamRevealer.getTeamsRevealed(sender, player, game)) {
+        for (LGTeam team : orchestrator.bundle().handler(TEAM_REVEALERS).getTeamsRevealed(sender, player)) {
             labels.add(team.getColor() + team.getName());
         }
 
-        for (LGTag tag : tagRevealer.getTagsRevealed(sender, player, game)) {
+        for (LGTag tag : orchestrator.bundle().handler(TAG_REVEALERS).getTagsRevealed(sender, player)) {
             labels.add(tag.getColor() + tag.getName());
         }
 

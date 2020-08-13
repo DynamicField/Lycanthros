@@ -11,8 +11,6 @@ public abstract class TeamRevealersModule extends AbstractModule {
 
     @Override
     protected final void configure() {
-        bind(TeamRevealer.class).to(TeamRevealerAggregator.class);
-
         configureBindings();
         actualConfigureTeamRevealers();
     }

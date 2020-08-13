@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
+import com.github.jeuxjeux20.loupsgarous.extensibility.ModBundle;
 import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.metadata.MetadataMap;
 import org.jetbrains.annotations.Nullable;
@@ -24,6 +25,8 @@ public interface LGGame {
     @Nullable LGEnding getEnding();
 
     @Nullable LGPlayer getOwner();
+
+    ModBundle getMods();
 
     MetadataMap getMetadata();
 

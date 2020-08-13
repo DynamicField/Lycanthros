@@ -1,12 +1,17 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
+import com.github.jeuxjeux20.loupsgarous.ReactiveProperty;
+import com.github.jeuxjeux20.loupsgarous.ReactiveValue;
 import com.github.jeuxjeux20.loupsgarous.cards.distribution.CardDistributor;
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.event.*;
 import com.github.jeuxjeux20.loupsgarous.event.lobby.LGLobbyCompositionUpdateEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
+import com.github.jeuxjeux20.loupsgarous.extensibility.GameBundle;
+import com.github.jeuxjeux20.loupsgarous.extensibility.ModBundle;
+import com.github.jeuxjeux20.loupsgarous.extensibility.ModRegistry;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.PlayerQuitKillCause;
 import com.github.jeuxjeux20.loupsgarous.lobby.LGGameBootstrapData;
 import com.github.jeuxjeux20.loupsgarous.lobby.LGLobby;
@@ -14,8 +19,10 @@ import com.github.jeuxjeux20.loupsgarous.phases.LGPhase;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
+import io.reactivex.rxjava3.disposables.Disposable;
 import me.lucko.helper.Events;
 import me.lucko.helper.metadata.MetadataKey;
 import me.lucko.helper.metadata.MetadataMap;
@@ -39,11 +46,13 @@ import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.*;
 class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
     // Terminables
     private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
+    private final Injector injector;
     // Base dependencies
     private final LoupsGarous plugin;
     private final LGGameOrchestratorLogger logger;
     // Game state
     private final OrchestratedLGGame game;
+    private final ModRegistry modRegistry;
     // Components
     private final LGLobby lobby;
     private final CardDistributor cardDistributor;
@@ -51,18 +60,24 @@ class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
     private final Provider<DelayedDependencies> delayedDependenciesProvider;
     private final OrchestratorScope scope;
 
+    private final ReactiveProperty<GameBundle> bundle = new ReactiveProperty<>();
+
     @Inject
     MinecraftLGGameOrchestrator(@Assisted LGGameBootstrapData bootstrapData,
+                                Injector injector,
                                 LoupsGarous plugin,
                                 LGLobby.Factory lobbyFactory,
                                 CardDistributor cardDistributor,
                                 OrchestratorScope scope,
+                                ModRegistry modRegistry,
                                 Provider<DelayedDependencies> delayedDependenciesProvider)
             throws GameCreationException {
+        this.injector = injector;
         this.plugin = plugin;
         this.cardDistributor = cardDistributor;
         this.scope = scope;
-        this.game = new OrchestratedLGGame(bootstrapData.getId());
+        this.game = new OrchestratedLGGame(bootstrapData.getId(), modRegistry.createDefaultBundle());
+        this.modRegistry = modRegistry;
         this.logger = new LGGameOrchestratorLogger(this);
         this.delayedDependenciesProvider = delayedDependenciesProvider;
 
@@ -70,6 +85,7 @@ class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
 
         registerLobbyEvents();
     }
+
 
     @Override
     public OrchestratedLGGame game() {
@@ -80,7 +96,7 @@ class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
     public void initialize() {
         state().mustBe(UNINITIALIZED);
 
-        try (OrchestratorScope.Block block = scope()) {
+        try (OrchestratorScope.Block ignored = scope()) {
             delayedDependencies = delayedDependenciesProvider.get();
         }
 
@@ -146,6 +162,13 @@ class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
         Events.call(new LGTurnChangeEvent(this));
     }
 
+    @Override
+    public <T> T create(Class<T> clazz) {
+        try (OrchestratorScope.Block ignored = scope()) {
+            return injector.getInstance(clazz);
+        }
+    }
+
     private void deleteIfEmpty() {
         if (game().isEmpty()) {
             delete();
@@ -163,6 +186,10 @@ class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
     }
 
     private void registerLobbyEvents() {
+        bind(Disposable.toAutoCloseable(
+                lobby.mods().observe().subscribe(this::updateBundle)
+        ));
+
         Events.subscribe(LGPlayerQuitEvent.class, EventPriority.MONITOR)
                 .filter(this::isMyEvent)
                 .filter(e -> state().isEnabled())
@@ -207,6 +234,24 @@ class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
     @Override
     public Plugin plugin() {
         return plugin;
+    }
+
+    @Override
+    public GameBundle bundle() {
+        // Very crappy solution for now
+        if (bundle.get() == null) {
+            updateBundle(game.getMods());
+        }
+        return bundle.get();
+    }
+
+    @Override
+    public ReactiveValue<GameBundle> reactiveBundle() {
+        return bundle;
+    }
+
+    private GameBundle createBundle(ModBundle modBundle) {
+        return new GameBundle(modBundle.createEnabledModsExtensions(), this::create);
     }
 
     @Override
@@ -268,6 +313,10 @@ class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
     private void checkDelayedDependencies() {
         Preconditions.checkState(delayedDependencies != null,
                 "This game is not initialized yet. (OrchestratorScoped dependencies are not present.)");
+    }
+
+    private void updateBundle(ModBundle newBundle) {
+        bundle.set(createBundle(newBundle));
     }
 
     @OrchestratorScoped

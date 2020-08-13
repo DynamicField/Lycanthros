@@ -8,6 +8,7 @@ import com.github.jeuxjeux20.loupsgarous.cards.LGCardsModule;
 import com.github.jeuxjeux20.loupsgarous.chat.LGChatModule;
 import com.github.jeuxjeux20.loupsgarous.commands.LGCommandsModule;
 import com.github.jeuxjeux20.loupsgarous.commands.RootCommandsModule;
+import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensibilityModule;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameModule;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractionModule;
 import com.github.jeuxjeux20.loupsgarous.inventory.LGInventoryModule;
@@ -37,6 +38,7 @@ public final class LoupsGarousModule extends PluginModule {
     protected void configureBindings() {
         install(new RootCommandsModule());
 
+        install(new LGExtensibilityModule());
         install(new LGCardsModule());
         install(new LGListenersModule());
         install(new LGPhasesModule());

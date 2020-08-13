@@ -6,7 +6,6 @@ import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponentsModule;
 import com.github.jeuxjeux20.loupsgarous.phases.descriptor.LGPhasesDescriptorModule;
 import com.github.jeuxjeux20.loupsgarous.phases.dusk.LGPhasesDuskModule;
 import com.github.jeuxjeux20.loupsgarous.phases.listeners.LGPhasesListenersModule;
-import com.github.jeuxjeux20.loupsgarous.phases.overrides.LGPhaseOverridesModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 
 public final class LGPhasesModule extends PhasesModule {
@@ -20,7 +19,6 @@ public final class LGPhasesModule extends PhasesModule {
             }
         });
 
-        install(new LGPhaseOverridesModule());
         install(new LGPhasesListenersModule());
         install(new LGPhasesDescriptorModule());
 

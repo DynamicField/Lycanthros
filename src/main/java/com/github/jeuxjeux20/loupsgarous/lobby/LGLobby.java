@@ -1,5 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.lobby;
 
+import com.github.jeuxjeux20.loupsgarous.ReactiveValue;
+import com.github.jeuxjeux20.loupsgarous.extensibility.ModBundle;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorDependent;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.InternalLGGameOrchestrator;
@@ -41,6 +43,9 @@ public interface LGLobby extends OrchestratorDependent {
     LGPlayer getOwner();
 
     void setOwner(LGPlayer owner);
+
+
+    ReactiveValue<ModBundle> mods();
 
 
     LGLobbyCompositionManager composition();

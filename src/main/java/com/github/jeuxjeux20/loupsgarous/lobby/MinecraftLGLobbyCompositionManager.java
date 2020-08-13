@@ -1,12 +1,12 @@
 package com.github.jeuxjeux20.loupsgarous.lobby;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.cards.VillageoisCard;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.ImmutableComposition;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator;
 import com.github.jeuxjeux20.loupsgarous.event.lobby.LGLobbyCompositionUpdateEvent;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultiset;
 import com.google.inject.Inject;
@@ -15,6 +15,8 @@ import me.lucko.helper.Events;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
+
+import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.COMPOSITION_VALIDATORS;
 
 public class MinecraftLGLobbyCompositionManager implements LGLobbyCompositionManager {
     private final LGGameOrchestrator orchestrator;
@@ -25,10 +27,9 @@ public class MinecraftLGLobbyCompositionManager implements LGLobbyCompositionMan
 
     @Inject
     MinecraftLGLobbyCompositionManager(@Assisted LGGameOrchestrator orchestrator,
-                                       @Assisted LGGameBootstrapData bootstrapData,
-                                       CompositionValidator compositionValidator) {
+                                       @Assisted LGGameBootstrapData bootstrapData) {
         this.orchestrator = orchestrator;
-        this.compositionValidator = compositionValidator;
+        this.compositionValidator = orchestrator.bundle().handler(COMPOSITION_VALIDATORS);
 
         this.composition = new ImmutableComposition(bootstrapData.getComposition());
 

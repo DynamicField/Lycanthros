@@ -62,10 +62,10 @@ public class LGGameManager {
 
         LGGameOrchestrator orchestrator = orchestratorFactory.create(new LGGameBootstrapData(owner, composition, id));
 
+        orchestrator.initialize();
+
         ongoingGames.add(orchestrator);
         gamesById.put(id, orchestrator);
-
-        orchestrator.initialize();
 
         return orchestrator;
     }
