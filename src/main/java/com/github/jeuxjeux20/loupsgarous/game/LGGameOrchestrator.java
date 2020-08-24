@@ -1,6 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-import com.github.jeuxjeux20.loupsgarous.ReactiveValue;
 import com.github.jeuxjeux20.loupsgarous.actionbar.LGActionBarManager;
 import com.github.jeuxjeux20.loupsgarous.bossbar.LGBossBarManager;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
@@ -18,6 +17,7 @@ import com.github.jeuxjeux20.loupsgarous.lobby.LobbyCreationException;
 import com.github.jeuxjeux20.loupsgarous.phases.LGPhasesOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.common.collect.ImmutableMultiset;
+import io.reactivex.rxjava3.core.Observable;
 import me.lucko.helper.metadata.MetadataKey;
 import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.World;
@@ -59,7 +59,7 @@ public interface LGGameOrchestrator extends TerminableConsumer {
 
     GameBundle bundle();
 
-    ReactiveValue<GameBundle> reactiveBundle();
+    Observable<GameBundle> observeBundle();
 
     default LGGameState state() {
         return game().getState();

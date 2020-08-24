@@ -22,8 +22,6 @@ import me.lucko.helper.menu.scheme.MenuScheme;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.ChatPaginator;
 
 import java.util.Comparator;
@@ -70,7 +68,9 @@ public final class CompositionGui extends Gui {
         this.patateMod = patateMod;
 
         bind(Disposable.toAutoCloseable(
-                orchestrator.reactiveBundle().observeWithCurrent().subscribe(this::updateCards)
+                orchestrator.observeBundle()
+                        .startWithItem(orchestrator.bundle())
+                        .subscribe(this::updateCards)
         ));
 
         this.compositionValidator = orchestrator.bundle().handler(LGExtensionPoints.COMPOSITION_VALIDATORS);
@@ -82,11 +82,10 @@ public final class CompositionGui extends Gui {
         drawTopBarBook();
         drawCards();
 
-        setItems(Item.builder(new ItemStack(Material.POTATO))
-                .bind(ClickType.LEFT, () -> {
-                    orchestrator.lobby().mods()
-                            .update(modBundle -> modBundle.transform(builder -> builder.put(patateMod)));
-                }).build(), 30);
+        // TODO: Remove this crappy test.
+        setItems(ItemStackBuilder.of(Material.POTATO)
+                .build(() -> orchestrator.lobby().mods()
+                        .update(modBundle -> modBundle.transform(builder -> builder.put(patateMod)))), 30);
     }
 
     private void drawTopBarGlass() {
@@ -215,11 +214,9 @@ public final class CompositionGui extends Gui {
     }
 
     private void updateCards(GameBundle bundle) {
-        cards = orchestrator.bundle().contents(LGExtensionPoints.CARDS).stream()
+        cards = bundle.contents(LGExtensionPoints.CARDS).stream()
                 .sorted(Comparator.comparing(LGCard::getName))
                 .collect(Collectors.toList());
-
-        orchestrator.logger().info("omg ça chanj");
 
         if (isValid()) {
             redraw();

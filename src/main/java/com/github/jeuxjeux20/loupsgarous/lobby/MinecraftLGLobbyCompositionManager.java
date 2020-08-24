@@ -6,16 +6,21 @@ import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.ImmutableComposition;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator;
 import com.github.jeuxjeux20.loupsgarous.event.lobby.LGLobbyCompositionUpdateEvent;
+import com.github.jeuxjeux20.loupsgarous.extensibility.GameBundle;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultiset;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import io.reactivex.rxjava3.disposables.Disposable;
 import me.lucko.helper.Events;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.CARDS;
 import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.COMPOSITION_VALIDATORS;
 
 public class MinecraftLGLobbyCompositionManager implements LGLobbyCompositionManager {
@@ -32,6 +37,10 @@ public class MinecraftLGLobbyCompositionManager implements LGLobbyCompositionMan
         this.compositionValidator = orchestrator.bundle().handler(COMPOSITION_VALIDATORS);
 
         this.composition = new ImmutableComposition(bootstrapData.getComposition());
+
+        orchestrator.bind(Disposable.toAutoCloseable(
+                orchestrator.observeBundle().subscribe(this::removeBundleRemovedCards)
+        ));
 
         updateCompositionProblemType();
     }
@@ -63,6 +72,19 @@ public class MinecraftLGLobbyCompositionManager implements LGLobbyCompositionMan
         return worseCompositionProblemType;
     }
 
+    private void removeBundleRemovedCards(GameBundle bundle) {
+        List<LGCard> removedCards = bundle.contents(CARDS).stream()
+                .filter(c -> !composition.getContents().contains(c))
+                .collect(Collectors.toList());
+
+        ImmutableComposition newComposition = composition.with(cards -> {
+            for (LGCard removedCard : removedCards) {
+                cards.remove(removedCard, Integer.MAX_VALUE);
+            }
+        });
+
+        update(newComposition);
+    }
 
     private void updateCompositionProblemType() {
         worseCompositionProblemType = compositionValidator.validate(composition).stream()

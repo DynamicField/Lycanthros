@@ -56,7 +56,7 @@ public final class ModBundle {
         return enabledMods;
     }
 
-    public ImmutableList<Extension<?>> createEnabledModsExtensions() {
+    public ImmutableList<Extension<?>> createExtensions() {
         ImmutableList.Builder<Extension<?>> builder = ImmutableList.builder();
 
         for (Mod mod : getEnabledMods()) {
@@ -71,7 +71,7 @@ public final class ModBundle {
     }
 
     public ModBundle transform(Consumer<Builder> builderConsumer) {
-        Builder builder = builder();
+        Builder builder = builder(this);
         builderConsumer.accept(builder);
 
         return builder.build();

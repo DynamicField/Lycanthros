@@ -27,7 +27,7 @@ class MinecraftLGPhaseDescriptorFactory
     }
 
     @Override
-    public LGPhaseDescriptor createBasic(Class<? extends LGPhase> phaseClass) {
+    public LGPhaseDescriptor createBaseDescriptor(Class<? extends LGPhase> phaseClass) {
         LGPhaseDescriptor descriptor = new LGPhaseDescriptor(phaseClass);
 
         applyInfoAnnotation(descriptor);

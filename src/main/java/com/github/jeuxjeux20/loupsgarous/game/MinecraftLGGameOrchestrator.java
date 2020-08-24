@@ -2,7 +2,6 @@ package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.ReactiveProperty;
-import com.github.jeuxjeux20.loupsgarous.ReactiveValue;
 import com.github.jeuxjeux20.loupsgarous.cards.distribution.CardDistributor;
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.event.*;
@@ -22,6 +21,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import me.lucko.helper.Events;
 import me.lucko.helper.metadata.MetadataKey;
@@ -246,12 +246,12 @@ class MinecraftLGGameOrchestrator implements InternalLGGameOrchestrator {
     }
 
     @Override
-    public ReactiveValue<GameBundle> reactiveBundle() {
-        return bundle;
+    public Observable<GameBundle> observeBundle() {
+        return bundle.observe();
     }
 
     private GameBundle createBundle(ModBundle modBundle) {
-        return new GameBundle(modBundle.createEnabledModsExtensions(), this::create);
+        return new GameBundle(modBundle.createExtensions(), this::create);
     }
 
     @Override
