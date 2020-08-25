@@ -29,8 +29,7 @@ public abstract class AbstractVote<T>
     }
 
     private VoteOutcomeContext<T> createContext() {
-        return new VoteOutcomeContext<>(getVotes(), getPicks(), getClass(),
-                orchestrator.game());
+        return new VoteOutcomeContext<>(getVotes(), getPicks(), getClass(), orchestrator);
     }
 
     @Override

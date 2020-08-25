@@ -19,9 +19,9 @@ public class SwitchTimeOfDayListener implements Listener {
     public void onTimeChange(LGTurnChangeEvent event) {
         LGGameOrchestrator orchestrator = event.getOrchestrator();
 
-        switch (orchestrator.game().getTurn().getTime()) {
+        switch (orchestrator.getTurn().getTime()) {
             case NIGHT:
-                orchestrator.world().setTime(13000);
+                orchestrator.getWorld().setTime(13000);
                 orchestrator.getAllMinecraftPlayers().forEach(player -> {
                     player.sendTitle(ChatColor.RED + "C'est la nuit",
                             null,
@@ -31,7 +31,7 @@ public class SwitchTimeOfDayListener implements Listener {
                 });
                 break;
             case DAY:
-                orchestrator.world().setTime(1000);
+                orchestrator.getWorld().setTime(1000);
                 orchestrator.getAllMinecraftPlayers().forEach(player -> {
                     player.sendTitle(ChatColor.GOLD + "C'est le jour",
                             null,

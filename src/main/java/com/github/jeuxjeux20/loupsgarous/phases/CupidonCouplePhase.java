@@ -154,7 +154,7 @@ public final class CupidonCouplePhase extends CountdownLGPhase {
         }
 
         Stream<LGPlayer> getEligiblePartners() {
-            return orchestrator.game().getPlayers().stream()
+            return orchestrator.getPlayers().stream()
                     .filter(Check.predicate(this::partnerCheck));
         }
 

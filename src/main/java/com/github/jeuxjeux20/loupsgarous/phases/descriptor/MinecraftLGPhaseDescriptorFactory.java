@@ -38,7 +38,7 @@ class MinecraftLGPhaseDescriptorFactory
 
     @Override
     protected Collection<DescriptorProcessor<LGPhaseDescriptor>> getDescriptorProcessors() {
-        return orchestrator.bundle().contents(descriptorProcessors(LGPhaseDescriptor.class));
+        return orchestrator.getBundle().contents(descriptorProcessors(LGPhaseDescriptor.class));
     }
 
     private void applyInfoAnnotation(LGPhaseDescriptor descriptor) {

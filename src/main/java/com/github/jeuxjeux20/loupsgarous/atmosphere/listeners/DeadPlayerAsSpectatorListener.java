@@ -26,7 +26,7 @@ public class DeadPlayerAsSpectatorListener implements Listener {
         Optional<LGPlayerAndGame> playerInGame = gameManager.getPlayerInGame(event.getPlayer());
         if (!playerInGame.isPresent()) return;
 
-        Location spawnLocation = playerInGame.get().getOrchestrator().world().getSpawnLocation();
+        Location spawnLocation = playerInGame.get().getOrchestrator().getWorld().getSpawnLocation();
         event.setRespawnLocation(spawnLocation);
 
         Player player = event.getPlayer();

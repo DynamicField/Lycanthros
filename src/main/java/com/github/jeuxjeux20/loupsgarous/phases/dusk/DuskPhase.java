@@ -42,7 +42,7 @@ public final class DuskPhase extends CountdownLGPhase {
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.game().getTurn().getTime() == LGGameTurnTime.NIGHT &&
+        return orchestrator.getTurn().getTime() == LGGameTurnTime.NIGHT &&
                !actionsToRun.isEmpty();
     }
 

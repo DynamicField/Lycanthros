@@ -20,7 +20,7 @@ public class TagRevealerHandler implements ExtensionPointHandler {
     }
 
     public ImmutableSet<LGTag> getTagsRevealed(LGPlayer viewer, LGPlayer playerToReveal) {
-        return orchestrator.bundle().contents(TAG_REVEALERS).stream()
+        return orchestrator.getBundle().contents(TAG_REVEALERS).stream()
                 .flatMap(x -> x.getTagsRevealed(viewer, playerToReveal, orchestrator).stream())
                 .filter(playerToReveal.tags()::has)
                 .collect(ImmutableSet.toImmutableSet());

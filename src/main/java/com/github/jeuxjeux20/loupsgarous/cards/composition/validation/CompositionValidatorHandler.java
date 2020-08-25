@@ -19,7 +19,7 @@ public final class CompositionValidatorHandler implements CompositionValidator, 
     }
 
     public ImmutableSet<Problem> validate(Composition composition) {
-        return orchestrator.bundle().contents(COMPOSITION_VALIDATORS).stream()
+        return orchestrator.getBundle().contents(COMPOSITION_VALIDATORS).stream()
                 .flatMap(v -> v.validate(composition).stream())
                 .collect(ImmutableSet.toImmutableSet());
     }

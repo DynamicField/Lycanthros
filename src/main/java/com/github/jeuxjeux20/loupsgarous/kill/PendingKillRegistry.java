@@ -96,7 +96,7 @@ public class PendingKillRegistry {
      * @see LGKillEvent
      */
     public void reveal() {
-        orchestrator.state().mustBe(STARTED);
+        orchestrator.getState().mustBe(STARTED);
 
         ImmutableSet<LGKill> kills = getAll();
 

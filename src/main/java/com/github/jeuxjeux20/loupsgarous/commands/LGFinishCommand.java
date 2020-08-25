@@ -52,7 +52,7 @@ public class LGFinishCommand implements HelperCommandRegisterer {
                         }
                     }
 
-                    if (game.get().state() == LGGameState.FINISHED) {
+                    if (game.get().getState() == LGGameState.FINISHED) {
                         c.sender().sendMessage(ChatColor.RED + "La partie est déjà terminée.");
                         return;
                     }

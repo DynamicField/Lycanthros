@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.winconditions;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGame;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeam;
@@ -18,8 +18,8 @@ public class OnlyAliveTeamWinCondition implements WinCondition {
     }
 
     @Override
-    public Optional<LGEnding> check(LGGame game) {
-        if (game.getAlivePlayers().allMatch(this::allSameTeam)) {
+    public Optional<LGEnding> check(LGGameOrchestrator orchestrator) {
+        if (orchestrator.getAlivePlayers().allMatch(this::allSameTeam)) {
             LGEnding ending = endingSupplier.get();
             return Optional.of(ending);
         }

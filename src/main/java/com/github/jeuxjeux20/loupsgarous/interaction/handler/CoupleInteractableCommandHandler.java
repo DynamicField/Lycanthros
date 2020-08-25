@@ -38,13 +38,13 @@ public class CoupleInteractableCommandHandler implements InteractableCommandHand
 
     private Optional<Couple> createCouple(String partner1Name, String partner2Name,
                                           LGGameOrchestrator orchestrator, Player sender) {
-        Optional<LGPlayer> partner1 = orchestrator.game().findByName(partner1Name);
+        Optional<LGPlayer> partner1 = orchestrator.findByName(partner1Name);
         if (!partner1.isPresent()) {
             sender.sendMessage(LGMessages.cannotFindPlayer(partner1Name));
             return Optional.empty();
         }
 
-        Optional<LGPlayer> partner2 = orchestrator.game().findByName(partner2Name);
+        Optional<LGPlayer> partner2 = orchestrator.findByName(partner2Name);
         if (!partner2.isPresent()) {
             sender.sendMessage(LGMessages.cannotFindPlayer(partner2Name));
             return Optional.empty();

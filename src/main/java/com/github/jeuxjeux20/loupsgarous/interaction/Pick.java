@@ -25,7 +25,7 @@ public interface Pick<T> extends Interactable {
     // Useful stuff
 
     default Stream<LGPlayer> getEligiblePickers() {
-        return gameOrchestrator().game().getPlayers().stream().filter(Check.predicate(conditions()::checkPicker));
+        return gameOrchestrator().getPlayers().stream().filter(Check.predicate(conditions()::checkPicker));
     }
 
     default boolean canSomeonePick() {

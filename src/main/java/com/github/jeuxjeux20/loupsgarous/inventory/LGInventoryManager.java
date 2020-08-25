@@ -129,7 +129,7 @@ public class LGInventoryManager extends AbstractOrchestratorComponent {
     }
 
     private void handleItemClick(HumanEntity player, int slot) {
-        LGPlayer lgPlayer = orchestrator.game().getPlayerOrThrow(player.getUniqueId());
+        LGPlayer lgPlayer = orchestrator.getPlayerOrThrow(player.getUniqueId());
 
         InventoryItem item = getItem(lgPlayer, slot);
         if (item != null) {
@@ -165,7 +165,7 @@ public class LGInventoryManager extends AbstractOrchestratorComponent {
     }
 
     private void updateAllInventories(LGEvent e) {
-        for (LGPlayer player : e.getOrchestrator().game().getPlayers()) {
+        for (LGPlayer player : e.getOrchestrator().getPlayers()) {
             update(player);
         }
     }
@@ -187,6 +187,6 @@ public class LGInventoryManager extends AbstractOrchestratorComponent {
     }
 
     private boolean isPlayerInGame(HumanEntity player) {
-        return orchestrator.game().getPlayer(player.getUniqueId()).isPresent();
+        return orchestrator.getPlayer(player.getUniqueId()).isPresent();
     }
 }

@@ -22,7 +22,7 @@ public class SinglePlayerInteractableCommandHandler implements InteractableComma
     public void pick(CommandContext<Player> context, LGPlayer player, Pick<LGPlayer> interactable, LGGameOrchestrator orchestrator) {
         String targetName = context.arg(0).value().orElseThrow(AssertionError::new);
 
-        Optional<LGPlayer> maybeTarget = orchestrator.game().findByName(targetName);
+        Optional<LGPlayer> maybeTarget = orchestrator.findByName(targetName);
 
         maybeTarget.ifPresent(target -> {
             Check check = interactable.conditions().checkPick(player, target);

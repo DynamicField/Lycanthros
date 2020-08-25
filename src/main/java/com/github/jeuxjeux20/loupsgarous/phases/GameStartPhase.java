@@ -40,7 +40,7 @@ public final class GameStartPhase extends CountdownLGPhase {
 
         @Override
         protected void onTick() {
-            if (orchestrator.state() != LGGameState.READY_TO_START) {
+            if (orchestrator.getState() != LGGameState.READY_TO_START) {
                 setTimer(getBiggestTimerValue());
             } else if (getTimer() != 0 && getTimer() <= 5) {
                 orchestrator.getAllMinecraftPlayers().forEach(this::displayCountdown);

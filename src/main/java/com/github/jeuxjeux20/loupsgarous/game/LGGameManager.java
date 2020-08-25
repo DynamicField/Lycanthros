@@ -91,16 +91,16 @@ public class LGGameManager {
         Optional<LGGameOrchestrator> existingGame = get(id);
 
         if (existingGame.isPresent()) {
-            existingGame.get().lobby().join(player);
+            existingGame.get().join(player);
         } else {
             start(player, composition, id);
         }
     }
 
     private synchronized void removeDeletedGame(LGGameOrchestrator orchestrator) {
-        Preconditions.checkArgument(orchestrator.state() == LGGameState.DELETED, "The game must have been deleted.");
+        Preconditions.checkArgument(orchestrator.getState() == LGGameState.DELETED, "The game must have been deleted.");
 
         ongoingGames.remove(orchestrator);
-        gamesById.remove(orchestrator.game().getId());
+        gamesById.remove(orchestrator.getId());
     }
 }

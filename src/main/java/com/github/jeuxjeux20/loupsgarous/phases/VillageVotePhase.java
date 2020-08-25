@@ -35,7 +35,7 @@ public final class VillageVotePhase extends CountdownLGPhase {
 
         this.voteStructure = voteStructureFactory.create(
                 orchestrator,
-                orchestrator.world().getSpawnLocation(),
+                orchestrator.getWorld().getSpawnLocation(),
                 this.vote
         );
 
@@ -45,7 +45,7 @@ public final class VillageVotePhase extends CountdownLGPhase {
 
     @Override
     protected Countdown createCountdown() {
-        if (orchestrator.game().getAlivePlayers().count() <= 2) {
+        if (orchestrator.getAlivePlayers().count() <= 2) {
             // Only two players? They'll vote each other and that's it.
             return Countdown.of(30);
         } else {
@@ -55,7 +55,7 @@ public final class VillageVotePhase extends CountdownLGPhase {
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.game().getTurn().getTime() == LGGameTurnTime.DAY &&
+        return orchestrator.getTurn().getTime() == LGGameTurnTime.DAY &&
                vote.canSomeonePick();
     }
 

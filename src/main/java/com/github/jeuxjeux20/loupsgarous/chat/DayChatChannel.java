@@ -22,7 +22,7 @@ public class DayChatChannel extends AbstractLGChatChannel {
     }
 
     private boolean isAccessible() {
-        return orchestrator.game().getTurn().getTime() == LGGameTurnTime.DAY &&
+        return orchestrator.getTurn().getTime() == LGGameTurnTime.DAY &&
                orchestrator.isGameRunning();
     }
 

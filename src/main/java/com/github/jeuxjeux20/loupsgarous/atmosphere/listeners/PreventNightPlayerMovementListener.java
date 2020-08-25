@@ -26,7 +26,7 @@ public class PreventNightPlayerMovementListener implements Listener {
             LGGameOrchestrator orchestrator = pg.getOrchestrator();
 
             if (orchestrator.isGameRunning() &&
-                orchestrator.game().getTurn().getTime() == LGGameTurnTime.NIGHT) {
+                orchestrator.getTurn().getTime() == LGGameTurnTime.NIGHT) {
                 Location to = event.getTo();
                 Location from = event.getFrom();
 

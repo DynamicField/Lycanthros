@@ -37,7 +37,7 @@ public class LGPlayersCommand implements HelperCommandRegisterer {
     }
 
     private void handle(CommandContext<Player> context, LGPlayer sender, LGGameOrchestrator orchestrator) {
-        Set<LGPlayer> players = orchestrator.game().getPlayers();
+        Set<LGPlayer> players = orchestrator.getPlayers();
 
         StringBuilder messageBuilder = new StringBuilder()
                 .append(banner("Liste des joueurs"))
@@ -68,17 +68,17 @@ public class LGPlayersCommand implements HelperCommandRegisterer {
     private List<String> getLabels(LGPlayer sender, LGPlayer player, LGGameOrchestrator orchestrator) {
         List<String> labels = new ArrayList<>();
 
-        if (orchestrator.bundle().handler(CARD_REVEALERS).willReveal(sender, player)) {
+        if (orchestrator.getBundle().handler(CARD_REVEALERS).willReveal(sender, player)) {
             LGCard card = player.getCard();
 
             labels.add(card.getColor() + card.getName());
         }
 
-        for (LGTeam team : orchestrator.bundle().handler(TEAM_REVEALERS).getTeamsRevealed(sender, player)) {
+        for (LGTeam team : orchestrator.getBundle().handler(TEAM_REVEALERS).getTeamsRevealed(sender, player)) {
             labels.add(team.getColor() + team.getName());
         }
 
-        for (LGTag tag : orchestrator.bundle().handler(TAG_REVEALERS).getTagsRevealed(sender, player)) {
+        for (LGTag tag : orchestrator.getBundle().handler(TAG_REVEALERS).getTagsRevealed(sender, player)) {
             labels.add(tag.getColor() + tag.getName());
         }
 

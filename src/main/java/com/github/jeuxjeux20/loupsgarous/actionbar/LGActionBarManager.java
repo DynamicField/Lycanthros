@@ -36,7 +36,7 @@ public class LGActionBarManager extends AbstractOrchestratorComponent {
     }
 
     public void update() {
-        for (LGPlayer player : orchestrator.game().getPlayers()) {
+        for (LGPlayer player : orchestrator.getPlayers()) {
             update(player);
         }
     }
@@ -58,11 +58,11 @@ public class LGActionBarManager extends AbstractOrchestratorComponent {
     private List<BaseComponent> createStateComponents(LGPlayer player) {
         List<BaseComponent> components = new ArrayList<>();
 
-        if (orchestrator.state() == LGGameState.WAITING_FOR_PLAYERS) {
+        if (orchestrator.getState() == LGGameState.WAITING_FOR_PLAYERS) {
             components.add(new TextComponent("En attente"));
 
             addCompositionProblemComponent(components);
-        } else if (orchestrator.state() == LGGameState.READY_TO_START) {
+        } else if (orchestrator.getState() == LGGameState.READY_TO_START) {
             components.add(new TextComponent("Départ dans "));
 
             Optional<TimedPhase> maybeTimedPhase = orchestrator.phases().current().safeCast(TimedPhase.class);
@@ -77,7 +77,7 @@ public class LGActionBarManager extends AbstractOrchestratorComponent {
             components.add(new TextComponent(" secondes"));
 
             addCompositionProblemComponent(components);
-        } else if (orchestrator.state() == LGGameState.STARTED) {
+        } else if (orchestrator.getState() == LGGameState.STARTED) {
             components.add(new TextComponent("Vous êtes : "));
 
             LGCard card = player.getCard();
@@ -87,8 +87,8 @@ public class LGActionBarManager extends AbstractOrchestratorComponent {
             cardComponent.setBold(true);
 
             components.add(cardComponent);
-        } else if (orchestrator.state() == LGGameState.FINISHED) {
-            LGEnding ending = orchestrator.game().getEnding();
+        } else if (orchestrator.getState() == LGGameState.FINISHED) {
+            LGEnding ending = orchestrator.getEnding();
             assert ending != null;
 
             switch (ending.getOutcomeFor(player)) {
@@ -108,11 +108,11 @@ public class LGActionBarManager extends AbstractOrchestratorComponent {
     }
 
     private void addCompositionProblemComponent(List<BaseComponent> components) {
-        if (orchestrator.lobby().composition().getWorstProblemType() == Problem.Type.IMPOSSIBLE) {
+        if (orchestrator.getWorstCompositionProblemType() == Problem.Type.IMPOSSIBLE) {
             TextComponent component = new TextComponent(" (Composition invalide !)");
             component.setColor(ChatColor.RED);
             components.add(component);
-        } else if (orchestrator.lobby().composition().getWorstProblemType() == Problem.Type.RULE_BREAKING) {
+        } else if (orchestrator.getWorstCompositionProblemType() == Problem.Type.RULE_BREAKING) {
             TextComponent component = new TextComponent(" (Composition contre les règles)");
             component.setColor(ChatColor.YELLOW);
             components.add(component);
@@ -122,13 +122,13 @@ public class LGActionBarManager extends AbstractOrchestratorComponent {
     private List<BaseComponent> createTimeComponents(LGPlayer player) {
         List<BaseComponent> components = new ArrayList<>();
 
-        if (!orchestrator.lobby().isLocked()) {
-            TextComponent slotsComponent = new TextComponent(orchestrator.lobby().getSlotsDisplay());
+        if (!orchestrator.isLocked()) {
+            TextComponent slotsComponent = new TextComponent(orchestrator.getSlotsDisplay());
             slotsComponent.setBold(true);
             slotsComponent.setColor(ChatColor.GREEN);
 
             components.add(slotsComponent);
-        } else if (orchestrator.state() == LGGameState.STARTED) {
+        } else if (orchestrator.getState() == LGGameState.STARTED) {
             orchestrator.phases().current().safeCast(TimedPhase.class).ifPresent(timedPhase -> {
                 Duration secondsLeftDuration = Duration.ofSeconds(timedPhase.getSecondsLeft());
                 String formattedDuration = DurationFormatter.CONCISE.format(secondsLeftDuration);

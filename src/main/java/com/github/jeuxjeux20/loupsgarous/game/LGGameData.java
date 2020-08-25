@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-public final class OrchestratedLGGame implements LGGame {
+final class LGGameData {
     private final String id;
     private final Map<UUID, OrchestratedLGPlayer> playersByUUID = new HashMap<>();
     private final MutableLGGameTurn turn = new MutableLGGameTurn();
@@ -26,7 +26,7 @@ public final class OrchestratedLGGame implements LGGame {
     private @Nullable LGEnding ending;
     private OrchestratedLGPlayer owner;
 
-    public OrchestratedLGGame(String id, ModBundle modBundle) {
+    public LGGameData(String id, ModBundle modBundle) {
         this.id = id;
         this.modBundle = modBundle;
     }
@@ -40,12 +40,10 @@ public final class OrchestratedLGGame implements LGGame {
         }
     }
 
-    @Override
     public String getId() {
         return id;
     }
 
-    @Override
     public LGGameState getState() {
         return state;
     }
@@ -56,17 +54,14 @@ public final class OrchestratedLGGame implements LGGame {
         this.state = state;
     }
 
-    @Override
     public ImmutableSet<LGPlayer> getPlayers() {
         return ImmutableSet.copyOf(playersByUUID.values());
     }
 
-    @Override
     public MutableLGGameTurn getTurn() {
         return turn;
     }
 
-    @Override
     public @Nullable LGEnding getEnding() {
         return ending;
     }
@@ -75,7 +70,6 @@ public final class OrchestratedLGGame implements LGGame {
         this.ending = ending;
     }
 
-    @Override
     public @Nullable OrchestratedLGPlayer getOwner() {
         return owner;
     }
@@ -84,7 +78,6 @@ public final class OrchestratedLGGame implements LGGame {
         this.owner = ensurePresent(owner);
     }
 
-    @Override
     public ModBundle getMods() {
         return modBundle;
     }
@@ -93,17 +86,14 @@ public final class OrchestratedLGGame implements LGGame {
         this.modBundle = modBundle;
     }
 
-    @Override
     public MetadataMap getMetadata() {
         return metadataMap;
     }
 
-    @Override
     public Optional<OrchestratedLGPlayer> getPlayer(UUID playerUUID) {
         return Optional.ofNullable(playersByUUID.get(playerUUID));
     }
 
-    @Override
     public OrchestratedLGPlayer getPlayerOrThrow(UUID playerUUID) {
         OrchestratedLGPlayer player = playersByUUID.get(playerUUID);
         if (player == null) {
@@ -114,7 +104,6 @@ public final class OrchestratedLGGame implements LGGame {
         return player;
     }
 
-    @Override
     public OrchestratedLGPlayer ensurePresent(LGPlayer player) {
         if (!(player instanceof OrchestratedLGPlayer) || !playersByUUID.containsValue(player)) {
             throw new PlayerAbsentException(
@@ -143,7 +132,7 @@ public final class OrchestratedLGGame implements LGGame {
         return MoreObjects.toStringHelper(this)
                 .add("id", id)
                 .add("turn", turn)
-                .add("state", state)
+                .add("getState", state)
                 .add("ending", ending)
                 .add("owner", owner)
                 .toString();

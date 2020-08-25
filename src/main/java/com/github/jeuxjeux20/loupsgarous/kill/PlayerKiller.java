@@ -13,16 +13,16 @@ import java.util.Collection;
  */
 @OrchestratorScoped
 final class PlayerKiller {
-    private final InternalLGGameOrchestrator orchestrator;
+    private final LGGameOrchestrator orchestrator;
 
     @Inject
-    PlayerKiller(InternalLGGameOrchestrator orchestrator) {
+    PlayerKiller(LGGameOrchestrator orchestrator) {
         this.orchestrator = orchestrator;
     }
 
     void applyKills(Collection<LGKill> kills) {
         for (LGKill kill : kills) {
-            OrchestratedLGPlayer victim = orchestrator.game().ensurePresent(kill.getVictim());
+            OrchestratedLGPlayer victim = (OrchestratedLGPlayer) orchestrator.ensurePresent(kill.getVictim());
 
             Preconditions.checkArgument(victim.isAlive(),
                     "Cannot kill player " + victim.getName() + " because they are dead.");

@@ -27,6 +27,6 @@ public final class PickableConditions {
      * about the given player presence in the game
      */
     public static BidirectionalPlayerPredicate checkPlayerGamePresence(LGGameOrchestrator orchestrator) {
-        return p -> Check.ensure(orchestrator.game().getPlayers().contains(p), "Vous n'êtes pas dans la partie.");
+        return p -> Check.ensure(orchestrator.getPlayers().contains(p), "Vous n'êtes pas dans la partie.");
     }
 }

@@ -39,11 +39,11 @@ public final class GameBundle {
 
     private ImmutableSetMultimap<ExtensionPoint<?>, Object> createExtensionContentsMap(
             Set<Extension<?>> extensions) {
-        HashMultimap<ExtensionPoint<?>, Object> unsortedMap = extensions.stream().collect(
+        LinkedHashMultimap<ExtensionPoint<?>, Object> unsortedMap = extensions.stream().collect(
                 Multimaps.flatteningToMultimap(
                         Extension::getExtensionPoint,
                         e -> e.getContents().stream(),
-                        HashMultimap::create
+                        LinkedHashMultimap::create
                 )
         );
 

@@ -30,7 +30,7 @@ public class LGKillsOrchestrator extends AbstractOrchestratorComponent {
      * @return the pending kills
      */
     public PendingKillRegistry pending() {
-        orchestrator.state().mustBe(STARTED);
+        orchestrator.getState().mustBe(STARTED);
 
         return pendingKillRegistry;
     }
@@ -42,7 +42,7 @@ public class LGKillsOrchestrator extends AbstractOrchestratorComponent {
      * @see LGKillEvent
      */
     public void instantly(Collection<LGKill> kills) {
-        orchestrator.state().mustBe(STARTED);
+        orchestrator.getState().mustBe(STARTED);
 
         playerKiller.applyKills(kills);
     }

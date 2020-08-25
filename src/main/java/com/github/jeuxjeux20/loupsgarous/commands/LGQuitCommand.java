@@ -25,7 +25,7 @@ public class LGQuitCommand implements HelperCommandRegisterer {
     }
 
     private void handle(CommandContext<Player> context, LGPlayer player, LGGameOrchestrator orchestrator) {
-        if (orchestrator.lobby().leave(player)) {
+        if (orchestrator.leave(player)) {
             context.reply(ChatColor.GREEN + "Vous avez quitté la partie.");
         } else {
             context.reply(ChatColor.RED + "Impossible de quitter la partie.");

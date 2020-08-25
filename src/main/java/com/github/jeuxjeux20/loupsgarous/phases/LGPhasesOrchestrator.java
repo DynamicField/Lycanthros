@@ -1,6 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
-import com.github.jeuxjeux20.loupsgarous.game.*;
+import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.phases.descriptor.LGPhaseDescriptor;
 import com.github.jeuxjeux20.loupsgarous.phases.overrides.PhaseOverride;
 import com.github.jeuxjeux20.loupsgarous.util.FutureExceptionUtils;
@@ -22,7 +25,7 @@ import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.
 
 @OrchestratorScoped
 public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
-    private final LinkedList<RunnableLGPhase.Factory<?>> phases;
+    private  LinkedList<RunnableLGPhase.Factory<?>> phases;
     private final LGPhaseDescriptor.Registry descriptorRegistry;
     private ListIterator<RunnableLGPhase.Factory<?>> phaseIterator;
     private @Nullable RunnableLGPhase currentPhase;
@@ -33,18 +36,18 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
     LGPhasesOrchestrator(LGGameOrchestrator orchestrator,
                          LGPhaseDescriptor.Registry descriptorRegistry) {
         super(orchestrator);
-        this.phases = getPhaseFactories(orchestrator);
+        this.phases = getPhaseFactories();
         this.descriptorRegistry = descriptorRegistry;
         this.phaseIterator = this.phases.listIterator();
-        this.phaseOverrides = orchestrator.bundle().contents(PHASE_OVERRIDES);
+        this.phaseOverrides = orchestrator.getBundle().contents(PHASE_OVERRIDES);
         this.logger = orchestrator.logger();
 
         bind(new CurrentPhaseTerminable());
     }
 
-    private LinkedList<RunnableLGPhase.Factory<?>> getPhaseFactories(LGGameOrchestrator orchestrator) {
-        return orchestrator.bundle().contents(PHASES).stream()
-                .map(c -> (RunnableLGPhase.Factory<?>) o -> o.create(c))
+    private LinkedList<RunnableLGPhase.Factory<?>> getPhaseFactories() {
+        return orchestrator.getBundle().contents(PHASES).stream()
+                .map(c -> (RunnableLGPhase.Factory<?>) o -> o.resolve(c))
                 .collect(Collectors.toCollection(LinkedList::new));
     }
 

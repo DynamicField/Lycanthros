@@ -16,7 +16,7 @@ public final class CardRevealerHandler implements ExtensionPointHandler {
     }
 
     public boolean willReveal(LGPlayer viewer, LGPlayer playerToReveal) {
-        for (CardRevealer cardRevealer : orchestrator.bundle().contents(CARD_REVEALERS)) {
+        for (CardRevealer cardRevealer : orchestrator.getBundle().contents(CARD_REVEALERS)) {
             if (cardRevealer.willReveal(viewer, playerToReveal, orchestrator)) {
                 return true;
             }

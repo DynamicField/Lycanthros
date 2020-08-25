@@ -69,7 +69,7 @@ public class VoteStructure implements Structure {
     }
 
     private BuildingContext createBuildingContext() {
-        List<LGPlayer> players = orchestrator.game().getPlayers().stream()
+        List<LGPlayer> players = orchestrator.getPlayers().stream()
                 .filter(Check.predicate(vote.conditions()::checkTarget))
                 .collect(Collectors.toList());
         LGPlayer elected = vote.getOutcome().getElected().orElse(null);
@@ -162,7 +162,7 @@ public class VoteStructure implements Structure {
         }
 
         private void handleEntityInteraction(PlayerInteractAtEntityEvent event) {
-            LGPlayer player = orchestrator.game().getPlayer(event.getPlayer().getUniqueId())
+            LGPlayer player = orchestrator.getPlayer(event.getPlayer().getUniqueId())
                     .orElse(null);
 
             if (player == null) {

@@ -1,5 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.bossbar;
 
+import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
+import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
@@ -67,7 +69,7 @@ public class LGBossBarManager extends AbstractOrchestratorComponent {
                     .handler(e -> update())
                     .bindWith(consumer);
 
-            Events.subscribe(LGPhaseStartedEvent.class)
+            Events.merge(LGEvent.class, LGPhaseStartedEvent.class, LGPlayerQuitEvent.class)
                     .filter(orchestrator::isMyEvent)
                     .handler(e -> update())
                     .bindWith(consumer);

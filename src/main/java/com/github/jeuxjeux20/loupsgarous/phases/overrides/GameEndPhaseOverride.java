@@ -8,7 +8,7 @@ import com.github.jeuxjeux20.loupsgarous.phases.RunnableLGPhase;
 public class GameEndPhaseOverride implements PhaseOverride {
     @Override
     public boolean shouldOverride(LGGameOrchestrator orchestrator) {
-        return orchestrator.state() == LGGameState.FINISHED;
+        return orchestrator.getState() == LGGameState.FINISHED;
     }
 
     @Override

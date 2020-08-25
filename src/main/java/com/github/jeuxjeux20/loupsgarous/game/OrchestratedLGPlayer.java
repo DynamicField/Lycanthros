@@ -31,7 +31,7 @@ public class OrchestratedLGPlayer implements LGPlayer {
     private final Set<LGTeam> implicitCardTeams = new HashSet<>();
     private final ClassToInstanceMap<LGPower> implicitCardPowers = MutableClassToInstanceMap.create();
 
-    public OrchestratedLGPlayer(UUID playerUUID, LGGameOrchestrator orchestrator) {
+    OrchestratedLGPlayer(UUID playerUUID, LGGameOrchestrator orchestrator) {
         this.playerUUID = playerUUID;
         this.orchestrator = orchestrator;
     }
@@ -71,7 +71,7 @@ public class OrchestratedLGPlayer implements LGPlayer {
 
             @Override
             public boolean add(LGTeam item) {
-                orchestrator.state().mustBe(LGGameState.STARTED);
+                orchestrator.getState().mustBe(LGGameState.STARTED);
 
                 // Mark our team as explicit.
                 implicitCardTeams.remove(item);
@@ -86,7 +86,7 @@ public class OrchestratedLGPlayer implements LGPlayer {
 
             @Override
             public boolean remove(LGTeam item) {
-                orchestrator.state().mustBe(LGGameState.STARTED);
+                orchestrator.getState().mustBe(LGGameState.STARTED);
 
                 implicitCardTeams.remove(item);
 
@@ -105,7 +105,7 @@ public class OrchestratedLGPlayer implements LGPlayer {
 
             @Override
             public boolean add(LGTag item) {
-                orchestrator.state().mustBe(LGGameState.STARTED);
+                orchestrator.getState().mustBe(LGGameState.STARTED);
 
                 return tags.add(item);
             }
@@ -117,7 +117,7 @@ public class OrchestratedLGPlayer implements LGPlayer {
 
             @Override
             public boolean remove(LGTag item) {
-                orchestrator.state().mustBe(LGGameState.STARTED);
+                orchestrator.getState().mustBe(LGGameState.STARTED);
 
                 return tags.remove(item);
             }
@@ -148,7 +148,7 @@ public class OrchestratedLGPlayer implements LGPlayer {
 
             @Override
             public void put(LGPower power) {
-                orchestrator.state().mustBe(LGGameState.STARTED);
+                orchestrator.getState().mustBe(LGGameState.STARTED);
 
                 implicitCardPowers.remove(power.getClass());
 
@@ -162,7 +162,7 @@ public class OrchestratedLGPlayer implements LGPlayer {
 
             @Override
             public boolean remove(Class<? extends LGPower> powerClass) {
-                orchestrator.state().mustBe(LGGameState.STARTED);
+                orchestrator.getState().mustBe(LGGameState.STARTED);
 
                 implicitCardPowers.remove(powerClass);
 

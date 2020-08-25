@@ -11,7 +11,7 @@ import org.bukkit.event.Listener;
 public class TellPlayerCardListener implements Listener {
     @EventHandler
     public void onGameStart(LGGameStartEvent event) {
-        event.getGame().getPlayers().forEach(this::sendMessage);
+        event.getOrchestrator().getPlayers().forEach(this::sendMessage);
     }
 
     private void sendMessage(LGPlayer player, Player minecraftPlayer) {

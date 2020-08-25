@@ -15,7 +15,7 @@ public final class RevealAllKillsPhase extends LogicLGPhase {
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.game().getTurn().getTime() == LGGameTurnTime.DAY;
+        return orchestrator.getTurn().getTime() == LGGameTurnTime.DAY;
     }
 
     @Override

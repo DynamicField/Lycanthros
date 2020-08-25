@@ -21,7 +21,7 @@ public class KillCoupleOnPartnerDeadListener implements Listener {
             Optional<LGTeam> coupleTeam = whoDied.teams().get().stream().filter(LGTeams::isCouple).findFirst();
 
             coupleTeam.ifPresent(team -> {
-                Stream<LGPlayer> partners = event.getGame().getAlivePlayers()
+                Stream<LGPlayer> partners = event.getOrchestrator().getAlivePlayers()
                         .filter(x -> x.teams().get().contains(team));
 
                 partners.forEach(partner -> killPartner(partner, whoDied));

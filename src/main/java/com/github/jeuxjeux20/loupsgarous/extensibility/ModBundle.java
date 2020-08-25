@@ -29,14 +29,6 @@ public final class ModBundle {
         ));
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static Builder builder(ModBundle bundle) {
-        return new Builder(bundle);
-    }
-
     public ImmutableMap<Mod, ModData> getMods() {
         return mods;
     }
@@ -70,11 +62,45 @@ public final class ModBundle {
         return builder.build();
     }
 
-    public ModBundle transform(Consumer<Builder> builderConsumer) {
-        Builder builder = builder(this);
-        builderConsumer.accept(builder);
+    public ModBundle transform(Consumer<Transformer> transformerConsumer) {
+        Transformer transformer = new Transformer(this);
+        transformerConsumer.accept(transformer);
 
-        return builder.build();
+        return transformer.createBundle();
+    }
+
+    public static final class Transformer {
+        private final Map<Mod, ModData> mods;
+
+        Transformer(ModBundle modBundle) {
+            this.mods = new HashMap<>(modBundle.mods);
+        }
+
+        public void enable(Mod mod) {
+            mods.compute(mod, (m, d) -> d == null ?
+                    ModData.fromMod(m, true) :
+                    d.withEnabled(true));
+        }
+
+        public void disable(Mod mod) {
+            mods.compute(mod, (m, d) -> d == null ?
+                    ModData.fromMod(m, false) :
+                    d.withEnabled(false));
+        }
+
+        public void configureIfPresent(Mod mod, ConfigurationNode configuration) {
+            mods.computeIfPresent(mod, (m, d) -> d.withConfiguration(configuration));
+        }
+
+        public void configure(Mod mod, ConfigurationNode configuration, boolean enabledIfAbsent) {
+            mods.compute(mod, (m, d) -> d == null ?
+                    new ModData(enabledIfAbsent, configuration) :
+                    d.withConfiguration(configuration));
+        }
+
+        public ModBundle createBundle() {
+            return new ModBundle(mods);
+        }
     }
 
     public static class ModData {
@@ -104,44 +130,6 @@ public final class ModBundle {
 
         public ModData withConfiguration(ConfigurationNode configuration) {
             return new ModData(this.enabled, configuration);
-        }
-    }
-
-    public static class Builder {
-        private final Map<Mod, ModData> mods;
-
-        public Builder(ModBundle bundle) {
-            this.mods = new HashMap<>(bundle.getMods());
-        }
-
-        public Builder() {
-            this.mods = new HashMap<>();
-        }
-
-        public Builder put(Mod mod, ModData data) {
-            mods.put(mod, data);
-            return this;
-        }
-
-        public Builder put(Mod mod, boolean enabled, ConfigurationNode configurationNode) {
-            return put(mod, new ModData(enabled, configurationNode));
-        }
-
-        public Builder put(Mod mod, boolean enabled) {
-            return put(mod, enabled, mod.getDefaultConfiguration());
-        }
-
-        public Builder put(Mod mod) {
-            return put(mod, true);
-        }
-
-        public Builder remove(Mod mod) {
-            mods.remove(mod);
-            return this;
-        }
-
-        public ModBundle build() {
-            return new ModBundle(mods);
         }
     }
 }

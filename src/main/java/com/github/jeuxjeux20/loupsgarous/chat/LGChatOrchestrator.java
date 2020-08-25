@@ -80,7 +80,7 @@ public class LGChatOrchestrator extends AbstractOrchestratorComponent {
     }
 
     private void sendMessageInternal(LGChatChannel channel, BiConsumer<? super LGPlayer, ? super Player> messageSender) {
-        for (LGPlayer player : orchestrator.game().getPlayers()) {
+        for (LGPlayer player : orchestrator.getPlayers()) {
             player.minecraft(minecraftPlayer -> {
                 if (!channel.isReadable(player)) return;
 
@@ -121,7 +121,7 @@ public class LGChatOrchestrator extends AbstractOrchestratorComponent {
     }
 
     private void handlePlayerSendMessage(AsyncPlayerChatEvent event) {
-        orchestrator.game().getPlayer(event.getPlayer().getUniqueId()).ifPresent(player -> {
+        orchestrator.getPlayer(event.getPlayer().getUniqueId()).ifPresent(player -> {
             event.setCancelled(true);
 
             String message = event.getMessage();

@@ -1,6 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.commands;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGame;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.PaginationUtils;
@@ -45,10 +44,9 @@ public class LGListCommand implements HelperCommandRegisterer {
 
                     PaginationUtils.in(gameManager.getAll(), page, itemsPerPage).forEach(x -> {
                         LGGameOrchestrator orchestrator = x.getValue();
-                        LGGame game = orchestrator.game();
 
                         long gameNumber = x.getIndex() + 1;
-                        String gameId = orchestrator.game().getId();
+                        String gameId = orchestrator.getId();
 
                         messageBuilder.append(ChatColor.RESET)
                                 .append(gameNumber)
@@ -57,9 +55,9 @@ public class LGListCommand implements HelperCommandRegisterer {
                                 .append(gameId)
                                 .append(ChatColor.BLUE)
                                 .append(" (")
-                                .append(game.getAlivePlayers().count())
+                                .append(orchestrator.getAlivePlayers().count())
                                 .append('/')
-                                .append(game.getPlayers().size())
+                                .append(orchestrator.getPlayers().size())
                                 .append(')')
                                 .append('\n');
                     });

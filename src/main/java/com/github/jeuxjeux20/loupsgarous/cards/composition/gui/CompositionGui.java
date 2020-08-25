@@ -9,6 +9,7 @@ import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.Compositio
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator.Problem;
 import com.github.jeuxjeux20.loupsgarous.extensibility.GameBundle;
 import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
+import com.github.jeuxjeux20.loupsgarous.extensibility.ModBundle;
 import com.github.jeuxjeux20.loupsgarous.extensibility.PatateMod;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.inject.Inject;
@@ -69,11 +70,11 @@ public final class CompositionGui extends Gui {
 
         bind(Disposable.toAutoCloseable(
                 orchestrator.observeBundle()
-                        .startWithItem(orchestrator.bundle())
+                        .startWithItem(orchestrator.getBundle())
                         .subscribe(this::updateCards)
         ));
 
-        this.compositionValidator = orchestrator.bundle().handler(LGExtensionPoints.COMPOSITION_VALIDATORS);
+        this.compositionValidator = orchestrator.getBundle().handler(LGExtensionPoints.COMPOSITION_VALIDATORS);
     }
 
     @Override
@@ -84,8 +85,11 @@ public final class CompositionGui extends Gui {
 
         // TODO: Remove this crappy test.
         setItems(ItemStackBuilder.of(Material.POTATO)
-                .build(() -> orchestrator.lobby().mods()
-                        .update(modBundle -> modBundle.transform(builder -> builder.put(patateMod)))), 30);
+                .build(() -> {
+                    ModBundle modBundle = orchestrator.getModBundle();
+                    ModBundle newModBundle = modBundle.transform(t -> t.enable(patateMod));
+                    orchestrator.setModBundle(newModBundle);
+                }), 30);
     }
 
     private void drawTopBarGlass() {
@@ -206,11 +210,11 @@ public final class CompositionGui extends Gui {
     }
 
     private ImmutableComposition getComposition() {
-        return orchestrator.lobby().composition().get();
+        return orchestrator.getComposition();
     }
 
     private void updateComposition(Composition composition) {
-        orchestrator.lobby().composition().update(composition);
+        orchestrator.setComposition(composition);
     }
 
     private void updateCards(GameBundle bundle) {

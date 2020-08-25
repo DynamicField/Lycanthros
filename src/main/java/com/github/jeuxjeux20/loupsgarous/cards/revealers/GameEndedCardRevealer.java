@@ -7,6 +7,6 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 public final class GameEndedCardRevealer implements CardRevealer {
     @Override
     public boolean willReveal(LGPlayer viewer, LGPlayer playerToReveal, LGGameOrchestrator orchestrator) {
-        return orchestrator.state() == LGGameState.FINISHED;
+        return orchestrator.getState() == LGGameState.FINISHED;
     }
 }

@@ -20,7 +20,7 @@ public final class TeamRevealerHandler implements ExtensionPointHandler {
     }
 
     public ImmutableSet<LGTeam> getTeamsRevealed(LGPlayer viewer, LGPlayer playerToReveal) {
-        return orchestrator.bundle().contents(TEAM_REVEALERS).stream()
+        return orchestrator.getBundle().contents(TEAM_REVEALERS).stream()
                 .flatMap(x -> x.getTeamsRevealed(viewer, playerToReveal, orchestrator).stream())
                 .filter(playerToReveal.teams().get()::contains)
                 .collect(ImmutableSet.toImmutableSet());

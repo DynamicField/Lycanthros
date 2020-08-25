@@ -35,13 +35,13 @@ public class VoyanteDuskAction extends DuskAction {
 
     @Override
     protected boolean shouldRun() {
-        return orchestrator.game().getPlayers().stream()
+        return orchestrator.getPlayers().stream()
                 .anyMatch(Check.predicate(look.conditions()::checkPicker));
     }
 
     @Override
     protected void onDuskStart() {
-        orchestrator.game().getPlayers().stream()
+        orchestrator.getPlayers().stream()
                 .filter(Check.predicate(look.conditions()::checkPicker))
                 .map(LGPlayer::minecraft)
                 .flatMap(OptionalUtils::stream)

@@ -47,7 +47,7 @@ public class LGScoreboardManager extends AbstractOrchestratorComponent {
         Events.merge(LGEvent.class, classes) // Safe because of getUpdateTriggers().
                 .filter(orchestrator::isMyEvent)
                 .handler(e -> {
-                    for (LGPlayer player : e.getGame().getPlayers()) {
+                    for (LGPlayer player : e.getOrchestrator().getPlayers()) {
                         updatePlayer(player);
                     }
                 })

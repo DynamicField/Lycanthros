@@ -12,7 +12,7 @@ import org.bukkit.event.Listener;
 public class PlayerDiesOnKillListener implements Listener {
     @EventHandler
     public void onLGKill(LGKillEvent event) {
-        World world = event.getOrchestrator().world();
+        World world = event.getOrchestrator().getWorld();
         for (LGKill kill : event.getKills()) {
             LGPlayer victim = kill.getVictim();
 

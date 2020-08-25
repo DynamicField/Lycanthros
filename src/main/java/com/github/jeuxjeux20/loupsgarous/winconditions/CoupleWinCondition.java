@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.winconditions;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGame;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.endings.CoupleWonEnding;
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 
 public final class CoupleWinCondition implements WinCondition {
     @Override
-    public Optional<LGEnding> check(LGGame game) {
-        List<LGPlayer> alivePlayers = game.getAlivePlayers().collect(Collectors.toList());
+    public Optional<LGEnding> check(LGGameOrchestrator orchestrator) {
+        List<LGPlayer> alivePlayers = orchestrator.getAlivePlayers().collect(Collectors.toList());
         CoupleTeam couple = null;
 
         // Note that this approach will not work if there are

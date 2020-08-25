@@ -46,7 +46,7 @@ public class LGJoinCommand implements HelperCommandRegisterer {
                     }
 
                     try {
-                        maybeGame.get().lobby().join(c.sender());
+                        maybeGame.get().join(c.sender());
                     } catch (PlayerJoinException e) {
                         c.reply("&cImpossible de rejoindre la partie: " + e.getLocalizedMessage());
                     }

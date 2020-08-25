@@ -8,8 +8,8 @@ import com.github.jeuxjeux20.loupsgarous.phases.RunnableLGPhase;
 public class GameStartPhaseOverride implements PhaseOverride {
     @Override
     public boolean shouldOverride(LGGameOrchestrator orchestrator) {
-        return orchestrator.state() == LGGameState.WAITING_FOR_PLAYERS ||
-               orchestrator.state() == LGGameState.READY_TO_START;
+        return orchestrator.getState() == LGGameState.WAITING_FOR_PLAYERS ||
+               orchestrator.getState() == LGGameState.READY_TO_START;
     }
 
     @Override

@@ -57,13 +57,13 @@ public final class SorcierePotionPhase extends CountdownLGPhase {
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.game().getPlayers().stream().anyMatch(Check.predicate(baseConditions::canAct)) &&
-               orchestrator.game().getTurn().getTime() == LGGameTurnTime.NIGHT;
+        return orchestrator.getPlayers().stream().anyMatch(Check.predicate(baseConditions::canAct)) &&
+               orchestrator.getTurn().getTime() == LGGameTurnTime.NIGHT;
     }
 
     @Override
     protected void start() {
-        orchestrator.game().getPlayers().stream()
+        orchestrator.getPlayers().stream()
                 .filter(Check.predicate(baseConditions::canAct))
                 .forEach(this::sendNotification);
     }

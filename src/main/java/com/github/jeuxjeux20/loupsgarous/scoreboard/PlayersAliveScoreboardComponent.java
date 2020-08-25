@@ -12,7 +12,7 @@ public class PlayersAliveScoreboardComponent implements ScoreboardComponent {
 
         return ImmutableList.of(
                 new Line(ChatColor.AQUA + "Joueurs en vie : " +
-                         ChatColor.BOLD + orchestrator.game().getAlivePlayers().count())
+                         ChatColor.BOLD + orchestrator.getAlivePlayers().count())
         );
     }
 }

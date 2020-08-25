@@ -13,9 +13,6 @@ public final class OrchestratorScope implements Scope {
                                                 "not running in an OrchestratorScope.");
             };
 
-    private static final Key<InternalLGGameOrchestrator> MUTABLE_ORCHESTRATOR_KEY =
-            Key.get(InternalLGGameOrchestrator.class);
-
     private static final Key<LGGameOrchestrator> ORCHESTRATOR_KEY =
             Key.get(LGGameOrchestrator.class);
 
@@ -81,9 +78,6 @@ public final class OrchestratorScope implements Scope {
     private Map<Key<?>, Object> createInitialMap(LGGameOrchestrator orchestrator) {
         HashMap<Key<?>, Object> map = new HashMap<>();
         map.put(ORCHESTRATOR_KEY, orchestrator);
-        if (orchestrator instanceof InternalLGGameOrchestrator) {
-            map.put(MUTABLE_ORCHESTRATOR_KEY, orchestrator);
-        }
         return map;
     }
 

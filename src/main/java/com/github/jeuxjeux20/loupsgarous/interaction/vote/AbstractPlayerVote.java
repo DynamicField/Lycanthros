@@ -41,7 +41,7 @@ public abstract class AbstractPlayerVote extends AbstractVote<LGPlayer> {
     }
 
     public Stream<LGPlayer> getEligibleTargets() {
-        return orchestrator.game().getPlayers().stream().filter(Check.predicate(conditions()::checkTarget));
+        return orchestrator.getPlayers().stream().filter(Check.predicate(conditions()::checkTarget));
     }
 
     protected String getTargetDeadError(LGPlayer target) {

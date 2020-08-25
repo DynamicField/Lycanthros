@@ -50,7 +50,7 @@ public final class LoupGarouVotePhase extends CountdownLGPhase {
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.game().getTurn().getTime() == LGGameTurnTime.NIGHT &&
+        return orchestrator.getTurn().getTime() == LGGameTurnTime.NIGHT &&
                votable.canSomeonePick();
     }
 
@@ -62,7 +62,7 @@ public final class LoupGarouVotePhase extends CountdownLGPhase {
     }
 
     private void howl() {
-        orchestrator.game().getPlayers().stream()
+        orchestrator.getPlayers().stream()
                 .filter(voteChannel::isReadable)
                 .map(LGPlayer::minecraft)
                 .flatMap(OptionalUtils::stream)

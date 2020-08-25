@@ -29,11 +29,12 @@ public class LGLobbyCommand implements HelperCommandRegisterer {
     }
 
     private void handle(CommandContext<Player> context, LGPlayer player, LGGameOrchestrator orchestrator) {
-        if (orchestrator.lobby().isLocked()) {
+        if (orchestrator.isLocked()) {
             context.reply(error("La partie a déjà commencé."));
             return;
         }
-        if (orchestrator.lobby().getOwner().getPlayerUUID() != context.sender().getUniqueId()) {
+        if (orchestrator.getOwner() != null &&
+            orchestrator.getOwner().getPlayerUUID() != context.sender().getUniqueId()) {
             context.reply(error("Vous n'êtes pas le maître de la partie."));
             return;
         }

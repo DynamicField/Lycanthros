@@ -14,9 +14,5 @@ public final class OrchestratorScopeModule extends AbstractModule {
         bind(LGGameOrchestrator.class)
                 .toProvider(OrchestratorScope.seededKeyProvider())
                 .in(OrchestratorScoped.class);
-
-        bind(InternalLGGameOrchestrator.class)
-                .toProvider(OrchestratorScope.seededKeyProvider())
-                .in(OrchestratorScoped.class);
     }
 }
