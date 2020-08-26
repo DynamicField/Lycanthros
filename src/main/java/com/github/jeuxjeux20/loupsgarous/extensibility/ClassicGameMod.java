@@ -18,6 +18,10 @@ import com.github.jeuxjeux20.loupsgarous.scoreboard.LobbyOwnerScoreboardComponen
 import com.github.jeuxjeux20.loupsgarous.scoreboard.PlayersAliveScoreboardComponent;
 import com.github.jeuxjeux20.loupsgarous.tags.revealers.MaireTagRevealer;
 import com.github.jeuxjeux20.loupsgarous.teams.revealers.LoupsGarousTeamRevealer;
+import com.github.jeuxjeux20.loupsgarous.winconditions.CoupleWinCondition;
+import com.github.jeuxjeux20.loupsgarous.winconditions.EveryoneDeadWinCondition;
+import com.github.jeuxjeux20.loupsgarous.winconditions.LoupsGarousWinCondition;
+import com.github.jeuxjeux20.loupsgarous.winconditions.VillageWinCondition;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -85,7 +89,12 @@ public class ClassicGameMod extends AbstractMod {
                         new CurrentVotesScoreboardComponent()),
                 extend(INVENTORY_ITEMS,
                         editLobbyItem,
-                        new QuitGameItem())
+                        new QuitGameItem()),
+                extend(WIN_CONDITIONS,
+                        new EveryoneDeadWinCondition(),
+                        new CoupleWinCondition(),
+                        new LoupsGarousWinCondition(),
+                        new VillageWinCondition())
         );
     }
 }

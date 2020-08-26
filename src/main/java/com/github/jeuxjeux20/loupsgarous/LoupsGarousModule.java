@@ -20,7 +20,6 @@ import com.github.jeuxjeux20.loupsgarous.signs.LGSignsModule;
 import com.github.jeuxjeux20.loupsgarous.phases.LGPhasesModule;
 import com.github.jeuxjeux20.loupsgarous.tags.LGTagsModule;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeamsModule;
-import com.github.jeuxjeux20.loupsgarous.winconditions.LGWinConditionsModule;
 import me.lucko.helper.plugin.HelperPlugin;
 
 import java.util.Random;
@@ -46,7 +45,6 @@ public final class LoupsGarousModule extends PluginModule {
         install(new LGChatModule());
         install(new LGScoreboardModule());
         install(new LGLobbyModule());
-        install(new LGWinConditionsModule());
         install(new LGInteractionModule());
         install(new LGTeamsModule());
         install(new LGSignsModule());

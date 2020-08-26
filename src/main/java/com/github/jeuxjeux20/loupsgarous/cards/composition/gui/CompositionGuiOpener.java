@@ -20,7 +20,7 @@ public class CompositionGuiOpener {
     }
 
     public void open(LGGameOrchestrator orchestrator) {
-        if (orchestrator.isLocked()) {
+        if (!orchestrator.allowsJoin()) {
             throw new IllegalStateException("The lobby is locked.");
         }
 

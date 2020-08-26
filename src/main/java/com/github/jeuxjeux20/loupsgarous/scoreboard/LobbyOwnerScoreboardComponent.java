@@ -10,7 +10,7 @@ import org.bukkit.ChatColor;
 public class LobbyOwnerScoreboardComponent implements ScoreboardComponent {
     @Override
     public ImmutableList<Line> render(LGPlayer player, LGGameOrchestrator orchestrator) {
-        if (orchestrator.isLocked()) return ImmutableList.of();
+        if (!orchestrator.allowsJoin()) return ImmutableList.of();
 
         LGPlayer owner = orchestrator.getOwner();
 

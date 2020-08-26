@@ -16,6 +16,7 @@ import com.github.jeuxjeux20.loupsgarous.tags.revealers.TagRevealer;
 import com.github.jeuxjeux20.loupsgarous.tags.revealers.TagRevealerHandler;
 import com.github.jeuxjeux20.loupsgarous.teams.revealers.TeamRevealer;
 import com.github.jeuxjeux20.loupsgarous.teams.revealers.TeamRevealerHandler;
+import com.github.jeuxjeux20.loupsgarous.winconditions.WinCondition;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -53,6 +54,9 @@ public final class LGExtensionPoints {
 
     public static final ExtensionPoint<InventoryItem> INVENTORY_ITEMS =
             new ExtensionPoint<>("inventory_items", InventoryItem.class);
+
+    public static final ExtensionPoint<WinCondition> WIN_CONDITIONS =
+            new ExtensionPoint<>("win_conditions", WinCondition.class);
 
     private static final LoadingCache<Class<? extends Descriptor<?>>, ExtensionPoint<DescriptorProcessor<?>>>
             DESCRIPTOR_PROCESSOR_CACHE =

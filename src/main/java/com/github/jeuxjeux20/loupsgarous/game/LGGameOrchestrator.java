@@ -191,7 +191,7 @@ public interface LGGameOrchestrator extends TerminableConsumer {
         return leave(player.getPlayerUUID());
     }
 
-    boolean isLocked();
+    boolean allowsJoin();
 
     ImmutableComposition getComposition();
 

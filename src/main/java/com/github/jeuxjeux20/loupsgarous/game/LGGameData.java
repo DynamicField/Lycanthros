@@ -122,7 +122,11 @@ final class LGGameData {
 
     public void removePlayer(UUID playerUUID) {
         if (owner.getPlayerUUID() == playerUUID) {
-            owner = null;
+            if (playersByUUID.isEmpty()) {
+                owner = null;
+            } else {
+                owner = playersByUUID.values().iterator().next();
+            }
         }
         playersByUUID.remove(playerUUID);
     }

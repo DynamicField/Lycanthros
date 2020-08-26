@@ -23,7 +23,7 @@ public class EditLobbyItem implements InventoryItem {
 
     @Override
     public boolean isShown(LGPlayer player, LGGameOrchestrator orchestrator) {
-        return orchestrator.getOwner() == player && !orchestrator.isLocked();
+        return orchestrator.getOwner() == player && orchestrator.allowsJoin();
     }
 
     @Override

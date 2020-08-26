@@ -81,7 +81,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
         @Override
         protected void setNewValue(ModBundle value) {
-            if (isLocked()) {
+            if (!allowsJoin()) {
                 throw new IllegalStateException("The game is locked.");
             }
             gameData.setMods(value);
@@ -245,7 +245,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
             throw new PermissionMissingException(permission, player);
         }
 
-        if (isLocked()) {
+        if (!allowsJoin()) {
             throw InaccessibleLobbyException.lobbyLocked();
         } else if (getSlotsTaken() == getTotalSlotCount()) {
             throw InaccessibleLobbyException.lobbyFull();
@@ -283,12 +283,8 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         if (player == null) return false;
 
         player.goAway();
-        if (!isLocked()) {
+        if (allowsJoin()) {
             gameData.removePlayer(playerUUID);
-        }
-
-        if (gameData.getOwner() == null) {
-            putRandomOwner();
         }
 
         player.minecraftNoContext(lobbyTeleporter::teleportPlayerOut);
@@ -296,7 +292,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         if (isGameRunning() && player.isAlive()) {
             player.die(PlayerQuitKillCause.INSTANCE);
         }
-        if (!isLocked()) {
+        if (allowsJoin()) {
             chat().sendToEveryone(player(player.getName()) + lobbyMessage(" a quitté la partie ! ") +
                                   slots(getSlotsDisplay()));
         }
@@ -304,17 +300,11 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         Events.call(new LGPlayerQuitEvent(this, playerUUID, player));
 
         // Are they all gone?
-        if (!deleteIfEmpty() && !isLocked()) {
+        if (!deleteIfEmpty() && allowsJoin()) {
             updateLobbyState();
         }
 
         return true;
-    }
-
-    private void putRandomOwner() {
-        if (!isEmpty()) {
-            setOwner(gameData.getPlayers().iterator().next());
-        }
     }
 
     @Override
@@ -323,10 +313,10 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     }
 
     @Override
-    public boolean isLocked() {
-        return this.getState() != LGGameState.UNINITIALIZED &&
-               this.getState() != LGGameState.WAITING_FOR_PLAYERS &&
-               this.getState() != LGGameState.READY_TO_START;
+    public boolean allowsJoin() {
+        return this.getState() == LGGameState.UNINITIALIZED ||
+               this.getState() == LGGameState.WAITING_FOR_PLAYERS ||
+               this.getState() == LGGameState.READY_TO_START;
     }
 
     @Override
@@ -365,7 +355,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
     @Override
     public void setComposition(Composition composition) {
-        Preconditions.checkArgument(!isLocked(),
+        Preconditions.checkArgument(allowsJoin(),
                 "Impossible to change the composition while the game is locked.");
 
         HashMultiset<LGCard> cards = HashMultiset.create(composition.getContents());

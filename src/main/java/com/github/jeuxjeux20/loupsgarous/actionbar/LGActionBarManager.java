@@ -122,7 +122,7 @@ public class LGActionBarManager extends AbstractOrchestratorComponent {
     private List<BaseComponent> createTimeComponents(LGPlayer player) {
         List<BaseComponent> components = new ArrayList<>();
 
-        if (!orchestrator.isLocked()) {
+        if (orchestrator.allowsJoin()) {
             TextComponent slotsComponent = new TextComponent(orchestrator.getSlotsDisplay());
             slotsComponent.setBold(true);
             slotsComponent.setColor(ChatColor.GREEN);

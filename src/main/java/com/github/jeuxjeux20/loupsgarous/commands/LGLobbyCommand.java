@@ -29,7 +29,7 @@ public class LGLobbyCommand implements HelperCommandRegisterer {
     }
 
     private void handle(CommandContext<Player> context, LGPlayer player, LGGameOrchestrator orchestrator) {
-        if (orchestrator.isLocked()) {
+        if (!orchestrator.allowsJoin()) {
             context.reply(error("La partie a déjà commencé."));
             return;
         }
