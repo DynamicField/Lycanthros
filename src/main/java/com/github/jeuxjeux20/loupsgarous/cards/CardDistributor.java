@@ -1,22 +1,13 @@
-package com.github.jeuxjeux20.loupsgarous.cards.distribution;
+package com.github.jeuxjeux20.loupsgarous.cards;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.google.common.base.Preconditions;
-import com.google.inject.Inject;
+import org.apache.commons.lang.math.RandomUtils;
 
 import java.util.*;
 
-public class RandomCardDistributor implements CardDistributor {
-    private final Random random;
-
-    @Inject
-    RandomCardDistributor(Random random) {
-        this.random = random;
-    }
-
-    @Override
+public class CardDistributor {
     public Map<LGPlayer, LGCard> distribute(Composition composition, Set<LGPlayer> players) {
         List<LGCard> cards = new ArrayList<>(composition.getContents());
 
@@ -34,7 +25,7 @@ public class RandomCardDistributor implements CardDistributor {
     }
 
     private LGCard getRandomCardAndRemove(List<LGCard> cards) {
-        int index = random.nextInt(cards.size());
+        int index = RandomUtils.nextInt(cards.size());
         LGCard randomCard = cards.get(index);
         cards.remove(index);
         return randomCard;

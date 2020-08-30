@@ -60,7 +60,9 @@ public class LGGameManager {
             throw new DuplicateIdentifierException("A game with the id '" + id + "' is already present.");
         }
 
-        LGGameOrchestrator orchestrator = orchestratorFactory.create(new LGGameBootstrapData(owner, composition, id));
+        LGGameOrchestrator orchestrator = orchestratorFactory.create(
+                new LGGameBootstrapData(owner, composition, id)
+        );
 
         orchestrator.initialize();
 

@@ -1,8 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
+import com.github.jeuxjeux20.loupsgarous.cards.CardDistributor;
 import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
-import com.github.jeuxjeux20.loupsgarous.cards.distribution.CardDistributor;
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.extensibility.ModBundle;
 import com.google.common.base.MoreObjects;
@@ -31,8 +31,9 @@ final class LGGameData {
         this.modBundle = modBundle;
     }
 
-    public void distributeCards(CardDistributor distributor, Composition composition) {
-        for (Map.Entry<LGPlayer, LGCard> entry : distributor.distribute(composition, getPlayers()).entrySet()) {
+    public void distributeCards(Composition composition) {
+        for (Map.Entry<LGPlayer, LGCard> entry :
+                new CardDistributor().distribute(composition, getPlayers()).entrySet()) {
             LGCard card = entry.getValue();
             LGPlayer player = ensurePresent(entry.getKey());
 

@@ -2,15 +2,21 @@ package com.github.jeuxjeux20.loupsgarous.extensibility;
 
 import com.github.jeuxjeux20.relativesorting.ElementSorter;
 import com.github.jeuxjeux20.relativesorting.OrderedElement;
+import com.github.jeuxjeux20.relativesorting.config.SortingConfiguration;
+import com.github.jeuxjeux20.relativesorting.config.UnresolvableClassHandling;
 import com.google.common.collect.*;
 
 import java.util.*;
 
 public final class GameBundle {
+    private static final SortingConfiguration SORTING_CONFIGURATION =
+            SortingConfiguration.builder()
+                    .unresolvableClassHandling(UnresolvableClassHandling.IGNORE)
+                    .build();
+
     private final ObjectFactory objectFactory;
 
     private final ImmutableSet<Extension<?>> extensions;
-    private final ImmutableMultimap<ExtensionPoint<?>, Extension<?>> extensionMap;
     private final ImmutableSetMultimap<ExtensionPoint<?>, Object> extensionContentsMap;
     private final Map<HandledExtensionPoint<?, ?>, ExtensionPointHandler> extensionPointHandlerMap =
             new HashMap<>();
@@ -18,25 +24,18 @@ public final class GameBundle {
     public GameBundle(Collection<Extension<?>> extensions, ObjectFactory objectFactory) {
         this.extensions = ImmutableSet.copyOf(extensions);
         this.objectFactory = objectFactory;
-        this.extensionMap = createExtensionMap(this.extensions);
         this.extensionContentsMap = createExtensionContentsMap(this.extensions);
-    }
-
-    @SuppressWarnings("ConstantConditions") // It cannot be null, IntelliJ is tripping :v
-    private ImmutableMultimap<ExtensionPoint<?>, Extension<?>> createExtensionMap(
-            Set<Extension<?>> extensions) {
-        return Multimaps.index(extensions, Extension::getExtensionPoint);
     }
 
     private ImmutableSetMultimap<ExtensionPoint<?>, Object> createExtensionContentsMap(
             Set<Extension<?>> extensions) {
-        LinkedHashMultimap<ExtensionPoint<?>, Object> unsortedMap = extensions.stream().collect(
-                Multimaps.flatteningToMultimap(
-                        Extension::getExtensionPoint,
-                        e -> e.getContents().stream(),
-                        LinkedHashMultimap::create
-                )
-        );
+        LinkedHashMultimap<ExtensionPoint<?>, Object> unsortedMap = LinkedHashMultimap.create();
+
+        for (Extension<?> extension : extensions) {
+            for (Object content : extension.getContents()) {
+                unsortedMap.put(extension.getExtensionPoint(), content);
+            }
+        }
 
         ImmutableSetMultimap.Builder<ExtensionPoint<?>, Object> builder =
                 ImmutableSetMultimap.builder();
@@ -52,10 +51,6 @@ public final class GameBundle {
 
     public ImmutableSet<Extension<?>> extensions() {
         return extensions;
-    }
-
-    public ImmutableCollection<Extension<?>> extensions(ExtensionPoint<?> extensionPoint) {
-        return extensionMap.get(extensionPoint);
     }
 
     @SuppressWarnings("unchecked")
@@ -77,6 +72,6 @@ public final class GameBundle {
             return OrderedElement.fromType(item.getClass(), item);
         });
 
-        return elementSorter.sort(items);
+        return elementSorter.sort(items, SORTING_CONFIGURATION);
     }
 }

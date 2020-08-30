@@ -8,7 +8,6 @@ import com.github.jeuxjeux20.loupsgarous.cards.VillageoisCard;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.ImmutableComposition;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator;
-import com.github.jeuxjeux20.loupsgarous.cards.distribution.CardDistributor;
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.event.*;
 import com.github.jeuxjeux20.loupsgarous.event.lobby.LGLobbyCompositionUpdateEvent;
@@ -48,6 +47,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -67,7 +67,6 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     private final OrchestratorLogger logger;
     private final LGGameManager gameManager;
     private final LobbyTeleporter lobbyTeleporter;
-    private final CardDistributor cardDistributor;
     private final OrchestratorScope scope;
     // Game state
     private final LGGameData gameData;
@@ -101,7 +100,6 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
                                 LoupsGarous plugin,
                                 LobbyTeleporter.Factory lobbyTeleporterFactory,
                                 LGGameManager gameManager,
-                                CardDistributor cardDistributor,
                                 OrchestratorScope scope,
                                 ModRegistry modRegistry,
                                 Provider<DelayedDependencies> delayedDependenciesProvider)
@@ -111,7 +109,6 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
             this.gameManager = gameManager;
             this.lobbyTeleporter = bind(lobbyTeleporterFactory.create());
             this.plugin = plugin;
-            this.cardDistributor = cardDistributor;
             this.scope = scope;
             this.delayedDependenciesProvider = delayedDependenciesProvider;
             this.logger = new OrchestratorLogger(bootstrapData.getId());
@@ -154,7 +151,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     public void start() {
         getState().mustBe(READY_TO_START);
 
-        gameData.distributeCards(cardDistributor, composition);
+        gameData.distributeCards(composition);
 
         changeStateTo(STARTED, LGGameStartEvent::new);
 
@@ -344,13 +341,18 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     }
 
     private void updateBundle(ModBundle modBundle) {
+        long startTime = System.nanoTime();
+
         GameBundle oldBundle = bundle.get();
         GameBundle newBundle = createBundle(modBundle);
 
         bundle.set(newBundle);
-        if (oldBundle != null) {
+        if (oldBundle != null && allowsJoin()) {
             removeBundleRemovedCards(oldBundle, newBundle);
         }
+
+        long elapsed = System.nanoTime() - startTime;
+        logger.info("GameBundle update took " + TimeUnit.NANOSECONDS.toMicros(elapsed) + "µs");
     }
 
     @Override
@@ -393,6 +395,10 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         Sets.SetView<LGCard> removedCards =
                 Sets.difference(oldBundle.contents(CARDS), newBundle.contents(CARDS));
 
+        if (removedCards.isEmpty()) {
+            return;
+        }
+
         ImmutableComposition newComposition = composition.with(cards -> {
             for (LGCard removedCard : removedCards) {
                 cards.remove(removedCard, Integer.MAX_VALUE);
@@ -403,6 +409,10 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     }
 
     private void validateComposition() {
+        if (!allowsJoin()) {
+            return;
+        }
+
         worseCompositionProblemType =
                 getBundle().handler(COMPOSITION_VALIDATORS).validate(composition).stream()
                         .map(CompositionValidator.Problem::getType)
