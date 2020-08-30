@@ -88,6 +88,16 @@ public final class ModBundle {
                     d.withEnabled(false));
         }
 
+        public void toggle(Mod mod) {
+            ModData modData = mods.get(mod);
+            if (modData == null) {
+                mods.put(mod, ModData.fromMod(mod, true));
+            } else {
+                boolean reverseEnabled = !modData.isEnabled();
+                mods.put(mod, modData.withEnabled(reverseEnabled));
+            }
+        }
+
         public void configureIfPresent(Mod mod, ConfigurationNode configuration) {
             mods.computeIfPresent(mod, (m, d) -> d.withConfiguration(configuration));
         }

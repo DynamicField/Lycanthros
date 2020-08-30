@@ -12,11 +12,6 @@ import org.bukkit.block.banner.PatternType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
-/**
- * La carte du villageois.
- * <p>
- * <img src="doc-files/villageois.jpg" width="128">
- */
 public final class VillageoisCard extends AbstractLGCard {
     public static final VillageoisCard INSTANCE = new VillageoisCard();
 

@@ -3,7 +3,6 @@ package com.github.jeuxjeux20.loupsgarous.phases.descriptor;
 import com.github.jeuxjeux20.loupsgarous.descriptor.DescriptorProcessor;
 import com.github.jeuxjeux20.loupsgarous.descriptor.ProcessedDescriptorFactory;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.phases.LGPhase;
 import com.github.jeuxjeux20.loupsgarous.phases.PhaseInfo;
 import com.github.jeuxjeux20.loupsgarous.winconditions.PostponesWinConditions;
@@ -15,7 +14,6 @@ import java.util.function.Consumer;
 
 import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.descriptorProcessors;
 
-@OrchestratorScoped
 class MinecraftLGPhaseDescriptorFactory
         extends ProcessedDescriptorFactory<LGPhaseDescriptor, LGPhase>
         implements LGPhaseDescriptor.Factory {

@@ -1,9 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.chat.listeners;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.UserFriendlyNamed;
-import com.github.jeuxjeux20.loupsgarous.chat.LGChatChannel;
+import com.github.jeuxjeux20.loupsgarous.chat.ChatChannel;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickEvent;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.PickData;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.Vote;
 import com.google.common.reflect.TypeToken;
@@ -21,7 +21,7 @@ public class TellPlayerVoteListener implements Listener {
 
     private void onVote(LGPickEvent event, PickData<?, ? extends Vote<?>> pickData) {
         Vote<?> vote = pickData.getSource();
-        LGChatChannel channel = vote.getInfoMessagesChannel();
+        ChatChannel channel = vote.getInfoMessagesChannel();
 
         LGPlayer picker = pickData.getPicker();
         Object target = pickData.getTarget();

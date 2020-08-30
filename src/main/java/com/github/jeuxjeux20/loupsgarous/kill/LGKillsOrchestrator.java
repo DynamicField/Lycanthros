@@ -10,7 +10,6 @@ import java.util.Collection;
 
 import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.STARTED;
 
-@OrchestratorScoped
 public class LGKillsOrchestrator extends AbstractOrchestratorComponent {
     private final PendingKillRegistry pendingKillRegistry;
     private final PlayerKiller playerKiller;

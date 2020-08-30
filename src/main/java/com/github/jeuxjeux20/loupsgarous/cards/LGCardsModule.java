@@ -2,24 +2,12 @@ package com.github.jeuxjeux20.loupsgarous.cards;
 
 import com.github.jeuxjeux20.loupsgarous.cards.composition.LGCardCompositionModule;
 import com.github.jeuxjeux20.loupsgarous.cards.distribution.LGCardDistributionModule;
-import com.github.jeuxjeux20.loupsgarous.cards.revealers.LGCardRevealersModule;
+import com.google.inject.AbstractModule;
 
-public final class LGCardsModule extends CardsModule {
+public final class LGCardsModule extends AbstractModule {
     @Override
-    protected void configureBindings() {
+    protected void configure() {
         install(new LGCardCompositionModule());
-        install(new LGCardRevealersModule());
         install(new LGCardDistributionModule());
-    }
-
-    @Override
-    protected void configureCards() {
-        addCard(ChasseurCard.INSTANCE);
-        addCard(CupidonCard.INSTANCE);
-        addCard(LoupGarouCard.INSTANCE);
-        addCard(PetiteFilleCard.INSTANCE);
-        addCard(SorciereCard.INSTANCE);
-        addCard(VillageoisCard.INSTANCE);
-        addCard(VoyanteCard.INSTANCE);
     }
 }

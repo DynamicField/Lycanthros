@@ -1,20 +1,21 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
-import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.Countdown;
+import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
+import com.github.jeuxjeux20.loupsgarous.event.lobby.LGLobbyCompositionUpdateEvent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
-import com.github.jeuxjeux20.loupsgarous.event.lobby.LGLobbyCompositionUpdateEvent;
 import com.google.inject.Inject;
+import me.lucko.helper.Events;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 
 public final class GameStartPhase extends CountdownLGPhase {
     @Inject
     GameStartPhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
+
+        registerEventListeners();
     }
 
     @Override
@@ -22,15 +23,10 @@ public final class GameStartPhase extends CountdownLGPhase {
         return new GameStartCountdown();
     }
 
-    static class ResetTimerListener implements Listener {
-        @EventHandler(ignoreCancelled = true)
-        public void onLGLobbyCompositionChange(LGLobbyCompositionUpdateEvent event) {
-            LGPhase currentPhase = event.getOrchestrator().phases().current();
-            if (currentPhase instanceof GameStartPhase) {
-                GameStartPhase phase = (GameStartPhase) currentPhase;
-                phase.getCountdown().resetBiggestTimerValue();
-            }
-        }
+    private void registerEventListeners() {
+        Events.subscribe(LGLobbyCompositionUpdateEvent.class)
+                .handler(e -> getCountdown().setTimer(getCountdown().getBiggestTimerValue()))
+                .bindWith(this);
     }
 
     private class GameStartCountdown extends Countdown {

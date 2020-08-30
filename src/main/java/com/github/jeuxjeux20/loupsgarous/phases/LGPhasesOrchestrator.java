@@ -3,7 +3,6 @@ package com.github.jeuxjeux20.loupsgarous.phases;
 import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.phases.descriptor.LGPhaseDescriptor;
 import com.github.jeuxjeux20.loupsgarous.phases.overrides.PhaseOverride;
 import com.github.jeuxjeux20.loupsgarous.util.FutureExceptionUtils;
@@ -23,9 +22,8 @@ import java.util.stream.Collectors;
 import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.PHASES;
 import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.PHASE_OVERRIDES;
 
-@OrchestratorScoped
 public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
-    private  LinkedList<RunnableLGPhase.Factory<?>> phases;
+    private LinkedList<RunnableLGPhase.Factory<?>> phases;
     private final LGPhaseDescriptor.Registry descriptorRegistry;
     private ListIterator<RunnableLGPhase.Factory<?>> phaseIterator;
     private @Nullable RunnableLGPhase currentPhase;

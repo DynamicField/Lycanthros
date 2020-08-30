@@ -2,7 +2,6 @@ package com.github.jeuxjeux20.loupsgarous.kill;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.event.LGKillEvent;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.LGKillCause;
 import com.google.common.collect.ImmutableSet;
@@ -16,7 +15,6 @@ import java.util.stream.Collectors;
 
 import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.STARTED;
 
-@OrchestratorScoped
 public class PendingKillRegistry {
     private final LGGameOrchestrator orchestrator;
     private final PlayerKiller playerKiller;

@@ -5,12 +5,16 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.github.jeuxjeux20.loupsgarous.HasTriggers;
-import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
+import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
+import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.util.ClassArrayUtils;
 import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
+import io.reactivex.rxjava3.disposables.Disposable;
 import me.lucko.helper.Events;
 import me.lucko.helper.metadata.Metadata;
 import me.lucko.helper.metadata.MetadataKey;
@@ -33,21 +37,17 @@ import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
-@OrchestratorScoped
 public class LGInventoryManager extends AbstractOrchestratorComponent {
     private static final MetadataKey<Map<Integer, InventoryItem>> ITEMS_KEY
             = MetadataKey.create("inv_manager", new TypeToken<Map<Integer, InventoryItem>>() {});
-    private final Set<InventoryItem> inventoryItems;
 
     @Inject
-    LGInventoryManager(LGGameOrchestrator orchestrator,
-                       Set<InventoryItem> inventoryItems) {
+    LGInventoryManager(LGGameOrchestrator orchestrator) {
         super(orchestrator);
-        this.inventoryItems = inventoryItems;
 
         registerEvents();
     }
@@ -89,9 +89,13 @@ public class LGInventoryManager extends AbstractOrchestratorComponent {
 
     private void registerUpdateItemsEvent() {
         Events.merge(LGEvent.class,
-                ClassArrayUtils.merge(inventoryItems.stream().map(HasTriggers::getUpdateTriggers)))
+                ClassArrayUtils.merge(getInventoryItems().stream().map(HasTriggers::getUpdateTriggers)))
                 .filter(this::concernsMe)
                 .handler(this::updateAllInventories);
+
+        bind(Disposable.toAutoCloseable(
+                orchestrator.observeBundle().subscribe(this::updateAllInventories)
+        ));
     }
 
     public void update(LGPlayer player) {
@@ -99,13 +103,16 @@ public class LGInventoryManager extends AbstractOrchestratorComponent {
         if (minecraftPlayer == null) return;
 
         PlayerInventory inventory = minecraftPlayer.getInventory();
-
         inventory.clear();
 
         Map<Integer, InventoryItem> itemSlots =
                 Metadata.provideForPlayer(minecraftPlayer).getOrPut(ITEMS_KEY, HashMap::new);
+        List<InventoryItem> inventoryItems = getInventoryItems();
+
         int slot = 8;
-        for (InventoryItem item : inventoryItems) {
+        for (int i = inventoryItems.size() - 1; i >= 0; i--) {
+            InventoryItem item = inventoryItems.get(i);
+
             if (!item.isShown(player, orchestrator)) return;
 
             inventory.setItem(slot, item.getItemStack());
@@ -164,10 +171,15 @@ public class LGInventoryManager extends AbstractOrchestratorComponent {
         }
     }
 
-    private void updateAllInventories(LGEvent e) {
-        for (LGPlayer player : e.getOrchestrator().getPlayers()) {
+    private void updateAllInventories() {
+        for (LGPlayer player : orchestrator.getPlayers()) {
             update(player);
         }
+    }
+
+    // Used as a method reference
+    private void updateAllInventories(Object whatever) {
+        updateAllInventories();
     }
 
     private boolean concernsMe(PlayerEvent event) {
@@ -188,5 +200,9 @@ public class LGInventoryManager extends AbstractOrchestratorComponent {
 
     private boolean isPlayerInGame(HumanEntity player) {
         return orchestrator.getPlayer(player.getUniqueId()).isPresent();
+    }
+
+    private List<InventoryItem> getInventoryItems() {
+        return orchestrator.getBundle().contents(LGExtensionPoints.INVENTORY_ITEMS).asList();
     }
 }

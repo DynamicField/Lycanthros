@@ -11,7 +11,6 @@ import java.util.Collection;
 /**
  * Internal class to kill players. This sounds ASTONISHINGLY fine.
  */
-@OrchestratorScoped
 final class PlayerKiller {
     private final LGGameOrchestrator orchestrator;
 

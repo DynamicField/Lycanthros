@@ -2,12 +2,12 @@ package com.github.jeuxjeux20.loupsgarous.phases;
 
 import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
-import com.github.jeuxjeux20.loupsgarous.chat.LGChatChannel;
-import com.github.jeuxjeux20.loupsgarous.chat.LoupsGarousVoteChatChannel;
+import com.github.jeuxjeux20.loupsgarous.chat.LGChatChannels;
+import com.github.jeuxjeux20.loupsgarous.chat.ChatChannel;
+import com.github.jeuxjeux20.loupsgarous.chat.ChatContext;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegisterer;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
@@ -31,15 +31,12 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 )
 public final class LoupGarouVotePhase extends CountdownLGPhase {
     private final LoupGarouVote votable;
-    private final LoupsGarousVoteChatChannel voteChannel;
 
     @Inject
     LoupGarouVotePhase(LGGameOrchestrator orchestrator,
-                       LoupsGarousVoteChatChannel voteChannel,
                        InteractableRegisterer<LoupGarouVote> votable) {
         super(orchestrator);
 
-        this.voteChannel = voteChannel;
         this.votable = votable.as(LGInteractableKeys.PLAYER_VOTE).boundWith(this);
     }
 
@@ -63,7 +60,9 @@ public final class LoupGarouVotePhase extends CountdownLGPhase {
 
     private void howl() {
         orchestrator.getPlayers().stream()
-                .filter(voteChannel::isReadable)
+                .filter(player -> LGChatChannels.LOUPS_GAROUS_VOTE
+                        .getView(new ChatContext(orchestrator, player))
+                        .isReadable())
                 .map(LGPlayer::minecraft)
                 .flatMap(OptionalUtils::stream)
                 .forEach(LGSoundStuff::howl);
@@ -73,16 +72,11 @@ public final class LoupGarouVotePhase extends CountdownLGPhase {
         return votable;
     }
 
-    @OrchestratorScoped
     public static final class LoupGarouVote extends AbstractPlayerVote {
-        private final LoupsGarousVoteChatChannel voteChannel;
-
         @Inject
         LoupGarouVote(LGGameOrchestrator orchestrator,
-                      Dependencies dependencies,
-                      LoupsGarousVoteChatChannel voteChannel) {
+                      Dependencies dependencies) {
             super(orchestrator, dependencies);
-            this.voteChannel = voteChannel;
         }
 
         @Override
@@ -93,12 +87,12 @@ public final class LoupGarouVotePhase extends CountdownLGPhase {
                 LGPlayer majority = maybeMajority.get();
 
                 majority.dieLater(NightKillCause.INSTANCE);
-                orchestrator.chat().sendMessage(voteChannel,
+                orchestrator.chat().sendMessage(LGChatChannels.LOUPS_GAROUS_VOTE,
                         ChatColor.AQUA + "Les loups ont décidé de tuer " +
                         player(majority.getName()) + ChatColor.AQUA + "."
                 );
             } else {
-                orchestrator.chat().sendMessage(voteChannel,
+                orchestrator.chat().sendMessage(LGChatChannels.LOUPS_GAROUS_VOTE,
                         ChatColor.AQUA + "Les loups n'ont pas pu se décider !"
                 );
             }
@@ -124,8 +118,8 @@ public final class LoupGarouVotePhase extends CountdownLGPhase {
         }
 
         @Override
-        public LGChatChannel getInfoMessagesChannel() {
-            return voteChannel;
+        public ChatChannel getInfoMessagesChannel() {
+            return LGChatChannels.LOUPS_GAROUS_VOTE;
         }
 
         private boolean isLoupGarou(LGPlayer picker) {

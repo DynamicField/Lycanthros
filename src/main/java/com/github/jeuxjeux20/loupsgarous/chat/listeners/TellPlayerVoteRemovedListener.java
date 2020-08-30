@@ -1,9 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.chat.listeners;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.UserFriendlyNamed;
-import com.github.jeuxjeux20.loupsgarous.chat.LGChatChannel;
+import com.github.jeuxjeux20.loupsgarous.chat.ChatChannel;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickRemovedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.PickData;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.Vote;
 import com.google.common.reflect.TypeToken;
@@ -26,7 +26,7 @@ public class TellPlayerVoteRemovedListener implements Listener {
     }
 
     private void onVoteRemoved(LGPickRemovedEvent event, PickData<?, ? extends Vote<?>> pickData) {
-        LGChatChannel channel = pickData.getSource().getInfoMessagesChannel();
+        ChatChannel channel = pickData.getSource().getInfoMessagesChannel();
 
         LGPlayer picker = pickData.getPicker();
         Object target = pickData.getTarget();

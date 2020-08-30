@@ -15,5 +15,4 @@ public final class GameEndPhase extends CountdownLGPhase {
     protected Countdown createCountdown() {
         return Countdown.of(15);
     }
-
 }

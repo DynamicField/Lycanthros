@@ -121,6 +121,9 @@ final class LGGameData {
     }
 
     public void removePlayer(UUID playerUUID) {
+        playersByUUID.remove(playerUUID);
+
+        // Put a random owner.
         if (owner.getPlayerUUID() == playerUUID) {
             if (playersByUUID.isEmpty()) {
                 owner = null;
@@ -128,7 +131,6 @@ final class LGGameData {
                 owner = playersByUUID.values().iterator().next();
             }
         }
-        playersByUUID.remove(playerUUID);
     }
 
     @Override

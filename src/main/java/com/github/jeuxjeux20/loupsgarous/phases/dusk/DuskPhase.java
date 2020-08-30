@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.phases.dusk;
 
-import com.github.jeuxjeux20.loupsgarous.LGChatStuff;
 import com.github.jeuxjeux20.loupsgarous.Countdown;
+import com.github.jeuxjeux20.loupsgarous.LGChatStuff;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.phases.CountdownLGPhase;
@@ -10,19 +10,22 @@ import com.github.jeuxjeux20.loupsgarous.phases.PhaseInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 
-import java.util.Set;
+import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.DUSK_ACTIONS;
 
 @PhaseInfo(name = "Crépuscule", color = PhaseColor.PURPLE)
 public final class DuskPhase extends CountdownLGPhase {
     private final ImmutableList<DuskAction> actionsToRun;
 
     @Inject
-    DuskPhase(LGGameOrchestrator orchestrator, Set<DuskAction> actions) {
+    DuskPhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
         ImmutableList.Builder<DuskAction> actionsToRunBuilder = ImmutableList.builder();
 
-        for (DuskAction action : actions) {
+        for (Class<? extends DuskAction> actionClass :
+                orchestrator.getBundle().contents(DUSK_ACTIONS)) {
+            DuskAction action = orchestrator.resolve(actionClass);
+
             if (action.shouldRun()) {
                 actionsToRunBuilder.add(action);
             } else {

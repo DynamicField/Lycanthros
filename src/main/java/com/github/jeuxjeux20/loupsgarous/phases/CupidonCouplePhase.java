@@ -4,7 +4,6 @@ import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.interaction.AbstractCouplePick;
 import com.github.jeuxjeux20.loupsgarous.interaction.Couple;
 import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegisterer;
@@ -73,7 +72,6 @@ public final class CupidonCouplePhase extends CountdownLGPhase {
         return coupleCreator;
     }
 
-    @OrchestratorScoped
     public static class CupidonCoupleCreator extends AbstractCouplePick {
         private final Map<LGPlayer, Couple> couplePicks = new HashMap<>();
         private final Random random;

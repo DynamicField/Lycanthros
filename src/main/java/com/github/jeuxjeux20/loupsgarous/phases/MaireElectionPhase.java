@@ -3,7 +3,6 @@ package com.github.jeuxjeux20.loupsgarous.phases;
 import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegisterer;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
@@ -49,7 +48,6 @@ public final class MaireElectionPhase extends CountdownLGPhase {
         return vote;
     }
 
-    @OrchestratorScoped
     public static final class MaireVote extends AbstractPlayerVote {
         private final Random random;
 

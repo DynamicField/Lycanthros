@@ -2,10 +2,11 @@ package com.github.jeuxjeux20.loupsgarous.inventory;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGComponents;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponentsModule;
+import com.google.inject.AbstractModule;
 
-public final class LGInventoryModule extends InventoryItemsModule {
+public final class LGInventoryModule extends AbstractModule {
     @Override
-    protected void configureBindings() {
+    protected void configure() {
         bind(LGInventoryManager.class);
         install(new OrchestratorComponentsModule() {
             @Override
@@ -13,11 +14,5 @@ public final class LGInventoryModule extends InventoryItemsModule {
                 addOrchestratorComponent(LGComponents.INVENTORY, LGInventoryManager.class);
             }
         });
-    }
-
-    @Override
-    protected void configureInventoryItems() {
-        addInventoryItem(QuitGameItem.class);
-        addInventoryItem(EditLobbyItem.class);
     }
 }

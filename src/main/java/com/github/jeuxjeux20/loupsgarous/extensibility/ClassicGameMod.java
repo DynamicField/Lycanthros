@@ -5,6 +5,8 @@ import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.MultipleTe
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.PossibleCouplesCupidonCompositionValidator;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.UniqueCardCompositionValidator;
 import com.github.jeuxjeux20.loupsgarous.cards.revealers.*;
+import com.github.jeuxjeux20.loupsgarous.chat.LGChatChannels;
+import com.github.jeuxjeux20.loupsgarous.chat.PetiteFilleSpiesOnLoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.inventory.EditLobbyItem;
 import com.github.jeuxjeux20.loupsgarous.inventory.QuitGameItem;
 import com.github.jeuxjeux20.loupsgarous.phases.*;
@@ -94,7 +96,13 @@ public class ClassicGameMod extends AbstractMod {
                         new EveryoneDeadWinCondition(),
                         new CoupleWinCondition(),
                         new LoupsGarousWinCondition(),
-                        new VillageWinCondition())
+                        new VillageWinCondition()),
+                extend(CHAT_CHANNELS,
+                        LGChatChannels.DAY,
+                        LGChatChannels.DEAD,
+                        LGChatChannels.LOUPS_GAROUS),
+                extend(CHANNEL_PROPERTIES_TRANSFORMERS,
+                        new PetiteFilleSpiesOnLoupsGarous())
         );
     }
 }

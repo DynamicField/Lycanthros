@@ -4,7 +4,6 @@ import com.github.jeuxjeux20.loupsgarous.*;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.interaction.AbstractPlayerPick;
 import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegisterer;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
@@ -154,7 +153,6 @@ public final class SorcierePotionPhase extends CountdownLGPhase {
 
     // PickData stuff
 
-    @OrchestratorScoped
     private static final class BaseConditions {
         public Check canAct(LGPlayer player) {
             return Check.ensure(player.isAlive(), "Vous êtes mort !")
@@ -185,7 +183,6 @@ public final class SorcierePotionPhase extends CountdownLGPhase {
         }
     }
 
-    @OrchestratorScoped
     public static class SorciereHeal extends SorcierePick {
         @Inject
         SorciereHeal(LGGameOrchestrator orchestrator, BaseConditions baseConditions) {
@@ -218,7 +215,6 @@ public final class SorcierePotionPhase extends CountdownLGPhase {
         }
     }
 
-    @OrchestratorScoped
     public static class SorciereKill extends SorcierePick {
         @Inject
         SorciereKill(LGGameOrchestrator orchestrator, BaseConditions baseConditions) {

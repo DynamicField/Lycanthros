@@ -6,6 +6,7 @@ import com.github.jeuxjeux20.loupsgarous.teams.LGTeam;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeams;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.inject.Singleton;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -15,6 +16,7 @@ import java.util.List;
 import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.CARDS;
 
 @ModInfo(name = "Patate mod !")
+@Singleton
 public class PatateMod extends AbstractMod {
     @Override
     public List<Extension<?>> createExtensions(ConfigurationNode configuration) {

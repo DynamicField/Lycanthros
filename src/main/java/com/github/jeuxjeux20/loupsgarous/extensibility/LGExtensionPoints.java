@@ -5,6 +5,8 @@ import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.Compositio
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidatorHandler;
 import com.github.jeuxjeux20.loupsgarous.cards.revealers.CardRevealer;
 import com.github.jeuxjeux20.loupsgarous.cards.revealers.CardRevealerHandler;
+import com.github.jeuxjeux20.loupsgarous.chat.ChatChannelViewTransformer;
+import com.github.jeuxjeux20.loupsgarous.chat.ChatChannel;
 import com.github.jeuxjeux20.loupsgarous.descriptor.Descriptor;
 import com.github.jeuxjeux20.loupsgarous.descriptor.DescriptorProcessor;
 import com.github.jeuxjeux20.loupsgarous.inventory.InventoryItem;
@@ -18,11 +20,9 @@ import com.github.jeuxjeux20.loupsgarous.teams.revealers.TeamRevealer;
 import com.github.jeuxjeux20.loupsgarous.teams.revealers.TeamRevealerHandler;
 import com.github.jeuxjeux20.loupsgarous.winconditions.WinCondition;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
-import org.jetbrains.annotations.NotNull;
 
 public final class LGExtensionPoints {
     public static final ExtensionPoint<Class<? extends RunnableLGPhase>> PHASES =
@@ -47,7 +47,8 @@ public final class LGExtensionPoints {
             new HandledExtensionPoint<>("tag_revealers", TagRevealer.class, TagRevealerHandler.class);
 
     public static final HandledExtensionPoint<CompositionValidator, CompositionValidatorHandler> COMPOSITION_VALIDATORS =
-            new HandledExtensionPoint<>("composition_validators", CompositionValidator.class, CompositionValidatorHandler.class);
+            new HandledExtensionPoint<>("composition_validators",
+                    CompositionValidator.class, CompositionValidatorHandler.class);
 
     public static final ExtensionPoint<ScoreboardComponent> SCOREBOARD_COMPONENTS =
             new ExtensionPoint<>("scoreboard_components", ScoreboardComponent.class);
@@ -58,9 +59,21 @@ public final class LGExtensionPoints {
     public static final ExtensionPoint<WinCondition> WIN_CONDITIONS =
             new ExtensionPoint<>("win_conditions", WinCondition.class);
 
-    private static final LoadingCache<Class<? extends Descriptor<?>>, ExtensionPoint<DescriptorProcessor<?>>>
+    public static final ExtensionPoint<ChatChannelViewTransformer> CHANNEL_PROPERTIES_TRANSFORMERS =
+            new ExtensionPoint<>("channel_properties_transformers", ChatChannelViewTransformer.class);
+
+    public static final ExtensionPoint<ChatChannel> CHAT_CHANNELS =
+            new ExtensionPoint<>("chat_channels", ChatChannel.class);
+
+    private static final LoadingCache<Class<? extends Descriptor<?>>, ExtensionPoint<?>>
             DESCRIPTOR_PROCESSOR_CACHE =
-            CacheBuilder.newBuilder().build(new DescriptorProcessorExtensionPointLoader());
+            CacheBuilder.newBuilder().build(new ClassExtensionPointCacheLoader<Descriptor<?>>("processor") {
+                @Override
+                protected <C extends Descriptor<?>> TypeToken<?> getExtensionPointType(Class<C> clazz) {
+                    return new TypeToken<DescriptorProcessor<C>>() {}
+                            .where(new TypeParameter<C>() {}, clazz);
+                }
+            });
 
     private LGExtensionPoints() {
     }
@@ -68,28 +81,7 @@ public final class LGExtensionPoints {
     @SuppressWarnings("unchecked")
     public static <D extends Descriptor<?>>
     ExtensionPoint<DescriptorProcessor<D>> descriptorProcessors(Class<D> descriptorClass) {
-        return (ExtensionPoint<DescriptorProcessor<D>>) (Object)
+        return (ExtensionPoint<DescriptorProcessor<D>>)
                 DESCRIPTOR_PROCESSOR_CACHE.getUnchecked(descriptorClass);
-    }
-
-    private static final class DescriptorProcessorExtensionPointLoader
-            extends CacheLoader<Class<? extends Descriptor<?>>, ExtensionPoint<DescriptorProcessor<?>>> {
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public ExtensionPoint<DescriptorProcessor<?>> load(@NotNull Class<? extends Descriptor<?>> key) {
-            return (ExtensionPoint<DescriptorProcessor<?>>) (Object)
-                    create(key);
-        }
-
-        private <D extends Descriptor<?>> ExtensionPoint<DescriptorProcessor<D>>
-        create(Class<D> descriptorClass) {
-            String name = descriptorClass.getSimpleName() + "_processors";
-            TypeToken<DescriptorProcessor<D>> type =
-                    new TypeToken<DescriptorProcessor<D>>() {}
-                            .where(new TypeParameter<D>() {}, descriptorClass);
-
-            return new ExtensionPoint<>(name, type);
-        }
     }
 }

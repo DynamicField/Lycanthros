@@ -4,7 +4,6 @@ import com.github.jeuxjeux20.loupsgarous.Check;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorScoped;
 import com.github.jeuxjeux20.loupsgarous.interaction.AbstractPlayerPick;
 import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegisterer;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
@@ -64,7 +63,6 @@ public class VoyanteDuskAction extends DuskAction {
         return look;
     }
 
-    @OrchestratorScoped
     private static final class VoyanteLookable extends AbstractPlayerPick {
         private final List<LGPlayer> playersWhoLooked = new ArrayList<>();
 

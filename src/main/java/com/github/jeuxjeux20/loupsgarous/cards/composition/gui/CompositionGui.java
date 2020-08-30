@@ -67,14 +67,12 @@ public final class CompositionGui extends Gui {
         super(player, 6, "Composition");
         this.orchestrator = orchestrator;
         this.patateMod = patateMod;
+        this.compositionValidator = orchestrator.getBundle().handler(LGExtensionPoints.COMPOSITION_VALIDATORS);
 
         bind(Disposable.toAutoCloseable(
-                orchestrator.observeBundle()
-                        .startWithItem(orchestrator.getBundle())
-                        .subscribe(this::updateCards)
+                orchestrator.observeBundle().subscribe(this::updateCards)
         ));
-
-        this.compositionValidator = orchestrator.getBundle().handler(LGExtensionPoints.COMPOSITION_VALIDATORS);
+        updateCards(orchestrator.getBundle());
     }
 
     @Override
@@ -87,7 +85,7 @@ public final class CompositionGui extends Gui {
         setItems(ItemStackBuilder.of(Material.POTATO)
                 .build(() -> {
                     ModBundle modBundle = orchestrator.getModBundle();
-                    ModBundle newModBundle = modBundle.transform(t -> t.enable(patateMod));
+                    ModBundle newModBundle = modBundle.transform(t -> t.toggle(patateMod));
                     orchestrator.setModBundle(newModBundle);
                 }), 30);
     }

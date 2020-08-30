@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@OrchestratorScoped
 public class LGActionBarManager extends AbstractOrchestratorComponent {
     @Inject
     LGActionBarManager(LGGameOrchestrator orchestrator) {

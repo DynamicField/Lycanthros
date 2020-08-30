@@ -73,7 +73,6 @@ public final class VillageVotePhase extends CountdownLGPhase {
         return vote;
     }
 
-    @OrchestratorScoped
     public static final class VillageVote extends AbstractPlayerVote {
         @Inject
         VillageVote(LGGameOrchestrator orchestrator, Dependencies dependencies) {

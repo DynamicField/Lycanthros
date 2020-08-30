@@ -25,6 +25,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
@@ -51,7 +52,6 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.CARDS;
@@ -127,8 +127,9 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
             }
 
             registerEventListeners();
-        } finally {
+        } catch (Throwable e) {
             terminableRegistry.closeAndReportException();
+            throw e;
         }
     }
 
@@ -215,15 +216,19 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     }
 
     private boolean deleteIfEmpty() {
-        if (isEmpty()) {
+        if (isEmpty() && getState().isEnabled()) {
             delete();
             return true;
         }
         return false;
     }
 
-    private void updateLobbyState() {
+    private void updateLobbyStuff() {
         this.getState().mustBe(UNINITIALIZED, WAITING_FOR_PLAYERS, READY_TO_START);
+
+        if (getState() != UNINITIALIZED) {
+            validateComposition();
+        }
 
         if (isFull() && isCompositionValid()) {
             changeStateTo(READY_TO_START, LGGameReadyToStartEvent::new);
@@ -265,7 +270,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
         executeAfterInitialization(() -> {
             lobbyTeleporter.teleportPlayerIn(player);
-            updateLobbyState();
+            updateLobbyStuff();
             Events.call(new LGPlayerJoinEvent(this, player, lgPlayer));
 
             chat().sendToEveryone(player(player.getName()) + lobbyMessage(" a rejoint la partie ! ") +
@@ -301,7 +306,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
         // Are they all gone?
         if (!deleteIfEmpty() && allowsJoin()) {
-            updateLobbyState();
+            updateLobbyStuff();
         }
 
         return true;
@@ -339,12 +344,12 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     }
 
     private void updateBundle(ModBundle modBundle) {
+        GameBundle oldBundle = bundle.get();
         GameBundle newBundle = createBundle(modBundle);
-        boolean hadPreviousBundle = bundle.get() != null;
 
         bundle.set(newBundle);
-        if (hadPreviousBundle) {
-            removeBundleRemovedCards(newBundle);
+        if (oldBundle != null) {
+            removeBundleRemovedCards(oldBundle, newBundle);
         }
     }
 
@@ -369,8 +374,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         this.composition = new ImmutableComposition(cards);
 
         executeAfterInitialization(() -> {
-            validateComposition();
-            updateLobbyState();
+            updateLobbyStuff();
             Events.call(new LGLobbyCompositionUpdateEvent(this));
         });
     }
@@ -385,10 +389,9 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         return getWorstCompositionProblemType() != CompositionValidator.Problem.Type.IMPOSSIBLE;
     }
 
-    private void removeBundleRemovedCards(GameBundle bundle) {
-        List<LGCard> removedCards = bundle.contents(CARDS).stream()
-                .filter(c -> !composition.getContents().contains(c))
-                .collect(Collectors.toList());
+    private void removeBundleRemovedCards(GameBundle oldBundle, GameBundle newBundle) {
+        Sets.SetView<LGCard> removedCards =
+                Sets.difference(oldBundle.contents(CARDS), newBundle.contents(CARDS));
 
         ImmutableComposition newComposition = composition.with(cards -> {
             for (LGCard removedCard : removedCards) {
@@ -499,12 +502,10 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
     private void registerEventListeners() {
         Events.merge(PlayerEvent.class, PlayerQuitEvent.class, PlayerKickEvent.class)
-                .expireIf(e -> getState().isDisabled())
                 .handler(e -> leave(e.getPlayer()))
                 .bindWith(this);
 
         Events.subscribe(PlayerChangedWorldEvent.class)
-                .expireIf(e -> getState().isDisabled())
                 .filter(e -> e.getFrom() == getWorld())
                 .handler(e -> leave(e.getPlayer()))
                 .bindWith(this);
@@ -538,7 +539,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
     private void checkDelayedDependencies() {
         Preconditions.checkState(delayedDependencies != null,
-                "This game is not initialized yet. (OrchestratorScoped dependencies are not present.)");
+                "This game is not initialized yet.");
     }
 
     private void executeAfterInitialization(Runnable action) {
@@ -549,7 +550,6 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         }
     }
 
-    @OrchestratorScoped
     private static final class DelayedDependencies implements Terminable {
         final MetadataMap componentMap = MetadataMap.create();
 
@@ -576,12 +576,12 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         }
     }
 
-    public class OrchestratorLogger extends Logger {
+    private class OrchestratorLogger extends Logger {
         private final String prefix;
 
         public OrchestratorLogger(String id) {
             super(MinecraftLGGameOrchestrator.this.getClass().getCanonicalName(), null);
-            prefix = "[LoupsGarous] (Game " +  id + ") ";
+            prefix = "[LoupsGarous] (Game " + id + ") ";
             setParent(getPlugin().getLogger());
             setLevel(Level.ALL);
         }

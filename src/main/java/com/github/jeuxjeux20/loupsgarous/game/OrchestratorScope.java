@@ -17,6 +17,7 @@ public final class OrchestratorScope implements Scope {
             Key.get(LGGameOrchestrator.class);
 
     private final ThreadLocal<Map<Key<?>, Object>> values = new ThreadLocal<>();
+    private final ThreadLocal<Integer> depth = ThreadLocal.withInitial(() -> 0);
 
     /**
      * Returns a provider that always throws exception complaining that the object
@@ -30,23 +31,31 @@ public final class OrchestratorScope implements Scope {
     }
 
     public void enter(LGGameOrchestrator orchestrator) {
-        Preconditions.checkState(values.get() == null, "A scoping block is already in progress");
-
-        Map<Key<?>, Object> map = createInitialMap(orchestrator);
-        values.set(map);
+        if (depth.get() == 0) {
+            Map<Key<?>, Object> map = createInitialMap(orchestrator);
+            values.set(map);
+        }
+        else {
+            if (values.get().get(ORCHESTRATOR_KEY) != orchestrator) {
+                throw new IllegalArgumentException(
+                        "The orchestrator isn't the same as the current scoping block.");
+            }
+        }
+        depth.set(depth.get() + 1);
     }
 
     public void exit() {
         Preconditions.checkState(values.get() != null, "No scoping block in progress");
 
-        values.remove();
+        if (depth.get() == 1) {
+            values.remove();
+        }
+        depth.set(depth.get() - 1);
     }
 
     public Block use(LGGameOrchestrator orchestrator) {
-        Preconditions.checkState(values.get() == null, "A scoping block is already in progress");
-
         enter(orchestrator);
-        return new Block(orchestrator);
+        return new Block();
     }
 
     @Override
@@ -91,16 +100,6 @@ public final class OrchestratorScope implements Scope {
     }
 
     public class Block implements AutoCloseable {
-        private final LGGameOrchestrator orchestrator;
-
-        private Block(LGGameOrchestrator orchestrator) {
-            this.orchestrator = orchestrator;
-        }
-
-        public LGGameOrchestrator getOrchestrator() {
-            return orchestrator;
-        }
-
         @Override
         public void close() {
             OrchestratorScope.this.exit();

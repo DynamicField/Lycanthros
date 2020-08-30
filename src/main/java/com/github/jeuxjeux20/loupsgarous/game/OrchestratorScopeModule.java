@@ -7,12 +7,10 @@ public final class OrchestratorScopeModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bindScope(OrchestratorScoped.class, orchestratorScope);
-
         bind(OrchestratorScope.class).toInstance(orchestratorScope);
 
         bind(LGGameOrchestrator.class)
                 .toProvider(OrchestratorScope.seededKeyProvider())
-                .in(OrchestratorScoped.class);
+                .in(orchestratorScope);
     }
 }

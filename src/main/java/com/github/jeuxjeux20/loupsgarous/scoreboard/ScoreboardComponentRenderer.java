@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 import static com.github.jeuxjeux20.loupsgarous.scoreboard.ScoreboardComponent.Line;
 
 @Singleton
-public final class ScoreboardComponentRenderer {
+final class ScoreboardComponentRenderer {
     public void renderObjective(Objective objective, Collection<ScoreboardComponent> components,
                                 LGPlayer player, LGGameOrchestrator orchestrator) {
         List<Line> lines = new ArrayList<>();

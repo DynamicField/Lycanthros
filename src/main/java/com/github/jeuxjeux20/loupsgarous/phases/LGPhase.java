@@ -18,9 +18,6 @@ import javax.annotation.Nonnull;
  * They implement {@link TerminableConsumer} to terminate objects when
  * the phase finishes executing.
  * <p>
- * They can be used with a {@link PhasesModule}, or by
- * using {@link LGPhasesOrchestrator#insert(RunnableLGPhase.Factory)}.
- * <p>
  * The {@link LGPhasesModule} contains all the phases of the classic game.
  */
 public interface LGPhase extends SafeCast, TerminableConsumer, OrchestratorDependent {

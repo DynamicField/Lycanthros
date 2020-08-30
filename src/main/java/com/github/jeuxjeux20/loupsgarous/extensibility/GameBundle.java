@@ -10,7 +10,6 @@ public final class GameBundle {
     private final ObjectFactory objectFactory;
 
     private final ImmutableSet<Extension<?>> extensions;
-    private final ImmutableSet<ExtensionPoint<?>> extensionPoints;
     private final ImmutableMultimap<ExtensionPoint<?>, Extension<?>> extensionMap;
     private final ImmutableSetMultimap<ExtensionPoint<?>, Object> extensionContentsMap;
     private final Map<HandledExtensionPoint<?, ?>, ExtensionPointHandler> extensionPointHandlerMap =
@@ -19,16 +18,8 @@ public final class GameBundle {
     public GameBundle(Collection<Extension<?>> extensions, ObjectFactory objectFactory) {
         this.extensions = ImmutableSet.copyOf(extensions);
         this.objectFactory = objectFactory;
-        this.extensionPoints = createExtensionPoints(this.extensions);
         this.extensionMap = createExtensionMap(this.extensions);
         this.extensionContentsMap = createExtensionContentsMap(this.extensions);
-    }
-
-    private ImmutableSet<ExtensionPoint<?>> createExtensionPoints(
-            Set<Extension<?>> extensions) {
-        return extensions.stream()
-                .map(Extension::getExtensionPoint)
-                .collect(ImmutableSet.toImmutableSet());
     }
 
     @SuppressWarnings("ConstantConditions") // It cannot be null, IntelliJ is tripping :v
@@ -65,10 +56,6 @@ public final class GameBundle {
 
     public ImmutableCollection<Extension<?>> extensions(ExtensionPoint<?> extensionPoint) {
         return extensionMap.get(extensionPoint);
-    }
-
-    public ImmutableSet<ExtensionPoint<?>> extensionPoints() {
-        return extensionPoints;
     }
 
     @SuppressWarnings("unchecked")

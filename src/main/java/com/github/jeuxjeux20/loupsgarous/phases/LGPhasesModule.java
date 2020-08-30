@@ -1,16 +1,14 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
-import com.github.jeuxjeux20.loupsgarous.ListenersModule;
 import com.github.jeuxjeux20.loupsgarous.game.LGComponents;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponentsModule;
 import com.github.jeuxjeux20.loupsgarous.phases.descriptor.LGPhasesDescriptorModule;
-import com.github.jeuxjeux20.loupsgarous.phases.dusk.LGPhasesDuskModule;
 import com.github.jeuxjeux20.loupsgarous.phases.listeners.LGPhasesListenersModule;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
+import com.google.inject.AbstractModule;
 
-public final class LGPhasesModule extends PhasesModule {
+public final class LGPhasesModule extends AbstractModule {
     @Override
-    protected void configureBindings() {
+    protected void configure() {
         bind(LGPhasesOrchestrator.class);
         install(new OrchestratorComponentsModule() {
             @Override
@@ -21,29 +19,5 @@ public final class LGPhasesModule extends PhasesModule {
 
         install(new LGPhasesListenersModule());
         install(new LGPhasesDescriptorModule());
-
-        install(new ListenersModule() {
-            @Override
-            protected void configureListeners() {
-                addListener(GameStartPhase.ResetTimerListener.class);
-            }
-        });
-    }
-
-    @Override
-    protected void configurePhases() {
-        addPhase(CupidonCouplePhase.class);
-        install(new LGPhasesDuskModule());
-        addPhase(LoupGarouVotePhase.class);
-        addPhase(SorcierePotionPhase.class);
-        addPhase(NextTimeOfDayPhase.class);
-        addPhase(RevealAllKillsPhase.class);
-        addPhase(MaireElectionPhase.class);
-        addPhase(VillageVotePhase.class);
-
-        registerPhaseFactory(GameEndPhase.class);
-        registerPhaseFactory(GameStartPhase.class);
-
-        install(new FactoryModuleBuilder().build(ChasseurKillPhase.Factory.class));
     }
 }
