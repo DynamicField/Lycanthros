@@ -27,6 +27,6 @@ public final class DescriptorProcessorAggregator<D extends Descriptor<?>>
     }
 
     protected ImmutableSet<DescriptorProcessor<D>> getDescriptorProcessors() {
-        return orchestrator.getBundle().contents(descriptorProcessors(descriptorType));
+        return orchestrator.getGameBundle().contents(descriptorProcessors(descriptorType));
     }
 }

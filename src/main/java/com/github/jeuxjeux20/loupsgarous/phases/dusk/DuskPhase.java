@@ -23,7 +23,7 @@ public final class DuskPhase extends CountdownLGPhase {
         ImmutableList.Builder<DuskAction> actionsToRunBuilder = ImmutableList.builder();
 
         for (Class<? extends DuskAction> actionClass :
-                orchestrator.getBundle().contents(DUSK_ACTIONS)) {
+                orchestrator.getGameBundle().contents(DUSK_ACTIONS)) {
             DuskAction action = orchestrator.resolve(actionClass);
 
             if (action.shouldRun()) {

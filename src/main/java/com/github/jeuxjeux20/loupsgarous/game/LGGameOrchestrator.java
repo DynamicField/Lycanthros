@@ -63,10 +63,6 @@ import java.util.stream.Stream;
 public interface LGGameOrchestrator extends TerminableConsumer {
     Plugin getPlugin();
 
-    GameBundle getBundle();
-
-    Observable<GameBundle> observeBundle();
-
     World getWorld();
 
     default boolean isGameRunning() {
@@ -137,6 +133,10 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     @Nullable LGPlayer getOwner();
 
     void setOwner(LGPlayer owner);
+
+    GameBundle getGameBundle();
+
+    Observable<GameBundle> observeGameBundle();
 
     ModBundle getModBundle();
 

@@ -19,7 +19,7 @@ public interface LGPlayer extends BasicLGPlayer {
 
     PowerRegistry powers();
 
-    void changeCard(LGCard card);
+    void setCard(LGCard card);
 
     boolean willDie();
 

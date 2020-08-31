@@ -37,14 +37,14 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
         this.phases = getPhaseFactories();
         this.descriptorRegistry = descriptorRegistry;
         this.phaseIterator = this.phases.listIterator();
-        this.phaseOverrides = orchestrator.getBundle().contents(PHASE_OVERRIDES);
+        this.phaseOverrides = orchestrator.getGameBundle().contents(PHASE_OVERRIDES);
         this.logger = orchestrator.logger();
 
         bind(new CurrentPhaseTerminable());
     }
 
     private LinkedList<RunnableLGPhase.Factory<?>> getPhaseFactories() {
-        return orchestrator.getBundle().contents(PHASES).stream()
+        return orchestrator.getGameBundle().contents(PHASES).stream()
                 .map(c -> (RunnableLGPhase.Factory<?>) o -> o.resolve(c))
                 .collect(Collectors.toCollection(LinkedList::new));
     }

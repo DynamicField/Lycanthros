@@ -67,12 +67,12 @@ public final class CompositionGui extends Gui {
         super(player, 6, "Composition");
         this.orchestrator = orchestrator;
         this.patateMod = patateMod;
-        this.compositionValidator = orchestrator.getBundle().handler(LGExtensionPoints.COMPOSITION_VALIDATORS);
+        this.compositionValidator = orchestrator.getGameBundle().handler(LGExtensionPoints.COMPOSITION_VALIDATORS);
 
         bind(Disposable.toAutoCloseable(
-                orchestrator.observeBundle().subscribe(this::updateCards)
+                orchestrator.observeGameBundle().subscribe(this::updateCards)
         ));
-        updateCards(orchestrator.getBundle());
+        updateCards(orchestrator.getGameBundle());
     }
 
     @Override

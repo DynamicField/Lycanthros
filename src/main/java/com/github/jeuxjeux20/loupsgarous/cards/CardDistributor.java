@@ -8,20 +8,15 @@ import org.apache.commons.lang.math.RandomUtils;
 import java.util.*;
 
 public class CardDistributor {
-    public Map<LGPlayer, LGCard> distribute(Composition composition, Set<LGPlayer> players) {
+    public void distribute(Composition composition, Collection<? extends LGPlayer> players) {
         List<LGCard> cards = new ArrayList<>(composition.getContents());
 
         Preconditions.checkArgument(players.size() == cards.size(),
                 "There isn't as much players as cards.");
-
-        Map<LGPlayer, LGCard> playerCards = new HashMap<>(cards.size());
-
         for (LGPlayer player : players) {
             LGCard card = getRandomCardAndRemove(cards);
-            playerCards.put(player, card);
+            player.setCard(card);
         }
-
-        return playerCards;
     }
 
     private LGCard getRandomCardAndRemove(List<LGCard> cards) {

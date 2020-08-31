@@ -172,7 +172,7 @@ public class OrchestratedLGPlayer implements LGPlayer {
     }
 
     @Override
-    public void changeCard(LGCard card) {
+    public void setCard(LGCard card) {
         if (card == getCard()) {
             return;
         }

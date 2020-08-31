@@ -109,7 +109,7 @@ public class LGChatOrchestrator extends AbstractOrchestratorComponent {
     }
 
     public Set<ChatChannel> getChannels() {
-        return orchestrator.getBundle().contents(LGExtensionPoints.CHAT_CHANNELS);
+        return orchestrator.getGameBundle().contents(LGExtensionPoints.CHAT_CHANNELS);
     }
 
     @Override

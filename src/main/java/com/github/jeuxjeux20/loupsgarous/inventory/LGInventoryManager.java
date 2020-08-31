@@ -94,7 +94,7 @@ public class LGInventoryManager extends AbstractOrchestratorComponent {
                 .handler(this::updateAllInventories);
 
         bind(Disposable.toAutoCloseable(
-                orchestrator.observeBundle().subscribe(this::updateAllInventories)
+                orchestrator.observeGameBundle().subscribe(this::updateAllInventories)
         ));
     }
 
@@ -203,6 +203,6 @@ public class LGInventoryManager extends AbstractOrchestratorComponent {
     }
 
     private List<InventoryItem> getInventoryItems() {
-        return orchestrator.getBundle().contents(LGExtensionPoints.INVENTORY_ITEMS).asList();
+        return orchestrator.getGameBundle().contents(LGExtensionPoints.INVENTORY_ITEMS).asList();
     }
 }

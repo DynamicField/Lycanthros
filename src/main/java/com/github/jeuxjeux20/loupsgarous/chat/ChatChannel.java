@@ -25,7 +25,7 @@ public abstract class ChatChannel {
 
     public final ChatChannelView getView(ChatContext context) {
         ChatChannelView view = getUnalteredView(context);
-        ImmutableSet<ChatChannelViewTransformer> transformers = context.getOrchestrator().getBundle()
+        ImmutableSet<ChatChannelViewTransformer> transformers = context.getOrchestrator().getGameBundle()
                 .contents(LGExtensionPoints.CHANNEL_PROPERTIES_TRANSFORMERS);
 
         ChatChannelViewTransformer.runAll(transformers, context, view);
