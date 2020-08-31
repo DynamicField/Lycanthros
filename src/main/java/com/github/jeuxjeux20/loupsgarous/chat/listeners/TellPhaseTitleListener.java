@@ -22,7 +22,8 @@ public class TellPhaseTitleListener implements Listener {
         if (title != null) {
             orchestrator.chat().sendToEveryone(importantInfo(title));
 
-            orchestrator.showSubtitle(title);
+            orchestrator.getAllMinecraftPlayers()
+                    .forEach(player -> player.sendTitle("", title, -1, -1, -1));
         }
     }
 }

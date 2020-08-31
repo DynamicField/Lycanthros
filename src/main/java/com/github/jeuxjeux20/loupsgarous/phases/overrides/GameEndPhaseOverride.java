@@ -12,11 +12,6 @@ public class GameEndPhaseOverride implements PhaseOverride {
     }
 
     @Override
-    public void onceComplete(LGGameOrchestrator orchestrator) {
-        orchestrator.delete();
-    }
-
-    @Override
     public Class<? extends RunnableLGPhase> getPhaseClass() {
         return GameEndPhase.class;
     }

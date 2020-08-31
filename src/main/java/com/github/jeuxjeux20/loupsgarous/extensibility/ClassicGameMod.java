@@ -13,7 +13,7 @@ import com.github.jeuxjeux20.loupsgarous.phases.*;
 import com.github.jeuxjeux20.loupsgarous.phases.dusk.DuskPhase;
 import com.github.jeuxjeux20.loupsgarous.phases.dusk.VoyanteDuskAction;
 import com.github.jeuxjeux20.loupsgarous.phases.overrides.GameEndPhaseOverride;
-import com.github.jeuxjeux20.loupsgarous.phases.overrides.GameStartPhaseOverride;
+import com.github.jeuxjeux20.loupsgarous.phases.overrides.LobbyPhaseOverride;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.CompositionScoreboardComponent;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.CurrentVotesScoreboardComponent;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.LobbyOwnerScoreboardComponent;
@@ -58,7 +58,7 @@ public class ClassicGameMod extends AbstractMod {
                         MaireElectionPhase.class,
                         VillageVotePhase.class),
                 extend(PHASE_OVERRIDES,
-                        new GameStartPhaseOverride(),
+                        new LobbyPhaseOverride(),
                         new GameEndPhaseOverride()),
                 extend(DUSK_ACTIONS,
                         VoyanteDuskAction.class),

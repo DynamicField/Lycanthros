@@ -92,9 +92,7 @@ public abstract class RunnableLGPhase implements LGPhase, Terminable {
         }
         isClosed = true;
 
-        orchestrator.logger().finer("Closing phase " +
-                                    getClass().getSimpleName() + "@" + Integer.toHexString(hashCode()) +
-                                    "...");
+        orchestrator.logger().finer("Closing phase " + super.toString() + "...");
 
         if (currentFuture != null) {
             if (supportsInterruption()) {

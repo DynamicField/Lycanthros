@@ -64,8 +64,8 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
      * Cancels the current phases, if any, and runs the next one.
      * <p>
      * Note that some {@link PhaseOverride}s might prevent the execution of the next phase, for
-     * example, if the game is {@linkplain LGGameState#WAITING_FOR_PLAYERS waiting for players},
-     * this method will ensure that the current phase is an instance of {@link GameStartPhase}.
+     * example, if the game is in a {@linkplain LGGameState#LOBBY lobby state},
+     * this method will ensure that the current phase is an instance of {@link LobbyPhase}.
      */
     public void next() {
         if (callPhaseOverride()) return;
@@ -130,9 +130,7 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
 
             RunnableLGPhase phase = phaseOverride.getPhaseFactory().create(orchestrator);
 
-            runPhase(phase)
-                    .thenRun(() -> phaseOverride.onceComplete(orchestrator))
-                    .exceptionally(this::handlePostPhaseException);
+            runPhase(phase).exceptionally(this::handlePostPhaseException);
         });
 
         return activePhaseOverride.isPresent();

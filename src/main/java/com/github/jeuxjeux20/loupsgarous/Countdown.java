@@ -30,6 +30,7 @@ public class Countdown implements Terminable, TerminableConsumer {
     private Snapshot startSnapshot;
 
     private State state = State.READY;
+    private boolean paused = false;
 
     public Countdown(int timerSeconds) {
         this.timer = timerSeconds;
@@ -60,7 +61,9 @@ public class Countdown implements Terminable, TerminableConsumer {
         startSnapshot = takeSnapshot();
 
         onStart();
-        startTask();
+        if (!paused) {
+            startTask(false);
+        }
 
         future.whenComplete((r, e) -> {
             if (FutureExceptionUtils.isCancellation(e)) {
@@ -89,13 +92,25 @@ public class Countdown implements Terminable, TerminableConsumer {
 
     // Internal stuff
 
-    private void startTask() {
-        handleTick();
+    private void startTask(boolean resume) {
+        if (!resume) {
+            handleTick();
+        }
         countdownTask = Schedulers.sync().runRepeating(() -> {
             timer--;
 
             handleTick();
         }, 20L, 20L);
+    }
+
+    private void stopTask() {
+        if (countdownTask != null)
+            countdownTask.stop();
+    }
+
+    private void restartTask() {
+        stopTask();
+        startTask(true);
     }
 
     private void handleTick() {
@@ -111,8 +126,7 @@ public class Countdown implements Terminable, TerminableConsumer {
         Preconditions.checkState(state != State.FINISHED, "The countdown must not be finished.");
         state = State.FINISHED;
 
-        if (countdownTask != null)
-            countdownTask.stop();
+        stopTask();
 
         terminableRegistry.closeAndReportException();
 
@@ -151,10 +165,12 @@ public class Countdown implements Terminable, TerminableConsumer {
             interrupt();
             return;
         }
-
-        if (this.biggestTimerValue < timer) biggestTimerValue = timer;
+        if (this.biggestTimerValue < timer) {
+            biggestTimerValue = timer;
+        }
 
         this.timer = timer;
+        restartTask();
     }
 
     public State getState() {
@@ -163,6 +179,21 @@ public class Countdown implements Terminable, TerminableConsumer {
 
     public boolean is(State state) {
         return this.state == state;
+    }
+
+    public boolean isPaused() {
+        return paused;
+    }
+
+    public void setPaused(boolean paused) {
+        Preconditions.checkState(state != State.FINISHED, "The countdown must not be finished.");
+
+        this.paused = paused;
+        if (paused) {
+            stopTask();
+        } else {
+            startTask(true);
+        }
     }
 
     public int getBiggestTimerValue() {

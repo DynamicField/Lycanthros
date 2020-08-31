@@ -7,11 +7,10 @@ import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.cards.VillageoisCard;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.ImmutableComposition;
-import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator;
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.event.*;
-import com.github.jeuxjeux20.loupsgarous.event.lobby.LGLobbyCompositionUpdateEvent;
-import com.github.jeuxjeux20.loupsgarous.event.lobby.LGLobbyOwnerChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionUpdateEvent;
+import com.github.jeuxjeux20.loupsgarous.event.lobby.LGOwnerChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.extensibility.GameBundle;
@@ -55,7 +54,6 @@ import java.util.logging.Logger;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.CARDS;
-import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.COMPOSITION_VALIDATORS;
 import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.*;
 
 class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
@@ -68,6 +66,9 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     private final LGGameManager gameManager;
     private final LobbyTeleporter lobbyTeleporter;
     private final OrchestratorScope scope;
+    private DelayedDependencies delayedDependencies;
+    // Pre-initialization stuff
+    private final Provider<DelayedDependencies> delayedDependenciesProvider;
     // Game state
     private final String id;
     private LGGameState state = LGGameState.UNINITIALIZED;
@@ -75,7 +76,6 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     private final Map<UUID, LGPlayer> players = new HashMap<>();
     private LGPlayer owner;
     private ImmutableComposition composition;
-    private @Nullable CompositionValidator.Problem.Type worseCompositionProblemType;
 
     private final MutableLGGameTurn turn = new MutableLGGameTurn();
     private @Nullable LGEnding ending;
@@ -85,8 +85,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
     private final MetadataMap metadataMap = MetadataMap.create();
     // Components
-    private DelayedDependencies delayedDependencies;
-    private final Provider<DelayedDependencies> delayedDependenciesProvider;
+
     // Other stuff
     private final List<Runnable> postInitializationActions = new ArrayList<>();
 
@@ -135,7 +134,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         }
         bind(delayedDependencies);
 
-        updateLobbyStuff();
+        changeStateTo(LOBBY, null);
 
         postInitializationActions.forEach(Runnable::run);
         postInitializationActions.clear();
@@ -147,7 +146,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
     @Override
     public void start() {
-        getState().mustBe(READY_TO_START);
+        getState().mustBe(LOBBY);
 
         new CardDistributor().distribute(composition, players.values());
 
@@ -209,22 +208,9 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         }
     }
 
-    private boolean deleteIfEmpty() {
+    private void deleteIfEmpty() {
         if (isEmpty() && getState().isEnabled()) {
             delete();
-            return true;
-        }
-        return false;
-    }
-
-    private void updateLobbyStuff() {
-        this.getState().mustBe(UNINITIALIZED, WAITING_FOR_PLAYERS, READY_TO_START);
-
-        validateComposition();
-        if (isFull() && isCompositionValid()) {
-            changeStateTo(READY_TO_START, LGGameReadyToStartEvent::new);
-        } else {
-            changeStateTo(WAITING_FOR_PLAYERS, LGGameWaitingForPlayersEvent::new);
         }
     }
 
@@ -243,7 +229,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
         if (!allowsJoin()) {
             throw InaccessibleLobbyException.lobbyLocked();
-        } else if (getSlotsTaken() == getTotalSlotCount()) {
+        } else if (getPlayersCount() == getMaxPlayers()) {
             throw InaccessibleLobbyException.lobbyFull();
         }
 
@@ -258,10 +244,6 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
         OrchestratedLGPlayer lgPlayer = new OrchestratedLGPlayer(player.getUniqueId(), this);
         players.put(lgPlayer.getPlayerUUID(), lgPlayer);
-
-        if (state != UNINITIALIZED) {
-            updateLobbyStuff();
-        }
 
         executeAfterInitialization(() -> {
             lobbyTeleporter.teleportPlayerIn(player);
@@ -297,9 +279,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         Events.call(new LGPlayerQuitEvent(this, playerUUID, player));
 
         // Are they all gone?
-        if (!deleteIfEmpty() && allowsJoin()) {
-            updateLobbyStuff();
-        }
+        deleteIfEmpty();
 
         return true;
     }
@@ -311,9 +291,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
     @Override
     public boolean allowsJoin() {
-        return this.getState() == LGGameState.UNINITIALIZED ||
-               this.getState() == LGGameState.WAITING_FOR_PLAYERS ||
-               this.getState() == LGGameState.READY_TO_START;
+        return state == UNINITIALIZED || state == LOBBY;
     }
 
     @Override
@@ -363,7 +341,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         HashMultiset<LGCard> cards = HashMultiset.create(composition.getContents());
 
         // Add some cards if there are not enough cards for the players we have.
-        while (cards.size() < getSlotsTaken()) {
+        while (cards.size() < getPlayersCount()) {
             // TODO: What happens if VillageoisCard is not in the bundle? Hmmm?
             cards.add(VillageoisCard.INSTANCE);
         }
@@ -371,19 +349,8 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         this.composition = new ImmutableComposition(cards);
 
         if (state != UNINITIALIZED) {
-            updateLobbyStuff();
-            Events.call(new LGLobbyCompositionUpdateEvent(this));
+            Events.call(new LGCompositionUpdateEvent(this));
         }
-    }
-
-    @Override
-    public @Nullable CompositionValidator.Problem.Type getWorstCompositionProblemType() {
-        return worseCompositionProblemType;
-    }
-
-    @Override
-    public boolean isCompositionValid() {
-        return worseCompositionProblemType != CompositionValidator.Problem.Type.IMPOSSIBLE;
     }
 
     private void removeBundleRemovedCards(GameBundle oldBundle, GameBundle newBundle) {
@@ -401,18 +368,6 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         });
 
         setComposition(newComposition);
-    }
-
-    private void validateComposition() {
-        if (!allowsJoin()) {
-            return;
-        }
-
-        worseCompositionProblemType =
-                getGameBundle().handler(COMPOSITION_VALIDATORS).validate(composition).stream()
-                        .map(CompositionValidator.Problem::getType)
-                        .max(Comparator.naturalOrder())
-                        .orElse(null);
     }
 
     @Override
@@ -464,7 +419,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         if (this.owner == owner) return;
         this.owner = owner;
 
-        Events.call(new LGLobbyOwnerChangeEvent(this, owner));
+        Events.call(new LGOwnerChangeEvent(this, owner));
     }
 
     @Override
@@ -542,7 +497,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     }
 
     private void changeStateTo(LGGameState state,
-                               Function<? super LGGameOrchestrator, ? extends LGEvent> eventFunction) {
+                               @Nullable Function<? super LGGameOrchestrator, ? extends LGEvent> eventFunction) {
         if (this.getState() == state) return;
 
         LGGameState oldState = this.getState();
@@ -550,7 +505,9 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
         logger.fine("State changed: " + oldState + " -> " + state);
 
-        Events.call(eventFunction.apply(this));
+        if (eventFunction != null) {
+            Events.call(eventFunction.apply(this));
+        }
     }
 
     private void checkDelayedDependencies() {

@@ -1,11 +1,10 @@
 package com.github.jeuxjeux20.loupsgarous.inventory;
 
+import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
+import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseStartingEvent;
+import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
-import com.github.jeuxjeux20.loupsgarous.event.LGGameWaitingForPlayersEvent;
-import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerJoinEvent;
-import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseStartingEvent;
 import com.google.common.collect.ImmutableList;
 import me.lucko.helper.item.ItemStackBuilder;
 import org.bukkit.ChatColor;
@@ -32,6 +31,6 @@ public class QuitGameItem implements InventoryItem {
 
     @Override
     public ImmutableList<Class<? extends LGEvent>> getUpdateTriggers() {
-        return ImmutableList.of(LGPhaseStartingEvent.class, LGGameWaitingForPlayersEvent.class, LGPlayerJoinEvent.class);
+        return ImmutableList.of(LGPhaseStartingEvent.class, LGPlayerJoinEvent.class);
     }
 }

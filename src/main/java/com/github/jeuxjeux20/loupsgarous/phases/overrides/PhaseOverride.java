@@ -6,8 +6,6 @@ import com.github.jeuxjeux20.loupsgarous.phases.RunnableLGPhase;
 public interface PhaseOverride {
     boolean shouldOverride(LGGameOrchestrator orchestrator);
 
-    void onceComplete(LGGameOrchestrator orchestrator);
-
     Class<? extends RunnableLGPhase> getPhaseClass();
 
     default RunnableLGPhase.Factory<?> getPhaseFactory() {

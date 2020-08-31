@@ -4,7 +4,6 @@ import com.github.jeuxjeux20.loupsgarous.actionbar.LGActionBarManager;
 import com.github.jeuxjeux20.loupsgarous.bossbar.LGBossBarManager;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.ImmutableComposition;
-import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator;
 import com.github.jeuxjeux20.loupsgarous.chat.LGChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
@@ -40,8 +39,8 @@ import java.util.stream.Stream;
 /**
  * Manages a Loups-Garous game instance.
  * <p>
- * The game state can be changed using the appropriate methods: {@link #initialize()},
- * {@link #start()}, {@link #finish(LGEnding)} and {@link #delete()}.
+ * The game state can be changed using the appropriate methods: {@link #initialize()}, {@link
+ * #start()}, {@link #finish(LGEnding)} and {@link #delete()}.
  * <p>
  * This also implements {@link TerminableConsumer}, where all the bound terminables get terminated
  * as soon as the orchestrator is in the {@link LGGameState#DELETING} state.
@@ -72,8 +71,7 @@ public interface LGGameOrchestrator extends TerminableConsumer {
 
     /**
      * Initializes the game to be ready to accept new players. Usually, this method is called
-     * internally. This will change state to {@link LGGameState#WAITING_FOR_PLAYERS} or
-     * {@link LGGameState#READY_TO_START}.
+     * internally. This will change state to {@link LGGameState#LOBBY}.
      *
      * @throws IllegalStateException when the game is not {@linkplain LGGameState#UNINITIALIZED
      *                               uninitialized}
@@ -81,11 +79,11 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     void initialize();
 
     /**
-     * Starts the game and calls the {@link LGGameStartEvent}. This will change state to
-     * {@link LGGameState#STARTED}.
+     * Starts the game and calls the {@link LGGameStartEvent}. This will change state to {@link
+     * LGGameState#STARTED}.
      *
-     * @throws IllegalStateException when the game is not {@linkplain LGGameState#READY_TO_START
-     *                               ready to start}
+     * @throws IllegalStateException when the game state is not in the {@linkplain
+     *                               LGGameState#LOBBY} state.
      */
     void start();
 
@@ -104,9 +102,9 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     /**
      * Deletes the game and calls the deletion events.
      * <p>
-     * This changes state to {@link LGGameState#DELETING}, terminates every terminable bound
-     * to this orchestrator, teleports all players to the spawn, and finally changes state to
-     * {@link LGGameState#DELETED}.
+     * This changes state to {@link LGGameState#DELETING}, terminates every terminable bound to this
+     * orchestrator, teleports all players to the spawn, and finally changes state to {@link
+     * LGGameState#DELETED}.
      *
      * @throws IllegalStateException when the game is {@linkplain LGGameState#DELETING deleting} or
      *                               {@linkplain LGGameState#DELETED deleted}
@@ -197,10 +195,6 @@ public interface LGGameOrchestrator extends TerminableConsumer {
 
     void setComposition(Composition composition);
 
-    @Nullable CompositionValidator.Problem.Type getWorstCompositionProblemType();
-
-    boolean isCompositionValid();
-
     <T extends OrchestratorComponent> T component(MetadataKey<T> key);
 
     default LGChatOrchestrator chat() {
@@ -233,32 +227,28 @@ public interface LGGameOrchestrator extends TerminableConsumer {
         return event.getOrchestrator() == this;
     }
 
-    default int getSlotsTaken() {
+    default int getPlayersCount() {
         return getPlayers().size();
     }
 
-    default int getTotalSlotCount() {
+    default int getMaxPlayers() {
         return getComposition().getPlayerCount();
     }
 
     default boolean isFull() {
-        return getSlotsTaken() == getTotalSlotCount();
+        return getPlayersCount() == getMaxPlayers();
     }
 
     default String getSlotsDisplay() {
-        return "(" + getSlotsTaken() + "/" + getTotalSlotCount() + ")";
+        return "(" + getPlayersCount() + "/" + getMaxPlayers() + ")";
     }
 
     default Stream<Player> getAllMinecraftPlayers() {
         return getPlayers().stream().map(LGPlayer::minecraft).flatMap(OptionalUtils::stream);
     }
 
-    default void showSubtitle(String subtitle) {
-        getAllMinecraftPlayers().forEach(player -> player.sendTitle("", subtitle, -1, -1, -1));
-    }
-
     default Composition getCurrentComposition() {
-        if (getState() == LGGameState.WAITING_FOR_PLAYERS || getState() == LGGameState.READY_TO_START) {
+        if (getState() == LGGameState.LOBBY) {
             return getComposition();
         } else {
             return () -> getAlivePlayers().map(LGPlayer::getCard)

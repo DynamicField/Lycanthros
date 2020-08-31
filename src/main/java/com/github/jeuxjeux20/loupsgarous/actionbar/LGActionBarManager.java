@@ -1,17 +1,19 @@
 package com.github.jeuxjeux20.loupsgarous.actionbar;
 
-import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator.Problem;
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.event.CountdownTickEvent;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
-import com.github.jeuxjeux20.loupsgarous.event.lobby.LGLobbyCompositionUpdateEvent;
+import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionUpdateEvent;
 import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseStartedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.*;
+import com.github.jeuxjeux20.loupsgarous.phases.LobbyPhase;
 import com.github.jeuxjeux20.loupsgarous.phases.PhaseEventUtils;
 import com.github.jeuxjeux20.loupsgarous.phases.TimedPhase;
 import com.google.inject.Inject;
 import me.lucko.helper.Events;
+import me.lucko.helper.Schedulers;
 import me.lucko.helper.terminable.TerminableConsumer;
 import me.lucko.helper.terminable.module.TerminableModule;
 import me.lucko.helper.time.DurationFormatter;
@@ -24,7 +26,6 @@ import javax.annotation.Nonnull;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class LGActionBarManager extends AbstractOrchestratorComponent {
     @Inject
@@ -57,23 +58,20 @@ public class LGActionBarManager extends AbstractOrchestratorComponent {
     private List<BaseComponent> createStateComponents(LGPlayer player) {
         List<BaseComponent> components = new ArrayList<>();
 
-        if (orchestrator.getState() == LGGameState.WAITING_FOR_PLAYERS) {
-            components.add(new TextComponent("En attente"));
+        if (orchestrator.getState() == LGGameState.LOBBY) {
+            LobbyPhase lobbyPhase = (LobbyPhase) orchestrator.phases().current();
 
-            addCompositionProblemComponent(components);
-        } else if (orchestrator.getState() == LGGameState.READY_TO_START) {
-            components.add(new TextComponent("Départ dans "));
+            if (lobbyPhase.isStarting()) {
+                components.add(new TextComponent("Départ dans "));
 
-            Optional<TimedPhase> maybeTimedPhase = orchestrator.phases().current().safeCast(TimedPhase.class);
+                TextComponent numberComponent = new TextComponent(formatTimeLeft(lobbyPhase));
+                numberComponent.setColor(ChatColor.AQUA);
+                numberComponent.setBold(true);
 
-            TextComponent numberComponent = maybeTimedPhase.map(this::numberComponent)
-                    .orElseGet(() -> new TextComponent("?"));
-            numberComponent.setColor(ChatColor.AQUA);
-            numberComponent.setBold(true);
-
-            components.add(numberComponent);
-
-            components.add(new TextComponent(" secondes"));
+                components.add(numberComponent);
+            } else {
+                components.add(new TextComponent("En attente"));
+            }
 
             addCompositionProblemComponent(components);
         } else if (orchestrator.getState() == LGGameState.STARTED) {
@@ -107,11 +105,13 @@ public class LGActionBarManager extends AbstractOrchestratorComponent {
     }
 
     private void addCompositionProblemComponent(List<BaseComponent> components) {
-        if (orchestrator.getWorstCompositionProblemType() == Problem.Type.IMPOSSIBLE) {
+        LobbyPhase lobbyPhase = (LobbyPhase) orchestrator.phases().current();
+
+        if (lobbyPhase.getWorstCompositionProblemType() == Problem.Type.IMPOSSIBLE) {
             TextComponent component = new TextComponent(" (Composition invalide !)");
             component.setColor(ChatColor.RED);
             components.add(component);
-        } else if (orchestrator.getWorstCompositionProblemType() == Problem.Type.RULE_BREAKING) {
+        } else if (lobbyPhase.getWorstCompositionProblemType() == Problem.Type.RULE_BREAKING) {
             TextComponent component = new TextComponent(" (Composition contre les règles)");
             component.setColor(ChatColor.YELLOW);
             components.add(component);
@@ -129,8 +129,7 @@ public class LGActionBarManager extends AbstractOrchestratorComponent {
             components.add(slotsComponent);
         } else if (orchestrator.getState() == LGGameState.STARTED) {
             orchestrator.phases().current().safeCast(TimedPhase.class).ifPresent(timedPhase -> {
-                Duration secondsLeftDuration = Duration.ofSeconds(timedPhase.getSecondsLeft());
-                String formattedDuration = DurationFormatter.CONCISE.format(secondsLeftDuration);
+                String formattedDuration = formatTimeLeft(timedPhase);
 
                 TextComponent timeComponent = new TextComponent(formattedDuration);
                 timeComponent.setBold(true);
@@ -141,6 +140,11 @@ public class LGActionBarManager extends AbstractOrchestratorComponent {
         }
 
         return components;
+    }
+
+    private String formatTimeLeft(TimedPhase timedPhase) {
+        Duration secondsLeftDuration = Duration.ofSeconds(timedPhase.getSecondsLeft());
+        return DurationFormatter.CONCISE.format(secondsLeftDuration);
     }
 
     private void addHyphen(List<BaseComponent> components) {
@@ -161,10 +165,6 @@ public class LGActionBarManager extends AbstractOrchestratorComponent {
         }
     }
 
-    private TextComponent numberComponent(TimedPhase timedPhase) {
-        return new TextComponent(String.valueOf(timedPhase.getSecondsLeft()));
-    }
-
     @FunctionalInterface
     private interface Part {
         List<BaseComponent> render(LGPlayer player);
@@ -178,10 +178,12 @@ public class LGActionBarManager extends AbstractOrchestratorComponent {
                     .handler(e -> update())
                     .bindWith(consumer);
 
-            Events.merge(LGEvent.class, LGPhaseStartedEvent.class, LGLobbyCompositionUpdateEvent.class)
+            Events.merge(LGEvent.class, LGPhaseStartedEvent.class, LGCompositionUpdateEvent.class)
                     .filter(orchestrator::isMyEvent)
                     .handler(e -> update())
                     .bindWith(consumer);
+
+            Schedulers.sync().runRepeating((Runnable) LGActionBarManager.this::update, 0L, 5L);
         }
     }
 }

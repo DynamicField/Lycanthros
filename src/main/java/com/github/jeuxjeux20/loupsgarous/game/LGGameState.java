@@ -7,8 +7,7 @@ import java.util.stream.Collectors;
 
 public enum LGGameState {
     UNINITIALIZED,
-    WAITING_FOR_PLAYERS,
-    READY_TO_START,
+    LOBBY,
     STARTED,
     FINISHED,
     DELETING,
