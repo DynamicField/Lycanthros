@@ -84,8 +84,6 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     private final ReactiveProperty<ModBundle> modBundle = new ReactiveProperty<>();
 
     private final MetadataMap metadataMap = MetadataMap.create();
-    // Components
-
     // Other stuff
     private final List<Runnable> postInitializationActions = new ArrayList<>();
 
