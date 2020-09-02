@@ -10,7 +10,9 @@ import com.github.jeuxjeux20.loupsgarous.lobby.PlayerJoinException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import me.lucko.helper.Events;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
@@ -21,7 +23,7 @@ import java.util.*;
 
 @Singleton
 public class LGGameManager {
-    private final LGGameOrchestrator.Factory orchestratorFactory;
+    private final Provider<LGGameOrchestrator> orchestratorProvider;
 
     private final List<LGGameOrchestrator> ongoingGames = new ArrayList<>();
 
@@ -29,8 +31,8 @@ public class LGGameManager {
     private final Map<UUID, LGPlayerAndGame> playerGames = new HashMap<>();
 
     @Inject
-    LGGameManager(LGGameOrchestrator.Factory orchestratorFactory) {
-        this.orchestratorFactory = orchestratorFactory;
+    LGGameManager(@Named("blankGame") Provider<LGGameOrchestrator> orchestratorProvider) {
+        this.orchestratorProvider = orchestratorProvider;
 
         Events.subscribe(LGGameDeletedEvent.class)
                 .handler(e -> removeDeletedGame(e.getOrchestrator()));
@@ -60,11 +62,13 @@ public class LGGameManager {
             throw new DuplicateIdentifierException("A game with the id '" + id + "' is already present.");
         }
 
-        LGGameOrchestrator orchestrator = orchestratorFactory.create(
-                new LGGameBootstrapData(owner, composition, id)
-        );
-
-        orchestrator.initialize();
+        LGGameOrchestrator orchestrator = orchestratorProvider.get();
+        try {
+            orchestrator.initialize(new LGGameBootstrapData(owner, composition, id));
+        } catch (Throwable e) {
+            orchestrator.delete();
+            throw e;
+        }
 
         ongoingGames.add(orchestrator);
         gamesById.put(id, orchestrator);

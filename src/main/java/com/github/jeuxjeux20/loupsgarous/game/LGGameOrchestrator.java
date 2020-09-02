@@ -14,7 +14,6 @@ import com.github.jeuxjeux20.loupsgarous.extensibility.ModBundle;
 import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegistry;
 import com.github.jeuxjeux20.loupsgarous.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.lobby.LGGameBootstrapData;
-import com.github.jeuxjeux20.loupsgarous.lobby.LobbyCreationException;
 import com.github.jeuxjeux20.loupsgarous.lobby.PlayerJoinException;
 import com.github.jeuxjeux20.loupsgarous.phases.LGPhasesOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
@@ -39,7 +38,7 @@ import java.util.stream.Stream;
 /**
  * Manages a Loups-Garous game instance.
  * <p>
- * The game state can be changed using the appropriate methods: {@link #initialize()}, {@link
+ * The game state can be changed using the appropriate methods: {@link #initialize(LGGameBootstrapData)}, {@link
  * #start()}, {@link #finish(LGEnding)} and {@link #delete()}.
  * <p>
  * This also implements {@link TerminableConsumer}, where all the bound terminables get terminated
@@ -73,10 +72,9 @@ public interface LGGameOrchestrator extends TerminableConsumer {
      * Initializes the game to be ready to accept new players. Usually, this method is called
      * internally. This will change state to {@link LGGameState#LOBBY}.
      *
-     * @throws IllegalStateException when the game is not {@linkplain LGGameState#UNINITIALIZED
-     *                               uninitialized}
+     * @param bootstrapData the data used to initialize the game
      */
-    void initialize();
+    void initialize(LGGameBootstrapData bootstrapData) throws GameCreationException;
 
     /**
      * Starts the game and calls the {@link LGGameStartEvent}. This will change state to {@link
@@ -92,8 +90,7 @@ public interface LGGameOrchestrator extends TerminableConsumer {
      * change state to {@link LGGameState#FINISHED}.
      *
      * @param ending why the game ended
-     * @throws IllegalStateException when the game is {@linkplain LGGameState#UNINITIALIZED
-     *                               uninitialized}, {@linkplain LGGameState#FINISHED finished},
+     * @throws IllegalStateException when the game is {@linkplain LGGameState#FINISHED finished},
      *                               {@linkplain LGGameState#DELETING deleting} or {@linkplain
      *                               LGGameState#DELETED deleted}
      */
@@ -258,9 +255,5 @@ public interface LGGameOrchestrator extends TerminableConsumer {
 
     default Optional<LGPlayer> findByName(String name) {
         return getPlayers().stream().filter(x -> x.getName().equals(name)).findAny();
-    }
-
-    interface Factory {
-        LGGameOrchestrator create(LGGameBootstrapData lobbyInfo) throws LobbyCreationException;
     }
 }

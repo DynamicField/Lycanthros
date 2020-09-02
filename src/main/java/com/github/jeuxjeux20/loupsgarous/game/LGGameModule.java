@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
+import com.google.inject.name.Names;
 
 public final class LGGameModule extends AbstractModule {
     @Override
@@ -9,9 +9,9 @@ public final class LGGameModule extends AbstractModule {
         install(new OrchestratorScopeModule());
 
         bind(LGGameManager.class);
+        bind(LGGameOrchestrator.class)
+                .annotatedWith(Names.named("blankGame"))
+                .to(MinecraftLGGameOrchestrator.class);
 
-        install(new FactoryModuleBuilder()
-                .implement(LGGameOrchestrator.class, MinecraftLGGameOrchestrator.class)
-                .build(LGGameOrchestrator.Factory.class));
     }
 }
