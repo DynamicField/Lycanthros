@@ -7,6 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.UniqueCard
 import com.github.jeuxjeux20.loupsgarous.cards.revealers.*;
 import com.github.jeuxjeux20.loupsgarous.chat.LGChatChannels;
 import com.github.jeuxjeux20.loupsgarous.chat.PetiteFilleSpiesOnLoupsGarous;
+import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.MaireVoteOutcomeTransformer;
 import com.github.jeuxjeux20.loupsgarous.inventory.EditLobbyItem;
 import com.github.jeuxjeux20.loupsgarous.inventory.QuitGameItem;
 import com.github.jeuxjeux20.loupsgarous.phases.*;
@@ -101,8 +102,10 @@ public class ClassicGameMod extends AbstractMod {
                         LGChatChannels.DAY,
                         LGChatChannels.DEAD,
                         LGChatChannels.LOUPS_GAROUS),
-                extend(CHANNEL_PROPERTIES_TRANSFORMERS,
-                        new PetiteFilleSpiesOnLoupsGarous())
+                extend(CHAT_CHANNEL_VIEW_TRANSFORMERS,
+                        new PetiteFilleSpiesOnLoupsGarous()),
+                extend(PLAYER_VOTE_OUTCOME_TRANSFORMERS,
+                        new MaireVoteOutcomeTransformer())
         );
     }
 }

@@ -1,7 +1,11 @@
 package com.github.jeuxjeux20.loupsgarous.interaction;
 
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorDependent;
 import me.lucko.helper.terminable.Terminable;
+import me.lucko.helper.terminable.TerminableConsumer;
+
+import java.util.function.Function;
 
 /**
  * The base interface for interactable objects.
@@ -25,4 +29,16 @@ public interface Interactable extends Terminable, OrchestratorDependent {
     boolean isClosed();
 
     void addTerminationListener(TerminationListener<? super Interactable> listener);
+
+    static <I extends Interactable, H extends TerminableConsumer & OrchestratorDependent>
+    I createBound(Function<LGGameOrchestrator, I> interactableFactory,
+                  InteractableKey<? super I> key,
+                  H holder) {
+        LGGameOrchestrator orchestrator = holder.gameOrchestrator();
+
+        I interactable = interactableFactory.apply(orchestrator);
+        interactable.bindWith(holder);
+        orchestrator.interactables().register(key, interactable);
+        return interactable;
+    }
 }

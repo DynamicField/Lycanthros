@@ -7,7 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.AbstractPlayerPick;
-import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegisterer;
+import com.github.jeuxjeux20.loupsgarous.interaction.Interactable;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.ChasseurKillCause;
@@ -71,7 +71,7 @@ public final class ChasseurKillPhase extends CountdownLGPhase {
 
     @Override
     protected void finish() {
-        if (!killable.killed) {
+        if (!killable.hasChasseurKilledSomeone()) {
             orchestrator.chat().sendToEveryone(info("Le chasseur n'a pas tiré."));
         }
     }
@@ -90,19 +90,20 @@ public final class ChasseurKillPhase extends CountdownLGPhase {
         }
 
         this.chasseur = chasseur;
-        this.killable = InteractableRegisterer.of(ChasseurKill::new)
-                .as(LGInteractableKeys.KILL)
-                .boundWith(this);
+        this.killable = Interactable.createBound(o -> new ChasseurKill(o, chasseur),
+                LGInteractableKeys.KILL, this);
 
         orchestrator.phases().descriptors().get(getClass())
                 .setTitle("Le chasseur " + chasseur.getName() + " va tirer sa balle (ou non) !");
     }
 
-    public final class ChasseurKill extends AbstractPlayerPick {
-        boolean killed = false;
+    public static class ChasseurKill extends AbstractPlayerPick {
+        private boolean killed = false;
+        private final LGPlayer chasseur;
 
-        private ChasseurKill() {
-            super(ChasseurKillPhase.super.orchestrator);
+        public ChasseurKill(LGGameOrchestrator orchestrator, LGPlayer chasseur) {
+            super(orchestrator);
+            this.chasseur = chasseur;
         }
 
         @Override
@@ -115,11 +116,19 @@ public final class ChasseurKillPhase extends CountdownLGPhase {
                     .build();
         }
 
+        public LGPlayer getChasseur() {
+            return chasseur;
+        }
+
+        public boolean hasChasseurKilledSomeone() {
+            return killed;
+        }
+
         @Override
         protected void safePick(LGPlayer picker, LGPlayer target) {
             killed = true;
             target.die(ChasseurKillCause.INSTANCE);
-            getCountdown().interrupt();
+            orchestrator.phases().current().stop();
         }
 
         private boolean isChasseur(LGPlayer picker) {

@@ -1,9 +1,11 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
 import com.github.jeuxjeux20.loupsgarous.Countdown;
-import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.atmosphere.VoteStructure;
-import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegisterer;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.interaction.Interactable;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.AbstractPlayerVote;
@@ -26,14 +28,12 @@ public final class VillageVotePhase extends CountdownLGPhase {
     private final VoteStructure voteStructure;
 
     @Inject
-    VillageVotePhase(LGGameOrchestrator orchestrator,
-                     VoteStructure.Factory voteStructureFactory,
-                     InteractableRegisterer<VillageVote> vote) {
+    VillageVotePhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
-        this.vote = vote.as(LGInteractableKeys.PLAYER_VOTE).boundWith(this);
+        this.vote = Interactable.createBound(VillageVote::new, LGInteractableKeys.PLAYER_VOTE, this);
 
-        this.voteStructure = voteStructureFactory.create(
+        this.voteStructure = new VoteStructure(
                 orchestrator,
                 orchestrator.getWorld().getSpawnLocation(),
                 this.vote
@@ -74,9 +74,8 @@ public final class VillageVotePhase extends CountdownLGPhase {
     }
 
     public static final class VillageVote extends AbstractPlayerVote {
-        @Inject
-        VillageVote(LGGameOrchestrator orchestrator, Dependencies dependencies) {
-            super(orchestrator, dependencies);
+        public VillageVote(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
         }
 
         @Override

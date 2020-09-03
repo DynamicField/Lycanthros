@@ -2,13 +2,13 @@ package com.github.jeuxjeux20.loupsgarous.phases;
 
 import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
-import com.github.jeuxjeux20.loupsgarous.chat.LGChatChannels;
 import com.github.jeuxjeux20.loupsgarous.chat.ChatChannel;
 import com.github.jeuxjeux20.loupsgarous.chat.ChatContext;
+import com.github.jeuxjeux20.loupsgarous.chat.LGChatChannels;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegisterer;
+import com.github.jeuxjeux20.loupsgarous.interaction.Interactable;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.AbstractPlayerVote;
@@ -33,11 +33,10 @@ public final class LoupGarouVotePhase extends CountdownLGPhase {
     private final LoupGarouVote votable;
 
     @Inject
-    LoupGarouVotePhase(LGGameOrchestrator orchestrator,
-                       InteractableRegisterer<LoupGarouVote> votable) {
+    LoupGarouVotePhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
-        this.votable = votable.as(LGInteractableKeys.PLAYER_VOTE).boundWith(this);
+        this.votable = Interactable.createBound(LoupGarouVote::new, LGInteractableKeys.PLAYER_VOTE, this);
     }
 
     @Override
@@ -73,10 +72,8 @@ public final class LoupGarouVotePhase extends CountdownLGPhase {
     }
 
     public static final class LoupGarouVote extends AbstractPlayerVote {
-        @Inject
-        LoupGarouVote(LGGameOrchestrator orchestrator,
-                      Dependencies dependencies) {
-            super(orchestrator, dependencies);
+        public LoupGarouVote(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
         }
 
         @Override

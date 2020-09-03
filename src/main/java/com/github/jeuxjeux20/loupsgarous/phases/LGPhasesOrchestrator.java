@@ -61,7 +61,7 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
     }
 
     /**
-     * Cancels the current phases, if any, and runs the next one.
+     * Cancels the current phase, if any, and runs the next one.
      * <p>
      * Note that some {@link PhaseOverride}s might prevent the execution of the next phase, for
      * example, if the game is in a {@linkplain LGGameState#LOBBY lobby state},

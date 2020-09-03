@@ -4,10 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.*;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.interaction.AbstractPlayerPick;
-import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegisterer;
-import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
-import com.github.jeuxjeux20.loupsgarous.interaction.PickableConditions;
+import com.github.jeuxjeux20.loupsgarous.interaction.*;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.NightKillCause;
@@ -36,17 +33,13 @@ import static me.lucko.helper.text.format.TextDecoration.BOLD;
 public final class SorcierePotionPhase extends CountdownLGPhase {
     private final SorciereHeal heal;
     private final SorciereKill kill;
-    private final BaseConditions baseConditions;
 
     @Inject
-    SorcierePotionPhase(LGGameOrchestrator orchestrator, BaseConditions baseConditions,
-                        InteractableRegisterer<SorciereHeal> heal,
-                        InteractableRegisterer<SorciereKill> kill) {
+    SorcierePotionPhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
-        this.baseConditions = baseConditions;
 
-        this.heal = heal.as(LGInteractableKeys.HEAL).boundWith(this);
-        this.kill = kill.as(LGInteractableKeys.KILL).boundWith(this);
+        this.heal = Interactable.createBound(SorciereHeal::new, LGInteractableKeys.HEAL, this);
+        this.kill = Interactable.createBound(SorciereKill::new, LGInteractableKeys.KILL, this);
     }
 
     @Override
@@ -56,14 +49,14 @@ public final class SorcierePotionPhase extends CountdownLGPhase {
 
     @Override
     public boolean shouldRun() {
-        return orchestrator.getPlayers().stream().anyMatch(Check.predicate(baseConditions::canAct)) &&
+        return orchestrator.getPlayers().stream().anyMatch(Check.predicate(SorcierePick::canSorciereAct)) &&
                orchestrator.getTurn().getTime() == LGGameTurnTime.NIGHT;
     }
 
     @Override
     protected void start() {
         orchestrator.getPlayers().stream()
-                .filter(Check.predicate(baseConditions::canAct))
+                .filter(Check.predicate(SorcierePick::canSorciereAct))
                 .forEach(this::sendNotification);
     }
 
@@ -153,25 +146,15 @@ public final class SorcierePotionPhase extends CountdownLGPhase {
 
     // PickData stuff
 
-    private static final class BaseConditions {
-        public Check canAct(LGPlayer player) {
-            return Check.ensure(player.isAlive(), "Vous êtes mort !")
-                    .and(player.powers().has(SorcierePower.class), "Vous n'êtes pas une sorcière !");
-        }
-    }
-
     private static abstract class SorcierePick extends AbstractPlayerPick {
-        private final BaseConditions baseConditions;
-
-        protected SorcierePick(LGGameOrchestrator orchestrator, BaseConditions baseConditions) {
+        protected SorcierePick(LGGameOrchestrator orchestrator) {
             super(orchestrator);
-            this.baseConditions = baseConditions;
         }
 
         @Override
         protected final PickConditions<LGPlayer> pickConditions() {
             return conditionsBuilder()
-                    .ensurePicker(baseConditions::canAct)
+                    .ensurePicker(SorcierePick::canSorciereAct)
                     .use(powerConditions())
                     .build();
         }
@@ -181,12 +164,16 @@ public final class SorcierePotionPhase extends CountdownLGPhase {
         protected SorcierePower getSorcierePower(LGPlayer player) {
             return player.powers().getOrThrow(SorcierePower.class);
         }
+
+        public static Check canSorciereAct(LGPlayer player) {
+            return Check.ensure(player.isAlive(), "Vous êtes mort !")
+                    .and(player.powers().has(SorcierePower.class), "Vous n'êtes pas une sorcière !");
+        }
     }
 
     public static class SorciereHeal extends SorcierePick {
-        @Inject
-        SorciereHeal(LGGameOrchestrator orchestrator, BaseConditions baseConditions) {
-            super(orchestrator, baseConditions);
+        public SorciereHeal(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
         }
 
         @Override
@@ -216,9 +203,8 @@ public final class SorcierePotionPhase extends CountdownLGPhase {
     }
 
     public static class SorciereKill extends SorcierePick {
-        @Inject
-        SorciereKill(LGGameOrchestrator orchestrator, BaseConditions baseConditions) {
-            super(orchestrator, baseConditions);
+        public SorciereKill(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
         }
 
         @Override

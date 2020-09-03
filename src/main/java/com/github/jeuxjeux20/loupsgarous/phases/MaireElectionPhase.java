@@ -3,17 +3,17 @@ package com.github.jeuxjeux20.loupsgarous.phases;
 import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegisterer;
+import com.github.jeuxjeux20.loupsgarous.interaction.Interactable;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.AbstractPlayerVote;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.tags.LGTags;
 import com.google.inject.Inject;
+import org.apache.commons.lang.math.RandomUtils;
 import org.bukkit.ChatColor;
 
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 @MajorityVoteShortensCountdown(LGInteractableKeys.Names.PLAYER_VOTE)
@@ -27,11 +27,10 @@ public final class MaireElectionPhase extends CountdownLGPhase {
     private final MaireVote vote;
 
     @Inject
-    MaireElectionPhase(LGGameOrchestrator orchestrator,
-                       InteractableRegisterer<MaireVote> vote) {
+    MaireElectionPhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
-        this.vote = vote.as(LGInteractableKeys.PLAYER_VOTE).boundWith(this);
+        this.vote = Interactable.createBound(MaireVote::new, LGInteractableKeys.PLAYER_VOTE, this);
     }
 
     @Override
@@ -49,12 +48,8 @@ public final class MaireElectionPhase extends CountdownLGPhase {
     }
 
     public static final class MaireVote extends AbstractPlayerVote {
-        private final Random random;
-
-        @Inject
-        MaireVote(LGGameOrchestrator orchestrator, Dependencies dependencies, Random random) {
-            super(orchestrator, dependencies);
-            this.random = random;
+        public MaireVote(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
         }
 
         @Override
@@ -82,7 +77,7 @@ public final class MaireElectionPhase extends CountdownLGPhase {
 
         private LGPlayer drawRandomPlayer() {
             List<LGPlayer> players = getEligibleTargets().collect(Collectors.toList());
-            return players.get(random.nextInt(players.size()));
+            return players.get(RandomUtils.nextInt(players.size()));
         }
 
         @Override

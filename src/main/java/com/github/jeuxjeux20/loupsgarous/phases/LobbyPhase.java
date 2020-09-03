@@ -66,7 +66,7 @@ public final class LobbyPhase extends CountdownLGPhase {
         }
     }
 
-    public CompositionValidator.Problem.Type getWorstCompositionProblemType() {
+    public @Nullable CompositionValidator.Problem.Type getWorstCompositionProblemType() {
         return worstCompositionProblemType;
     }
 

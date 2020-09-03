@@ -1,14 +1,12 @@
 package com.github.jeuxjeux20.loupsgarous.atmosphere;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.Check;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickEventBase;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickRemovedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.Vote;
-import com.github.jeuxjeux20.loupsgarous.Check;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import me.lucko.helper.Events;
 import me.lucko.helper.item.ItemStackBuilder;
 import me.lucko.helper.metadata.Metadata;
@@ -47,9 +45,7 @@ public class VoteStructure implements Structure {
 
     private BackedStructure backedStructure = BackedStructure.EMPTY;
 
-    @Inject
-    VoteStructure(@Assisted LGGameOrchestrator orchestrator, @Assisted Location location,
-                  @Assisted Vote<LGPlayer> vote) {
+    public VoteStructure(LGGameOrchestrator orchestrator, Location location, Vote<LGPlayer> vote) {
         this.orchestrator = orchestrator;
         this.location = location;
         this.world = location.getWorld();
@@ -200,7 +196,4 @@ public class VoteStructure implements Structure {
         }
     }
 
-    public interface Factory {
-        VoteStructure create(LGGameOrchestrator orchestrator, Location location, Vote<LGPlayer> vote);
-    }
 }

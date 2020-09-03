@@ -5,10 +5,10 @@ import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.Compositio
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidatorHandler;
 import com.github.jeuxjeux20.loupsgarous.cards.revealers.CardRevealer;
 import com.github.jeuxjeux20.loupsgarous.cards.revealers.CardRevealerHandler;
-import com.github.jeuxjeux20.loupsgarous.chat.ChatChannelViewTransformer;
 import com.github.jeuxjeux20.loupsgarous.chat.ChatChannel;
-import com.github.jeuxjeux20.loupsgarous.descriptor.Descriptor;
-import com.github.jeuxjeux20.loupsgarous.descriptor.DescriptorProcessor;
+import com.github.jeuxjeux20.loupsgarous.chat.ChatChannelViewTransformer;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcomeTransformer;
 import com.github.jeuxjeux20.loupsgarous.inventory.InventoryItem;
 import com.github.jeuxjeux20.loupsgarous.phases.RunnableLGPhase;
 import com.github.jeuxjeux20.loupsgarous.phases.dusk.DuskAction;
@@ -25,6 +25,16 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
 public final class LGExtensionPoints {
+    private static final LoadingCache<Class<?>, ExtensionPoint<?>>
+            VOTE_OUTCOME_TRANSFORMER_CACHE =
+            CacheBuilder.newBuilder().build(new ClassExtensionPointCacheLoader<Object>("vote_outcome_transformers") {
+                @Override
+                protected <C> TypeToken<?> getExtensionPointType(Class<C> clazz) {
+                    return new TypeToken<VoteOutcomeTransformer<C>>() {}
+                            .where(new TypeParameter<C>() {}, clazz);
+                }
+            });
+
     public static final ExtensionPoint<Class<? extends RunnableLGPhase>> PHASES =
             new ExtensionPoint<>("phases", new TypeToken<Class<? extends RunnableLGPhase>>() {});
 
@@ -59,29 +69,23 @@ public final class LGExtensionPoints {
     public static final ExtensionPoint<WinCondition> WIN_CONDITIONS =
             new ExtensionPoint<>("win_conditions", WinCondition.class);
 
-    public static final ExtensionPoint<ChatChannelViewTransformer> CHANNEL_PROPERTIES_TRANSFORMERS =
+    public static final ExtensionPoint<ChatChannelViewTransformer> CHAT_CHANNEL_VIEW_TRANSFORMERS =
             new ExtensionPoint<>("channel_properties_transformers", ChatChannelViewTransformer.class);
 
     public static final ExtensionPoint<ChatChannel> CHAT_CHANNELS =
             new ExtensionPoint<>("chat_channels", ChatChannel.class);
 
-    private static final LoadingCache<Class<? extends Descriptor<?>>, ExtensionPoint<?>>
-            DESCRIPTOR_PROCESSOR_CACHE =
-            CacheBuilder.newBuilder().build(new ClassExtensionPointCacheLoader<Descriptor<?>>("processor") {
-                @Override
-                protected <C extends Descriptor<?>> TypeToken<?> getExtensionPointType(Class<C> clazz) {
-                    return new TypeToken<DescriptorProcessor<C>>() {}
-                            .where(new TypeParameter<C>() {}, clazz);
-                }
-            });
+    public static ExtensionPoint<VoteOutcomeTransformer<LGPlayer>> PLAYER_VOTE_OUTCOME_TRANSFORMERS =
+            voteOutcomeTransformers(LGPlayer.class);
+
 
     private LGExtensionPoints() {
     }
 
     @SuppressWarnings("unchecked")
-    public static <D extends Descriptor<?>>
-    ExtensionPoint<DescriptorProcessor<D>> descriptorProcessors(Class<D> descriptorClass) {
-        return (ExtensionPoint<DescriptorProcessor<D>>)
-                DESCRIPTOR_PROCESSOR_CACHE.getUnchecked(descriptorClass);
+    public static <D>
+    ExtensionPoint<VoteOutcomeTransformer<D>> voteOutcomeTransformers(Class<D> candidateClass) {
+        return (ExtensionPoint<VoteOutcomeTransformer<D>>)
+                VOTE_OUTCOME_TRANSFORMER_CACHE.getUnchecked(candidateClass);
     }
 }

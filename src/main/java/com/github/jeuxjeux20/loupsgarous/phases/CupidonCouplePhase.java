@@ -4,10 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.interaction.AbstractCouplePick;
-import com.github.jeuxjeux20.loupsgarous.interaction.Couple;
-import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegisterer;
-import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
+import com.github.jeuxjeux20.loupsgarous.interaction.*;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.powers.CupidonPower;
@@ -15,6 +12,7 @@ import com.github.jeuxjeux20.loupsgarous.teams.CoupleTeam;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.Check;
 import com.google.inject.Inject;
+import org.apache.commons.lang.math.RandomUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,10 +30,13 @@ public final class CupidonCouplePhase extends CountdownLGPhase {
     private final CupidonCoupleCreator coupleCreator;
 
     @Inject
-    CupidonCouplePhase(LGGameOrchestrator orchestrator,
-                       InteractableRegisterer<CupidonCoupleCreator> coupleCreator) {
+    CupidonCouplePhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
-        this.coupleCreator = coupleCreator.as(LGInteractableKeys.COUPLE_CREATOR).boundWith(this);
+        this.coupleCreator = Interactable.createBound(
+                CupidonCoupleCreator::new,
+                LGInteractableKeys.COUPLE_CREATOR,
+                this
+        );
     }
 
     @Override
@@ -74,12 +75,9 @@ public final class CupidonCouplePhase extends CountdownLGPhase {
 
     public static class CupidonCoupleCreator extends AbstractCouplePick {
         private final Map<LGPlayer, Couple> couplePicks = new HashMap<>();
-        private final Random random;
 
-        @Inject
-        CupidonCoupleCreator(LGGameOrchestrator orchestrator, Random random) {
+        public CupidonCoupleCreator(LGGameOrchestrator orchestrator) {
             super(orchestrator);
-            this.random = random;
         }
 
         @Override
@@ -92,12 +90,12 @@ public final class CupidonCouplePhase extends CountdownLGPhase {
                     .build();
         }
 
-        void checkAllPartners(FunctionalPickConditions.Builder<Couple> builder) {
+        private void checkAllPartners(FunctionalPickConditions.Builder<Couple> builder) {
             builder.ensureTarget(couple -> partnerCheck(couple.getPartner1()))
                     .ensureTarget(couple -> partnerCheck(couple.getPartner2()));
         }
 
-        Check partnerCheck(LGPlayer partner) {
+        protected Check partnerCheck(LGPlayer partner) {
             return Check.ensure(partner.isAlive(), partner.getName() + " est mort !")
                     .and(partner.teams().get().stream().noneMatch(LGTeams::isCouple), partner.getName()
                                                                                              + " est déjà en couple !");
@@ -120,7 +118,7 @@ public final class CupidonCouplePhase extends CountdownLGPhase {
             }
         }
 
-        void sendCoupleMessages(LGPlayer cupidon, Couple couple) {
+        private void sendCoupleMessages(LGPlayer cupidon, Couple couple) {
             cupidon.minecraft(player -> {
                 String message = info(HEART_SYMBOL + " ") +
                                  player(couple.getPartner1().getName()) + info(" et ") +
@@ -147,16 +145,16 @@ public final class CupidonCouplePhase extends CountdownLGPhase {
             }
         }
 
-        Stream<LGPlayer> getEligibleCupidons() {
+        public Stream<LGPlayer> getEligibleCupidons() {
             return getEligiblePickers();
         }
 
-        Stream<LGPlayer> getEligiblePartners() {
+        public Stream<LGPlayer> getEligiblePartners() {
             return orchestrator.getPlayers().stream()
                     .filter(Check.predicate(this::partnerCheck));
         }
 
-        void createRandomCouples() {
+        private void createRandomCouples() {
             List<LGPlayer> cupidonsWithoutCouple = getEligibleCupidons()
                     .filter(this::isPowerAvailable)
                     .collect(Collectors.toList());
@@ -173,9 +171,9 @@ public final class CupidonCouplePhase extends CountdownLGPhase {
                 return Optional.empty();
             }
 
-            LGPlayer partner1 = eligiblePartners.get(random.nextInt(eligiblePartners.size()));
+            LGPlayer partner1 = eligiblePartners.get(RandomUtils.nextInt(eligiblePartners.size()));
             eligiblePartners.remove(partner1);
-            LGPlayer partner2 = eligiblePartners.get(random.nextInt(eligiblePartners.size()));
+            LGPlayer partner2 = eligiblePartners.get(RandomUtils.nextInt(eligiblePartners.size()));
 
             return Optional.of(new Couple(partner1, partner2));
         }

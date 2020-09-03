@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.AbstractPlayerPick;
-import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegisterer;
+import com.github.jeuxjeux20.loupsgarous.interaction.Interactable;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.powers.VoyantePower;
@@ -25,11 +25,10 @@ public class VoyanteDuskAction extends DuskAction {
     private final VoyanteLookable look;
 
     @Inject
-    VoyanteDuskAction(LGGameOrchestrator orchestrator,
-                      InteractableRegisterer<VoyanteLookable> look) {
+    VoyanteDuskAction(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
-        this.look = look.as(LGInteractableKeys.LOOK).boundWith(this);
+        this.look = Interactable.createBound(VoyanteLookable::new, LGInteractableKeys.LOOK, this);
     }
 
     @Override
@@ -66,8 +65,7 @@ public class VoyanteDuskAction extends DuskAction {
     private static final class VoyanteLookable extends AbstractPlayerPick {
         private final List<LGPlayer> playersWhoLooked = new ArrayList<>();
 
-        @Inject
-        VoyanteLookable(LGGameOrchestrator orchestrator) {
+        public VoyanteLookable(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }
 

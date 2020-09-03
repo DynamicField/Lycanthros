@@ -21,7 +21,6 @@ public abstract class ClassExtensionPointCacheLoader<T> extends
         return create(key);
     }
 
-
     private <C extends T> ExtensionPoint<?> create(Class<C> clazz) {
         TypeToken<?> type = getExtensionPointType(clazz);
         String name = getExtensionPointName(clazz);

@@ -1,35 +1,54 @@
 package com.github.jeuxjeux20.loupsgarous.interaction.vote;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickRemovedEvent;
-import com.github.jeuxjeux20.loupsgarous.interaction.*;
+import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.interaction.AbstractStatefulPick;
+import com.github.jeuxjeux20.loupsgarous.interaction.PickData;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcomeContext;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcomeDeterminer;
+import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcomeTransformer;
 import com.google.common.collect.ImmutableMultiset;
-import com.google.inject.Inject;
 import me.lucko.helper.Events;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractVote<T>
         extends AbstractStatefulPick<T>
         implements Vote<T> {
-    private final VoteOutcomeDeterminer<T> voteOutcomeDeterminer;
+    private VoteOutcomeDeterminer<? super T> voteOutcomeDeterminer = VoteOutcomeDeterminer.DEFAULT;
+    private final Class<T> candidateClass;
 
-    public AbstractVote(LGGameOrchestrator orchestrator, Dependencies<T> dependencies) {
+    public AbstractVote(LGGameOrchestrator orchestrator, Class<T> candidateClass) {
         super(orchestrator);
-        this.voteOutcomeDeterminer = dependencies.voteOutcomeDeterminer;
+        this.candidateClass = candidateClass;
     }
 
     @Override
-    public VoteOutcome<T> getOutcome() {
-        return voteOutcomeDeterminer.determine(createContext());
+    public final VoteOutcome<T> getOutcome() {
+        VoteOutcomeContext<T> context = createContext();
+        VoteOutcome<T> outcome = voteOutcomeDeterminer.determine(context);
+
+        for (VoteOutcomeTransformer<T> transformer : orchestrator.getGameBundle()
+                .contents(LGExtensionPoints.voteOutcomeTransformers(candidateClass))) {
+            outcome = transformer.transform(context, outcome);
+        }
+
+        return outcome;
     }
 
     private VoteOutcomeContext<T> createContext() {
         return new VoteOutcomeContext<>(getVotes(), getPicks(), getClass(), orchestrator);
+    }
+
+    protected VoteOutcomeDeterminer<? super T> getVoteOutcomeDeterminer() {
+        return voteOutcomeDeterminer;
+    }
+
+    protected void setVoteOutcomeDeterminer(VoteOutcomeDeterminer<? super T> voteOutcomeDeterminer) {
+        this.voteOutcomeDeterminer = voteOutcomeDeterminer;
     }
 
     @Override
@@ -69,14 +88,5 @@ public abstract class AbstractVote<T>
 
     private PickData<T, ?> createPick(LGPlayer picker, T target) {
         return new PickData<>(this, picker, target);
-    }
-
-    protected static class Dependencies<T> {
-        public final VoteOutcomeDeterminer<T> voteOutcomeDeterminer;
-
-        @Inject
-        Dependencies(VoteOutcomeDeterminer<T> voteOutcomeDeterminer) {
-            this.voteOutcomeDeterminer = voteOutcomeDeterminer;
-        }
     }
 }
