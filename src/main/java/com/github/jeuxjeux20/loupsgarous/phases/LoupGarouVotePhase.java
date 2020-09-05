@@ -16,7 +16,6 @@ import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.NightKillCause;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
-import com.google.inject.Inject;
 import org.bukkit.ChatColor;
 
 import java.util.Optional;
@@ -32,8 +31,7 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
 public final class LoupGarouVotePhase extends CountdownLGPhase {
     private final LoupGarouVote votable;
 
-    @Inject
-    LoupGarouVotePhase(LGGameOrchestrator orchestrator) {
+    public LoupGarouVotePhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
         this.votable = Interactable.createBound(LoupGarouVote::new, LGInteractableKeys.PLAYER_VOTE, this);

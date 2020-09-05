@@ -11,7 +11,6 @@ import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.AbstractPlayerVote;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.VillageVoteKillCause;
-import com.google.inject.Inject;
 import org.bukkit.ChatColor;
 
 import java.util.Optional;
@@ -27,8 +26,7 @@ public final class VillageVotePhase extends CountdownLGPhase {
     private final VillageVote vote;
     private final VoteStructure voteStructure;
 
-    @Inject
-    VillageVotePhase(LGGameOrchestrator orchestrator) {
+    public VillageVotePhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
         this.vote = Interactable.createBound(VillageVote::new, LGInteractableKeys.PLAYER_VOTE, this);

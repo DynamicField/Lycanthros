@@ -10,7 +10,6 @@ import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.powers.VoyantePower;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
-import com.google.inject.Inject;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -24,8 +23,7 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.importantTip;
 public class VoyanteDuskAction extends DuskAction {
     private final VoyanteLookable look;
 
-    @Inject
-    VoyanteDuskAction(LGGameOrchestrator orchestrator) {
+    public VoyanteDuskAction(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
         this.look = Interactable.createBound(VoyanteLookable::new, LGInteractableKeys.LOOK, this);

@@ -8,7 +8,5 @@ public interface PhaseOverride {
 
     Class<? extends RunnableLGPhase> getPhaseClass();
 
-    default RunnableLGPhase.Factory<?> getPhaseFactory() {
-        return orchestrator -> orchestrator.resolve(getPhaseClass());
-    }
+    RunnableLGPhase.Factory<?> getPhaseFactory();
 }

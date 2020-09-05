@@ -16,11 +16,8 @@ public class ChasseurKillOnDeathListener implements Listener {
             LGPlayer victim = kill.getVictim();
 
             if (victim.powers().has(ChasseurPower.class) && victim.isPresent()) {
-                event.getOrchestrator().phases().insert(orchestrator -> {
-                    ChasseurKillPhase phase = orchestrator.resolve(ChasseurKillPhase.class);
-                    phase.setChasseur(victim);
-                    return phase;
-                });
+                event.getOrchestrator().phases()
+                        .insert(orchestrator -> new ChasseurKillPhase(orchestrator, victim));
             }
         }
     }

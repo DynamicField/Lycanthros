@@ -15,4 +15,9 @@ public class GameEndPhaseOverride implements PhaseOverride {
     public Class<? extends RunnableLGPhase> getPhaseClass() {
         return GameEndPhase.class;
     }
+
+    @Override
+    public RunnableLGPhase.Factory<?> getPhaseFactory() {
+        return GameEndPhase::new;
+    }
 }

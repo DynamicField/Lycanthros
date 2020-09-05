@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.PHASES;
 import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.PHASE_OVERRIDES;
@@ -44,9 +43,7 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
     }
 
     private LinkedList<RunnableLGPhase.Factory<?>> getPhaseFactories() {
-        return orchestrator.getGameBundle().contents(PHASES).stream()
-                .map(c -> (RunnableLGPhase.Factory<?>) o -> o.resolve(c))
-                .collect(Collectors.toCollection(LinkedList::new));
+        return new LinkedList<>(orchestrator.getGameBundle().contents(PHASES));
     }
 
     /**

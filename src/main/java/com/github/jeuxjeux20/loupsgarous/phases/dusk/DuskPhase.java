@@ -8,7 +8,6 @@ import com.github.jeuxjeux20.loupsgarous.phases.CountdownLGPhase;
 import com.github.jeuxjeux20.loupsgarous.phases.PhaseColor;
 import com.github.jeuxjeux20.loupsgarous.phases.PhaseInfo;
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
 
 import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.DUSK_ACTIONS;
 
@@ -16,15 +15,14 @@ import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.
 public final class DuskPhase extends CountdownLGPhase {
     private final ImmutableList<DuskAction> actionsToRun;
 
-    @Inject
-    DuskPhase(LGGameOrchestrator orchestrator) {
+    public DuskPhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
         ImmutableList.Builder<DuskAction> actionsToRunBuilder = ImmutableList.builder();
 
-        for (Class<? extends DuskAction> actionClass :
+        for (DuskAction.Factory<?> actionFactory :
                 orchestrator.getGameBundle().contents(DUSK_ACTIONS)) {
-            DuskAction action = orchestrator.resolve(actionClass);
+            DuskAction action = actionFactory.create(orchestrator);
 
             if (action.shouldRun()) {
                 actionsToRunBuilder.add(action);
@@ -72,5 +70,4 @@ public final class DuskPhase extends CountdownLGPhase {
     private void closeAllActions() {
         actionsToRun.forEach(DuskAction::closeAndReportException);
     }
-
 }

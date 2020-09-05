@@ -9,7 +9,6 @@ import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionUpdateEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.google.inject.Inject;
 import me.lucko.helper.Events;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -24,8 +23,7 @@ public final class LobbyPhase extends CountdownLGPhase {
 
     private @Nullable CompositionValidator.Problem.Type worstCompositionProblemType;
 
-    @Inject
-    LobbyPhase(LGGameOrchestrator orchestrator) {
+    public LobbyPhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
         registerEventListeners();

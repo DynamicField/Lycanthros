@@ -96,6 +96,7 @@ public class Countdown implements Terminable, TerminableConsumer {
         if (!resume) {
             handleTick();
         }
+        stopTask();
         countdownTask = Schedulers.sync().runRepeating(() -> {
             timer--;
 
@@ -106,11 +107,6 @@ public class Countdown implements Terminable, TerminableConsumer {
     private void stopTask() {
         if (countdownTask != null)
             countdownTask.stop();
-    }
-
-    private void restartTask() {
-        stopTask();
-        startTask(true);
     }
 
     private void handleTick() {
@@ -170,7 +166,10 @@ public class Countdown implements Terminable, TerminableConsumer {
         }
 
         this.timer = timer;
-        restartTask();
+
+        if (state == State.RUNNING) {
+            startTask(true);
+        }
     }
 
     public State getState() {
@@ -189,10 +188,12 @@ public class Countdown implements Terminable, TerminableConsumer {
         Preconditions.checkState(state != State.FINISHED, "The countdown must not be finished.");
 
         this.paused = paused;
-        if (paused) {
-            stopTask();
-        } else {
-            startTask(true);
+        if (state == State.RUNNING) {
+            if (paused) {
+                stopTask();
+            } else {
+                startTask(true);
+            }
         }
     }
 

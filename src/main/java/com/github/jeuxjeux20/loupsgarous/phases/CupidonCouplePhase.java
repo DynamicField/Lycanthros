@@ -1,17 +1,19 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
-import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
+import com.github.jeuxjeux20.loupsgarous.Check;
 import com.github.jeuxjeux20.loupsgarous.Countdown;
+import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.interaction.*;
+import com.github.jeuxjeux20.loupsgarous.interaction.AbstractCouplePick;
+import com.github.jeuxjeux20.loupsgarous.interaction.Couple;
+import com.github.jeuxjeux20.loupsgarous.interaction.Interactable;
+import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.powers.CupidonPower;
 import com.github.jeuxjeux20.loupsgarous.teams.CoupleTeam;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeams;
-import com.github.jeuxjeux20.loupsgarous.Check;
-import com.google.inject.Inject;
 import org.apache.commons.lang.math.RandomUtils;
 
 import java.util.*;
@@ -29,8 +31,7 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
 public final class CupidonCouplePhase extends CountdownLGPhase {
     private final CupidonCoupleCreator coupleCreator;
 
-    @Inject
-    CupidonCouplePhase(LGGameOrchestrator orchestrator) {
+    public CupidonCouplePhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
         this.coupleCreator = Interactable.createBound(
                 CupidonCoupleCreator::new,

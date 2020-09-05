@@ -1,10 +1,10 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseEndedEvent;
 import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseEndingEvent;
 import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseStartedEvent;
 import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseStartingEvent;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.CompletableFutures;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;

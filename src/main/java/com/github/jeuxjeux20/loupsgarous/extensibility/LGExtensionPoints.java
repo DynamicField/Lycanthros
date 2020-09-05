@@ -35,14 +35,14 @@ public final class LGExtensionPoints {
                 }
             });
 
-    public static final ExtensionPoint<Class<? extends RunnableLGPhase>> PHASES =
-            new ExtensionPoint<>("phases", new TypeToken<Class<? extends RunnableLGPhase>>() {});
+    public static final ExtensionPoint<RunnableLGPhase.Factory<?>> PHASES =
+            new ExtensionPoint<>("phases", new TypeToken<RunnableLGPhase.Factory<?>>() {});
 
     public static final ExtensionPoint<PhaseOverride> PHASE_OVERRIDES =
             new ExtensionPoint<>("phase_overrides", PhaseOverride.class);
 
-    public static final ExtensionPoint<Class<? extends DuskAction>> DUSK_ACTIONS =
-            new ExtensionPoint<>("dusk_actions", new TypeToken<Class<? extends DuskAction>>() {});
+    public static final ExtensionPoint<DuskAction.Factory<?>> DUSK_ACTIONS =
+            new ExtensionPoint<>("dusk_actions", new TypeToken<DuskAction.Factory<?>>() {});
 
     public static final ExtensionPoint<LGCard> CARDS =
             new ExtensionPoint<>("cards", LGCard.class);

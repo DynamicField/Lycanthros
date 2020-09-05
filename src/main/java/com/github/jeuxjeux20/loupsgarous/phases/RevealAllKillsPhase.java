@@ -2,14 +2,12 @@ package com.github.jeuxjeux20.loupsgarous.phases;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
-import com.google.inject.Inject;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.SKULL_SYMBOL;
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.killMessage;
 
 public final class RevealAllKillsPhase extends LogicLGPhase {
-    @Inject
-    RevealAllKillsPhase(LGGameOrchestrator orchestrator) {
+    public RevealAllKillsPhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }
 

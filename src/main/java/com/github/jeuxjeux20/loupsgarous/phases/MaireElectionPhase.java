@@ -9,7 +9,6 @@ import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.AbstractPlayerVote;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.tags.LGTags;
-import com.google.inject.Inject;
 import org.apache.commons.lang.math.RandomUtils;
 import org.bukkit.ChatColor;
 
@@ -26,8 +25,7 @@ import java.util.stream.Collectors;
 public final class MaireElectionPhase extends CountdownLGPhase {
     private final MaireVote vote;
 
-    @Inject
-    MaireElectionPhase(LGGameOrchestrator orchestrator) {
+    public MaireElectionPhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
         this.vote = Interactable.createBound(MaireVote::new, LGInteractableKeys.PLAYER_VOTE, this);

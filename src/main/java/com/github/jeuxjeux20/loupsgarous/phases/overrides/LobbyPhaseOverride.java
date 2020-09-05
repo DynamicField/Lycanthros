@@ -15,4 +15,9 @@ public class LobbyPhaseOverride implements PhaseOverride {
     public Class<? extends RunnableLGPhase> getPhaseClass() {
         return LobbyPhase.class;
     }
+
+    @Override
+    public RunnableLGPhase.Factory<?> getPhaseFactory() {
+        return LobbyPhase::new;
+    }
 }

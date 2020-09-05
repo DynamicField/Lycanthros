@@ -13,7 +13,6 @@ import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.ChasseurKillCause;
 import com.github.jeuxjeux20.loupsgarous.powers.ChasseurPower;
 import com.github.jeuxjeux20.loupsgarous.winconditions.PostponesWinConditions;
-import com.google.inject.Inject;
 import me.lucko.helper.text.Text;
 import me.lucko.helper.text.TextComponent;
 
@@ -25,13 +24,18 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
         isTemporary = true
 )
 public final class ChasseurKillPhase extends CountdownLGPhase {
-    private LGPlayer chasseur;
+    private final LGPlayer chasseur;
+    private final ChasseurKill killable;
 
-    private ChasseurKill killable;
-
-    @Inject
-    ChasseurKillPhase(LGGameOrchestrator orchestrator) {
+    public ChasseurKillPhase(LGGameOrchestrator orchestrator, LGPlayer chasseur) {
         super(orchestrator);
+
+        this.chasseur = chasseur;
+        this.killable = Interactable.createBound(o -> new ChasseurKill(o, chasseur),
+                LGInteractableKeys.KILL, this);
+
+        orchestrator.phases().descriptors().get(getClass())
+                .setTitle("Le chasseur " + chasseur.getName() + " va tirer sa balle (ou non) !");
 
         // Reset the title after the phase ends.
         bind(() -> this.orchestrator.phases().descriptors().invalidate(getClass()));
@@ -44,14 +48,6 @@ public final class ChasseurKillPhase extends CountdownLGPhase {
 
     @Override
     public boolean shouldRun() {
-        if (chasseur == null) {
-            orchestrator.logger().warning(
-                    "Tried to evaluate " + getClass().getSimpleName() + "without a chasseur. " +
-                    "Did you forget to call setChasseur?");
-
-            return false;
-        }
-
         return killable.canSomeonePick();
     }
 
@@ -82,19 +78,6 @@ public final class ChasseurKillPhase extends CountdownLGPhase {
 
     public LGPlayer getChasseur() {
         return chasseur;
-    }
-
-    public void setChasseur(LGPlayer chasseur) {
-        if (this.chasseur != null) {
-            throw new IllegalStateException("There already is a chasseur.");
-        }
-
-        this.chasseur = chasseur;
-        this.killable = Interactable.createBound(o -> new ChasseurKill(o, chasseur),
-                LGInteractableKeys.KILL, this);
-
-        orchestrator.phases().descriptors().get(getClass())
-                .setTitle("Le chasseur " + chasseur.getName() + " va tirer sa balle (ou non) !");
     }
 
     public static class ChasseurKill extends AbstractPlayerPick {
