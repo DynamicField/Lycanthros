@@ -68,17 +68,17 @@ public class LGPlayersCommand implements HelperCommandRegisterer {
     private List<String> getLabels(LGPlayer sender, LGPlayer player, LGGameOrchestrator orchestrator) {
         List<String> labels = new ArrayList<>();
 
-        if (orchestrator.getGameBundle().handler(CARD_REVEALERS).willReveal(sender, player)) {
+        if (orchestrator.getGameBox().handler(CARD_REVEALERS).willReveal(sender, player)) {
             LGCard card = player.getCard();
 
             labels.add(card.getColor() + card.getName());
         }
 
-        for (LGTeam team : orchestrator.getGameBundle().handler(TEAM_REVEALERS).getTeamsRevealed(sender, player)) {
+        for (LGTeam team : orchestrator.getGameBox().handler(TEAM_REVEALERS).getTeamsRevealed(sender, player)) {
             labels.add(team.getColor() + team.getName());
         }
 
-        for (LGTag tag : orchestrator.getGameBundle().handler(TAG_REVEALERS).getTagsRevealed(sender, player)) {
+        for (LGTag tag : orchestrator.getGameBox().handler(TAG_REVEALERS).getTagsRevealed(sender, player)) {
             labels.add(tag.getColor() + tag.getName());
         }
 

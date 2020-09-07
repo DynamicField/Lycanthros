@@ -17,7 +17,7 @@ public class ChasseurKillOnDeathListener implements Listener {
 
             if (victim.powers().has(ChasseurPower.class) && victim.isPresent()) {
                 event.getOrchestrator().phases()
-                        .insert(orchestrator -> new ChasseurKillPhase(orchestrator, victim));
+                        .insert(new ChasseurKillPhase.Factory(victim));
             }
         }
     }

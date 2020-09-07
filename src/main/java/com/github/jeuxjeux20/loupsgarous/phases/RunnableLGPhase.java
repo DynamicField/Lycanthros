@@ -4,8 +4,11 @@ import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseEndedEvent;
 import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseEndingEvent;
 import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseStartedEvent;
 import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseStartingEvent;
+import com.github.jeuxjeux20.loupsgarous.extensibility.OrderTransformer;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.CompletableFutures;
+import com.github.jeuxjeux20.relativesorting.OrderedElement;
+import com.github.jeuxjeux20.relativesorting.OrderedElementTransformer;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
@@ -16,6 +19,7 @@ import me.lucko.helper.terminable.composite.CompositeTerminable;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.lang.reflect.Constructor;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -34,6 +38,11 @@ public abstract class RunnableLGPhase implements LGPhase, Terminable {
     @Inject
     public RunnableLGPhase(@Assisted LGGameOrchestrator orchestrator) {
         this.orchestrator = orchestrator;
+    }
+
+    public static <T extends RunnableLGPhase> SortableFactory<T> createPhaseFactory(
+            Class<T> phaseClass) {
+        return new SortableFactory.ByClass<>(phaseClass);
     }
 
     public final CompletableFuture<Void> run() {
@@ -128,9 +137,9 @@ public abstract class RunnableLGPhase implements LGPhase, Terminable {
     /**
      * Returns whether or not this phase supports interruption on its future.
      * <p>
-     * A value of {@code true} (the default) will cancel the future in {@link #close()} and
-     * will manually complete the future in {@link #stop()}.<br>
-     * A value of {@code false} will wait until the future completed in both methods.
+     * A value of {@code true} (the default) will cancel the future in {@link #close()} and will
+     * manually complete the future in {@link #stop()}.<br> A value of {@code false} will wait until
+     * the future completed in both methods.
      *
      * @return whether or not this phase supports interruption
      */
@@ -149,8 +158,7 @@ public abstract class RunnableLGPhase implements LGPhase, Terminable {
         if (currentFuture != null && !currentFuture.isDone()) {
             if (supportsInterruption()) {
                 return currentFuture.complete(null);
-            }
-            else {
+            } else {
                 ensureFutureComplete();
                 return true;
             }
@@ -177,7 +185,64 @@ public abstract class RunnableLGPhase implements LGPhase, Terminable {
                 .toString();
     }
 
-    public interface Factory<T extends RunnableLGPhase> {
-        T create(LGGameOrchestrator gameOrchestrator);
+    public abstract static class Factory<T extends RunnableLGPhase> {
+        public abstract T create(LGGameOrchestrator gameOrchestrator);
+
+        public abstract String getName();
+
+        @Override
+        public String toString() {
+            return getName();
+        }
+    }
+
+    @OrderTransformer(SortableFactory.OrderTransformer.class)
+    public abstract static class SortableFactory<T extends RunnableLGPhase> extends Factory<T> {
+        public abstract Class<?> getIdentifier();
+
+        @Override
+        public String getName() {
+            return getIdentifier().getName();
+        }
+
+        private static final class ByClass<T extends RunnableLGPhase> extends SortableFactory<T> {
+            private final Class<T> phaseClass;
+            private final Constructor<T> phaseConstructor;
+
+            private ByClass(Class<T> phaseClass) {
+                this.phaseClass = phaseClass;
+                try {
+                    this.phaseConstructor = phaseClass.getConstructor(LGGameOrchestrator.class);
+                } catch (NoSuchMethodException e) {
+                    throw new IllegalArgumentException(
+                            "Class " + phaseClass + "does not have a public constructor " +
+                            "taking a LGGameOrchestrator argument."
+                    );
+                }
+            }
+
+            @Override
+            public T create(LGGameOrchestrator gameOrchestrator) {
+                try {
+                    return phaseConstructor.newInstance(gameOrchestrator);
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to instantiate " + phaseClass + ".", e);
+                }
+            }
+
+            @Override
+            public Class<?> getIdentifier() {
+                return phaseClass;
+            }
+        }
+
+        private static final class OrderTransformer implements OrderedElementTransformer {
+            public OrderTransformer() {}
+            @Override
+            public <T> OrderedElement<T> transform(OrderedElement<T> orderedElement) {
+                Class<?> clazz = ((SortableFactory<?>) orderedElement.getElement()).getIdentifier();
+                return orderedElement.change(its -> its.identifier(clazz));
+            }
+        }
     }
 }

@@ -93,7 +93,7 @@ public final class LobbyPhase extends CountdownLGPhase {
 
     private void validateComposition() {
         CompositionValidatorHandler validator =
-                orchestrator.getGameBundle().handler(COMPOSITION_VALIDATORS);
+                orchestrator.getGameBox().handler(COMPOSITION_VALIDATORS);
 
         worstCompositionProblemType =
                 validator.validate(orchestrator.getComposition()).stream()

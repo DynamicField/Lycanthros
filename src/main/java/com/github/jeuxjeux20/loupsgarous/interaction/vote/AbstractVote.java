@@ -31,7 +31,7 @@ public abstract class AbstractVote<T>
         VoteOutcomeContext<T> context = createContext();
         VoteOutcome<T> outcome = voteOutcomeDeterminer.determine(context);
 
-        for (VoteOutcomeTransformer<T> transformer : orchestrator.getGameBundle()
+        for (VoteOutcomeTransformer<T> transformer : orchestrator.getGameBox()
                 .contents(LGExtensionPoints.voteOutcomeTransformers(candidateClass))) {
             outcome = transformer.transform(context, outcome);
         }

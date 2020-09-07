@@ -4,7 +4,6 @@ import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
 import com.github.jeuxjeux20.loupsgarous.phases.descriptor.LGPhaseDescriptor;
-import com.github.jeuxjeux20.loupsgarous.phases.overrides.PhaseOverride;
 import com.github.jeuxjeux20.loupsgarous.util.FutureExceptionUtils;
 import com.google.inject.Inject;
 import me.lucko.helper.terminable.Terminable;
@@ -12,21 +11,16 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.ListIterator;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.PHASES;
-import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.PHASE_OVERRIDES;
 
 public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
     private LinkedList<RunnableLGPhase.Factory<?>> phases;
     private final LGPhaseDescriptor.Registry descriptorRegistry;
     private ListIterator<RunnableLGPhase.Factory<?>> phaseIterator;
     private @Nullable RunnableLGPhase currentPhase;
-    private final Set<PhaseOverride> phaseOverrides;
     private final Logger logger;
 
     @Inject
@@ -36,14 +30,13 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
         this.phases = getPhaseFactories();
         this.descriptorRegistry = descriptorRegistry;
         this.phaseIterator = this.phases.listIterator();
-        this.phaseOverrides = orchestrator.getGameBundle().contents(PHASE_OVERRIDES);
         this.logger = orchestrator.logger();
 
         bind(new CurrentPhaseTerminable());
     }
 
     private LinkedList<RunnableLGPhase.Factory<?>> getPhaseFactories() {
-        return new LinkedList<>(orchestrator.getGameBundle().contents(PHASES));
+        return new LinkedList<>(orchestrator.getGameBox().contents(PHASES));
     }
 
     /**
@@ -58,14 +51,29 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
     }
 
     /**
-     * Cancels the current phase, if any, and runs the next one.
+     * If the game is running, cancels the current phase, if any, and runs the next one.
      * <p>
-     * Note that some {@link PhaseOverride}s might prevent the execution of the next phase, for
-     * example, if the game is in a {@linkplain LGGameState#LOBBY lobby state},
-     * this method will ensure that the current phase is an instance of {@link LobbyPhase}.
+     * Else, makes sure that the current stage is {@link LobbyPhase} or {@link GameEndPhase},
+     * depending on the current state of the orchestrator.
      */
     public void next() {
-        if (callPhaseOverride()) return;
+        if (orchestrator.getState() == LGGameState.LOBBY) {
+            if (currentPhase instanceof LobbyPhase) {
+                return;
+            }
+
+            runPhase(new LobbyPhase(orchestrator));
+        } else if (orchestrator.getState() == LGGameState.FINISHED) {
+            if (currentPhase instanceof GameEndPhase) {
+                return;
+            }
+
+            runPhase(new GameEndPhase(orchestrator));
+        } else if (orchestrator.getState() != LGGameState.STARTED) {
+            // The game is not supposed to run phases at that state.
+            updatePhase(null);
+            return;
+        }
 
         if (phases.size() == 0)
             throw new IllegalStateException("No phases have been found.");
@@ -81,7 +89,7 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
             phaseIterator.remove();
 
         if (phase.shouldRun()) {
-            runPhase(phase).thenRun(this::next).exceptionally(this::handlePostPhaseException);
+            runPhase(phase);
         } else {
             // Close the phase because we didn't run it.
             //
@@ -90,7 +98,7 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
             // unnecessary objects in the constructor.
             // I can't really think of an alternative that is nearly as pleasant to use
             // as the shouldRun() method.
-            // While something such as PhaseOverride somewhat fixes the whole issue,
+            // While something such as PhaseEntry somewhat fixes the whole issue,
             // requiring an extra class just for a condition seems really annoying.
             // For now, this works. Let's not complain :D
             phase.closeAndReportException();
@@ -117,29 +125,16 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
         return descriptorRegistry;
     }
 
-    private boolean callPhaseOverride() {
-        Optional<PhaseOverride> activePhaseOverride = phaseOverrides.stream()
-                .filter(x -> x.shouldOverride(orchestrator))
-                .findFirst();
-
-        activePhaseOverride.ifPresent(phaseOverride -> {
-            if (phaseOverride.getPhaseClass().isInstance(currentPhase)) return;
-
-            RunnableLGPhase phase = phaseOverride.getPhaseFactory().create(orchestrator);
-
-            runPhase(phase).exceptionally(this::handlePostPhaseException);
-        });
-
-        return activePhaseOverride.isPresent();
-    }
-
-    private CompletableFuture<Void> runPhase(RunnableLGPhase phase) {
+    private void runPhase(RunnableLGPhase phase) {
         updatePhase(phase);
 
-        return phase.run().exceptionally(this::handlePhaseException);
+        phase.run()
+                .exceptionally(this::handlePhaseException)
+                .thenRun(this::next)
+                .exceptionally(this::handlePostPhaseException);
     }
 
-    private void updatePhase(RunnableLGPhase phase) {
+    private void updatePhase(@Nullable RunnableLGPhase phase) {
         if (currentPhase != null && !currentPhase.isClosed())
             currentPhase.closeAndReportException();
 
@@ -164,6 +159,7 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
         if (!FutureExceptionUtils.isCancellation(ex)) {
             logger.log(Level.SEVERE, "Unhandled exception while the game was running the next phase.", ex);
         }
+        // TODO: What do we do here?
         return null;
     }
 

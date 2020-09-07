@@ -16,12 +16,8 @@ public abstract class AbstractMod implements Mod {
         return configuration;
     }
 
-    @SafeVarargs
-    protected final <T> Extension<T> extend(ExtensionPoint<T> extensionPoint, T... contents) {
-        return extensionPoint.extend(createExtensionName(extensionPoint), contents);
-    }
-
-    protected String createExtensionName(ExtensionPoint<?> extensionPoint) {
-        return getClass().getSimpleName() + "_" + extensionPoint.getId();
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
     }
 }

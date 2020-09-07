@@ -9,8 +9,7 @@ import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.event.LGGameFinishedEvent;
 import com.github.jeuxjeux20.loupsgarous.event.LGGameStartEvent;
-import com.github.jeuxjeux20.loupsgarous.extensibility.GameBundle;
-import com.github.jeuxjeux20.loupsgarous.extensibility.ModBundle;
+import com.github.jeuxjeux20.loupsgarous.extensibility.GameBox;
 import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegistry;
 import com.github.jeuxjeux20.loupsgarous.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.lobby.LGGameBootstrapData;
@@ -20,7 +19,6 @@ import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Provider;
-import io.reactivex.rxjava3.core.Observable;
 import me.lucko.helper.metadata.MetadataKey;
 import me.lucko.helper.metadata.MetadataMap;
 import me.lucko.helper.terminable.TerminableConsumer;
@@ -129,15 +127,7 @@ public interface LGGameOrchestrator extends TerminableConsumer {
 
     void setOwner(LGPlayer owner);
 
-    GameBundle getGameBundle();
-
-    Observable<GameBundle> observeGameBundle();
-
-    ModBundle getModBundle();
-
-    void setModBundle(ModBundle modBundle);
-
-    Observable<ModBundle> observeModBundle();
+    GameBox getGameBox();
 
     MetadataMap getMetadata();
 

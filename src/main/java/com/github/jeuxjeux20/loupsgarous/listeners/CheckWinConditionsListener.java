@@ -25,7 +25,7 @@ public class CheckWinConditionsListener implements Listener {
             return;
         }
 
-        for (WinCondition winCondition : orchestrator.getGameBundle().contents(WIN_CONDITIONS)) {
+        for (WinCondition winCondition : orchestrator.getGameBox().contents(WIN_CONDITIONS)) {
             Optional<LGEnding> ending = winCondition.check(orchestrator);
             if (ending.isPresent()) {
                 orchestrator.finish(ending.get());

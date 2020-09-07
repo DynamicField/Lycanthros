@@ -12,10 +12,6 @@ public abstract class ClassExtensionPointCacheLoader<T> extends
         this.suffix = suffix;
     }
 
-    public ClassExtensionPointCacheLoader() {
-        this.suffix = "point";
-    }
-
     @Override
     public ExtensionPoint<?> load(@NotNull Class<? extends T> key) {
         return create(key);
@@ -29,7 +25,7 @@ public abstract class ClassExtensionPointCacheLoader<T> extends
     }
 
     protected <C extends T> String getExtensionPointName(Class<C> clazz) {
-        return clazz + "_" + suffix;
+        return clazz.getName() + "_" + suffix;
     }
 
     protected abstract <C extends T> TypeToken<?> getExtensionPointType(Class<C> clazz);

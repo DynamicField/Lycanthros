@@ -12,7 +12,6 @@ import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcomeTra
 import com.github.jeuxjeux20.loupsgarous.inventory.InventoryItem;
 import com.github.jeuxjeux20.loupsgarous.phases.RunnableLGPhase;
 import com.github.jeuxjeux20.loupsgarous.phases.dusk.DuskAction;
-import com.github.jeuxjeux20.loupsgarous.phases.overrides.PhaseOverride;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.ScoreboardComponent;
 import com.github.jeuxjeux20.loupsgarous.tags.revealers.TagRevealer;
 import com.github.jeuxjeux20.loupsgarous.tags.revealers.TagRevealerHandler;
@@ -35,11 +34,8 @@ public final class LGExtensionPoints {
                 }
             });
 
-    public static final ExtensionPoint<RunnableLGPhase.Factory<?>> PHASES =
-            new ExtensionPoint<>("phases", new TypeToken<RunnableLGPhase.Factory<?>>() {});
-
-    public static final ExtensionPoint<PhaseOverride> PHASE_OVERRIDES =
-            new ExtensionPoint<>("phase_overrides", PhaseOverride.class);
+    public static final ExtensionPoint<RunnableLGPhase.SortableFactory<?>> PHASES =
+            new ExtensionPoint<>("phases", new TypeToken<RunnableLGPhase.SortableFactory<?>>() {});
 
     public static final ExtensionPoint<DuskAction.Factory<?>> DUSK_ACTIONS =
             new ExtensionPoint<>("dusk_actions", new TypeToken<DuskAction.Factory<?>>() {});

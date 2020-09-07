@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
 import com.github.jeuxjeux20.loupsgarous.cards.AbstractLGCard;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.powers.LGPower;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeam;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeams;
@@ -19,17 +20,34 @@ import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.
 @Singleton
 public class PatateMod extends AbstractMod {
     @Override
-    public List<Extension<?>> createExtensions(ConfigurationNode configuration) {
-        return ImmutableList.of(
-                extend(CARDS,
-                        PatateCard.INSTANCE)
-        );
+    public List<Rule> createRules(LGGameOrchestrator orchestrator, ConfigurationNode configuration) {
+        return ImmutableList.of(new PatateRule(orchestrator));
+    }
+
+    private static class PatateRule extends AbstractRule {
+        public PatateRule(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
+        }
+
+        @Override
+        public List<Extension<?>> getExtensions() {
+            return ImmutableList.of(
+                    extend(CARDS,
+                            PatateCard.INSTANCE)
+            );
+        }
+
+        @Override
+        public String getName() {
+            return "Patate";
+        }
     }
 
     public static class PatateCard extends AbstractLGCard {
         public static final PatateCard INSTANCE = new PatateCard();
 
-        private PatateCard() {}
+        private PatateCard() {
+        }
 
         @Override
         protected LGTeam getMainTeam() {

@@ -84,6 +84,9 @@ permissions:
   loupsgarous.game.join:
     description: Permet de rejoindre une partie
     default: true
+  loupsgarous.debug.boxcontents:
+    description: Allows you to see the orchestrator's GameBox contents.
+    default: op
   loupsgarous.debug.skipstage:
     description: Allows you to skip a stage.
     default: op

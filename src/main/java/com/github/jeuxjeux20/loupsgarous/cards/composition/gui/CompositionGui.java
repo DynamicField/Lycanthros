@@ -7,9 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.cards.composition.ImmutableComposition;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.util.CompositionFormatUtil;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator.Problem;
-import com.github.jeuxjeux20.loupsgarous.extensibility.GameBundle;
 import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
-import com.github.jeuxjeux20.loupsgarous.extensibility.ModBundle;
 import com.github.jeuxjeux20.loupsgarous.extensibility.PatateMod;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.inject.Inject;
@@ -67,12 +65,12 @@ public final class CompositionGui extends Gui {
         super(player, 6, "Composition");
         this.orchestrator = orchestrator;
         this.patateMod = patateMod;
-        this.compositionValidator = orchestrator.getGameBundle().handler(LGExtensionPoints.COMPOSITION_VALIDATORS);
+        this.compositionValidator = orchestrator.getGameBox().handler(LGExtensionPoints.COMPOSITION_VALIDATORS);
 
         bind(Disposable.toAutoCloseable(
-                orchestrator.observeGameBundle().subscribe(this::updateCards)
+                orchestrator.getGameBox().onChange().subscribe(c -> updateCards())
         ));
-        updateCards(orchestrator.getGameBundle());
+        updateCards();
     }
 
     @Override
@@ -83,11 +81,7 @@ public final class CompositionGui extends Gui {
 
         // TODO: Remove this crappy test.
         setItems(ItemStackBuilder.of(Material.POTATO)
-                .build(() -> {
-                    ModBundle modBundle = orchestrator.getModBundle();
-                    ModBundle newModBundle = modBundle.transform(t -> t.toggle(patateMod));
-                    orchestrator.setModBundle(newModBundle);
-                }), 30);
+                .build(() -> orchestrator.getGameBox().toggle(patateMod)), 30);
     }
 
     private void drawTopBarGlass() {
@@ -215,8 +209,8 @@ public final class CompositionGui extends Gui {
         orchestrator.setComposition(composition);
     }
 
-    private void updateCards(GameBundle bundle) {
-        cards = bundle.contents(LGExtensionPoints.CARDS).stream()
+    private void updateCards() {
+        cards = orchestrator.getGameBox().contents(LGExtensionPoints.CARDS).stream()
                 .sorted(Comparator.comparing(LGCard::getName))
                 .collect(Collectors.toList());
 

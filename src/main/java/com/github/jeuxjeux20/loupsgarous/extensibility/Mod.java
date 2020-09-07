@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import org.spongepowered.configurate.BasicConfigurationNode;
 import org.spongepowered.configurate.ConfigurationNode;
 
@@ -10,5 +11,5 @@ public interface Mod {
         return BasicConfigurationNode.root();
     }
 
-    List<Extension<?>> createExtensions(ConfigurationNode configuration);
+    List<Rule> createRules(LGGameOrchestrator orchestrator, ConfigurationNode configuration);
 }

@@ -1,7 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
-import com.github.jeuxjeux20.loupsgarous.ReactiveProperty;
 import com.github.jeuxjeux20.loupsgarous.cards.CardDistributor;
 import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.cards.VillageoisCard;
@@ -13,8 +12,8 @@ import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionUpdateEvent;
 import com.github.jeuxjeux20.loupsgarous.event.lobby.LGOwnerChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
-import com.github.jeuxjeux20.loupsgarous.extensibility.GameBundle;
-import com.github.jeuxjeux20.loupsgarous.extensibility.ModBundle;
+import com.github.jeuxjeux20.loupsgarous.extensibility.GameBox;
+import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
 import com.github.jeuxjeux20.loupsgarous.extensibility.ModRegistry;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.PlayerQuitKillCause;
 import com.github.jeuxjeux20.loupsgarous.lobby.*;
@@ -23,11 +22,10 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
 import me.lucko.helper.Events;
 import me.lucko.helper.metadata.MetadataKey;
 import me.lucko.helper.metadata.MetadataMap;
@@ -51,7 +49,6 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
-import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.CARDS;
 import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.*;
 
 class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
@@ -79,8 +76,8 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     private final MutableLGGameTurn turn = new MutableLGGameTurn();
     private @Nullable LGEnding ending;
 
-    private final ReactiveProperty<GameBundle> gameBundle = new ReactiveProperty<>();
-    private final ReactiveProperty<ModBundle> modBundle = new ReactiveProperty<>();
+    private final GameBox gameBox;
+    private final Disposable cardRemovalSubscription;
 
     private final MetadataMap metadataMap = MetadataMap.create();
 
@@ -100,7 +97,9 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         this.delayedDependenciesProvider = delayedDependenciesProvider;
         this.logger = new OrchestratorLogger();
 
-        setModBundle(modRegistry.createDefaultBundle());
+        this.gameBox = new GameBox(this, modRegistry);
+        this.cardRemovalSubscription = gameBox.onChange().subscribe(this::removeBoxRemovedCards);
+        bind(Disposable.toAutoCloseable(cardRemovalSubscription));
     }
 
     @Override
@@ -128,12 +127,12 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     public void start() {
         state.mustBe(LOBBY);
 
+        cardRemovalSubscription.dispose();
         new CardDistributor().distribute(composition, players.values());
 
         changeStateTo(STARTED, LGGameStartEvent::new);
 
         Events.call(new LGTurnChangeEvent(this));
-
         phases().next();
     }
 
@@ -282,27 +281,8 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     }
 
     @Override
-    public GameBundle getGameBundle() {
-        return gameBundle.get();
-    }
-
-    @Override
-    public Observable<GameBundle> observeGameBundle() {
-        return gameBundle.observe();
-    }
-
-    private GameBundle createBundle(ModBundle modBundle) {
-        return new GameBundle(modBundle.createExtensions(), this::resolve);
-    }
-
-    private void updateGameBundle() {
-        GameBundle oldBundle = gameBundle.get();
-        GameBundle newBundle = createBundle(modBundle.get());
-
-        gameBundle.set(newBundle);
-        if (oldBundle != null && allowsJoin()) {
-            removeBundleRemovedCards(oldBundle, newBundle);
-        }
+    public GameBox getGameBox() {
+        return gameBox;
     }
 
     @Override
@@ -327,9 +307,9 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         Events.call(new LGCompositionUpdateEvent(this));
     }
 
-    private void removeBundleRemovedCards(GameBundle oldBundle, GameBundle newBundle) {
-        Sets.SetView<LGCard> removedCards =
-                Sets.difference(oldBundle.contents(CARDS), newBundle.contents(CARDS));
+    private void removeBoxRemovedCards(GameBox.Change change) {
+        ImmutableSet<LGCard> removedCards =
+                change.getContentsDiff(LGExtensionPoints.CARDS).getRemoved();
 
         if (removedCards.isEmpty()) {
             return;
@@ -394,25 +374,6 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         this.owner = owner;
 
         Events.call(new LGOwnerChangeEvent(this, owner));
-    }
-
-    @Override
-    public ModBundle getModBundle() {
-        return modBundle.get();
-    }
-
-    @Override
-    public void setModBundle(ModBundle modBundle) {
-        if (!allowsJoin()) {
-            throw new IllegalStateException("The game is locked.");
-        }
-        this.modBundle.set(modBundle);
-        updateGameBundle();
-    }
-
-    @Override
-    public Observable<ModBundle> observeModBundle() {
-        return modBundle.observe();
     }
 
     @Override
@@ -524,8 +485,14 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
         @Override
         public void log(LogRecord record) {
-            record.setMessage("[LoupsGarous] (Game " + id + ") " + record.getMessage());
+            record.setMessage(getPrefix() + record.getMessage());
             super.log(record);
+        }
+
+        private String getPrefix() {
+            return "[LoupsGarous] " +
+                   (id == null ? "(Pre-initialization)" : "(Game " + id + ")") +
+                   " ";
         }
     }
 }

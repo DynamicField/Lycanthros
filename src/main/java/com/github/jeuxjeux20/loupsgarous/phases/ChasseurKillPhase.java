@@ -126,4 +126,22 @@ public final class ChasseurKillPhase extends CountdownLGPhase {
             return !killed;
         }
     }
+
+    public static class Factory extends RunnableLGPhase.Factory<ChasseurKillPhase> {
+        private final LGPlayer chasseur;
+
+        public Factory(LGPlayer chasseur) {
+            this.chasseur = chasseur;
+        }
+
+        @Override
+        public ChasseurKillPhase create(LGGameOrchestrator gameOrchestrator) {
+            return new ChasseurKillPhase(gameOrchestrator, chasseur);
+        }
+
+        @Override
+        public String getName() {
+            return "ChasseurKillPhase (" + chasseur + ")";
+        }
+    }
 }

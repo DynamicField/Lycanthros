@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.reflect.TypeToken;
 
 import java.util.Arrays;
@@ -33,6 +34,14 @@ public class ExtensionPoint<T> {
 
     public TypeToken<T> getValueType() {
         return valueType;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", id)
+                .add("valueType", valueType)
+                .toString();
     }
 
     @Override
