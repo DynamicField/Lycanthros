@@ -9,6 +9,7 @@ import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.AbstractPlayerVote;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.tags.LGTags;
+import com.github.jeuxjeux20.relativesorting.Order;
 import org.apache.commons.lang.math.RandomUtils;
 import org.bukkit.ChatColor;
 
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
         color = PhaseColor.BLUE,
         isTemporary = true
 )
+@Order(after = RevealAllKillsPhase.class, before = VillageVotePhase.class)
 public final class MaireElectionPhase extends CountdownLGPhase {
     private final MaireVote vote;
 

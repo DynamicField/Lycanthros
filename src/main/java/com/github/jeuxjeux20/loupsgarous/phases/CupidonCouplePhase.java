@@ -14,6 +14,7 @@ import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.powers.CupidonPower;
 import com.github.jeuxjeux20.loupsgarous.teams.CoupleTeam;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeams;
+import com.github.jeuxjeux20.relativesorting.Order;
 import org.apache.commons.lang.math.RandomUtils;
 
 import java.util.*;
@@ -28,6 +29,7 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
         color = PhaseColor.BLUE,
         isTemporary = true
 )
+@Order(position = -2)
 public final class CupidonCouplePhase extends CountdownLGPhase {
     private final CupidonCoupleCreator coupleCreator;
 

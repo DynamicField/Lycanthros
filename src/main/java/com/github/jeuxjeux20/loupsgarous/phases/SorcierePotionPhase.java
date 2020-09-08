@@ -12,6 +12,7 @@ import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.NightKillCause;
 import com.github.jeuxjeux20.loupsgarous.powers.SorcierePower;
+import com.github.jeuxjeux20.relativesorting.Order;
 import me.lucko.helper.text.Text;
 import me.lucko.helper.text.TextComponent;
 import me.lucko.helper.text.event.ClickEvent;
@@ -32,6 +33,7 @@ import static me.lucko.helper.text.format.TextDecoration.BOLD;
         name = "Sorcière",
         title = "La sorcière va utiliser ses potions..."
 )
+@Order(after = LoupGarouVotePhase.class, before = NextTimeOfDayPhase.class)
 public final class SorcierePotionPhase extends CountdownLGPhase {
     private final SorciereHeal heal;
     private final SorciereKill kill;

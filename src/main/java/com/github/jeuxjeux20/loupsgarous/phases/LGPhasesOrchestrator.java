@@ -130,7 +130,11 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
 
         phase.run()
                 .exceptionally(this::handlePhaseException)
-                .thenRun(this::next)
+                .thenRun(() -> {
+                    if (currentPhase == phase) {
+                        next();
+                    }
+                })
                 .exceptionally(this::handlePostPhaseException);
     }
 
@@ -164,7 +168,7 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
     }
 
     @Override
-    public LGGameOrchestrator gameOrchestrator() {
+    public LGGameOrchestrator getOrchestrator() {
         return orchestrator;
     }
 

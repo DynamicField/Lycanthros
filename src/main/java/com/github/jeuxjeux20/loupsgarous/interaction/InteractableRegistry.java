@@ -108,8 +108,8 @@ public class InteractableRegistry extends AbstractOrchestratorComponent {
     }
 
     private void ensureSameOrchestrator(Interactable interactable) {
-        Preconditions.checkArgument(interactable.gameOrchestrator() == orchestrator,
-                "The interactable value's orchestrator (" + interactable.gameOrchestrator() + ") " +
+        Preconditions.checkArgument(interactable.getOrchestrator() == orchestrator,
+                "The interactable value's orchestrator (" + interactable.getOrchestrator() + ") " +
                 "is not the same as this registry's orchestrator: " + orchestrator);
     }
 

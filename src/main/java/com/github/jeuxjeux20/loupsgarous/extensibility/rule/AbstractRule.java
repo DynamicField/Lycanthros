@@ -1,5 +1,7 @@
-package com.github.jeuxjeux20.loupsgarous.extensibility;
+package com.github.jeuxjeux20.loupsgarous.extensibility.rule;
 
+import com.github.jeuxjeux20.loupsgarous.extensibility.Extension;
+import com.github.jeuxjeux20.loupsgarous.extensibility.ExtensionPoint;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.common.base.MoreObjects;
 
@@ -10,7 +12,9 @@ public abstract class AbstractRule implements Rule {
     protected final LGGameOrchestrator orchestrator;
 
     private final List<RuleListener> listeners = new ArrayList<>();
-    private boolean enabled = true;
+    private boolean enabled = false;
+
+    private RuleActivator defaultActivator;
 
     public AbstractRule(LGGameOrchestrator orchestrator) {
         this.orchestrator = orchestrator;
@@ -26,6 +30,12 @@ public abstract class AbstractRule implements Rule {
         return enabled;
     }
 
+    protected RuleActivator getActivator() {
+        return defaultActivator == null ?
+                (defaultActivator = new DefaultRuleActivator(orchestrator.getPlugin())) :
+                defaultActivator;
+    }
+
     @Override
     public void enable() {
         if (enabled) {
@@ -33,6 +43,7 @@ public abstract class AbstractRule implements Rule {
         }
 
         enabled = true;
+        getActivator().activate(this);
         for (RuleListener listener : listeners) {
             listener.onEnable();
         }
@@ -45,6 +56,7 @@ public abstract class AbstractRule implements Rule {
         }
 
         enabled = false;
+        getActivator().deactivate(this);
         for (RuleListener listener : listeners) {
             listener.onDisable();
         }
@@ -56,8 +68,8 @@ public abstract class AbstractRule implements Rule {
     }
 
     @Override
-    public boolean removeListener(RuleListener listener) {
-        return listeners.remove(listener);
+    public void removeListener(RuleListener listener) {
+        listeners.remove(listener);
     }
 
     @SafeVarargs

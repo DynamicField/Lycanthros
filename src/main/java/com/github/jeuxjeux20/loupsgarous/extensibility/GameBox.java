@@ -1,5 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
+import com.github.jeuxjeux20.loupsgarous.extensibility.rule.Rule;
+import com.github.jeuxjeux20.loupsgarous.extensibility.rule.RuleListener;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.relativesorting.ElementSorter;
 import com.github.jeuxjeux20.relativesorting.OrderedElement;
@@ -57,6 +59,7 @@ public final class GameBox implements Terminable {
                 }
             }
         };
+
         modRegistry.addListener(modRegistryListener);
 
         addMods(modRegistry.getMods());
@@ -165,6 +168,12 @@ public final class GameBox implements Terminable {
         this.rules.putAll(rules);
 
         for (Rule rule : rules.values()) {
+            if (rule.isEnabledByDefault()) {
+                rule.enable();
+            } else {
+                rule.disable();
+            }
+
             RuleListener ruleListener = new ExtensionUpdateRuleListener(rule);
             rule.addListener(ruleListener);
             ruleListeners.put(rule, ruleListener);
@@ -303,6 +312,7 @@ public final class GameBox implements Terminable {
         modRegistry.removeListener(modRegistryListener);
         ruleListeners.forEach(Rule::removeListener);
         ruleListeners.clear();
+        rules.values().forEach(Rule::disable);
     }
 
     public static class Change {
@@ -322,7 +332,6 @@ public final class GameBox implements Terminable {
             this.contentsDiff = ImmutableMap.copyOf(diffMap);
         }
 
-        // No, YOU'RE suspicious è_é
         @SuppressWarnings("unchecked")
         public <T> Diff<T> getContentsDiff(ExtensionPoint<T> extensionPoint) {
             return (Diff<T>) contentsDiff.getOrDefault(extensionPoint, Diff.EMPTY);

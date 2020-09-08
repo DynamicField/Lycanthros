@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
+import com.github.jeuxjeux20.loupsgarous.extensibility.rule.Rule;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import org.spongepowered.configurate.BasicConfigurationNode;
 import org.spongepowered.configurate.ConfigurationNode;

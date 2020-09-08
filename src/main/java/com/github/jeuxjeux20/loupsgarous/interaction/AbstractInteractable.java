@@ -52,7 +52,7 @@ public abstract class AbstractInteractable implements Interactable, TerminableCo
     }
 
     @Override
-    public LGGameOrchestrator gameOrchestrator() {
+    public LGGameOrchestrator getOrchestrator() {
         return orchestrator;
     }
 

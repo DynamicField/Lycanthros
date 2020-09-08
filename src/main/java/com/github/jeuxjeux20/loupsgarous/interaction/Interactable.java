@@ -34,7 +34,7 @@ public interface Interactable extends Terminable, OrchestratorDependent {
     I createBound(Function<LGGameOrchestrator, I> interactableFactory,
                   InteractableKey<? super I> key,
                   H holder) {
-        LGGameOrchestrator orchestrator = holder.gameOrchestrator();
+        LGGameOrchestrator orchestrator = holder.getOrchestrator();
 
         I interactable = interactableFactory.apply(orchestrator);
         interactable.bindWith(holder);

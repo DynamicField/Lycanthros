@@ -1,6 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
 import com.github.jeuxjeux20.loupsgarous.cards.AbstractLGCard;
+import com.github.jeuxjeux20.loupsgarous.extensibility.rule.AbstractRule;
+import com.github.jeuxjeux20.loupsgarous.extensibility.rule.Rule;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.powers.LGPower;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeam;

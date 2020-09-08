@@ -7,13 +7,20 @@ import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.UniqueCard
 import com.github.jeuxjeux20.loupsgarous.cards.revealers.*;
 import com.github.jeuxjeux20.loupsgarous.chat.LGChatChannels;
 import com.github.jeuxjeux20.loupsgarous.chat.PetiteFilleSpiesOnLoupsGarous;
+import com.github.jeuxjeux20.loupsgarous.event.GameEvent;
+import com.github.jeuxjeux20.loupsgarous.event.LGKillEvent;
+import com.github.jeuxjeux20.loupsgarous.extensibility.rule.AbstractRule;
+import com.github.jeuxjeux20.loupsgarous.extensibility.rule.Rule;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.MaireVoteOutcomeTransformer;
 import com.github.jeuxjeux20.loupsgarous.inventory.EditLobbyItem;
 import com.github.jeuxjeux20.loupsgarous.inventory.QuitGameItem;
+import com.github.jeuxjeux20.loupsgarous.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.phases.*;
 import com.github.jeuxjeux20.loupsgarous.phases.dusk.DuskPhase;
 import com.github.jeuxjeux20.loupsgarous.phases.dusk.VoyanteDuskAction;
+import com.github.jeuxjeux20.loupsgarous.powers.ChasseurPower;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.CompositionScoreboardComponent;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.CurrentVotesScoreboardComponent;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.LobbyOwnerScoreboardComponent;
@@ -26,6 +33,8 @@ import com.github.jeuxjeux20.loupsgarous.winconditions.LoupsGarousWinCondition;
 import com.github.jeuxjeux20.loupsgarous.winconditions.VillageWinCondition;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.List;
@@ -49,11 +58,163 @@ public class ClassicGameMod extends AbstractMod {
     @Override
     public List<Rule> createRules(LGGameOrchestrator orchestrator, ConfigurationNode configuration) {
         return ImmutableList.of(
-                new FundamentalsRule(orchestrator, editLobbyItem)
+                new FundamentalsRule(orchestrator, editLobbyItem),
+                new CupidonRule(orchestrator),
+                new MaireRule(orchestrator),
+                new PetiteFilleRule(orchestrator),
+                new SorciereRule(orchestrator),
+                new ChasseurRule(orchestrator),
+                new VoyanteRule(orchestrator)
         );
     }
 
-    private static class FundamentalsRule extends AbstractRule {
+    public static class MaireRule extends AbstractRule {
+        public MaireRule(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
+        }
+
+        @Override
+        public List<Extension<?>> getExtensions() {
+            return ImmutableList.of(
+                    extend(PHASES,
+                            createPhaseFactory(MaireElectionPhase.class)),
+                    extend(TAG_REVEALERS,
+                            new MaireTagRevealer()),
+                    extend(PLAYER_VOTE_OUTCOME_TRANSFORMERS,
+                            new MaireVoteOutcomeTransformer())
+            );
+        }
+
+        @Override
+        public String getName() {
+            return "Maire";
+        }
+    }
+
+    public static class PetiteFilleRule extends AbstractRule {
+        public PetiteFilleRule(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
+        }
+
+        @Override
+        public List<Extension<?>> getExtensions() {
+            return ImmutableList.of(
+                    extend(CHAT_CHANNEL_VIEW_TRANSFORMERS,
+                            new PetiteFilleSpiesOnLoupsGarous()),
+                    extend(CARDS,
+                            PetiteFilleCard.INSTANCE)
+            );
+        }
+
+        @Override
+        public String getName() {
+            return "Petite fille";
+        }
+    }
+
+    public static class SorciereRule extends AbstractRule {
+        public SorciereRule(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
+        }
+
+        @Override
+        public List<Extension<?>> getExtensions() {
+            return ImmutableList.of(
+                    extend(PHASES,
+                            createPhaseFactory(SorcierePotionPhase.class)),
+                    extend(CARDS,
+                            SorciereCard.INSTANCE)
+            );
+        }
+
+        @Override
+        public String getName() {
+            return "Sorcière";
+        }
+    }
+
+    public static class ChasseurRule extends AbstractRule implements Listener {
+        public ChasseurRule(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
+        }
+
+        @Override
+        public List<Extension<?>> getExtensions() {
+            return ImmutableList.of(
+                    extend(CARDS,
+                            ChasseurCard.INSTANCE)
+            );
+        }
+
+        @Override
+        public String getName() {
+            return "Chasseur";
+        }
+
+        @GameEvent(priority = EventPriority.HIGH)
+        public void onLGKill(LGKillEvent event) {
+            for (LGKill kill : event.getKills()) {
+                LGPlayer victim = kill.getVictim();
+
+                if (victim.powers().has(ChasseurPower.class) && victim.isPresent()) {
+                    event.getOrchestrator().phases()
+                            .insert(new ChasseurKillPhase.Factory(victim));
+                }
+            }
+        }
+    }
+
+    public static class VoyanteRule extends AbstractRule {
+        public VoyanteRule(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
+        }
+
+        @Override
+        public List<Extension<?>> getExtensions() {
+            return ImmutableList.of(
+                    extend(CARDS,
+                            VoyanteCard.INSTANCE),
+                    extend(DUSK_ACTIONS,
+                            VoyanteDuskAction::new),
+                    extend(CARD_REVEALERS,
+                            new VoyanteCardRevealer())
+            );
+        }
+
+        @Override
+        public String getName() {
+            return "Voyante";
+        }
+    }
+
+    public static class CupidonRule extends AbstractRule {
+        public CupidonRule(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
+        }
+
+        @Override
+        public List<Extension<?>> getExtensions() {
+            return ImmutableList.of(
+                    extend(PHASES,
+                            createPhaseFactory(CupidonCouplePhase.class)),
+                    extend(CARDS,
+                            CupidonCard.INSTANCE),
+                    extend(CARD_REVEALERS,
+                            new CoupleCardRevealer()),
+                    extend(COMPOSITION_VALIDATORS,
+                            new PossibleCouplesCupidonCompositionValidator()),
+                    extend(WIN_CONDITIONS,
+                            new CoupleWinCondition())
+            );
+        }
+
+        @Override
+        public String getName() {
+            return "Cupidon";
+        }
+    }
+
+    public static class FundamentalsRule extends AbstractRule {
         private final EditLobbyItem editLobbyItem;
 
         public FundamentalsRule(LGGameOrchestrator orchestrator, EditLobbyItem editLobbyItem) {
@@ -65,37 +226,22 @@ public class ClassicGameMod extends AbstractMod {
         public List<Extension<?>> getExtensions() {
             return ImmutableList.of(
                     extend(PHASES,
-                           createPhaseFactory(CupidonCouplePhase.class),
-                           createPhaseFactory(DuskPhase.class),
-                           createPhaseFactory(LoupGarouVotePhase.class),
-                           createPhaseFactory(SorcierePotionPhase.class),
-                           createPhaseFactory(NextTimeOfDayPhase.class),
-                           createPhaseFactory(RevealAllKillsPhase.class),
-                           createPhaseFactory(MaireElectionPhase.class),
-                           createPhaseFactory(VillageVotePhase.class)),
-                    extend(DUSK_ACTIONS,
-                            VoyanteDuskAction::new),
+                            createPhaseFactory(DuskPhase.class),
+                            createPhaseFactory(LoupGarouVotePhase.class),
+                            createPhaseFactory(NextTimeOfDayPhase.class),
+                            createPhaseFactory(RevealAllKillsPhase.class),
+                            createPhaseFactory(VillageVotePhase.class)),
                     extend(CARDS,
-                            ChasseurCard.INSTANCE,
-                            CupidonCard.INSTANCE,
                             LoupGarouCard.INSTANCE,
-                            PetiteFilleCard.INSTANCE,
-                            SorciereCard.INSTANCE,
-                            VillageoisCard.INSTANCE,
-                            VoyanteCard.INSTANCE),
+                            VillageoisCard.INSTANCE),
                     extend(TEAM_REVEALERS,
                             new LoupsGarousTeamRevealer()),
                     extend(CARD_REVEALERS,
                             new SelfCardRevealer(),
                             new GameEndedCardRevealer(),
-                            new PlayerDeadCardRevealer(),
-                            new CoupleCardRevealer(),
-                            new VoyanteCardRevealer()),
-                    extend(TAG_REVEALERS,
-                            new MaireTagRevealer()),
+                            new PlayerDeadCardRevealer()),
                     extend(COMPOSITION_VALIDATORS,
                             new MultipleTeamsCompositionValidator(),
-                            new PossibleCouplesCupidonCompositionValidator(),
                             new UniqueCardCompositionValidator()),
                     extend(SCOREBOARD_COMPONENTS,
                             new LobbyOwnerScoreboardComponent(),
@@ -107,17 +253,12 @@ public class ClassicGameMod extends AbstractMod {
                             new QuitGameItem()),
                     extend(WIN_CONDITIONS,
                             new EveryoneDeadWinCondition(),
-                            new CoupleWinCondition(),
                             new LoupsGarousWinCondition(),
                             new VillageWinCondition()),
                     extend(CHAT_CHANNELS,
                             LGChatChannels.DAY,
                             LGChatChannels.DEAD,
-                            LGChatChannels.LOUPS_GAROUS),
-                    extend(CHAT_CHANNEL_VIEW_TRANSFORMERS,
-                            new PetiteFilleSpiesOnLoupsGarous()),
-                    extend(PLAYER_VOTE_OUTCOME_TRANSFORMERS,
-                            new MaireVoteOutcomeTransformer())
+                            LGChatChannels.LOUPS_GAROUS)
             );
         }
 

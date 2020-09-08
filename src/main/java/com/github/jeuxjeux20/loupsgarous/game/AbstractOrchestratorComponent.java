@@ -15,7 +15,7 @@ public abstract class AbstractOrchestratorComponent implements OrchestratorCompo
     }
 
     @Override
-    public LGGameOrchestrator gameOrchestrator() {
+    public LGGameOrchestrator getOrchestrator() {
         return orchestrator;
     }
 

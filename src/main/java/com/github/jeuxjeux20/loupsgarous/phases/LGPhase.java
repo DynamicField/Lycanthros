@@ -48,7 +48,7 @@ public interface LGPhase extends SafeCast, TerminableConsumer, OrchestratorDepen
      * @return the game orchestrator
      */
     @Override
-    LGGameOrchestrator gameOrchestrator();
+    LGGameOrchestrator getOrchestrator();
 
     /**
      * The null object for a phase.
@@ -61,7 +61,7 @@ public interface LGPhase extends SafeCast, TerminableConsumer, OrchestratorDepen
         }
 
         @Override
-        public LGGameOrchestrator gameOrchestrator() {
+        public LGGameOrchestrator getOrchestrator() {
             return orchestrator;
         }
 

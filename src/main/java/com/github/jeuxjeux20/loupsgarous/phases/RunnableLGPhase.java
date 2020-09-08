@@ -7,6 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseStartingEvent;
 import com.github.jeuxjeux20.loupsgarous.extensibility.OrderTransformer;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.util.CompletableFutures;
+import com.github.jeuxjeux20.relativesorting.Order;
 import com.github.jeuxjeux20.relativesorting.OrderedElement;
 import com.github.jeuxjeux20.relativesorting.OrderedElementTransformer;
 import com.google.common.base.MoreObjects;
@@ -173,7 +174,7 @@ public abstract class RunnableLGPhase implements LGPhase, Terminable {
     }
 
     @Override
-    public final LGGameOrchestrator gameOrchestrator() {
+    public final LGGameOrchestrator getOrchestrator() {
         return orchestrator;
     }
 
@@ -241,7 +242,9 @@ public abstract class RunnableLGPhase implements LGPhase, Terminable {
             @Override
             public <T> OrderedElement<T> transform(OrderedElement<T> orderedElement) {
                 Class<?> clazz = ((SortableFactory<?>) orderedElement.getElement()).getIdentifier();
-                return orderedElement.change(its -> its.identifier(clazz));
+                return orderedElement
+                        .change(its -> its.identifier(clazz)
+                        .order(clazz.getAnnotation(Order.class)));
             }
         }
     }

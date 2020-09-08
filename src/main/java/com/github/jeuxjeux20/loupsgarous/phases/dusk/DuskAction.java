@@ -38,7 +38,7 @@ public abstract class DuskAction
     }
 
     @Override
-    public LGGameOrchestrator gameOrchestrator() {
+    public LGGameOrchestrator getOrchestrator() {
         return orchestrator;
     }
 

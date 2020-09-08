@@ -76,7 +76,7 @@ public abstract class AbstractPick<T> extends AbstractInteractable implements Pi
      * its presence in the game's players and
      * not being away ({@link LGPlayer#isAway()}).
      * <p>
-     * Default critical conditions are available in the {@link CriticalPickableConditions} class,
+     * EventActivator critical conditions are available in the {@link CriticalPickableConditions} class,
      * and classes such as {@link AbstractPlayerPick} already override this method.
      *
      * @return the critical conditions

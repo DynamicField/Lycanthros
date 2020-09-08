@@ -10,7 +10,7 @@ public abstract class LGPhaseEvent extends LGEvent {
     private final LGPhase phase;
 
     public LGPhaseEvent(LGPhase phase) {
-        super(phase.gameOrchestrator());
+        super(phase.getOrchestrator());
         this.phase = phase;
     }
 

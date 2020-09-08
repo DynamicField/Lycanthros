@@ -113,7 +113,7 @@ public class LGChatOrchestrator extends AbstractOrchestratorComponent {
     }
 
     @Override
-    public LGGameOrchestrator gameOrchestrator() {
+    public LGGameOrchestrator getOrchestrator() {
         return orchestrator;
     }
 
@@ -143,7 +143,7 @@ public class LGChatOrchestrator extends AbstractOrchestratorComponent {
     }
 
     public void sendToEveryone(String message) {
-        gameOrchestrator().getAllMinecraftPlayers().forEach(player -> player.sendMessage(message));
+        getOrchestrator().getAllMinecraftPlayers().forEach(player -> player.sendMessage(message));
     }
 
     private void handlePlayerSendMessage(AsyncPlayerChatEvent event) {

@@ -22,7 +22,7 @@ public class ShortenVoteCountdownListener implements Listener {
     }
 
     private void updatePhaseCountdown(LGPhase phase) {
-        LGGameOrchestrator orchestrator = phase.gameOrchestrator();
+        LGGameOrchestrator orchestrator = phase.getOrchestrator();
 
         MajorityVoteShortensCountdown annotation = phase.getClass().getAnnotation(MajorityVoteShortensCountdown.class);
         if (annotation == null) return;

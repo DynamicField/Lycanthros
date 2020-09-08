@@ -68,7 +68,7 @@ public class LGKillsOrchestrator extends AbstractOrchestratorComponent {
     }
 
     @Override
-    public LGGameOrchestrator gameOrchestrator() {
+    public LGGameOrchestrator getOrchestrator() {
         return orchestrator;
     }
 }
