@@ -4,6 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
 import com.github.jeuxjeux20.loupsgarous.phases.descriptor.LGPhaseDescriptor;
+import com.github.jeuxjeux20.loupsgarous.phases.descriptor.LGPhaseDescriptorRegistry;
 import com.github.jeuxjeux20.loupsgarous.util.FutureExceptionUtils;
 import com.google.inject.Inject;
 import me.lucko.helper.terminable.Terminable;
@@ -18,14 +19,14 @@ import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.
 
 public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
     private LinkedList<RunnableLGPhase.Factory<?>> phases;
-    private final LGPhaseDescriptor.Registry descriptorRegistry;
+    private final LGPhaseDescriptorRegistry descriptorRegistry;
     private ListIterator<RunnableLGPhase.Factory<?>> phaseIterator;
     private @Nullable RunnableLGPhase currentPhase;
     private final Logger logger;
 
     @Inject
     LGPhasesOrchestrator(LGGameOrchestrator orchestrator,
-                         LGPhaseDescriptor.Registry descriptorRegistry) {
+                         LGPhaseDescriptorRegistry descriptorRegistry) {
         super(orchestrator);
         this.phases = getPhaseFactories();
         this.descriptorRegistry = descriptorRegistry;
@@ -121,7 +122,7 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
      *
      * @return the descriptor registry
      */
-    public LGPhaseDescriptor.Registry descriptors() {
+    public LGPhaseDescriptorRegistry descriptors() {
         return descriptorRegistry;
     }
 

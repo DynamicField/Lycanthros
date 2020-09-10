@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.phases.descriptor;
 
+import com.github.jeuxjeux20.loupsgarous.descriptor.DescriptorRegistry;
 import com.github.jeuxjeux20.loupsgarous.phases.LGPhase;
 import com.github.jeuxjeux20.loupsgarous.phases.PhaseInfo;
 import com.github.jeuxjeux20.loupsgarous.winconditions.PostponesWinConditions;
@@ -7,7 +8,8 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.function.Consumer;
 
-class MinecraftLGPhaseDescriptorFactory implements LGPhaseDescriptor.Factory {
+public class LGPhaseDescriptorRegistry
+        extends DescriptorRegistry<LGPhaseDescriptor, LGPhase> {
     @Override
     public LGPhaseDescriptor create(Class<? extends LGPhase> describedClass) {
         LGPhaseDescriptor descriptor = new LGPhaseDescriptor(describedClass);

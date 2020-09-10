@@ -1,8 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
 import com.github.jeuxjeux20.loupsgarous.descriptor.Descriptor;
-import com.github.jeuxjeux20.loupsgarous.descriptor.DescriptorFactory;
-import com.github.jeuxjeux20.loupsgarous.descriptor.DescriptorRegistry;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -46,11 +44,5 @@ public final class ModDescriptor extends Descriptor<Mod> {
 
     public void setItem(ItemStack item) {
         this.item = item;
-    }
-
-    interface Factory extends DescriptorFactory<ModDescriptor, Mod> {
-    }
-
-    interface Registry extends DescriptorRegistry<ModDescriptor, Mod> {
     }
 }

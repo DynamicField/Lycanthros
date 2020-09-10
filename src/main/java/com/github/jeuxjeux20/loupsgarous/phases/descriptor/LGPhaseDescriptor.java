@@ -1,8 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.phases.descriptor;
 
 import com.github.jeuxjeux20.loupsgarous.descriptor.Descriptor;
-import com.github.jeuxjeux20.loupsgarous.descriptor.DescriptorFactory;
-import com.github.jeuxjeux20.loupsgarous.descriptor.DescriptorRegistry;
 import com.github.jeuxjeux20.loupsgarous.phases.LGPhase;
 import com.github.jeuxjeux20.loupsgarous.phases.PhaseColor;
 import org.jetbrains.annotations.Nullable;
@@ -117,11 +115,5 @@ public final class LGPhaseDescriptor extends Descriptor<LGPhase> {
 
     public void setPostponesWinConditions(boolean postponesWinConditions) {
         this.postponesWinConditions = postponesWinConditions;
-    }
-
-    public interface Registry extends DescriptorRegistry<LGPhaseDescriptor, LGPhase> {
-    }
-
-    public interface Factory extends DescriptorFactory<LGPhaseDescriptor, LGPhase> {
     }
 }

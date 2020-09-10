@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
 import com.github.jeuxjeux20.loupsgarous.Plugin;
+import com.github.jeuxjeux20.loupsgarous.descriptor.DescriptorRegistry;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -8,11 +9,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Singleton
-public class MinecraftModDescriptorFactory implements ModDescriptor.Factory {
+public class ModDescriptorRegistry
+        extends DescriptorRegistry<ModDescriptor, Mod> {
     private final Logger logger;
 
     @Inject
-    MinecraftModDescriptorFactory(@Plugin Logger logger) {
+    ModDescriptorRegistry(@Plugin Logger logger) {
         this.logger = logger;
     }
 

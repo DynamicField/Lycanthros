@@ -12,10 +12,11 @@ public class ModRegistry {
     private final Set<Mod> mods = new LinkedHashSet<>();
     private final List<ModRegistryListener> registryListeners = new ArrayList<>();
 
-    private final ModDescriptor.Registry descriptorRegistry;
+    private final ModDescriptorRegistry descriptorRegistry;
 
     @Inject
-    ModRegistry(ClassicGameMod classicGameMod, PatateMod patateMod, ModDescriptor.Registry descriptorRegistry) {
+    ModRegistry(ClassicGameMod classicGameMod, PatateMod patateMod,
+                ModDescriptorRegistry descriptorRegistry) {
         this.descriptorRegistry = descriptorRegistry;
 
         addMod(classicGameMod);
@@ -42,7 +43,7 @@ public class ModRegistry {
         return removed;
     }
 
-    public ModDescriptor.Registry descriptors() {
+    public ModDescriptorRegistry descriptors() {
         return descriptorRegistry;
     }
 
