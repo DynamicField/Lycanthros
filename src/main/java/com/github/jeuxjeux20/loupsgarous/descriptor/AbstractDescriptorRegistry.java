@@ -7,13 +7,9 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractDescriptorRegistry<D extends Descriptor<T>, T>
         implements DescriptorRegistry<D, T> {
-    private final DescriptorFactory<D, T> descriptorFactory;
-
     private final LoadingCache<Class<? extends T>, D> descriptorCache;
 
-    protected AbstractDescriptorRegistry(DescriptorFactory<D, T> descriptorFactory) {
-        this.descriptorFactory = descriptorFactory;
-
+    protected AbstractDescriptorRegistry() {
         this.descriptorCache = CacheBuilder.newBuilder().build(new DescriptorCacheLoader());
     }
 
@@ -25,10 +21,12 @@ public abstract class AbstractDescriptorRegistry<D extends Descriptor<T>, T>
         descriptorCache.invalidate(describedClass);
     }
 
+    protected abstract D create(Class<? extends T> describedClass);
+
     private final class DescriptorCacheLoader extends CacheLoader<Class<? extends T>, D> {
         @Override
         public D load(@NotNull Class<? extends T> key) {
-            return descriptorFactory.create(key);
+            return create(key);
         }
     }
 }

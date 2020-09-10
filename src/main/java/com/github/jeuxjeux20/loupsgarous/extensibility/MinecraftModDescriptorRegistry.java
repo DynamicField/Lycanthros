@@ -11,6 +11,6 @@ public class MinecraftModDescriptorRegistry
 
     @Inject
     MinecraftModDescriptorRegistry(ModDescriptor.Factory descriptorFactory) {
-        super(descriptorFactory);
+        super();
     }
 }
