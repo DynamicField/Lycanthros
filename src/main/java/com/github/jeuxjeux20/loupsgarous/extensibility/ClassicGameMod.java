@@ -9,8 +9,6 @@ import com.github.jeuxjeux20.loupsgarous.chat.LGChatChannels;
 import com.github.jeuxjeux20.loupsgarous.chat.PetiteFilleSpiesOnLoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.event.GameEvent;
 import com.github.jeuxjeux20.loupsgarous.event.LGKillEvent;
-import com.github.jeuxjeux20.loupsgarous.extensibility.rule.AbstractRule;
-import com.github.jeuxjeux20.loupsgarous.extensibility.rule.Rule;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.MaireVoteOutcomeTransformer;
@@ -47,7 +45,7 @@ import static com.github.jeuxjeux20.loupsgarous.phases.RunnableLGPhase.createPha
         hidden = true,
         enabledByDefault = true
 )
-public class ClassicGameMod extends AbstractMod {
+public class ClassicGameMod extends Mod {
     private final EditLobbyItem editLobbyItem;
 
     @Inject
@@ -68,7 +66,7 @@ public class ClassicGameMod extends AbstractMod {
         );
     }
 
-    public static class MaireRule extends AbstractRule {
+    public static class MaireRule extends Rule {
         public MaireRule(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }
@@ -91,7 +89,7 @@ public class ClassicGameMod extends AbstractMod {
         }
     }
 
-    public static class PetiteFilleRule extends AbstractRule {
+    public static class PetiteFilleRule extends Rule {
         public PetiteFilleRule(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }
@@ -112,7 +110,7 @@ public class ClassicGameMod extends AbstractMod {
         }
     }
 
-    public static class SorciereRule extends AbstractRule {
+    public static class SorciereRule extends Rule {
         public SorciereRule(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }
@@ -133,7 +131,7 @@ public class ClassicGameMod extends AbstractMod {
         }
     }
 
-    public static class ChasseurRule extends AbstractRule implements Listener {
+    public static class ChasseurRule extends Rule implements Listener {
         public ChasseurRule(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }
@@ -164,7 +162,7 @@ public class ClassicGameMod extends AbstractMod {
         }
     }
 
-    public static class VoyanteRule extends AbstractRule {
+    public static class VoyanteRule extends Rule {
         public VoyanteRule(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }
@@ -187,7 +185,7 @@ public class ClassicGameMod extends AbstractMod {
         }
     }
 
-    public static class CupidonRule extends AbstractRule {
+    public static class CupidonRule extends Rule {
         public CupidonRule(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }
@@ -214,7 +212,7 @@ public class ClassicGameMod extends AbstractMod {
         }
     }
 
-    public static class FundamentalsRule extends AbstractRule {
+    public static class FundamentalsRule extends Rule {
         private final EditLobbyItem editLobbyItem;
 
         public FundamentalsRule(LGGameOrchestrator orchestrator, EditLobbyItem editLobbyItem) {

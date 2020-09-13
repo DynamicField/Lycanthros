@@ -99,6 +99,8 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
         this.gameBox = new GameBox(this, modRegistry);
         this.cardRemovalSubscription = gameBox.onChange().subscribe(this::removeBoxRemovedCards);
+
+        bind(gameBox);
         bind(Disposable.toAutoCloseable(cardRemovalSubscription));
     }
 

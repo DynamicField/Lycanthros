@@ -238,13 +238,15 @@ public abstract class RunnableLGPhase implements LGPhase, Terminable {
         }
 
         private static final class OrderTransformer implements OrderedElementTransformer {
-            public OrderTransformer() {}
+            public OrderTransformer() {
+            }
+
             @Override
             public <T> OrderedElement<T> transform(OrderedElement<T> orderedElement) {
                 Class<?> clazz = ((SortableFactory<?>) orderedElement.getElement()).getIdentifier();
                 return orderedElement
                         .change(its -> its.identifier(clazz)
-                        .order(clazz.getAnnotation(Order.class)));
+                                .order(clazz.getAnnotation(Order.class)));
             }
         }
     }

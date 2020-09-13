@@ -1,8 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
 import com.github.jeuxjeux20.loupsgarous.cards.AbstractLGCard;
-import com.github.jeuxjeux20.loupsgarous.extensibility.rule.AbstractRule;
-import com.github.jeuxjeux20.loupsgarous.extensibility.rule.Rule;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.powers.LGPower;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeam;
@@ -20,13 +18,13 @@ import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.
 
 @ModInfo(name = "Patate mod !")
 @Singleton
-public class PatateMod extends AbstractMod {
+public class PatateMod extends Mod {
     @Override
     public List<Rule> createRules(LGGameOrchestrator orchestrator, ConfigurationNode configuration) {
         return ImmutableList.of(new PatateRule(orchestrator));
     }
 
-    private static class PatateRule extends AbstractRule {
+    private static class PatateRule extends Rule {
         public PatateRule(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }

@@ -1,23 +1,25 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
-import com.github.jeuxjeux20.loupsgarous.extensibility.rule.Rule;
-import com.github.jeuxjeux20.loupsgarous.extensibility.rule.RuleListener;
+import com.github.jeuxjeux20.loupsgarous.event.GameEventHandler;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.relativesorting.ElementSorter;
 import com.github.jeuxjeux20.relativesorting.OrderedElement;
 import com.github.jeuxjeux20.relativesorting.OrderedElementTransformer;
 import com.github.jeuxjeux20.relativesorting.config.SortingConfiguration;
 import com.github.jeuxjeux20.relativesorting.config.UnresolvableClassHandling;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.*;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import io.reactivex.rxjava3.subjects.Subject;
 import me.lucko.helper.terminable.Terminable;
+import org.bukkit.event.Listener;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -30,20 +32,24 @@ public final class GameBox implements Terminable {
 
     private final LGGameOrchestrator orchestrator;
     private final ModRegistry modRegistry;
+    private final GameEventHandler eventHandler;
 
     private final Map<Mod, ModData> mods = new HashMap<>();
-    private final Multimap<Mod, Rule> rules = LinkedHashMultimap.create();
+    private final Multimap<@Nullable Mod, Rule> rules = LinkedHashMultimap.create();
     private final Multimap<ExtensionPoint<?>, Object> contents = LinkedHashMultimap.create();
     private final Map<HandledExtensionPoint<?, ?>, ExtensionPointHandler> handlers = new HashMap<>();
 
-    private final Map<Rule, RuleListener> ruleListeners = new HashMap<>();
     private final ModRegistryListener modRegistryListener;
+
+    private ImmutableMultimap<ExtensionPoint<?>, Object> preReportContents = ImmutableMultimap.of();
+    private final Set<ExtensionPoint<?>> extensionPointsToSort = new HashSet<>();
 
     private final Subject<Change> changeSubject = PublishSubject.create();
 
     public GameBox(LGGameOrchestrator orchestrator, ModRegistry modRegistry) {
         this.orchestrator = orchestrator;
         this.modRegistry = modRegistry;
+        this.eventHandler = new GameEventHandler(orchestrator.getPlugin());
         this.modRegistryListener = new ModRegistryListener() {
             @Override
             public void onModRemoved(Mod mod) {
@@ -79,21 +85,33 @@ public final class GameBox implements Terminable {
     public void enable(Mod mod) {
         orchestrator.logger().fine("Enabling mod " + mod);
         updateModData(mod, d -> d.enabled = true);
+        completeOperation();
     }
 
     public void disable(Mod mod) {
         orchestrator.logger().fine("Disabling mod " + mod);
         updateModData(mod, d -> d.enabled = false);
+        completeOperation();
     }
 
     public void toggle(Mod mod) {
-        orchestrator.logger().fine("Toggling mod " + mod);
-        updateModData(mod, d -> d.enabled = !d.enabled);
+        ModData data = mods.computeIfAbsent(mod, ModData::new);
+
+        if (data.enabled) {
+            disable(mod);
+        } else {
+            enable(mod);
+        }
     }
 
     public void configure(Mod mod, ConfigurationNode configuration) {
         orchestrator.logger().fine("Configuring mod " + mod);
         updateModData(mod, d -> d.configuration = configuration);
+        completeOperation();
+    }
+
+    public @Nullable ModData getModData(Mod mod) {
+        return mods.get(mod);
     }
 
     public Observable<Change> onChange() {
@@ -124,138 +142,150 @@ public final class GameBox implements Terminable {
     }
 
     private void updateMods(Collection<Mod> mods) {
-        orchestrator.logger().fine("Updating mod rules... ");
+        long startTime = System.nanoTime();
 
-        Multimap<Mod, Rule> rulesToAdd = LinkedHashMultimap.create();
-        Multimap<Mod, Rule> rulesToRemove = HashMultimap.create();
         for (Mod mod : mods) {
             @Nullable ModData data = this.mods.get(mod);
 
-            Collection<Rule> presentModRules = rules.get(mod);
+            Rule[] presentModRules = rules.get(mod).toArray(new Rule[0]);
 
             if (data != null && data.enabled) {
                 if (rules.containsKey(mod)) {
-                    orchestrator.logger().fine("-> " + mod + ": refreshing rules");
+                    orchestrator.logger().fine("-> " + mod + ": removing old rules");
 
-                    rulesToRemove.putAll(mod, presentModRules);
-                } else {
-                    orchestrator.logger().fine("-> " + mod + ": adding rules");
+                    for (Rule rule : presentModRules) {
+                        detachRule(rule);
+                    }
                 }
+                orchestrator.logger().fine("-> " + mod + ": adding rules");
 
                 for (Rule rule : mod.createRules(orchestrator, data.configuration)) {
-                    rulesToAdd.put(mod, rule);
+                    attachRule(mod, rule);
+                    activateRule(rule);
                 }
             } else {
-                if (presentModRules.isEmpty()) {
+                if (presentModRules.length == 0) {
                     orchestrator.logger().fine("-> " + mod + ": no changes");
                 } else {
                     orchestrator.logger().fine("-> " + mod + ": removing rules");
                 }
-                rulesToRemove.putAll(mod, presentModRules);
+                for (Rule rule : presentModRules) {
+                    detachRule(rule);
+                }
             }
         }
 
-        notifyRecordedChanges(() -> {
-            addRules(rulesToAdd);
-            removeRules(rulesToRemove);
-        });
-
-        orchestrator.logger().fine("Rules added: " + formatRulesName(rulesToAdd.values()));
-        orchestrator.logger().fine("Rules removed: " + formatRulesName(rulesToRemove.values()));
+        long elapsedTime = System.nanoTime() - startTime;
+        orchestrator.logger().finer("Mods update took " +
+                                    TimeUnit.NANOSECONDS.toMicros(elapsedTime) + "µs");
     }
 
-    private void addRules(Multimap<Mod, Rule> rules) {
-        this.rules.putAll(rules);
-
-        for (Rule rule : rules.values()) {
-            if (rule.isEnabledByDefault()) {
-                rule.enable();
-            } else {
-                rule.disable();
-            }
-
-            RuleListener ruleListener = new ExtensionUpdateRuleListener(rule);
-            rule.addListener(ruleListener);
-            ruleListeners.put(rule, ruleListener);
+    void attachRule(@Nullable Mod mod, Rule rule) {
+        if (rule.getState() != Rule.State.DETACHED) {
+            return;
         }
 
-        updateRules(rules.values());
+        orchestrator.logger().fine("Attaching rule \"" + rule.getName() + '"');
+
+        this.rules.put(mod, rule);
+
+        // Setting the GameBox is required because we might add stuff
+        // before the orchestrator's gameBox is initialized.
+        rule.setGameBox(this);
+        rule.setMod(mod);
+        rule.setState(Rule.State.ATTACHED);
     }
 
-    private void removeRules(Multimap<Mod, Rule> rules) {
+    void detachRule(Rule rule) {
+        if (rule.getState() == Rule.State.DETACHED) {
+            return;
+        }
+
+        orchestrator.logger().fine("Detaching rule \"" + rule.getName() + '"');
+
         for (Map.Entry<Mod, Rule> entry : rules.entries()) {
-            this.rules.remove(entry.getKey(), entry.getValue());
-        }
-
-        for (Rule rule : rules.values()) {
-            RuleListener listener = ruleListeners.remove(rule);
-            if (listener != null) {
-                rule.removeListener(listener);
+            if (entry.getValue() == rule) {
+                rules.remove(entry.getKey(), entry.getValue());
             }
         }
 
-        updateRules(rules.values());
-    }
-
-    private void updateRules(Collection<Rule> rules) {
-        activateRules(
-                rules.stream().filter(this::isActivationCandidate).collect(Collectors.toList())
-        );
-        deactivateRules(
-                rules.stream().filter(x -> !isActivationCandidate(x)).collect(Collectors.toList())
-        );
-    }
-
-    private void activateRules(Collection<Rule> addedRules) {
-        Set<ExtensionPoint<?>> modifiedExtensionPoints = new HashSet<>();
-        for (Rule rule : addedRules) {
-            orchestrator.logger().fine("Activating rule \"" + rule.getName() + '"');
-
-            List<Extension<?>> ruleExtensions = rule.getExtensions();
-            for (Extension<?> extension : ruleExtensions) {
-                ExtensionPoint<?> extensionPoint = extension.getExtensionPoint();
-
-                modifiedExtensionPoints.add(extensionPoint);
-                contents.get(extensionPoint).addAll(extension.getContents());
-            }
+        if (rule.getState() == Rule.State.ACTIVATED) {
+            deactivateRule(rule);
         }
 
-        for (ExtensionPoint<?> modifiedExtensionPoint : modifiedExtensionPoints) {
-            ElementSorter<Object> sorter =
-                    new ElementSorter<>(this::createOrderedElement);
+        rule.setGameBox(null);
+        rule.setMod(null);
+        rule.setState(Rule.State.DETACHED);
+    }
 
-            List<Object> sorted =
-                    sorter.sort(ImmutableList.copyOf(contents.get(modifiedExtensionPoint)),
-                            SORTING_CONFIGURATION);
+    void activateRule(Rule rule) {
+        Preconditions.checkState(rule.getState() != Rule.State.DETACHED,
+                "Cannot activate a detached rule.");
+        if (rule.getState() == Rule.State.ACTIVATED) {
+            return;
+        }
 
-            contents.replaceValues(modifiedExtensionPoint, sorted);
+        orchestrator.logger().fine("Activating rule \"" + rule.getName() + '"');
+
+        addRuleExtensions(rule);
+        rule.activate();
+        enableRuleBehavior(rule);
+
+        rule.setState(Rule.State.ACTIVATED);
+    }
+
+    void deactivateRule(Rule rule) {
+        Preconditions.checkState(rule.getState() != Rule.State.DETACHED,
+                "Cannot deactivate a detached rule.");
+        if (rule.getState() == Rule.State.ATTACHED) {
+            return;
+        }
+
+        orchestrator.logger().fine("Deactivating rule \"" + rule.getName() + '"');
+
+        removeRuleExtensions(rule);
+        rule.deactivate();
+        disableRuleBehavior(rule);
+
+        rule.setState(Rule.State.ATTACHED);
+    }
+
+    private void addRuleExtensions(Rule rule) {
+        List<Extension<?>> ruleExtensions = rule.getExtensions();
+        for (Extension<?> extension : ruleExtensions) {
+            ExtensionPoint<?> extensionPoint = extension.getExtensionPoint();
+
+            extensionPointsToSort.add(extensionPoint);
+            contents.get(extensionPoint).addAll(extension.getContents());
         }
     }
 
-    private void deactivateRules(Collection<Rule> removedRules) {
-        for (Rule rule : removedRules) {
-            orchestrator.logger().fine("Deactivating rule \"" + rule.getName() + '"');
-            List<Extension<?>> ruleExtensions = rule.getExtensions();
-            for (Extension<?> extension : ruleExtensions) {
-                ExtensionPoint<?> extensionPoint = extension.getExtensionPoint();
+    private void removeRuleExtensions(Rule rule) {
+        List<Extension<?>> ruleExtensions = rule.getExtensions();
+        for (Extension<?> extension : ruleExtensions) {
+            ExtensionPoint<?> extensionPoint = extension.getExtensionPoint();
 
-                contents.get(extensionPoint).removeAll(extension.getContents());
-            }
+            contents.get(extensionPoint).removeAll(extension.getContents());
         }
     }
 
-    private boolean isActivationCandidate(Rule rule) {
-        return rule.isEnabled() && rules.containsValue(rule);
+    private void enableRuleBehavior(Rule rule) {
+        if (rule instanceof Listener) {
+            eventHandler.register((Listener) rule);
+        }
     }
 
-    private void notifyRecordedChanges(Runnable runnable) {
-        ImmutableMultimap<ExtensionPoint<?>, Object> contentsSnapshot =
-                ImmutableMultimap.copyOf(contents);
+    private void disableRuleBehavior(Rule rule) {
+        if (rule instanceof Listener) {
+            eventHandler.unregister((Listener) rule);
+        }
+    }
 
-        runnable.run();
-
-        Change change = new Change(contentsSnapshot, contents);
-        changeSubject.onNext(change);
+    void refreshRule(Rule rule) {
+        if (rule.getState() == Rule.State.ACTIVATED) {
+            removeRuleExtensions(rule);
+            addRuleExtensions(rule);
+        }
     }
 
     private OrderedElement<Object> createOrderedElement(Object x) {
@@ -286,12 +316,6 @@ public final class GameBox implements Terminable {
                 .collect(Collectors.joining(", ")) + "]";
     }
 
-    private String formatRulesName(Collection<Rule> rules) {
-        return "[" + rules.stream()
-                .map(Rule::getName)
-                .collect(Collectors.joining(", ")) + "]";
-    }
-
     public String getContentsString() {
         StringBuilder builder = new StringBuilder();
 
@@ -307,12 +331,31 @@ public final class GameBox implements Terminable {
         return builder.toString();
     }
 
+    void completeOperation() {
+        for (ExtensionPoint<?> extensionPoint : extensionPointsToSort) {
+            ElementSorter<Object> sorter =
+                    new ElementSorter<>(this::createOrderedElement);
+
+            List<Object> sorted =
+                    sorter.sort(ImmutableList.copyOf(contents.get(extensionPoint)),
+                            SORTING_CONFIGURATION);
+
+            contents.replaceValues(extensionPoint, sorted);
+        }
+
+        Change change = new Change(preReportContents, contents);
+        if (!change.isEmpty()) {
+            changeSubject.onNext(change);
+        }
+
+        preReportContents = ImmutableMultimap.copyOf(contents);
+        extensionPointsToSort.clear();
+    }
+
     @Override
     public void close() {
         modRegistry.removeListener(modRegistryListener);
-        ruleListeners.forEach(Rule::removeListener);
-        ruleListeners.clear();
-        rules.values().forEach(Rule::disable);
+        rules.values().forEach(this::detachRule);
     }
 
     public static class Change {
@@ -335,6 +378,15 @@ public final class GameBox implements Terminable {
         @SuppressWarnings("unchecked")
         public <T> Diff<T> getContentsDiff(ExtensionPoint<T> extensionPoint) {
             return (Diff<T>) contentsDiff.getOrDefault(extensionPoint, Diff.EMPTY);
+        }
+
+        public boolean isEmpty() {
+            for (Map.Entry<ExtensionPoint<?>, Diff<?>> entry : contentsDiff.entrySet()) {
+                if (!entry.getValue().isEmpty()) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public static class Diff<T> {
@@ -383,36 +435,22 @@ public final class GameBox implements Terminable {
         }
     }
 
-    private class ModData {
+    public final class ModData {
         boolean enabled;
         ConfigurationNode configuration;
 
-        public ModData(Mod mod) {
+        private ModData(Mod mod) {
             this.enabled = orchestrator.allowsJoin() &&
                            modRegistry.descriptors().get(mod.getClass()).isEnabledByDefault();
             this.configuration = mod.getDefaultConfiguration();
         }
-    }
 
-    private class ExtensionUpdateRuleListener implements RuleListener {
-        final Rule rule;
-        private final Collection<Rule> ruleCollection;
-
-        private ExtensionUpdateRuleListener(Rule rule) {
-            this.rule = rule;
-            this.ruleCollection = Collections.singleton(rule);
+        public boolean isEnabled() {
+            return enabled;
         }
 
-        @Override
-        public void onEnable() {
-            orchestrator.logger().fine("Rule \"" + rule.getName() + "\" has been enabled.");
-            notifyRecordedChanges(() -> updateRules(ruleCollection));
-        }
-
-        @Override
-        public void onDisable() {
-            orchestrator.logger().fine("Rule \"" + rule.getName() + "\" has been disabled.");
-            notifyRecordedChanges(() -> updateRules(ruleCollection));
+        public ConfigurationNode getConfiguration() {
+            return configuration;
         }
     }
 }
