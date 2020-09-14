@@ -15,6 +15,7 @@ import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.MaireVoteOutco
 import com.github.jeuxjeux20.loupsgarous.inventory.EditLobbyItem;
 import com.github.jeuxjeux20.loupsgarous.inventory.QuitGameItem;
 import com.github.jeuxjeux20.loupsgarous.kill.LGKill;
+import com.github.jeuxjeux20.loupsgarous.kill.causes.CouplePartnerKillCause;
 import com.github.jeuxjeux20.loupsgarous.phases.*;
 import com.github.jeuxjeux20.loupsgarous.phases.dusk.DuskPhase;
 import com.github.jeuxjeux20.loupsgarous.phases.dusk.VoyanteDuskAction;
@@ -24,6 +25,8 @@ import com.github.jeuxjeux20.loupsgarous.scoreboard.CurrentVotesScoreboardCompon
 import com.github.jeuxjeux20.loupsgarous.scoreboard.LobbyOwnerScoreboardComponent;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.PlayersAliveScoreboardComponent;
 import com.github.jeuxjeux20.loupsgarous.tags.revealers.MaireTagRevealer;
+import com.github.jeuxjeux20.loupsgarous.teams.LGTeam;
+import com.github.jeuxjeux20.loupsgarous.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.teams.revealers.LoupsGarousTeamRevealer;
 import com.github.jeuxjeux20.loupsgarous.winconditions.CoupleWinCondition;
 import com.github.jeuxjeux20.loupsgarous.winconditions.EveryoneDeadWinCondition;
@@ -36,6 +39,8 @@ import org.bukkit.event.Listener;
 import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.*;
 import static com.github.jeuxjeux20.loupsgarous.phases.RunnableLGPhase.createPhaseFactory;
@@ -58,6 +63,7 @@ public class ClassicGameMod extends Mod {
         return ImmutableList.of(
                 new FundamentalsRule(orchestrator, editLobbyItem),
                 new CupidonRule(orchestrator),
+                new CoupleRule(orchestrator),
                 new MaireRule(orchestrator),
                 new PetiteFilleRule(orchestrator),
                 new SorciereRule(orchestrator),
@@ -89,18 +95,21 @@ public class ClassicGameMod extends Mod {
         }
     }
 
-    public static class PetiteFilleRule extends Rule {
+    public static class PetiteFilleRule extends CardRule {
         public PetiteFilleRule(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }
 
         @Override
-        public List<Extension<?>> getExtensions() {
+        public LGCard getCard() {
+            return PetiteFilleCard.INSTANCE;
+        }
+
+        @Override
+        public List<Extension<?>> getOtherExtensions() {
             return ImmutableList.of(
                     extend(CHAT_CHANNEL_VIEW_TRANSFORMERS,
-                            new PetiteFilleSpiesOnLoupsGarous()),
-                    extend(CARDS,
-                            PetiteFilleCard.INSTANCE)
+                            new PetiteFilleSpiesOnLoupsGarous())
             );
         }
 
@@ -110,18 +119,21 @@ public class ClassicGameMod extends Mod {
         }
     }
 
-    public static class SorciereRule extends Rule {
+    public static class SorciereRule extends CardRule {
         public SorciereRule(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }
 
         @Override
-        public List<Extension<?>> getExtensions() {
+        public LGCard getCard() {
+            return SorciereCard.INSTANCE;
+        }
+
+        @Override
+        public List<Extension<?>> getOtherExtensions() {
             return ImmutableList.of(
                     extend(PHASES,
-                            createPhaseFactory(SorcierePotionPhase.class)),
-                    extend(CARDS,
-                            SorciereCard.INSTANCE)
+                            createPhaseFactory(SorcierePotionPhase.class))
             );
         }
 
@@ -131,17 +143,14 @@ public class ClassicGameMod extends Mod {
         }
     }
 
-    public static class ChasseurRule extends Rule implements Listener {
+    public static class ChasseurRule extends CardRule implements Listener {
         public ChasseurRule(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }
 
         @Override
-        public List<Extension<?>> getExtensions() {
-            return ImmutableList.of(
-                    extend(CARDS,
-                            ChasseurCard.INSTANCE)
-            );
+        public LGCard getCard() {
+            return ChasseurCard.INSTANCE;
         }
 
         @Override
@@ -162,16 +171,19 @@ public class ClassicGameMod extends Mod {
         }
     }
 
-    public static class VoyanteRule extends Rule {
+    public static class VoyanteRule extends CardRule {
         public VoyanteRule(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }
 
         @Override
-        public List<Extension<?>> getExtensions() {
+        public LGCard getCard() {
+            return VoyanteCard.INSTANCE;
+        }
+
+        @Override
+        public List<Extension<?>> getOtherExtensions() {
             return ImmutableList.of(
-                    extend(CARDS,
-                            VoyanteCard.INSTANCE),
                     extend(DUSK_ACTIONS,
                             VoyanteDuskAction::new),
                     extend(CARD_REVEALERS,
@@ -185,18 +197,38 @@ public class ClassicGameMod extends Mod {
         }
     }
 
-    public static class CupidonRule extends Rule {
+    public static class CupidonRule extends CardRule {
         public CupidonRule(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
+        }
+
+        @Override
+        public LGCard getCard() {
+            return CupidonCard.INSTANCE;
+        }
+
+        @Override
+        public List<Extension<?>> getOtherExtensions() {
+            return ImmutableList.of(
+                    extend(PHASES,
+                            createPhaseFactory(CupidonCouplePhase.class))
+            );
+        }
+
+        @Override
+        public String getName() {
+            return "Cupidon";
+        }
+    }
+
+    public static class CoupleRule extends Rule {
+        public CoupleRule(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }
 
         @Override
         public List<Extension<?>> getExtensions() {
             return ImmutableList.of(
-                    extend(PHASES,
-                            createPhaseFactory(CupidonCouplePhase.class)),
-                    extend(CARDS,
-                            CupidonCard.INSTANCE),
                     extend(CARD_REVEALERS,
                             new CoupleCardRevealer()),
                     extend(COMPOSITION_VALIDATORS,
@@ -208,7 +240,29 @@ public class ClassicGameMod extends Mod {
 
         @Override
         public String getName() {
-            return "Cupidon";
+            return "Couple";
+        }
+
+        @GameEvent
+        public void onLGKill(LGKillEvent event) {
+            for (LGKill kill : event.getKills()) {
+                LGPlayer whoDied = kill.getVictim();
+
+                Optional<LGTeam> coupleTeam = whoDied.teams().get().stream()
+                        .filter(LGTeams::isCouple)
+                        .findFirst();
+
+                coupleTeam.ifPresent(team -> {
+                    Stream<LGPlayer> partners = event.getOrchestrator().getAlivePlayers()
+                            .filter(x -> x.teams().get().contains(team));
+
+                    partners.forEach(partner -> killPartner(partner, whoDied));
+                });
+            }
+        }
+
+        private void killPartner(LGPlayer partner, LGPlayer me) {
+            partner.die(new CouplePartnerKillCause(me));
         }
     }
 
@@ -266,3 +320,4 @@ public class ClassicGameMod extends Mod {
         }
     }
 }
+

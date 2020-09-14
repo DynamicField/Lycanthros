@@ -4,7 +4,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class ClassExtensionPointCacheLoader<T> extends
+abstract class ClassExtensionPointCacheLoader<T> extends
         CacheLoader<Class<? extends T>, ExtensionPoint<?>> {
     private final String suffix;
 
