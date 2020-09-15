@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
+import com.github.jeuxjeux20.loupsgarous.cards.UnknownCard;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.LGKillCause;
 import com.github.jeuxjeux20.loupsgarous.powers.LGPower;
 import com.github.jeuxjeux20.loupsgarous.powers.PowerRegistry;
@@ -21,7 +22,7 @@ public class OrchestratedLGPlayer implements LGPlayer {
     private final Set<LGTag> tags = new HashSet<>();
     private final Set<LGTeam> teams = new HashSet<>();
     private final ClassToInstanceMap<LGPower> powers = MutableClassToInstanceMap.create();
-    private LGCard card = LGCard.UNKNOWN;
+    private LGCard card = UnknownCard.INSTANCE;
     private boolean isDead;
     private boolean isAway;
     private final MetadataMap metadataMap = MetadataMap.create();

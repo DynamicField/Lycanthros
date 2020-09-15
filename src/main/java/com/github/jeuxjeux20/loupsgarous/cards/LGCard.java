@@ -3,24 +3,48 @@ package com.github.jeuxjeux20.loupsgarous.cards;
 import com.github.jeuxjeux20.loupsgarous.powers.LGPower;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeam;
 import com.google.common.collect.ImmutableSet;
-import me.lucko.helper.item.ItemStackBuilder;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
-public interface LGCard {
-    LGCard UNKNOWN = new Unknown();
+/**
+ * The base class for all Loups-Garous cards.
+ */
+public abstract class LGCard {
+    /**
+     * Gets the teams that this card is part of.
+     *
+     * @return an immutable set of teams
+     */
+    public ImmutableSet<LGTeam> getTeams() {
+        if (getMainTeam() != null) {
+            return ImmutableSet.of(getMainTeam());
+        } else {
+            return ImmutableSet.of();
+        }
+    }
+
+    protected abstract @Nullable LGTeam getMainTeam();
+
+    public ChatColor getColor() {
+        return getMainTeam() == null ? ChatColor.WHITE : getMainTeam().getColor();
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 
     /**
      * Gets the name of this card
      *
      * @return the name of this card
      */
-    String getName();
+    public abstract String getName();
 
-    String getPluralName();
+    public abstract String getPluralName();
 
-    default String getLowercasePluralName() {
+    public String getLowercasePluralName() {
         String pluralName = getPluralName();
 
         if (pluralName.length() <= 1) {
@@ -30,69 +54,24 @@ public interface LGCard {
         return pluralName.substring(0, 1).toLowerCase() + pluralName.substring(1);
     }
 
-    boolean isFeminineName();
+    public abstract boolean isFeminineName();
 
-    /**
-     * Gets the teams that this card is part of.
-     *
-     * @return an immutable set of teams
-     */
-    ImmutableSet<LGTeam> getTeams();
-
-    ImmutableSet<LGPower> createPowers();
+    public abstract ImmutableSet<LGPower> createPowers();
 
     /**
      * Gets the description, shown at the start of the game, of this card.
      *
      * @return the description of this card
      */
-    String getDescription();
+    public abstract String getDescription();
 
-    ChatColor getColor();
+    public abstract ItemStack createGuiItem();
 
-    ItemStack createGuiItem();
+    public final boolean isRevealed(CardRevelationContext context) {
+        context.setCard(this);
 
-    final class Unknown implements LGCard {
-        private Unknown() {}
-
-        @Override
-        public String getName() {
-            return "Inconnu";
-        }
-
-        @Override
-        public String getPluralName() {
-            return "Inconnus";
-        }
-
-        @Override
-        public boolean isFeminineName() {
-            return false;
-        }
-
-        @Override
-        public ImmutableSet<LGTeam> getTeams() {
-            return ImmutableSet.of();
-        }
-
-        @Override
-        public ImmutableSet<LGPower> createPowers() {
-            return ImmutableSet.of();
-        }
-
-        @Override
-        public String getDescription() {
-            return "?";
-        }
-
-        @Override
-        public ChatColor getColor() {
-            return ChatColor.RESET;
-        }
-
-        @Override
-        public ItemStack createGuiItem() {
-            return ItemStackBuilder.of(Material.BARRIER).build();
-        }
+        return isRevealedBase(context);
     }
+
+    protected abstract boolean isRevealedBase(CardRevelationContext context);
 }

@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
-import com.github.jeuxjeux20.loupsgarous.cards.AbstractLGCard;
+import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.powers.LGPower;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeam;
@@ -43,7 +43,7 @@ public class PatateMod extends Mod {
         }
     }
 
-    public static class PatateCard extends AbstractLGCard {
+    public static class PatateCard extends LGCard {
         public static final PatateCard INSTANCE = new PatateCard();
 
         private PatateCard() {

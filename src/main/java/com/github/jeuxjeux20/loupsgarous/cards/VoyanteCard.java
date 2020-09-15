@@ -15,7 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
 @Unique
-public final class VoyanteCard extends AbstractLGCard {
+public final class VoyanteCard extends LGCard {
     public static final VoyanteCard INSTANCE = new VoyanteCard();
 
     private VoyanteCard() {

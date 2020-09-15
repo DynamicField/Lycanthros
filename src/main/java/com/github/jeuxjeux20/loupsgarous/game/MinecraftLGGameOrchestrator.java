@@ -1,8 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
-import com.github.jeuxjeux20.loupsgarous.cards.CardDistributor;
 import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
+import com.github.jeuxjeux20.loupsgarous.cards.CardDistributor;
 import com.github.jeuxjeux20.loupsgarous.cards.VillageoisCard;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.ImmutableComposition;

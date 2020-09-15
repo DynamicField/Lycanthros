@@ -12,7 +12,7 @@ import org.bukkit.block.banner.PatternType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
-public final class VillageoisCard extends AbstractLGCard {
+public final class VillageoisCard extends LGCard {
     public static final VillageoisCard INSTANCE = new VillageoisCard();
 
     private VillageoisCard() {

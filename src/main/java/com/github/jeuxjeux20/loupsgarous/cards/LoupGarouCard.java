@@ -12,7 +12,7 @@ import org.bukkit.block.banner.PatternType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
-public final class LoupGarouCard extends AbstractLGCard {
+public final class LoupGarouCard extends LGCard {
     public static final LoupGarouCard INSTANCE = new LoupGarouCard();
 
     private LoupGarouCard()  {}

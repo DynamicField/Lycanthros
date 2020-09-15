@@ -15,7 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
 @Unique
-public final class SorciereCard extends AbstractLGCard {
+public final class SorciereCard extends LGCard {
     public static final SorciereCard INSTANCE = new SorciereCard();
 
     private SorciereCard() {

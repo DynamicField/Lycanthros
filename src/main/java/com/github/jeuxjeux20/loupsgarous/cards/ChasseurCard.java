@@ -15,7 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 
 @Unique
-public final class ChasseurCard extends AbstractLGCard {
+public final class ChasseurCard extends LGCard {
     public static final ChasseurCard INSTANCE = new ChasseurCard();
 
     private ChasseurCard() {

@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.cards.composition.validation;
 
-import com.github.jeuxjeux20.loupsgarous.cards.CupidonCard;
 import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
+import com.github.jeuxjeux20.loupsgarous.cards.CupidonCard;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.ImmutableSet;
