@@ -34,11 +34,13 @@ public final class LGExtensionPoints {
                 }
             });
 
-    public static final ExtensionPoint<RunnableLGPhase.SortableFactory<?>> PHASES =
-            new ExtensionPoint<>("phases", new TypeToken<RunnableLGPhase.SortableFactory<?>>() {});
+    public static final ExtensionPoint<SortableContentFactory<? extends RunnableLGPhase>> PHASES =
+            new ExtensionPoint<>("phases",
+                    new TypeToken<SortableContentFactory<? extends RunnableLGPhase>>() {});
 
-    public static final ExtensionPoint<DuskAction.Factory<?>> DUSK_ACTIONS =
-            new ExtensionPoint<>("dusk_actions", new TypeToken<DuskAction.Factory<?>>() {});
+    public static final ExtensionPoint<SortableContentFactory<? extends DuskAction>> DUSK_ACTIONS =
+            new ExtensionPoint<>("dusk_actions",
+                    new TypeToken<SortableContentFactory<? extends DuskAction>>() {});
 
     public static final ExtensionPoint<LGCard> CARDS =
             new ExtensionPoint<>("cards", LGCard.class);

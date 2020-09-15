@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
+import com.github.jeuxjeux20.loupsgarous.extensibility.ContentFactory;
 import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
@@ -18,9 +19,9 @@ import java.util.logging.Logger;
 import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.PHASES;
 
 public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
-    private LinkedList<RunnableLGPhase.Factory<?>> phases;
+    private LinkedList<ContentFactory<? extends RunnableLGPhase>> phases;
     private final LGPhaseDescriptorRegistry descriptorRegistry;
-    private ListIterator<RunnableLGPhase.Factory<?>> phaseIterator;
+    private ListIterator<ContentFactory<? extends RunnableLGPhase>> phaseIterator;
     private @Nullable RunnableLGPhase currentPhase;
     private final Logger logger;
 
@@ -36,7 +37,7 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
         bind(new CurrentPhaseTerminable());
     }
 
-    private LinkedList<RunnableLGPhase.Factory<?>> getPhaseFactories() {
+    private LinkedList<ContentFactory<? extends RunnableLGPhase>> getPhaseFactories() {
         return new LinkedList<>(orchestrator.getGameBox().contents(PHASES));
     }
 
@@ -46,7 +47,7 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
      *
      * @param phaseFactory the phase factory to insert
      */
-    public void insert(RunnableLGPhase.Factory<?> phaseFactory) {
+    public void insert(ContentFactory<? extends RunnableLGPhase> phaseFactory) {
         phaseIterator.add(phaseFactory);
         phaseIterator.previous();
     }
@@ -82,8 +83,7 @@ public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
         if (!phaseIterator.hasNext())
             phaseIterator = phases.listIterator(); // Reset the iterator
 
-        RunnableLGPhase.Factory<?> factory = phaseIterator.next();
-        RunnableLGPhase phase = factory.create(orchestrator);
+        RunnableLGPhase phase = phaseIterator.next().create(orchestrator);
         LGPhaseDescriptor descriptor = descriptorRegistry.get(phase.getClass());
 
         if (descriptor.isTemporary())

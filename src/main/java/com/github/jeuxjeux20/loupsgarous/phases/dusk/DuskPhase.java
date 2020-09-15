@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.phases.dusk;
 
 import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.LGChatStuff;
+import com.github.jeuxjeux20.loupsgarous.extensibility.ContentFactory;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.phases.CountdownLGPhase;
@@ -20,7 +21,7 @@ public final class DuskPhase extends CountdownLGPhase {
 
         ImmutableList.Builder<DuskAction> actionsToRunBuilder = ImmutableList.builder();
 
-        for (DuskAction.Factory<?> actionFactory :
+        for (ContentFactory<? extends DuskAction> actionFactory :
                 orchestrator.getGameBox().contents(DUSK_ACTIONS)) {
             DuskAction action = actionFactory.create(orchestrator);
 

@@ -43,7 +43,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.*;
-import static com.github.jeuxjeux20.loupsgarous.phases.RunnableLGPhase.createPhaseFactory;
+import static com.github.jeuxjeux20.loupsgarous.extensibility.SortableContentFactory.createFactory;
 
 @ModInfo(
         name = "Loups-Garous classique",
@@ -81,7 +81,7 @@ public class ClassicGameMod extends Mod {
         public List<Extension<?>> getExtensions() {
             return ImmutableList.of(
                     extend(PHASES,
-                            createPhaseFactory(MaireElectionPhase.class)),
+                            createFactory(MaireElectionPhase.class)),
                     extend(TAG_REVEALERS,
                             new MaireTagRevealer()),
                     extend(PLAYER_VOTE_OUTCOME_TRANSFORMERS,
@@ -133,7 +133,7 @@ public class ClassicGameMod extends Mod {
         public List<Extension<?>> getOtherExtensions() {
             return ImmutableList.of(
                     extend(PHASES,
-                            createPhaseFactory(SorcierePotionPhase.class))
+                            createFactory(SorcierePotionPhase.class))
             );
         }
 
@@ -185,7 +185,7 @@ public class ClassicGameMod extends Mod {
         public List<Extension<?>> getOtherExtensions() {
             return ImmutableList.of(
                     extend(DUSK_ACTIONS,
-                            VoyanteDuskAction::new),
+                            createFactory(VoyanteDuskAction.class)),
                     extend(CARD_REVEALERS,
                             new VoyanteCardRevealer())
             );
@@ -211,7 +211,7 @@ public class ClassicGameMod extends Mod {
         public List<Extension<?>> getOtherExtensions() {
             return ImmutableList.of(
                     extend(PHASES,
-                            createPhaseFactory(CupidonCouplePhase.class))
+                            createFactory(CupidonCouplePhase.class))
             );
         }
 
@@ -278,11 +278,11 @@ public class ClassicGameMod extends Mod {
         public List<Extension<?>> getExtensions() {
             return ImmutableList.of(
                     extend(PHASES,
-                            createPhaseFactory(DuskPhase.class),
-                            createPhaseFactory(LoupGarouVotePhase.class),
-                            createPhaseFactory(NextTimeOfDayPhase.class),
-                            createPhaseFactory(RevealAllKillsPhase.class),
-                            createPhaseFactory(VillageVotePhase.class)),
+                            createFactory(DuskPhase.class),
+                            createFactory(LoupGarouVotePhase.class),
+                            createFactory(NextTimeOfDayPhase.class),
+                            createFactory(RevealAllKillsPhase.class),
+                            createFactory(VillageVotePhase.class)),
                     extend(CARDS,
                             LoupGarouCard.INSTANCE,
                             VillageoisCard.INSTANCE),

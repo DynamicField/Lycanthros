@@ -8,6 +8,7 @@ import com.github.jeuxjeux20.loupsgarous.config.RootConfiguration;
 import com.github.jeuxjeux20.loupsgarous.lobby.MultiverseLobbiesModule;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.*;
+import com.google.inject.Module;
 import me.lucko.helper.plugin.ExtendedJavaPlugin;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.Listener;

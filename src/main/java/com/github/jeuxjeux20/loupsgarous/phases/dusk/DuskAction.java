@@ -46,8 +46,4 @@ public abstract class DuskAction
     public final void close() throws CompositeClosingException {
         terminableRegistry.close();
     }
-
-    public interface Factory<T extends DuskAction> {
-        T create(LGGameOrchestrator orchestrator);
-    }
 }

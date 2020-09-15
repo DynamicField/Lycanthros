@@ -4,6 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.ComponentStyles;
 import com.github.jeuxjeux20.loupsgarous.ComponentTemplates;
 import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
+import com.github.jeuxjeux20.loupsgarous.extensibility.ContentFactory;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.AbstractPlayerPick;
@@ -127,7 +128,7 @@ public final class ChasseurKillPhase extends CountdownLGPhase {
         }
     }
 
-    public static class Factory extends RunnableLGPhase.Factory<ChasseurKillPhase> {
+    public static class Factory implements ContentFactory<ChasseurKillPhase> {
         private final LGPlayer chasseur;
 
         public Factory(LGPlayer chasseur) {
@@ -137,11 +138,6 @@ public final class ChasseurKillPhase extends CountdownLGPhase {
         @Override
         public ChasseurKillPhase create(LGGameOrchestrator gameOrchestrator) {
             return new ChasseurKillPhase(gameOrchestrator, chasseur);
-        }
-
-        @Override
-        public String getName() {
-            return "ChasseurKillPhase (" + chasseur + ")";
         }
     }
 }

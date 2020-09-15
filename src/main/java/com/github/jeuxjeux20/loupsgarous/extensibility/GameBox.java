@@ -288,22 +288,13 @@ public final class GameBox implements Terminable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private OrderedElement<Object> createOrderedElement(Object x) {
-        OrderedElement<Object> element = OrderedElement.fromType(x.getClass(), x);
-        OrderTransformer annotation = x.getClass().getAnnotation(OrderTransformer.class);
-        if (annotation != null) {
-            try {
-                Constructor<? extends OrderedElementTransformer> constructor =
-                        annotation.value().getDeclaredConstructor();
-                constructor.setAccessible(true);
-
-                OrderedElementTransformer transformer = constructor.newInstance();
-                element = transformer.transform(element);
-            } catch (Exception e) {
-                orchestrator.logger().log(Level.WARNING, "Failed to execute OrderTransformer.", e);
-            }
+        if (x instanceof Sortable<?>) {
+            return (OrderedElement<Object>) ((Sortable<?>) x).getOrderedElement();
+        } else {
+            return OrderedElement.fromType(x.getClass(), x);
         }
-        return element;
     }
 
     private boolean isReactiveToModChanges() {
