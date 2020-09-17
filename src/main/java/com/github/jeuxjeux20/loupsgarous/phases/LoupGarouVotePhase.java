@@ -3,7 +3,6 @@ package com.github.jeuxjeux20.loupsgarous.phases;
 import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.chat.ChatChannel;
-import com.github.jeuxjeux20.loupsgarous.chat.ChatContext;
 import com.github.jeuxjeux20.loupsgarous.chat.LGChatChannels;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
@@ -57,9 +56,7 @@ public final class LoupGarouVotePhase extends CountdownLGPhase {
 
     private void howl() {
         orchestrator.getPlayers().stream()
-                .filter(player -> LGChatChannels.LOUPS_GAROUS_VOTE
-                        .getView(new ChatContext(orchestrator, player))
-                        .isReadable())
+                .filter(player -> LGChatChannels.LOUPS_GAROUS_VOTE.getView(player).isReadable())
                 .map(LGPlayer::minecraft)
                 .flatMap(OptionalUtils::stream)
                 .forEach(LGSoundStuff::howl);

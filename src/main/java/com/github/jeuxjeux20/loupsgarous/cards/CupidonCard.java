@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.cards;
 
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.annotations.Unique;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.powers.CupidonPower;
 import com.github.jeuxjeux20.loupsgarous.powers.LGPower;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeam;
@@ -13,6 +14,10 @@ import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Unique
 public final class CupidonCard extends LGCard {
@@ -63,5 +68,17 @@ public final class CupidonCard extends LGCard {
                     bannerMeta.addPattern(new Pattern(DyeColor.WHITE, PatternType.STRIPE_TOP));
                     bannerMeta.addPattern(new Pattern(DyeColor.WHITE, PatternType.BORDER));
                 }).build();
+    }
+
+    @Override
+    protected void setupRevelation(CardRevelationContext context) {
+        List<LGTeam> holderCouples = getCouples(context.getHolder());
+        List<LGTeam> viewerCouples = getCouples(context.getViewer());
+
+        context.setRevealed(!Collections.disjoint(holderCouples, viewerCouples));
+    }
+
+    private List<LGTeam> getCouples(LGPlayer player) {
+        return player.teams().get().stream().filter(LGTeams::isCouple).collect(Collectors.toList());
     }
 }

@@ -17,4 +17,9 @@ public final class MaireTag extends LGTag {
     public ChatColor getColor() {
         return ChatColor.BLUE;
     }
+
+    @Override
+    protected void setupRevelation(TagRevelationContext context) {
+        context.reveal();
+    }
 }

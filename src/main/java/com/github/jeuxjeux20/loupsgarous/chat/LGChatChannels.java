@@ -10,19 +10,19 @@ import java.util.Arrays;
 public final class LGChatChannels {
     public static final ChatChannel DAY = new ChatChannel("day", "Jour") {
         @Override
-        protected void setupView(ChatContext context, ChatChannelView view) {
-            if (context.getOrchestrator().getTurn().getTime() == LGGameTurnTime.DAY) {
+        protected void setupView(ChatChannelView view) {
+            if (view.getOrchestrator().getTurn().getTime() == LGGameTurnTime.DAY) {
                 view.makeFullyAccessible();
             }
-            if (context.getPlayer().isDead()) {
+            if (view.getViewer().isDead()) {
                 view.setWritable(false);
             }
         }
     };
     public static final ChatChannel DEAD = new ChatChannel("dead", "Morts") {
         @Override
-        protected void setupView(ChatContext context, ChatChannelView view) {
-            if (context.getPlayer().isDead()) {
+        protected void setupView(ChatChannelView view) {
+            if (view.getViewer().isDead()) {
                 view.makeFullyAccessible();
             }
         }
@@ -46,15 +46,15 @@ public final class LGChatChannels {
         };
 
         @Override
-        protected void setupView(ChatContext context, ChatChannelView view) {
+        protected void setupView(ChatChannelView view) {
             view.getAnonymizedNames().addAll(Arrays.asList(anonymizedNames));
             view.setNameDisplayed(true);
 
-            if (context.getOrchestrator().phases().current() instanceof LoupGarouVotePhase &&
-                context.getPlayer().teams().has(LGTeams.LOUPS_GAROUS)) {
+            if (view.getOrchestrator().phases().current() instanceof LoupGarouVotePhase &&
+                view.getViewer().teams().has(LGTeams.LOUPS_GAROUS)) {
                 view.makeFullyAccessible();
             }
-            if (context.getPlayer().isDead()) {
+            if (view.getViewer().isDead()) {
                 view.setWritable(false);
             }
         }
@@ -62,8 +62,8 @@ public final class LGChatChannels {
     public static final ChatChannel LOUPS_GAROUS_VOTE = new ChatChannel("loups_garous_vote",
             "Vote des Loups-garous") {
         @Override
-        protected void setupView(ChatContext context, ChatChannelView view) {
-            ChatChannelView loupsGarousView = LOUPS_GAROUS.getView(context);
+        protected void setupView(ChatChannelView view) {
+            ChatChannelView loupsGarousView = LOUPS_GAROUS.getView(view.getViewer());
 
             view.setReadable(loupsGarousView.isReadable());
             view.setWritable(false);
@@ -76,8 +76,8 @@ public final class LGChatChannels {
     public static ChatChannel createPickChannel(Pick<?> pick) {
         return new ChatChannel("pick_channel_" + pick.hashCode(), pick.toString()) {
             @Override
-            protected void setupView(ChatContext context, ChatChannelView view) {
-                if (pick.conditions().checkPicker(context.getPlayer()).isSuccess()) {
+            protected void setupView(ChatChannelView view) {
+                if (pick.conditions().checkPicker(view.getViewer()).isSuccess()) {
                     view.setReadable(true);
                 }
             }

@@ -14,7 +14,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.VOYANTE_SYMBOL;
@@ -81,7 +80,7 @@ public class VoyanteDuskAction extends DuskAction {
         protected void safePick(LGPlayer picker, LGPlayer target) {
             playersWhoLooked.add(picker);
 
-            picker.metadata().getOrPut(VoyantePower.PLAYERS_SAW_KEY, HashSet::new).add(target);
+            VoyantePower.PLAYERS_SAW.get(picker).add(target);
 
             picker.minecraft(player -> {
                 player.sendMessage(

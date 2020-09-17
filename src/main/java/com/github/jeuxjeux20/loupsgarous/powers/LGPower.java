@@ -1,15 +1,21 @@
 package com.github.jeuxjeux20.loupsgarous.powers;
 
-public abstract class LGPower {
-    private final Object source;
+import org.jetbrains.annotations.Nullable;
 
-    public LGPower(Object source) {
+public abstract class LGPower {
+    private @Nullable Object source;
+
+    public LGPower(@Nullable Object source) {
         this.source = source;
     }
 
     public abstract String getName();
 
-    public Object getSource() {
+    public @Nullable Object getSource() {
         return source;
+    }
+
+    public void setSource(@Nullable Object source) {
+        this.source = source;
     }
 }

@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous.game;
+package com.github.jeuxjeux20.loupsgarous;
 
 import com.google.common.collect.ImmutableSet;
 

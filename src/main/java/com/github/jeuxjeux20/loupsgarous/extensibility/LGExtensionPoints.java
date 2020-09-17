@@ -1,22 +1,19 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
+import com.github.jeuxjeux20.loupsgarous.cards.CardRevelationMechanic;
 import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidatorHandler;
-import com.github.jeuxjeux20.loupsgarous.cards.revealers.CardRevealer;
-import com.github.jeuxjeux20.loupsgarous.cards.revealers.CardRevealerHandler;
 import com.github.jeuxjeux20.loupsgarous.chat.ChatChannel;
-import com.github.jeuxjeux20.loupsgarous.chat.ChatChannelViewTransformer;
+import com.github.jeuxjeux20.loupsgarous.chat.ChatChannelViewMechanic;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcomeTransformer;
 import com.github.jeuxjeux20.loupsgarous.inventory.InventoryItem;
 import com.github.jeuxjeux20.loupsgarous.phases.RunnableLGPhase;
 import com.github.jeuxjeux20.loupsgarous.phases.dusk.DuskAction;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.ScoreboardComponent;
-import com.github.jeuxjeux20.loupsgarous.tags.revealers.TagRevealer;
-import com.github.jeuxjeux20.loupsgarous.tags.revealers.TagRevealerHandler;
-import com.github.jeuxjeux20.loupsgarous.teams.revealers.TeamRevealer;
-import com.github.jeuxjeux20.loupsgarous.teams.revealers.TeamRevealerHandler;
+import com.github.jeuxjeux20.loupsgarous.tags.TagRevelationMechanic;
+import com.github.jeuxjeux20.loupsgarous.teams.TeamRevelationMechanic;
 import com.github.jeuxjeux20.loupsgarous.winconditions.WinCondition;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
@@ -45,14 +42,14 @@ public final class LGExtensionPoints {
     public static final ExtensionPoint<LGCard> CARDS =
             new ExtensionPoint<>("cards", LGCard.class);
 
-    public static final HandledExtensionPoint<TeamRevealer, TeamRevealerHandler> TEAM_REVEALERS =
-            new HandledExtensionPoint<>("team_revealers", TeamRevealer.class, TeamRevealerHandler.class);
+    public static final ExtensionPoint<CardRevelationMechanic> CARD_REVELATION_MECHANICS =
+            new ExtensionPoint<>("card_revelation_mechanic", CardRevelationMechanic.class);
 
-    public static final HandledExtensionPoint<CardRevealer, CardRevealerHandler> CARD_REVEALERS =
-            new HandledExtensionPoint<>("card_revealers", CardRevealer.class, CardRevealerHandler.class);
+    public static final ExtensionPoint<TeamRevelationMechanic> TEAM_REVELATION_MECHANICS =
+            new ExtensionPoint<>("team_revelation_mechanic", TeamRevelationMechanic.class);
 
-    public static final HandledExtensionPoint<TagRevealer, TagRevealerHandler> TAG_REVEALERS =
-            new HandledExtensionPoint<>("tag_revealers", TagRevealer.class, TagRevealerHandler.class);
+    public static final ExtensionPoint<TagRevelationMechanic> TAG_REVELATION_MECHANICS =
+            new ExtensionPoint<>("tag_revelation_mechanic", TagRevelationMechanic.class);
 
     public static final HandledExtensionPoint<CompositionValidator, CompositionValidatorHandler> COMPOSITION_VALIDATORS =
             new HandledExtensionPoint<>("composition_validators",
@@ -67,11 +64,11 @@ public final class LGExtensionPoints {
     public static final ExtensionPoint<WinCondition> WIN_CONDITIONS =
             new ExtensionPoint<>("win_conditions", WinCondition.class);
 
-    public static final ExtensionPoint<ChatChannelViewTransformer> CHAT_CHANNEL_VIEW_TRANSFORMERS =
-            new ExtensionPoint<>("channel_properties_transformers", ChatChannelViewTransformer.class);
-
     public static final ExtensionPoint<ChatChannel> CHAT_CHANNELS =
             new ExtensionPoint<>("chat_channels", ChatChannel.class);
+
+    public static final ExtensionPoint<ChatChannelViewMechanic> CHAT_CHANNEL_VIEW_MECHANICS =
+            new ExtensionPoint<>("channel_properties_transformers", ChatChannelViewMechanic.class);
 
     public static ExtensionPoint<VoteOutcomeTransformer<LGPlayer>> PLAYER_VOTE_OUTCOME_TRANSFORMERS =
             voteOutcomeTransformers(LGPlayer.class);

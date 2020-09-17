@@ -1,5 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.cards;
 
+import com.github.jeuxjeux20.loupsgarous.UserFriendlyNamed;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.powers.LGPower;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeam;
 import com.google.common.collect.ImmutableSet;
@@ -7,10 +11,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.CARD_REVELATION_MECHANICS;
+
 /**
  * The base class for all Loups-Garous cards.
  */
-public abstract class LGCard {
+public abstract class LGCard implements UserFriendlyNamed {
     /**
      * Gets the teams that this card is part of.
      *
@@ -67,11 +73,38 @@ public abstract class LGCard {
 
     public abstract ItemStack createGuiItem();
 
-    public final boolean isRevealed(CardRevelationContext context) {
-        context.setCard(this);
-
-        return isRevealedBase(context);
+    @Override
+    public String getUserFriendlyName() {
+        return getName();
     }
 
-    protected abstract boolean isRevealedBase(CardRevelationContext context);
+    public final boolean isRevealed(LGGameOrchestrator orchestrator,
+                                    LGPlayer holder,
+                                    LGPlayer viewer) {
+        CardRevelationContext context =
+                new CardRevelationContext(orchestrator, holder, viewer);
+
+        if (holder.getCard() != this) {
+            return false;
+        } else if (orchestrator.getState() == LGGameState.FINISHED ||
+                   holder == viewer ||
+                   holder.isDead()) {
+            return true;
+        }
+
+        setupRevelation(context);
+
+        for (CardRevelationMechanic revelationMechanic :
+                orchestrator.getGameBox().contents(CARD_REVELATION_MECHANICS)) {
+            if (!context.isRevealed() || revelationMechanic.canHide()) {
+                revelationMechanic.execute(context);
+            }
+        }
+
+        return context.isRevealed();
+    }
+
+    protected void setupRevelation(CardRevelationContext context) {
+        context.hide();
+    }
 }

@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.banner;
-import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.*;
 
 public class LGPlayersCommand implements HelperCommandRegisterer {
     private static final String LABEL_SEPARATOR = ChatColor.RESET + " - ";
@@ -51,7 +50,7 @@ public class LGPlayersCommand implements HelperCommandRegisterer {
 
             messageBuilder.append(player.getName());
 
-            List<String> labels = getLabels(sender, player, orchestrator);
+            List<String> labels = getLabels(sender, player);
             if (!labels.isEmpty()) {
                 messageBuilder.append(" ")
                         .append(String.join(LABEL_SEPARATOR, labels));
@@ -65,20 +64,20 @@ public class LGPlayersCommand implements HelperCommandRegisterer {
         context.reply(messageBuilder.toString());
     }
 
-    private List<String> getLabels(LGPlayer sender, LGPlayer player, LGGameOrchestrator orchestrator) {
+    private List<String> getLabels(LGPlayer sender, LGPlayer player) {
         List<String> labels = new ArrayList<>();
 
-        if (orchestrator.getGameBox().handler(CARD_REVEALERS).willReveal(sender, player)) {
+        if (player.isCardVisibleFor(sender)) {
             LGCard card = player.getCard();
 
             labels.add(card.getColor() + card.getName());
         }
 
-        for (LGTeam team : orchestrator.getGameBox().handler(TEAM_REVEALERS).getTeamsRevealed(sender, player)) {
+        for (LGTeam team : player.teams().getVisibleFor(sender)) {
             labels.add(team.getColor() + team.getName());
         }
 
-        for (LGTag tag : orchestrator.getGameBox().handler(TAG_REVEALERS).getTagsRevealed(sender, player)) {
+        for (LGTag tag : player.tags().getVisibleFor(sender)) {
             labels.add(tag.getColor() + tag.getName());
         }
 

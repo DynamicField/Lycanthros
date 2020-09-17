@@ -4,7 +4,6 @@ import com.github.jeuxjeux20.loupsgarous.cards.*;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.MultipleTeamsCompositionValidator;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.PossibleCouplesCupidonCompositionValidator;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.UniqueCardCompositionValidator;
-import com.github.jeuxjeux20.loupsgarous.cards.revealers.*;
 import com.github.jeuxjeux20.loupsgarous.chat.LGChatChannels;
 import com.github.jeuxjeux20.loupsgarous.chat.PetiteFilleSpiesOnLoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.event.GameEvent;
@@ -24,10 +23,8 @@ import com.github.jeuxjeux20.loupsgarous.scoreboard.CompositionScoreboardCompone
 import com.github.jeuxjeux20.loupsgarous.scoreboard.CurrentVotesScoreboardComponent;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.LobbyOwnerScoreboardComponent;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.PlayersAliveScoreboardComponent;
-import com.github.jeuxjeux20.loupsgarous.tags.revealers.MaireTagRevealer;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeam;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeams;
-import com.github.jeuxjeux20.loupsgarous.teams.revealers.LoupsGarousTeamRevealer;
 import com.github.jeuxjeux20.loupsgarous.winconditions.CoupleWinCondition;
 import com.github.jeuxjeux20.loupsgarous.winconditions.EveryoneDeadWinCondition;
 import com.github.jeuxjeux20.loupsgarous.winconditions.LoupsGarousWinCondition;
@@ -82,8 +79,6 @@ public class ClassicGameMod extends Mod {
             return ImmutableList.of(
                     extend(PHASES,
                             createFactory(MaireElectionPhase.class)),
-                    extend(TAG_REVEALERS,
-                            new MaireTagRevealer()),
                     extend(PLAYER_VOTE_OUTCOME_TRANSFORMERS,
                             new MaireVoteOutcomeTransformer())
             );
@@ -108,7 +103,7 @@ public class ClassicGameMod extends Mod {
         @Override
         public List<Extension<?>> getOtherExtensions() {
             return ImmutableList.of(
-                    extend(CHAT_CHANNEL_VIEW_TRANSFORMERS,
+                    extend(CHAT_CHANNEL_VIEW_MECHANICS,
                             new PetiteFilleSpiesOnLoupsGarous())
             );
         }
@@ -186,8 +181,8 @@ public class ClassicGameMod extends Mod {
             return ImmutableList.of(
                     extend(DUSK_ACTIONS,
                             createFactory(VoyanteDuskAction.class)),
-                    extend(CARD_REVEALERS,
-                            new VoyanteCardRevealer())
+                    extend(CARD_REVELATION_MECHANICS,
+                            new VoyanteSeesInspectedPlayersCard())
             );
         }
 
@@ -229,8 +224,6 @@ public class ClassicGameMod extends Mod {
         @Override
         public List<Extension<?>> getExtensions() {
             return ImmutableList.of(
-                    extend(CARD_REVEALERS,
-                            new CoupleCardRevealer()),
                     extend(COMPOSITION_VALIDATORS,
                             new PossibleCouplesCupidonCompositionValidator()),
                     extend(WIN_CONDITIONS,
@@ -286,12 +279,6 @@ public class ClassicGameMod extends Mod {
                     extend(CARDS,
                             LoupGarouCard.INSTANCE,
                             VillageoisCard.INSTANCE),
-                    extend(TEAM_REVEALERS,
-                            new LoupsGarousTeamRevealer()),
-                    extend(CARD_REVEALERS,
-                            new SelfCardRevealer(),
-                            new GameEndedCardRevealer(),
-                            new PlayerDeadCardRevealer()),
                     extend(COMPOSITION_VALIDATORS,
                             new MultipleTeamsCompositionValidator(),
                             new UniqueCardCompositionValidator()),

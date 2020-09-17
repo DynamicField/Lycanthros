@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.teams;
 
-import com.github.jeuxjeux20.loupsgarous.game.SetRegistry;
+import com.github.jeuxjeux20.loupsgarous.RevealableSetRegistry;
 
-public interface TeamRegistry extends SetRegistry<LGTeam> {
+public interface TeamRegistry extends RevealableSetRegistry<LGTeam> {
 }

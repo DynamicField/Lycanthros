@@ -30,7 +30,6 @@ public class OrchestratedLGPlayer implements LGPlayer {
     private final LGGameOrchestrator orchestrator;
 
     private final Set<LGTeam> implicitCardTeams = new HashSet<>();
-    private final ClassToInstanceMap<LGPower> implicitCardPowers = MutableClassToInstanceMap.create();
 
     OrchestratedLGPlayer(UUID playerUUID, LGGameOrchestrator orchestrator) {
         this.playerUUID = playerUUID;
@@ -93,6 +92,11 @@ public class OrchestratedLGPlayer implements LGPlayer {
 
                 return teams.remove(item);
             }
+
+            @Override
+            public boolean isRevealed(LGTeam item, LGPlayer viewer) {
+                return item.isRevealed(orchestrator, OrchestratedLGPlayer.this, viewer);
+            }
         };
     }
 
@@ -121,6 +125,11 @@ public class OrchestratedLGPlayer implements LGPlayer {
                 orchestrator.getState().mustBe(LGGameState.STARTED);
 
                 return tags.remove(item);
+            }
+
+            @Override
+            public boolean isRevealed(LGTag item, LGPlayer viewer) {
+                return item.isRevealed(orchestrator, OrchestratedLGPlayer.this, viewer);
             }
         };
     }
@@ -151,8 +160,6 @@ public class OrchestratedLGPlayer implements LGPlayer {
             public void put(LGPower power) {
                 orchestrator.getState().mustBe(LGGameState.STARTED);
 
-                implicitCardPowers.remove(power.getClass());
-
                 powers.put(power.getClass(), power);
             }
 
@@ -164,8 +171,6 @@ public class OrchestratedLGPlayer implements LGPlayer {
             @Override
             public boolean remove(Class<? extends LGPower> powerClass) {
                 orchestrator.getState().mustBe(LGGameState.STARTED);
-
-                implicitCardPowers.remove(powerClass);
 
                 return powers.remove(powerClass) != null;
             }
@@ -186,29 +191,24 @@ public class OrchestratedLGPlayer implements LGPlayer {
     }
 
     private void removeImplicitCardProperties() {
-        for (Class<? extends LGPower> powerClass : implicitCardPowers.keySet()) {
-            powers.remove(powerClass);
+        for (Map.Entry<Class<? extends LGPower>, LGPower> entry : powers.entrySet()) {
+            LGPower power = entry.getValue();
+            Class<? extends LGPower> key = entry.getKey();
+
+            if (power.getSource() == card) {
+                powers.remove(key);
+            }
         }
         for (LGTeam team : implicitCardTeams) {
             teams.remove(team);
         }
 
-        implicitCardPowers.clear();
         implicitCardTeams.clear();
     }
 
     private void addImplicitCardProperties(LGCard card) {
         ImmutableSet<LGPower> cardPowers = card.createPowers();
 
-        // Here we make sure that any explicit power are not
-        // marked as implicit
-        for (LGPower power : cardPowers) {
-            if (!powers.containsKey(power.getClass())) {
-                implicitCardPowers.put(power.getClass(), power);
-            }
-        }
-
-        // Same thing for teams
         ImmutableSet<LGTeam> cardTeams = card.getTeams();
         for (LGTeam team : cardTeams) {
             if (!teams.contains(team)) {
@@ -217,7 +217,6 @@ public class OrchestratedLGPlayer implements LGPlayer {
         }
 
         // Now add them all in the player's properties.
-        powers.putAll(implicitCardPowers);
         teams.addAll(implicitCardTeams);
     }
 
@@ -239,6 +238,11 @@ public class OrchestratedLGPlayer implements LGPlayer {
     @Override
     public void cancelFutureDeath() {
         orchestrator.kills().pending().remove(this);
+    }
+
+    @Override
+    public LGGameOrchestrator getOrchestrator() {
+        return orchestrator;
     }
 
     // Internal methods

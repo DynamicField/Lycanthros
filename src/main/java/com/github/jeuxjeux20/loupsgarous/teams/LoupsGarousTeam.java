@@ -17,4 +17,11 @@ public final class LoupsGarousTeam extends LGTeam {
     public ChatColor getColor() {
         return ChatColor.RED;
     }
+
+    @Override
+    protected void setupRevelation(TeamRevelationContext context) {
+        if (context.getViewer().teams().has(LGTeams.LOUPS_GAROUS)) {
+            context.reveal();
+        }
+    }
 }

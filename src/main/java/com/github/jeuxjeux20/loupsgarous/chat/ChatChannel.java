@@ -1,6 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.chat;
 
 import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 
@@ -23,23 +24,24 @@ public abstract class ChatChannel {
         return defaultName;
     }
 
-    public final ChatChannelView getView(ChatContext context) {
-        ChatChannelView view = getUnalteredView(context);
-        ImmutableSet<ChatChannelViewTransformer> transformers = context.getOrchestrator().getGameBox()
-                .contents(LGExtensionPoints.CHAT_CHANNEL_VIEW_TRANSFORMERS);
+    public final ChatChannelView getView(LGPlayer player) {
+        ChatChannelView view = new ChatChannelView(this, player);
 
-        ChatChannelViewTransformer.runAll(transformers, context, view);
+        setupView(view);
+
+        ImmutableSet<ChatChannelViewMechanic> mechanics = view.getOrchestrator().getGameBox()
+                .contents(LGExtensionPoints.CHAT_CHANNEL_VIEW_MECHANICS);
+
+        for (ChatChannelViewMechanic mechanic : mechanics) {
+            if (mechanic.handlesChannel(this)) {
+                mechanic.execute(view);
+            }
+        }
 
         return view;
     }
 
-    public final ChatChannelView getUnalteredView(ChatContext context) {
-        ChatChannelView view = new ChatChannelView(this);
-        setupView(context, view);
-        return view;
-    }
-
-    protected abstract void setupView(ChatContext context, ChatChannelView view);
+    protected abstract void setupView(ChatChannelView view);
 
     @Override
     public boolean equals(Object o) {

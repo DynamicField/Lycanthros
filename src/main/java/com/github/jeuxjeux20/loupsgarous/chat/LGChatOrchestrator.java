@@ -4,7 +4,6 @@ import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
 import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import me.lucko.helper.Events;
 import me.lucko.helper.Schedulers;
@@ -40,11 +39,11 @@ public class LGChatOrchestrator extends AbstractOrchestratorComponent {
         Player senderMinecraftPlayer = sender.minecraft()
                 .orElseThrow(() -> new IllegalArgumentException("The sender has no minecraft player."));
 
-        Map<ChatChannel, ChatChannelView> channels =
+        Set<ChatChannelView> channels =
                 getChannelViews(sender);
 
-        Map<ChatChannel, ChatChannelView> writableChannels =
-                Maps.filterEntries(channels, x -> x != null && x.getValue().isWritable());
+        Set<ChatChannelView> writableChannels =
+                channels.stream().filter(ChatChannelView::isWritable).collect(Collectors.toSet());
 
         if (writableChannels.isEmpty()) {
             senderMinecraftPlayer.sendMessage(ChatColor.RED +
@@ -53,13 +52,13 @@ public class LGChatOrchestrator extends AbstractOrchestratorComponent {
         }
         if (writableChannels.size() > 1) {
             orchestrator.logger().warning("Using multiple channels is not yet implemented:\n" +
-                                          writableChannels.keySet().stream()
-                                                  .map(ChatChannel::getDefaultName)
+                                          writableChannels.stream()
+                                                  .map(x -> x.getChatChannel().getId())
                                                   .collect(Collectors.joining(", ")) +
                                           "\nThe first channel will be used.");
         }
 
-        ChatChannel channel = writableChannels.keySet().iterator().next();
+        ChatChannel channel = writableChannels.iterator().next().getChatChannel();
 
         sendMessageInternal(channel, (recipient, minecraftRecipient, props) -> {
             String redirectedMessage = buildRedirectedMessage(sender, recipient, message,
@@ -120,8 +119,7 @@ public class LGChatOrchestrator extends AbstractOrchestratorComponent {
     private void sendMessageInternal(ChatChannel channel, InternalMessageSender messageSender) {
         for (LGPlayer player : orchestrator.getPlayers()) {
             player.minecraft(minecraftPlayer -> {
-                ChatContext context = new ChatContext(orchestrator, player);
-                ChatChannelView view = channel.getView(context);
+                ChatChannelView view = channel.getView(player);
 
                 if (view.isReadable()) {
                     messageSender.send(player, minecraftPlayer, view);
@@ -130,16 +128,10 @@ public class LGChatOrchestrator extends AbstractOrchestratorComponent {
         }
     }
 
-    private Map<ChatChannel, ChatChannelView> getChannelViews(LGPlayer player) {
-        Map<ChatChannel, ChatChannelView> map = new HashMap<>();
-        ChatContext context = new ChatContext(orchestrator, player);
-
-        for (ChatChannel channel : getChannels()) {
-            ChatChannelView view = channel.getView(context);
-            map.put(channel, view);
-        }
-
-        return map;
+    private Set<ChatChannelView> getChannelViews(LGPlayer player) {
+        return getChannels().stream()
+                .map(x -> x.getView(player))
+                .collect(Collectors.toSet());
     }
 
     public void sendToEveryone(String message) {

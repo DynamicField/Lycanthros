@@ -1,10 +1,14 @@
 package com.github.jeuxjeux20.loupsgarous.chat;
 
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public final class ChatChannelView {
     private final ChatChannel chatChannel;
+    private final LGPlayer viewer;
     private String name;
     private boolean isReadable = false;
     private boolean isWritable = false;
@@ -12,9 +16,18 @@ public final class ChatChannelView {
     private boolean isSenderAnonymized = false;
     private final List<String> anonymizedNames = new ArrayList<>();
 
-    public ChatChannelView(ChatChannel chatChannel) {
+    public ChatChannelView(ChatChannel chatChannel, LGPlayer viewer) {
         this.chatChannel = chatChannel;
+        this.viewer = viewer;
         this.name = chatChannel.getDefaultName();
+    }
+
+    public LGPlayer getViewer() {
+        return viewer;
+    }
+
+    public LGGameOrchestrator getOrchestrator() {
+        return getViewer().getOrchestrator();
     }
 
     public boolean isReadable() {
