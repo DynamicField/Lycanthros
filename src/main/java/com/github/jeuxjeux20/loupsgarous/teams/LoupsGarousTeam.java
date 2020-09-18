@@ -20,7 +20,7 @@ public final class LoupsGarousTeam extends LGTeam {
 
     @Override
     protected void setupRevelation(TeamRevelationContext context) {
-        if (context.getViewer().teams().has(LGTeams.LOUPS_GAROUS)) {
+        if (context.getViewer().teams().has(this)) {
             context.reveal();
         }
     }
