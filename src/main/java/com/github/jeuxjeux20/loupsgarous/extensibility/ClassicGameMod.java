@@ -206,7 +206,10 @@ public class ClassicGameMod extends Mod {
         public List<Extension<?>> getOtherExtensions() {
             return ImmutableList.of(
                     extend(PHASES,
-                            createFactory(CupidonCouplePhase.class))
+                            createFactory(CupidonCouplePhase.class)),
+                    extend(COMPOSITION_VALIDATORS,
+                            new PossibleCouplesCupidonCompositionValidator())
+
             );
         }
 
@@ -224,8 +227,6 @@ public class ClassicGameMod extends Mod {
         @Override
         public List<Extension<?>> getExtensions() {
             return ImmutableList.of(
-                    extend(COMPOSITION_VALIDATORS,
-                            new PossibleCouplesCupidonCompositionValidator()),
                     extend(WIN_CONDITIONS,
                             new CoupleWinCondition())
             );
@@ -237,7 +238,7 @@ public class ClassicGameMod extends Mod {
         }
 
         @GameEvent
-        public void onLGKill(LGKillEvent event) {
+        private void onLGKill(LGKillEvent event) {
             for (LGKill kill : event.getKills()) {
                 LGPlayer whoDied = kill.getVictim();
 

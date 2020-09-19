@@ -4,7 +4,6 @@ import com.github.jeuxjeux20.loupsgarous.event.GameEventHandler;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.relativesorting.ElementSorter;
 import com.github.jeuxjeux20.relativesorting.OrderedElement;
-import com.github.jeuxjeux20.relativesorting.OrderedElementTransformer;
 import com.github.jeuxjeux20.relativesorting.config.SortingConfiguration;
 import com.github.jeuxjeux20.relativesorting.config.UnresolvableClassHandling;
 import com.google.common.base.Preconditions;
@@ -17,11 +16,9 @@ import org.bukkit.event.Listener;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 
-import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public final class GameBox implements Terminable {
@@ -72,7 +69,7 @@ public final class GameBox implements Terminable {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> ImmutableSet<T> contents(ExtensionPoint<T> extensionPoint) {
+    public <T> ImmutableSet<T>  contents(ExtensionPoint<T> extensionPoint) {
         return ImmutableSet.copyOf((Collection<T>) contents.get(extensionPoint));
     }
 

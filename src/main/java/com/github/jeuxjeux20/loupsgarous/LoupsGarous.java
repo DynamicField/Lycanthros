@@ -5,10 +5,11 @@ import com.github.jeuxjeux20.guicybukkit.command.CommandConfigurator;
 import com.github.jeuxjeux20.guicybukkit.command.CommandNotFoundException;
 import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
 import com.github.jeuxjeux20.loupsgarous.config.RootConfiguration;
+import com.github.jeuxjeux20.loupsgarous.extensibility.ModRegistry;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.lobby.MultiverseLobbiesModule;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.*;
-import com.google.inject.Module;
 import me.lucko.helper.plugin.ExtendedJavaPlugin;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.Listener;
@@ -20,11 +21,13 @@ import java.util.Set;
  * The main loups-garous plugin! Woof!
  */
 public final class LoupsGarous extends ExtendedJavaPlugin {
+    private LGPluginDependencies pluginDependencies;
+
     @Override
     public void enable() {
         Injector injector = Guice.createInjector(getModules());
 
-        LGPluginDependencies pluginDependencies = injector.getInstance(LGPluginDependencies.class);
+        pluginDependencies = injector.getInstance(LGPluginDependencies.class);
         pluginDependencies.registerAll(this);
     }
 
@@ -53,7 +56,21 @@ public final class LoupsGarous extends ExtendedJavaPlugin {
         // Some stuff. Maybe.
     }
 
+    public LGGameManager getGameManager() {
+        return pluginDependencies.gameManager;
+    }
+
+    public ModRegistry getModRegistry() {
+        return pluginDependencies.modRegistry;
+    }
+
     private static final class LGPluginDependencies extends PluginDependencies {
+        @Inject
+        LGGameManager gameManager;
+
+        @Inject
+        ModRegistry modRegistry;
+
         @Inject
         public LGPluginDependencies(Set<Listener> listeners, Set<CommandConfigurator> commands) {
             super(listeners, commands);

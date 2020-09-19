@@ -28,8 +28,8 @@ public class ModRegistry {
                 ModDescriptorRegistry descriptorRegistry) {
         this.descriptorRegistry = descriptorRegistry;
 
-        add(plugin, classicGameMod);
-        add(plugin, patateMod);
+        add(classicGameMod, plugin);
+        add(patateMod, plugin);
 
         Events.subscribe(PluginDisableEvent.class)
                 .handler(e -> removeAll(e.getPlugin()))
@@ -40,7 +40,7 @@ public class ModRegistry {
         return ImmutableSet.copyOf(mods.values());
     }
 
-    public boolean add(Plugin plugin, Mod mod) {
+    public boolean add(Mod mod, Plugin plugin) {
         if (mods.containsValue(mod)) {
             return false;
         }

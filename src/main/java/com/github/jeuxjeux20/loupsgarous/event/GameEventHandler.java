@@ -19,7 +19,11 @@ public class GameEventHandler {
 
     @SuppressWarnings("unchecked")
     public void register(Listener target) {
-        for (Method method : target.getClass().getMethods()) {
+        plugin.getServer().getPluginManager().registerEvents(target, plugin);
+
+        for (Method method : target.getClass().getDeclaredMethods()) {
+            method.setAccessible(true);
+
             GameEvent annotation = method.getAnnotation(GameEvent.class);
 
             if (annotation != null) {

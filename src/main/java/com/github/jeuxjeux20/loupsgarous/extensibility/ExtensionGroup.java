@@ -7,7 +7,7 @@ public abstract class ExtensionGroup {
     private boolean enabled;
     private final Rule rule;
 
-    protected ExtensionGroup(Rule rule) {
+    public ExtensionGroup(Rule rule) {
         this.rule = rule;
     }
 
