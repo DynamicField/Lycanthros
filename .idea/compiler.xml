@@ -6,11 +6,14 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="LoupsGarous" />
+        <module name="demo-plugin" />
+        <module name="core" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="LoupsGarous" target="8" />
+      <module name="core" target="8" />
+      <module name="demo-plugin" target="1.8" />
+      <module name="LoupsGarous" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>

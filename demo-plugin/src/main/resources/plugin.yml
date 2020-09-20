@@ -1,0 +1,7 @@
+name: DemoPlugin
+version: ${project.version}
+main: com.github.jeuxjeux20.demoplugin.DemoPlugin
+api-version: "1.15"
+depend: [LoupsGarous]
+authors: [jeuxjeux20]
+description: testing the api
