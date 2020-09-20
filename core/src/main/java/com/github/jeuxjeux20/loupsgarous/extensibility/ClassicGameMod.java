@@ -143,7 +143,7 @@ public class ClassicGameMod extends Mod {
                 LGPlayer victim = kill.getVictim();
 
                 if (victim.powers().has(ChasseurPower.class) && victim.isPresent()) {
-                    event.getOrchestrator().phases()
+                    event.getOrchestrator().phases().getCycle()
                             .insert(new ChasseurKillPhase.Factory(victim));
                 }
             }

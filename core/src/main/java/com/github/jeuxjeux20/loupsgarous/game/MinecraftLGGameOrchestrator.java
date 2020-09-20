@@ -19,7 +19,7 @@ import com.github.jeuxjeux20.loupsgarous.extensibility.ModDescriptorRegistry;
 import com.github.jeuxjeux20.loupsgarous.extensibility.ModRegistry;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.PlayerQuitKillCause;
 import com.github.jeuxjeux20.loupsgarous.lobby.*;
-import com.github.jeuxjeux20.loupsgarous.phases.LGPhase;
+import com.github.jeuxjeux20.loupsgarous.phases.*;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultiset;
@@ -108,22 +108,25 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
     @Override
     public void initialize(LGGameBootstrapData bootstrapData) throws GameCreationException {
-        id = bootstrapData.getId();
-        lobbyTeleporter = bind(lobbyTeleporterFactory.create());
-        delayedDependencies = bind(resolve(delayedDependenciesProvider));
-
-        setComposition(bootstrapData.getComposition());
-
         try {
-            join(bootstrapData.getOwner());
-        } catch (PlayerJoinException e) {
-            throw new InvalidOwnerException(e);
-        }
+            id = bootstrapData.getId();
+            lobbyTeleporter = bind(lobbyTeleporterFactory.create());
+            delayedDependencies = bind(resolve(delayedDependenciesProvider));
 
-        registerEventListeners();
+            setComposition(bootstrapData.getComposition());
 
-        if (phases().current() instanceof LGPhase.Null) {
-            phases().next();
+            try {
+                join(bootstrapData.getOwner());
+            } catch (PlayerJoinException e) {
+                throw new InvalidOwnerException(e);
+            }
+
+            registerEventListeners();
+
+            phases().setCycle(new LobbyPhaseCycle(this));
+        } catch (Throwable e) {
+            terminableRegistry.closeAndReportException();
+            throw e;
         }
     }
 
@@ -135,9 +138,9 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         new CardDistributor().distribute(composition, players.values());
 
         changeStateTo(STARTED, LGGameStartEvent::new);
-
         Events.call(new LGTurnChangeEvent(this));
-        phases().next();
+
+        phases().setCycle(new GamePhaseCycle(this));
     }
 
     @Override
@@ -148,12 +151,14 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
         changeStateTo(FINISHED, o -> new LGGameFinishedEvent(o, ending));
 
-        phases().next();
+        phases().setCycle(new GameEndPhaseCycle(this));
     }
 
     @Override
     public void delete() {
         state.mustNotBe(DELETING, DELETED);
+
+        phases().setCycle(new EmptyPhaseCycle(this));
 
         changeStateTo(DELETING, LGGameDeletingEvent::new);
 
