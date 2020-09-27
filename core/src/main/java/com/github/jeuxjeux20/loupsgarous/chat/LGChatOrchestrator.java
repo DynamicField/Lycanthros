@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.chat;
 
 import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
-import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.google.inject.Inject;
@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class LGChatOrchestrator extends AbstractOrchestratorComponent {
+public class LGChatOrchestrator extends OrchestratorComponent {
     private final Map<ChatChannel, AnonymizationPool> anonymizationPools = new HashMap<>();
 
     @Inject

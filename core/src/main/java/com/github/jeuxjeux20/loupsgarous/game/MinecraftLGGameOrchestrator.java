@@ -2,11 +2,14 @@ package com.github.jeuxjeux20.loupsgarous.game;
 
 import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.LoupsGarousRoot;
+import com.github.jeuxjeux20.loupsgarous.actionbar.LGActionBarManager;
+import com.github.jeuxjeux20.loupsgarous.bossbar.LGBossBarManager;
 import com.github.jeuxjeux20.loupsgarous.cards.CardDistributor;
 import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.cards.VillageoisCard;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.ImmutableComposition;
+import com.github.jeuxjeux20.loupsgarous.chat.LGChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.event.*;
 import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionUpdateEvent;
@@ -17,9 +20,13 @@ import com.github.jeuxjeux20.loupsgarous.extensibility.GameBox;
 import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
 import com.github.jeuxjeux20.loupsgarous.extensibility.ModDescriptorRegistry;
 import com.github.jeuxjeux20.loupsgarous.extensibility.ModRegistry;
+import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegistry;
+import com.github.jeuxjeux20.loupsgarous.inventory.LGInventoryManager;
+import com.github.jeuxjeux20.loupsgarous.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.PlayerQuitKillCause;
 import com.github.jeuxjeux20.loupsgarous.lobby.*;
 import com.github.jeuxjeux20.loupsgarous.phases.*;
+import com.github.jeuxjeux20.loupsgarous.scoreboard.LGScoreboardManager;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultiset;
@@ -29,10 +36,8 @@ import com.google.inject.Injector;
 import com.google.inject.Provider;
 import io.reactivex.rxjava3.disposables.Disposable;
 import me.lucko.helper.Events;
-import me.lucko.helper.metadata.MetadataKey;
 import me.lucko.helper.metadata.MetadataMap;
 import me.lucko.helper.terminable.Terminable;
-import me.lucko.helper.terminable.composite.CompositeClosingException;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -43,7 +48,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -334,13 +342,6 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     }
 
     @Override
-    public <T extends OrchestratorComponent> T component(MetadataKey<T> key) {
-        checkDelayedDependencies();
-
-        return delayedDependencies.componentMap.get(key).orElseThrow(NoSuchElementException::new);
-    }
-
-    @Override
     public Logger logger() {
         return logger;
     }
@@ -459,29 +460,93 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
                 "This game is not initialized yet.");
     }
 
+    @Override
+    public LGChatOrchestrator chat() {
+        checkDelayedDependencies();
+
+        return delayedDependencies.chatOrchestrator;
+    }
+
+    @Override
+    public LGPhasesOrchestrator phases() {
+        checkDelayedDependencies();
+
+        return delayedDependencies.phasesOrchestrator;
+    }
+
+    @Override
+    public LGKillsOrchestrator kills() {
+        checkDelayedDependencies();
+
+        return delayedDependencies.killsOrchestrator;
+    }
+
+    @Override
+    public LGActionBarManager actionBar() {
+        checkDelayedDependencies();
+
+        return delayedDependencies.actionBarManager;
+    }
+
+    @Override
+    public LGBossBarManager bossBar() {
+        checkDelayedDependencies();
+
+        return delayedDependencies.bossBarManager;
+    }
+
+    @Override
+    public InteractableRegistry interactables() {
+        checkDelayedDependencies();
+
+        return delayedDependencies.interactableRegistry;
+    }
+
+    @Override
+    public LGScoreboardManager scoreboard() {
+        checkDelayedDependencies();
+
+        return delayedDependencies.scoreboardManager;
+    }
+
+    @Override
+    public LGInventoryManager inventory() {
+        checkDelayedDependencies();
+
+        return delayedDependencies.inventoryManager;
+    }
+
     private static final class DelayedDependencies implements Terminable {
-        final MetadataMap componentMap = MetadataMap.create();
+        @Inject
+        LGPhasesOrchestrator phasesOrchestrator;
+        @Inject
+        LGKillsOrchestrator killsOrchestrator;
+        @Inject
+        LGChatOrchestrator chatOrchestrator;
+        @Inject
+        InteractableRegistry interactableRegistry;
+        @Inject
+        LGActionBarManager actionBarManager;
+        @Inject
+        LGBossBarManager bossBarManager;
+        @Inject
+        LGInventoryManager inventoryManager;
+        @Inject
+        LGScoreboardManager scoreboardManager;
 
         @Inject
-        DelayedDependencies(Map<MetadataKey<?>, OrchestratorComponent> rawComponentMap) {
-            rawComponentMap.forEach(this::addToComponentMap);
-        }
-
-        @SuppressWarnings("unchecked")
-        private <T extends OrchestratorComponent>
-        void addToComponentMap(MetadataKey<?> key, T entry) {
-            this.componentMap.put((MetadataKey<? super T>) key, entry);
-        }
+        DelayedDependencies() {}
 
         @Override
-        public void close() throws CompositeClosingException {
-            CompositeTerminable terminables = CompositeTerminable.create();
-
-            for (Object value : componentMap.asMap().values()) {
-                terminables.bind(((OrchestratorComponent) value));
-            }
-
-            terminables.close();
+        public void close() throws Exception {
+            phasesOrchestrator.close();
+            killsOrchestrator.close();
+            chatOrchestrator.close();
+            interactableRegistry.close();
+            actionBarManager.close();
+            bossBarManager.close();
+            inventoryManager.close();
+            scoreboardManager.close();
         }
     }
 

@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.event.CountdownTickEvent;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseStartedEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
-import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.phases.LGPhase;
 import com.github.jeuxjeux20.loupsgarous.phases.PhaseEventUtils;
@@ -21,7 +21,7 @@ import org.bukkit.boss.BossBar;
 
 import javax.annotation.Nonnull;
 
-public class LGBossBarManager extends AbstractOrchestratorComponent {
+public class LGBossBarManager extends OrchestratorComponent {
     private final BossBar bossBar;
 
     @Inject

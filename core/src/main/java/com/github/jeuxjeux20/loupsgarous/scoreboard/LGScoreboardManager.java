@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
-import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.util.ClassArrayUtils;
@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class LGScoreboardManager extends AbstractOrchestratorComponent {
+public class LGScoreboardManager extends OrchestratorComponent {
     private static final MetadataKey<Scoreboard> SCOREBOARD_KEY
             = MetadataKey.create("lg_scoreboard", Scoreboard.class);
 

@@ -8,7 +8,7 @@ import com.github.jeuxjeux20.loupsgarous.HasTriggers;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
-import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.util.ClassArrayUtils;
@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class LGInventoryManager extends AbstractOrchestratorComponent {
+public class LGInventoryManager extends OrchestratorComponent {
     private static final MetadataKey<Map<Integer, InventoryItem>> ITEMS_KEY
             = MetadataKey.create("inv_manager", new TypeToken<Map<Integer, InventoryItem>>() {});
 

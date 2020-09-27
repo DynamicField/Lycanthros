@@ -1,12 +1,12 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
-import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.phases.descriptor.LGPhaseDescriptorRegistry;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 
-public class LGPhasesOrchestrator extends AbstractOrchestratorComponent {
+public class LGPhasesOrchestrator extends OrchestratorComponent {
     private final LGPhaseDescriptorRegistry descriptorRegistry;
 
     private PhaseCycle cycle;

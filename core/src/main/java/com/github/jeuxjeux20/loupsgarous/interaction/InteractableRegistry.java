@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.interaction;
 
-import com.github.jeuxjeux20.loupsgarous.game.AbstractOrchestratorComponent;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.Check;
 import com.github.jeuxjeux20.loupsgarous.CheckPredicate;
@@ -17,7 +17,7 @@ import me.lucko.helper.terminable.composite.CompositeClosingException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class InteractableRegistry extends AbstractOrchestratorComponent {
+public class InteractableRegistry extends OrchestratorComponent {
     private final SetMultimap<InteractableKey<?>, Interactable> map =
             MultimapBuilder.hashKeys().hashSetValues().build();
 

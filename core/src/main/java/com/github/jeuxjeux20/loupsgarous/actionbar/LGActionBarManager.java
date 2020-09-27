@@ -27,7 +27,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LGActionBarManager extends AbstractOrchestratorComponent {
+public class LGActionBarManager extends OrchestratorComponent {
     @Inject
     LGActionBarManager(LGGameOrchestrator orchestrator) {
         super(orchestrator);

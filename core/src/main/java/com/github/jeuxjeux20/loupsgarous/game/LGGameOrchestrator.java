@@ -12,15 +12,16 @@ import com.github.jeuxjeux20.loupsgarous.event.LGGameFinishedEvent;
 import com.github.jeuxjeux20.loupsgarous.event.LGGameStartEvent;
 import com.github.jeuxjeux20.loupsgarous.extensibility.GameBox;
 import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegistry;
+import com.github.jeuxjeux20.loupsgarous.inventory.LGInventoryManager;
 import com.github.jeuxjeux20.loupsgarous.kill.LGKillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.lobby.LGGameBootstrapData;
 import com.github.jeuxjeux20.loupsgarous.lobby.PlayerJoinException;
 import com.github.jeuxjeux20.loupsgarous.phases.LGPhasesOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.scoreboard.LGScoreboardManager;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Provider;
-import me.lucko.helper.metadata.MetadataKey;
 import me.lucko.helper.metadata.MetadataMap;
 import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.OfflinePlayer;
@@ -182,31 +183,21 @@ public interface LGGameOrchestrator extends TerminableConsumer {
 
     void setComposition(Composition composition);
 
-    <T extends OrchestratorComponent> T component(MetadataKey<T> key);
+    LGChatOrchestrator chat();
 
-    default LGChatOrchestrator chat() {
-        return component(LGComponents.CHAT);
-    }
+    LGPhasesOrchestrator phases();
 
-    default LGPhasesOrchestrator phases() {
-        return component(LGComponents.PHASES);
-    }
+    LGKillsOrchestrator kills();
 
-    default LGKillsOrchestrator kills() {
-        return component(LGComponents.KILLS);
-    }
+    LGActionBarManager actionBar();
 
-    default LGActionBarManager actionBar() {
-        return component(LGComponents.ACTION_BAR);
-    }
+    LGScoreboardManager scoreboard();
 
-    default LGBossBarManager bossBar() {
-        return component(LGComponents.BOSS_BAR);
-    }
+    LGInventoryManager inventory();
 
-    default InteractableRegistry interactables() {
-        return component(LGComponents.INTERACTABLES);
-    }
+    LGBossBarManager bossBar();
+
+    InteractableRegistry interactables();
 
     Logger logger();
 
