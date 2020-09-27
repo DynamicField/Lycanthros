@@ -11,8 +11,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.vote;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.player;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.vote;
 
 public class TellPlayerVoteRemovedListener implements Listener {
     @EventHandler

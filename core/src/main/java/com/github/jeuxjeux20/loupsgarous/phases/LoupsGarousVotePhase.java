@@ -4,6 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.chat.ChatChannel;
 import com.github.jeuxjeux20.loupsgarous.chat.LGChatChannels;
+import com.github.jeuxjeux20.loupsgarous.OrderIdentifier;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
@@ -19,7 +20,7 @@ import org.bukkit.ChatColor;
 
 import java.util.Optional;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.player;
 
 @MajorityVoteShortensCountdown(value = LGInteractableKeys.Names.PLAYER_VOTE, timeLeft = 10)
 @PhaseInfo(
@@ -27,10 +28,13 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
         title = "Les loups vont dévorer un innocent...",
         color = PhaseColor.RED
 )
-public final class LoupGarouVotePhase extends CountdownLGPhase {
+@OrderIdentifier(LoupsGarousVotePhase.IDENTIFIER)
+public final class LoupsGarousVotePhase extends CountdownLGPhase {
+    public static final String IDENTIFIER = "LoupsGarousVote";
+
     private final LoupGarouVote votable;
 
-    public LoupGarouVotePhase(LGGameOrchestrator orchestrator) {
+    public LoupsGarousVotePhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
         this.votable = Interactable.createBound(LoupGarouVote::new, LGInteractableKeys.PLAYER_VOTE, this);

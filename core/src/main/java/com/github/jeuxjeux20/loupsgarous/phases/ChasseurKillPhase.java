@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
-import com.github.jeuxjeux20.loupsgarous.ComponentStyles;
-import com.github.jeuxjeux20.loupsgarous.ComponentTemplates;
+import com.github.jeuxjeux20.loupsgarous.chat.ComponentStyles;
+import com.github.jeuxjeux20.loupsgarous.chat.ComponentTemplates;
 import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.extensibility.ContentFactory;
@@ -17,7 +17,7 @@ import com.github.jeuxjeux20.loupsgarous.winconditions.PostponesWinConditions;
 import me.lucko.helper.text.Text;
 import me.lucko.helper.text.TextComponent;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.info;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.info;
 
 @PostponesWinConditions
 @PhaseInfo(

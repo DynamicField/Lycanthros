@@ -16,8 +16,8 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.VOYANTE_SYMBOL;
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.importantTip;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.VOYANTE_SYMBOL;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.importantTip;
 
 public class VoyanteDuskAction extends DuskAction {
     private final VoyanteLookable look;

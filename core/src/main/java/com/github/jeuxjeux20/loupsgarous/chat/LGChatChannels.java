@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.chat;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.interaction.Pick;
-import com.github.jeuxjeux20.loupsgarous.phases.LoupGarouVotePhase;
+import com.github.jeuxjeux20.loupsgarous.phases.LoupsGarousVotePhase;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeams;
 
 import java.util.Arrays;
@@ -50,7 +50,7 @@ public final class LGChatChannels {
             view.getAnonymizedNames().addAll(Arrays.asList(anonymizedNames));
             view.setNameDisplayed(true);
 
-            if (view.getOrchestrator().phases().current() instanceof LoupGarouVotePhase &&
+            if (view.getOrchestrator().phases().current() instanceof LoupsGarousVotePhase &&
                 view.getViewer().teams().has(LGTeams.LOUPS_GAROUS)) {
                 view.makeFullyAccessible();
             }

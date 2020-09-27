@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.commands.debug;
 
-import com.github.jeuxjeux20.loupsgarous.LGChatStuff;
+import com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff;
 import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;

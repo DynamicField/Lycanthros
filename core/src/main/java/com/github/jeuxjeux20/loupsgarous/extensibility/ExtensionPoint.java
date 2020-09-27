@@ -3,7 +3,6 @@ package com.github.jeuxjeux20.loupsgarous.extensibility;
 import com.google.common.base.MoreObjects;
 import com.google.common.reflect.TypeToken;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 public class ExtensionPoint<T> {
@@ -19,13 +18,8 @@ public class ExtensionPoint<T> {
         this.valueType = valueType;
     }
 
-    @SafeVarargs
-    public final Extension<T> extend(String name, T... values) {
-        return new Extension<>(this, name, Arrays.asList(values));
-    }
-
-    public final Extension.Builder<T> extend(String name) {
-        return Extension.builder(this, name);
+    public final Extension<T> extend(T value) {
+        return new Extension<>(this, value);
     }
 
     public String getId() {

@@ -12,7 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.error;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.error;
 
 @CommandName("lgstart")
 public class LGStartCommand extends SelfConfiguredCommandExecutor {

@@ -1,6 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
 import com.github.jeuxjeux20.loupsgarous.Countdown;
+import com.github.jeuxjeux20.loupsgarous.OrderIdentifier;
+import com.github.jeuxjeux20.loupsgarous.Order;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.Interactable;
@@ -9,7 +11,6 @@ import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.AbstractPlayerVote;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.tags.LGTags;
-import com.github.jeuxjeux20.relativesorting.Order;
 import org.apache.commons.lang.math.RandomUtils;
 import org.bukkit.ChatColor;
 
@@ -23,8 +24,11 @@ import java.util.stream.Collectors;
         color = PhaseColor.BLUE,
         isTemporary = true
 )
-@Order(after = RevealAllKillsPhase.class, before = VillageVotePhase.class)
+@Order(after = RevealAllKillsPhase.IDENTIFIER, before = VillageVotePhase.IDENTIFIER)
+@OrderIdentifier(MaireElectionPhase.IDENTIFIER)
 public final class MaireElectionPhase extends CountdownLGPhase {
+    public static final String IDENTIFIER = "MaireElection";
+
     private final MaireVote vote;
 
     public MaireElectionPhase(LGGameOrchestrator orchestrator) {

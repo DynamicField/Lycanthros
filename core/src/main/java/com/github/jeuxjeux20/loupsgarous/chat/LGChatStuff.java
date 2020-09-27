@@ -1,4 +1,4 @@
-package com.github.jeuxjeux20.loupsgarous;
+package com.github.jeuxjeux20.loupsgarous.chat;
 
 import org.bukkit.ChatColor;
 

@@ -8,8 +8,8 @@ import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 
 import java.util.stream.Stream;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.error;
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.error;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.player;
 
 public abstract class AbstractPlayerVote extends AbstractVote<LGPlayer> {
     public AbstractPlayerVote(LGGameOrchestrator orchestrator) {

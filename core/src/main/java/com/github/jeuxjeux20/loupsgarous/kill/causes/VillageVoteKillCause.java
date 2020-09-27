@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.kill.causes;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.*;
 
 public final class VillageVoteKillCause extends SingleLGKillCause {
     public static final VillageVoteKillCause INSTANCE = new VillageVoteKillCause();

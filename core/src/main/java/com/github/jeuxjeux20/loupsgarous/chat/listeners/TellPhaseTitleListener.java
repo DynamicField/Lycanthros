@@ -8,7 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.importantInfo;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.importantInfo;
 
 public class TellPhaseTitleListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)

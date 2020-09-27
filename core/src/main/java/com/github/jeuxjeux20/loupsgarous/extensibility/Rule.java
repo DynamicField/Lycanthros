@@ -86,11 +86,6 @@ public abstract class Rule implements OrchestratorDependent {
         this.mod = mod;
     }
 
-    @SafeVarargs
-    protected final <T> Extension<T> extend(ExtensionPoint<T> extensionPoint, T... contents) {
-        return extensionPoint.extend(createExtensionName(extensionPoint), contents);
-    }
-
     protected String createExtensionName(ExtensionPoint<?> extensionPoint) {
         return getClass().getSimpleName() + "_" + extensionPoint.getId();
     }

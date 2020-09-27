@@ -7,7 +7,7 @@ import com.github.jeuxjeux20.loupsgarous.interaction.vote.Vote;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import static com.github.jeuxjeux20.loupsgarous.ComponentTemplates.VOTE_TIP;
+import static com.github.jeuxjeux20.loupsgarous.chat.ComponentTemplates.VOTE_TIP;
 
 public class TellVoteTipsListener implements Listener {
     @EventHandler(ignoreCancelled = true)

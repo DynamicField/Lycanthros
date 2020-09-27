@@ -57,7 +57,7 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.*;
 import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.*;
 
 class MinecraftLGGameOrchestrator implements LGGameOrchestrator {

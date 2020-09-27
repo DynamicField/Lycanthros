@@ -1,12 +1,16 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
+import com.github.jeuxjeux20.loupsgarous.OrderIdentifier;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.SKULL_SYMBOL;
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.killMessage;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.SKULL_SYMBOL;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.killMessage;
 
+@OrderIdentifier(RevealAllKillsPhase.IDENTIFIER)
 public final class RevealAllKillsPhase extends LogicLGPhase {
+    public static final String IDENTIFIER = "RevealAllKills";
+
     public RevealAllKillsPhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }

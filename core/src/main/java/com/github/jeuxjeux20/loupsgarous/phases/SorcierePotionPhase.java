@@ -1,6 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
 import com.github.jeuxjeux20.loupsgarous.*;
+import com.github.jeuxjeux20.loupsgarous.chat.ComponentStyles;
+import com.github.jeuxjeux20.loupsgarous.chat.ComponentTemplates;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
@@ -12,7 +14,6 @@ import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.kill.LGKill;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.NightKillCause;
 import com.github.jeuxjeux20.loupsgarous.powers.SorcierePower;
-import com.github.jeuxjeux20.relativesorting.Order;
 import me.lucko.helper.text.Text;
 import me.lucko.helper.text.TextComponent;
 import me.lucko.helper.text.event.ClickEvent;
@@ -25,7 +26,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.*;
 import static me.lucko.helper.text.format.TextColor.*;
 import static me.lucko.helper.text.format.TextDecoration.BOLD;
 
@@ -33,8 +34,11 @@ import static me.lucko.helper.text.format.TextDecoration.BOLD;
         name = "Sorcière",
         title = "La sorcière va utiliser ses potions..."
 )
-@Order(after = LoupGarouVotePhase.class, before = NextTimeOfDayPhase.class)
+@Order(after = LoupsGarousVotePhase.IDENTIFIER, before = NextTimeOfDayPhase.IDENTIFIER)
+@OrderIdentifier(SorcierePotionPhase.IDENTIFIER)
 public final class SorcierePotionPhase extends CountdownLGPhase {
+    public static final String IDENTIFIER = "SorcierePotion";
+
     private final SorciereHeal heal;
     private final SorciereKill kill;
 

@@ -1,18 +1,12 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.relativesorting.OrderedElement;
 
 import java.lang.reflect.Constructor;
 
-public interface SortableContentFactory<T> extends ContentFactory<T>,
-        Sortable<SortableContentFactory<T>> {
-    Class<?> getIdentifier();
-
+public interface SortableContentFactory<T> extends ContentFactory<T>, HasOrderingHint {
     @Override
-    default OrderedElement<? extends SortableContentFactory<T>> getOrderedElement() {
-        return OrderedElement.fromType(getIdentifier(), this);
-    }
+    Class<?> getOrderingInfoContainer();
 
     static <T> SortableContentFactory<T> createFactory(Class<? extends T> clazz) {
         return new SortableContentFactory<T>() {
@@ -39,8 +33,13 @@ public interface SortableContentFactory<T> extends ContentFactory<T>,
             }
 
             @Override
-            public Class<?> getIdentifier() {
+            public Class<?> getOrderingInfoContainer() {
                 return clazz;
+            }
+
+            @Override
+            public String toString() {
+                return clazz.getName();
             }
         };
     }

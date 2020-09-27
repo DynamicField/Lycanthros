@@ -6,10 +6,10 @@ import org.jetbrains.annotations.NotNull;
 
 abstract class ClassExtensionPointCacheLoader<T> extends
         CacheLoader<Class<? extends T>, ExtensionPoint<?>> {
-    private final String suffix;
+    private final String prefix;
 
-    public ClassExtensionPointCacheLoader(String suffix) {
-        this.suffix = suffix;
+    public ClassExtensionPointCacheLoader(String prefix) {
+        this.prefix = prefix;
     }
 
     @Override
@@ -25,7 +25,7 @@ abstract class ClassExtensionPointCacheLoader<T> extends
     }
 
     protected <C extends T> String getExtensionPointName(Class<C> clazz) {
-        return clazz.getName() + "_" + suffix;
+        return String.format("%s[%s]", prefix, clazz.getName());
     }
 
     protected abstract <C extends T> TypeToken<?> getExtensionPointType(Class<C> clazz);

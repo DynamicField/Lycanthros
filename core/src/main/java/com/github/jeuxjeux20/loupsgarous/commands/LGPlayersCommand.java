@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.banner;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.banner;
 
 public class LGPlayersCommand implements HelperCommandRegisterer {
     private static final String LABEL_SEPARATOR = ChatColor.RESET + " - ";

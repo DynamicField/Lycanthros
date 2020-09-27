@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
+import com.github.jeuxjeux20.loupsgarous.OrderIdentifier;
 import com.github.jeuxjeux20.loupsgarous.cards.*;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.MultipleTeamsCompositionValidator;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.PossibleCouplesCupidonCompositionValidator;
@@ -31,7 +32,6 @@ import com.github.jeuxjeux20.loupsgarous.winconditions.EveryoneDeadWinCondition;
 import com.github.jeuxjeux20.loupsgarous.winconditions.LoupsGarousWinCondition;
 import com.github.jeuxjeux20.loupsgarous.winconditions.VillageWinCondition;
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -49,17 +49,10 @@ import static com.github.jeuxjeux20.loupsgarous.extensibility.SortableContentFac
         enabledByDefault = true
 )
 public class ClassicGameMod extends Mod {
-    private final EditLobbyItem editLobbyItem;
-
-    @Inject
-    ClassicGameMod(EditLobbyItem editLobbyItem) {
-        this.editLobbyItem = editLobbyItem;
-    }
-
     @Override
     public List<Rule> createRules(LGGameOrchestrator orchestrator, ConfigurationNode configuration) {
         return ImmutableList.of(
-                new FundamentalsRule(orchestrator, editLobbyItem),
+                new FundamentalsRule(orchestrator),
                 new CupidonRule(orchestrator),
                 new CoupleRule(orchestrator),
                 new MaireRule(orchestrator),
@@ -77,12 +70,12 @@ public class ClassicGameMod extends Mod {
 
         @Override
         public List<Extension<?>> getExtensions() {
-            return ImmutableList.of(
-                    extend(PHASES,
-                            createFactory(MaireElectionPhase.class)),
-                    extend(PLAYER_VOTE_OUTCOME_TRANSFORMERS,
+            return Extension.listBuilder()
+                    .extendSingle(PHASES,
+                            createFactory(MaireElectionPhase.class))
+                    .extendSingle(PLAYER_VOTE_OUTCOME_TRANSFORMERS,
                             new MaireVoteOutcomeTransformer())
-            );
+                    .build();
         }
 
     }
@@ -99,10 +92,10 @@ public class ClassicGameMod extends Mod {
 
         @Override
         public List<Extension<?>> getOtherExtensions() {
-            return ImmutableList.of(
-                    extend(CHAT_CHANNEL_VIEW_MECHANICS,
+            return Extension.listBuilder()
+                    .extendSingle(CHAT_CHANNEL_VIEW_MECHANICS,
                             new PetiteFilleSpiesOnLoupsGarous())
-            );
+                    .build();
         }
 
     }
@@ -119,10 +112,9 @@ public class ClassicGameMod extends Mod {
 
         @Override
         public List<Extension<?>> getOtherExtensions() {
-            return ImmutableList.of(
-                    extend(PHASES,
-                            createFactory(SorcierePotionPhase.class))
-            );
+            return Extension.listBuilder()
+                    .extendSingle(PHASES, createFactory(SorcierePotionPhase.class))
+                    .build();
         }
 
     }
@@ -162,14 +154,13 @@ public class ClassicGameMod extends Mod {
 
         @Override
         public List<Extension<?>> getOtherExtensions() {
-            return ImmutableList.of(
-                    extend(DUSK_ACTIONS,
-                            createFactory(VoyanteDuskAction.class)),
-                    extend(CARD_REVELATION_MECHANICS,
+            return Extension.listBuilder()
+                    .extendSingle(DUSK_ACTIONS,
+                            createFactory(VoyanteDuskAction.class))
+                    .extendSingle(CARD_REVELATION_MECHANICS,
                             new VoyanteSeesInspectedPlayersCard())
-            );
+                    .build();
         }
-
     }
 
     public static class CupidonRule extends CardRule {
@@ -184,13 +175,12 @@ public class ClassicGameMod extends Mod {
 
         @Override
         public List<Extension<?>> getOtherExtensions() {
-            return ImmutableList.of(
-                    extend(PHASES,
-                            createFactory(CupidonCouplePhase.class)),
-                    extend(COMPOSITION_VALIDATORS,
+            return Extension.listBuilder()
+                    .extendSingle(PHASES,
+                            createFactory(CupidonCouplePhase.class))
+                    .extendSingle(COMPOSITION_VALIDATORS,
                             new PossibleCouplesCupidonCompositionValidator())
-
-            );
+                    .build();
         }
 
     }
@@ -203,8 +193,7 @@ public class ClassicGameMod extends Mod {
         @Override
         public List<Extension<?>> getExtensions() {
             return ImmutableList.of(
-                    extend(WIN_CONDITIONS,
-                            new CoupleWinCondition())
+                    WIN_CONDITIONS.extend(new CoupleWinCondition())
             );
         }
 
@@ -232,46 +221,43 @@ public class ClassicGameMod extends Mod {
     }
 
     public static class FundamentalsRule extends Rule {
-        private final EditLobbyItem editLobbyItem;
-
-        public FundamentalsRule(LGGameOrchestrator orchestrator, EditLobbyItem editLobbyItem) {
+        public FundamentalsRule(LGGameOrchestrator orchestrator) {
             super(orchestrator);
-            this.editLobbyItem = editLobbyItem;
         }
 
         @Override
         public List<Extension<?>> getExtensions() {
-            return ImmutableList.of(
-                    extend(PHASES,
-                            createFactory(DuskPhase.class),
-                            createFactory(LoupGarouVotePhase.class),
-                            createFactory(NextTimeOfDayPhase.class),
-                            createFactory(RevealAllKillsPhase.class),
-                            createFactory(VillageVotePhase.class)),
-                    extend(CARDS,
-                            LoupGarouCard.INSTANCE,
-                            VillageoisCard.INSTANCE),
-                    extend(COMPOSITION_VALIDATORS,
-                            new MultipleTeamsCompositionValidator(),
-                            new UniqueCardCompositionValidator()),
-                    extend(SCOREBOARD_COMPONENTS,
-                            new LobbyOwnerScoreboardComponent(),
-                            new PlayersAliveScoreboardComponent(),
-                            new CompositionScoreboardComponent(),
-                            new CurrentVotesScoreboardComponent()),
-                    extend(INVENTORY_ITEMS,
-                            editLobbyItem,
-                            new EditModsItem(),
-                            new QuitGameItem()),
-                    extend(WIN_CONDITIONS,
-                            new EveryoneDeadWinCondition(),
-                            new LoupsGarousWinCondition(),
-                            new VillageWinCondition()),
-                    extend(CHAT_CHANNELS,
-                            LGChatChannels.DAY,
-                            LGChatChannels.DEAD,
-                            LGChatChannels.LOUPS_GAROUS)
-            );
+            return Extension.listBuilder()
+                    .extend(PHASES, b -> b
+                            .with(createFactory(DuskPhase.class))
+                            .with(createFactory(LoupsGarousVotePhase.class))
+                            .with(createFactory(NextTimeOfDayPhase.class))
+                            .with(createFactory(RevealAllKillsPhase.class))
+                            .with(createFactory(VillageVotePhase.class)))
+                    .extend(CARDS, b -> b
+                            .with(LoupGarouCard.INSTANCE)
+                            .with(VillageoisCard.INSTANCE))
+                    .extend(COMPOSITION_VALIDATORS, b -> b
+                            .with(new MultipleTeamsCompositionValidator())
+                            .with(new UniqueCardCompositionValidator()))
+                    .extend(SCOREBOARD_COMPONENTS, b -> b
+                            .with(new LobbyOwnerScoreboardComponent())
+                            .with(new PlayersAliveScoreboardComponent())
+                            .with(new CompositionScoreboardComponent())
+                            .with(new CurrentVotesScoreboardComponent()))
+                    .extend(INVENTORY_ITEMS, b -> b
+                            .with(new EditLobbyItem())
+                            .with(new EditModsItem())
+                            .with(new QuitGameItem()))
+                    .extend(WIN_CONDITIONS, b -> b
+                            .with(new EveryoneDeadWinCondition())
+                            .with(new LoupsGarousWinCondition())
+                            .with(new VillageWinCondition()))
+                    .extend(CHAT_CHANNELS, b -> b
+                            .with(LGChatChannels.DAY)
+                            .with(LGChatChannels.DEAD)
+                            .with(LGChatChannels.LOUPS_GAROUS))
+                    .build();
         }
 
     }

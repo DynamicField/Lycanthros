@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.interaction.handler;
 
-import com.github.jeuxjeux20.loupsgarous.LGMessages;
+import com.github.jeuxjeux20.loupsgarous.chat.LGMessages;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.Pick;

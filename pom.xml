@@ -134,7 +134,7 @@
             <dependency>
                 <groupId>com.github.jeuxjeux20</groupId>
                 <artifactId>relative-sorting</artifactId>
-                <version>0.1.1</version>
+                <version>0.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.reactivex.rxjava3</groupId>

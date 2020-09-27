@@ -7,7 +7,7 @@ import com.google.inject.Inject;
 import me.lucko.helper.Commands;
 import org.bukkit.ChatColor;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.banner;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.banner;
 
 public class LGListCommand implements HelperCommandRegisterer {
     private final LGGameManager gameManager;

@@ -1,8 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
-import com.github.jeuxjeux20.loupsgarous.Check;
-import com.github.jeuxjeux20.loupsgarous.Countdown;
-import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
+import com.github.jeuxjeux20.loupsgarous.*;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.AbstractCouplePick;
@@ -14,14 +12,13 @@ import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.powers.CupidonPower;
 import com.github.jeuxjeux20.loupsgarous.teams.CoupleTeam;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeams;
-import com.github.jeuxjeux20.relativesorting.Order;
 import org.apache.commons.lang.math.RandomUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.*;
 
 @PhaseInfo(
         name = "Cupidon",
@@ -30,7 +27,10 @@ import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
         isTemporary = true
 )
 @Order(position = -2)
+@OrderIdentifier(CupidonCouplePhase.IDENTIFIER)
 public final class CupidonCouplePhase extends CountdownLGPhase {
+    public static final String IDENTIFIER = "CupidonCouple";
+
     private final CupidonCoupleCreator coupleCreator;
 
     public CupidonCouplePhase(LGGameOrchestrator orchestrator) {

@@ -1,7 +1,7 @@
-package com.github.jeuxjeux20.loupsgarous;
+package com.github.jeuxjeux20.loupsgarous.chat;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.error;
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.player;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.error;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.player;
 
 public final class LGMessages {
     public static final String NOT_IN_GAME = "&cVous n'êtes pas en partie.";

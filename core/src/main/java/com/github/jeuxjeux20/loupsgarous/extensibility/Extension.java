@@ -1,55 +1,103 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
-import com.google.common.collect.ImmutableList;
+import com.github.jeuxjeux20.loupsgarous.OrderIdentifier;
+import com.github.jeuxjeux20.loupsgarous.Order;
+import com.github.jeuxjeux20.relativesorting.OrderConstraints;
+import com.github.jeuxjeux20.relativesorting.OrderedElement;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.Objects;
 
 public final class Extension<T> {
     private final ExtensionPoint<T> extensionPoint;
-    private final ImmutableList<T> contents;
-    private final String name;
+    private final T value;
+    private final @Nullable String identifier;
+    private final OrderConstraints orderConstraints;
 
-    public Extension(ExtensionPoint<T> extensionPoint, String name, Collection<T> contents) {
-        this.extensionPoint = extensionPoint;
-        this.contents = ImmutableList.copyOf(contents);
-        this.name = name;
+    private OrderedElement<Extension<T>> cachedOrderedElement;
+
+    public Extension(ExtensionPoint<T> extensionPoint, T value) {
+        this(extensionPoint, value,
+                getIdentifierFromValue(value),
+                getOrderConstraintsFromValue(value));
     }
 
-    public static <T> Builder<T> builder(ExtensionPoint<T> extensionPoint, String name) {
-        return new Builder<>(extensionPoint, name);
+    public Extension(ExtensionPoint<T> extensionPoint, T value,
+                     @Nullable String identifier) {
+        this(extensionPoint, value,
+                identifier, getOrderConstraintsFromValue(value));
+    }
+
+    public Extension(ExtensionPoint<T> extensionPoint, T value,
+                     OrderConstraints orderConstraints) {
+        this(extensionPoint, value,
+                getIdentifierFromValue(value), orderConstraints);
+    }
+
+    public Extension(ExtensionPoint<T> extensionPoint, T value,
+                     @Nullable String identifier, OrderConstraints orderConstraints) {
+        this.extensionPoint = extensionPoint;
+        this.value = value;
+        this.identifier = identifier;
+        this.orderConstraints = orderConstraints;
+    }
+
+    public static ExtensionListBuilder listBuilder() {
+        return new ExtensionListBuilder();
+    }
+
+    private static @Nullable String getIdentifierFromValue(Object value) {
+        Objects.requireNonNull(value, "value is null");
+
+        OrderIdentifier annotation = HasOrderingHint.getContainerIn(value).getAnnotation(OrderIdentifier.class);
+
+        if (annotation != null) {
+            return annotation.value();
+        } else {
+            return null;
+        }
+    }
+
+    private static OrderConstraints getOrderConstraintsFromValue(Object value) {
+        Objects.requireNonNull(value, "value is null");
+
+        return Order.Util.toOrderConstraints(
+                HasOrderingHint.getContainerIn(value).getAnnotation(Order.class)
+        );
     }
 
     public ExtensionPoint<T> getExtensionPoint() {
         return extensionPoint;
     }
 
-    public ImmutableList<T> getContents() {
-        return contents;
+    public T getValue() {
+        return value;
     }
 
-    public String getName() {
-        return name;
+    public @Nullable String getIdentifier() {
+        return identifier;
     }
 
-    public static final class Builder<T> {
-        private final List<T> contents = new ArrayList<>();
-        private final ExtensionPoint<T> extensionPoint;
-        private final String name;
-
-        public Builder(ExtensionPoint<T> extensionPoint, String name) {
-            this.extensionPoint = extensionPoint;
-            this.name = name;
+    OrderedElement<Extension<T>> getOrderedElement() {
+        if (cachedOrderedElement != null) {
+            return cachedOrderedElement;
+        } else {
+            return (cachedOrderedElement = new OrderedElement<>(identifier, this, orderConstraints));
         }
+    }
 
-        public Builder<T> add(T content) {
-            contents.add(content);
-            return this;
-        }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Extension<?> extension = (Extension<?>) o;
+        return Objects.equals(extensionPoint, extension.extensionPoint) &&
+               Objects.equals(value, extension.value) &&
+               Objects.equals(identifier, extension.identifier);
+    }
 
-        public Extension<T> build() {
-            return new Extension<>(extensionPoint, name, contents);
-        }
+    @Override
+    public int hashCode() {
+        return Objects.hash(extensionPoint, value, identifier);
     }
 }

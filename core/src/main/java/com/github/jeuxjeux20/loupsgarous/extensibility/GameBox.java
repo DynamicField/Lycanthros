@@ -3,9 +3,8 @@ package com.github.jeuxjeux20.loupsgarous.extensibility;
 import com.github.jeuxjeux20.loupsgarous.event.GameEventHandler;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.relativesorting.ElementSorter;
-import com.github.jeuxjeux20.relativesorting.OrderedElement;
 import com.github.jeuxjeux20.relativesorting.config.SortingConfiguration;
-import com.github.jeuxjeux20.relativesorting.config.UnresolvableClassHandling;
+import com.github.jeuxjeux20.relativesorting.config.UnresolvableIdentifierHandling;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.*;
 import io.reactivex.rxjava3.core.Observable;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
 public final class GameBox implements Terminable {
     private static final SortingConfiguration SORTING_CONFIGURATION =
             SortingConfiguration.builder()
-                    .unresolvableClassHandling(UnresolvableClassHandling.IGNORE)
+                    .unresolvableIdentifierHandling(UnresolvableIdentifierHandling.IGNORE)
                     .build();
 
     private final LGGameOrchestrator orchestrator;
@@ -34,7 +33,9 @@ public final class GameBox implements Terminable {
 
     private final Map<Mod, ModData> mods = new HashMap<>();
     private final Multimap<@Nullable Mod, Rule> rules = LinkedHashMultimap.create();
-    private final Multimap<ExtensionPoint<?>, Object> contents = LinkedHashMultimap.create();
+    private final Multimap<Rule, Extension<?>> extensionsByRule = LinkedHashMultimap.create();
+    private final Multimap<ExtensionPoint<?>, Extension<?>> extensionsByPoint = LinkedHashMultimap.create();
+    private final Multimap<ExtensionPoint<?>, Object> contents = LinkedListMultimap.create();
     private final Map<HandledExtensionPoint<?, ?>, ExtensionPointHandler> handlers = new HashMap<>();
 
     private final ModRegistryListener modRegistryListener;
@@ -75,8 +76,15 @@ public final class GameBox implements Terminable {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> ImmutableSet<T> contents(ExtensionPoint<T> extensionPoint) {
-        return ImmutableSet.copyOf((Collection<T>) contents.get(extensionPoint));
+    public <T> ImmutableList<T> contents(ExtensionPoint<T> extensionPoint) {
+        return ImmutableList.copyOf((Collection<T>) contents.get(extensionPoint));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> ImmutableSet<Extension<T>> extensions(ExtensionPoint<T> extensionPoint) {
+        return ImmutableSet.copyOf(
+                (Collection<Extension<T>>) (Collection<?>) extensionsByPoint.get(extensionPoint)
+        );
     }
 
     @SuppressWarnings("unchecked")
@@ -270,16 +278,21 @@ public final class GameBox implements Terminable {
             ExtensionPoint<?> extensionPoint = extension.getExtensionPoint();
 
             extensionPointsToSort.add(extensionPoint);
-            contents.get(extensionPoint).addAll(extension.getContents());
+
+            extensionsByRule.get(rule).add(extension);
+            extensionsByPoint.get(extensionPoint).add(extension);
+            contents.get(extensionPoint).add(extension.getValue());
         }
     }
 
     private void removeRuleExtensions(Rule rule) {
-        List<Extension<?>> ruleExtensions = rule.getExtensions();
+        Extension<?>[] ruleExtensions = extensionsByRule.get(rule).toArray(new Extension<?>[0]);
         for (Extension<?> extension : ruleExtensions) {
             ExtensionPoint<?> extensionPoint = extension.getExtensionPoint();
 
-            contents.get(extensionPoint).removeAll(extension.getContents());
+            extensionsByRule.get(rule).remove(extension);
+            extensionsByPoint.get(extensionPoint).remove(extension);
+            contents.get(extensionPoint).remove(extension.getValue());
         }
     }
 
@@ -299,15 +312,6 @@ public final class GameBox implements Terminable {
         if (rule.getState() == Rule.State.ACTIVATED) {
             removeRuleExtensions(rule);
             addRuleExtensions(rule);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private OrderedElement<Object> createOrderedElement(Object x) {
-        if (x instanceof Sortable<?>) {
-            return (OrderedElement<Object>) ((Sortable<?>) x).getOrderedElement();
-        } else {
-            return OrderedElement.fromType(x.getClass(), x);
         }
     }
 
@@ -338,14 +342,20 @@ public final class GameBox implements Terminable {
 
     void completeOperation() {
         for (ExtensionPoint<?> extensionPoint : extensionPointsToSort) {
-            ElementSorter<Object> sorter =
-                    new ElementSorter<>(this::createOrderedElement);
+            ElementSorter<Extension<?>> sorter =
+                    new ElementSorter<>(Extension::getOrderedElement);
 
-            List<Object> sorted =
-                    sorter.sort(ImmutableList.copyOf(contents.get(extensionPoint)),
+            List<Extension<?>> sorted =
+                    sorter.sort(ImmutableList.copyOf(extensionsByPoint.get(extensionPoint)),
                             SORTING_CONFIGURATION);
 
-            contents.replaceValues(extensionPoint, sorted);
+            extensionsByPoint.removeAll(extensionPoint);
+            contents.removeAll(extensionPoint);
+
+            for (Extension<?> extension : sorted) {
+                extensionsByPoint.put(extensionPoint, extension);
+                contents.put(extensionPoint, extension.getValue());
+            }
         }
 
         Change change = new Change(preReportContents, contents);

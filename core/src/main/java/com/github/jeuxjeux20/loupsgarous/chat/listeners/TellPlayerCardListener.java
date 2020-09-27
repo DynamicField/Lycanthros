@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.chat.listeners;
 
-import com.github.jeuxjeux20.loupsgarous.LGChatStuff;
+import com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.event.LGGameStartEvent;
 import org.bukkit.ChatColor;

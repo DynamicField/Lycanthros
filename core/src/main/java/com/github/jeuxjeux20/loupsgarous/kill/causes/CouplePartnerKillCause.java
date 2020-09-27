@@ -5,7 +5,7 @@ import org.bukkit.ChatColor;
 
 import java.util.Objects;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.*;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.*;
 
 public final class CouplePartnerKillCause extends SingleLGKillCause {
     private final LGPlayer partner;

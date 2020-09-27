@@ -3,7 +3,6 @@ package com.github.jeuxjeux20.loupsgarous.extensibility;
 import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,15 +19,14 @@ public abstract class CardRule extends Rule {
 
     @Override
     public final List<Extension<?>> getExtensions() {
+        ExtensionListBuilder builder = Extension.listBuilder();
+
+        builder.addAll(getOtherExtensions());
         if (cardAvailable) {
-            List<Extension<?>> extensions = new ArrayList<>(getOtherExtensions());
-            extensions.add(
-                    extend(CARDS, getCard())
-            );
-            return extensions;
-        } else {
-            return getOtherExtensions();
+            builder.extendSingle(CARDS, getCard());
         }
+
+        return builder.build();
     }
 
     protected List<Extension<?>> getOtherExtensions() {

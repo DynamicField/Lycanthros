@@ -8,7 +8,7 @@ import me.lucko.helper.Commands;
 import me.lucko.helper.command.context.CommandContext;
 import org.bukkit.entity.Player;
 
-import static com.github.jeuxjeux20.loupsgarous.LGChatStuff.error;
+import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.error;
 
 public class LGLobbyCommand implements HelperCommandRegisterer {
     private final InGameHandlerCondition inGameHandlerCondition;
