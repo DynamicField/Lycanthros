@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collector;
 
 public final class ExtensionListBuilder {
-    private List<Extension<?>> extensions = new ArrayList<>();
+    private final List<Extension<?>> extensions = new ArrayList<>();
 
     public <T> ExtensionListBuilder extend(ExtensionPoint<T> extensionPoint,
                                            Consumer<SubBuilder<? super T>> builderConsumer) {
