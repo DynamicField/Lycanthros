@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
-import com.github.jeuxjeux20.loupsgarous.OrderIdentifier;
+import com.github.jeuxjeux20.loupsgarous.IdentifiedAs;
 import com.github.jeuxjeux20.loupsgarous.Order;
 import com.github.jeuxjeux20.relativesorting.OrderConstraints;
 import com.github.jeuxjeux20.relativesorting.OrderedElement;
@@ -49,7 +49,7 @@ public final class Extension<T> {
     private static @Nullable String getIdentifierFromValue(Object value) {
         Objects.requireNonNull(value, "value is null");
 
-        OrderIdentifier annotation = HasOrderingHint.getContainerIn(value).getAnnotation(OrderIdentifier.class);
+        IdentifiedAs annotation = HasOrderingHint.getContainerIn(value).getAnnotation(IdentifiedAs.class);
 
         if (annotation != null) {
             return annotation.value();

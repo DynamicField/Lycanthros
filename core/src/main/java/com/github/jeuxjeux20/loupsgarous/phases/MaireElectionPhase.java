@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
 import com.github.jeuxjeux20.loupsgarous.Countdown;
-import com.github.jeuxjeux20.loupsgarous.OrderIdentifier;
+import com.github.jeuxjeux20.loupsgarous.IdentifiedAs;
 import com.github.jeuxjeux20.loupsgarous.Order;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
         isTemporary = true
 )
 @Order(after = RevealAllKillsPhase.IDENTIFIER, before = VillageVotePhase.IDENTIFIER)
-@OrderIdentifier(MaireElectionPhase.IDENTIFIER)
+@IdentifiedAs(MaireElectionPhase.IDENTIFIER)
 public final class MaireElectionPhase extends CountdownLGPhase {
     public static final String IDENTIFIER = "MaireElection";
 

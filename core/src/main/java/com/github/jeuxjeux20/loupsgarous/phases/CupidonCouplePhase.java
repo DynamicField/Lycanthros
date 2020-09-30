@@ -27,7 +27,7 @@ import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.*;
         isTemporary = true
 )
 @Order(position = -2)
-@OrderIdentifier(CupidonCouplePhase.IDENTIFIER)
+@IdentifiedAs(CupidonCouplePhase.IDENTIFIER)
 public final class CupidonCouplePhase extends CountdownLGPhase {
     public static final String IDENTIFIER = "CupidonCouple";
 

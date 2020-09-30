@@ -35,7 +35,7 @@ import static me.lucko.helper.text.format.TextDecoration.BOLD;
         title = "La sorcière va utiliser ses potions..."
 )
 @Order(after = LoupsGarousVotePhase.IDENTIFIER, before = NextTimeOfDayPhase.IDENTIFIER)
-@OrderIdentifier(SorcierePotionPhase.IDENTIFIER)
+@IdentifiedAs(SorcierePotionPhase.IDENTIFIER)
 public final class SorcierePotionPhase extends CountdownLGPhase {
     public static final String IDENTIFIER = "SorcierePotion";
 

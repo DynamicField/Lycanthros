@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.phases;
 
 import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.atmosphere.VoteStructure;
-import com.github.jeuxjeux20.loupsgarous.OrderIdentifier;
+import com.github.jeuxjeux20.loupsgarous.IdentifiedAs;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
@@ -23,7 +23,7 @@ import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.info;
         name = "Vote du village",
         title = "Le village va voter."
 )
-@OrderIdentifier(VillageVotePhase.IDENTIFIER)
+@IdentifiedAs(VillageVotePhase.IDENTIFIER)
 public final class VillageVotePhase extends CountdownLGPhase {
     public static final String IDENTIFIER = "VillageVote";
 

@@ -1,6 +1,5 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
-import com.github.jeuxjeux20.loupsgarous.OrderIdentifier;
 import com.github.jeuxjeux20.loupsgarous.cards.*;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.MultipleTeamsCompositionValidator;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.PossibleCouplesCupidonCompositionValidator;
