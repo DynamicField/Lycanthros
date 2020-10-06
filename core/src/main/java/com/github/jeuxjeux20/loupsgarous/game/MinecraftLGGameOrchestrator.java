@@ -131,7 +131,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
             registerEventListeners();
 
-            phases().setCycle(new LobbyPhaseCycle(this));
+            new LobbyPhaseCycle(this).start();
         } catch (Throwable e) {
             terminableRegistry.closeAndReportException();
             throw e;
@@ -148,7 +148,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         changeStateTo(STARTED, LGGameStartEvent::new);
         Events.call(new LGTurnChangeEvent(this));
 
-        phases().setCycle(new GamePhaseCycle(this));
+        new GamePhaseCycle(this).start();
     }
 
     @Override
@@ -159,14 +159,14 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
         changeStateTo(FINISHED, o -> new LGGameFinishedEvent(o, ending));
 
-        phases().setCycle(new GameEndPhaseCycle(this));
+        new GameEndPhaseProgram(this).start();
     }
 
     @Override
     public void delete() {
         state.mustNotBe(DELETING, DELETED);
 
-        phases().setCycle(new EmptyPhaseCycle(this));
+        new EmptyPhaseProgram(this).start();
 
         changeStateTo(DELETING, LGGameDeletingEvent::new);
 

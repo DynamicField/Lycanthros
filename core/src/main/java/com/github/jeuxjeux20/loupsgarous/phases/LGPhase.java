@@ -43,6 +43,13 @@ public interface LGPhase extends SafeCast, TerminableConsumer, OrchestratorDepen
     boolean stop();
 
     /**
+     * Cancels this phase if it is running.
+     *
+     * @return {@code true} if the phase cancelled, or else {@code false}
+     */
+    boolean cancel();
+
+    /**
      * Gets the game orchestrator that this phase is linked to.
      *
      * @return the game orchestrator
@@ -67,6 +74,11 @@ public interface LGPhase extends SafeCast, TerminableConsumer, OrchestratorDepen
 
         @Override
         public boolean stop() {
+            return false;
+        }
+
+        @Override
+        public boolean cancel() {
             return false;
         }
 

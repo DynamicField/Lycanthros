@@ -5,11 +5,11 @@ import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.util.ClassArrayUtils;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.reactivex.rxjava3.disposables.Disposable;
 import me.lucko.helper.Events;
@@ -109,7 +109,7 @@ public class LGScoreboardManager extends OrchestratorComponent {
         player.minecraftNoContext(this::removePlayer);
     }
 
-    private ImmutableSet<ScoreboardComponent> getScoreboardComponents() {
+    private ImmutableList<ScoreboardComponent> getScoreboardComponents() {
         return orchestrator.getGameBox().contents(LGExtensionPoints.SCOREBOARD_COMPONENTS);
     }
 }

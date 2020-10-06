@@ -3,26 +3,19 @@ package com.github.jeuxjeux20.loupsgarous.phases;
 import com.github.jeuxjeux20.loupsgarous.extensibility.ContentFactory;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.phases.descriptor.LGPhaseDescriptor;
-import com.github.jeuxjeux20.loupsgarous.util.FutureExceptionUtils;
 import com.google.common.collect.Sets;
-import me.lucko.helper.terminable.Terminable;
-import org.jetbrains.annotations.Nullable;
+import io.reactivex.rxjava3.disposables.Disposable;
 
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.*;
-import java.util.logging.Level;
 
-public class PhaseCycle implements Terminable {
-    protected final LGGameOrchestrator orchestrator;
-
+public class PhaseCycle extends PhaseProgram {
     private List<ContentFactory<? extends RunnableLGPhase>> phases = new LinkedList<>();
     private ListIterator<ContentFactory<? extends RunnableLGPhase>> phaseIterator;
-    private @Nullable PhasePair runningPhase;
 
-    private boolean running = false;
+    private Disposable subscription = Disposable.disposed();
 
     public PhaseCycle(LGGameOrchestrator orchestrator) {
-        this.orchestrator = orchestrator;
+        super(orchestrator);
     }
 
     /**
@@ -37,10 +30,11 @@ public class PhaseCycle implements Terminable {
     }
 
     public void next() {
-        if (phases.size() == 0 || !running) {
-            updatePhase(null);
+        if (phases.size() == 0 || !isRunning()) {
             return;
         }
+
+        subscription.dispose();
 
         if (!phaseIterator.hasNext())
             phaseIterator = phases.listIterator(); // Reset the iterator
@@ -52,55 +46,8 @@ public class PhaseCycle implements Terminable {
         if (descriptor.isTemporary())
             phaseIterator.remove();
 
-        if (phase.shouldRun()) {
-            runPhase(new PhasePair(phase, factory));
-        } else {
-            // Close the phase because we didn't run it.
-            //
-            // NOTE: That's one of the problems of having close() and shouldRun() together,
-            // you might forget to close it when it shouldn't run, and also create
-            // unnecessary objects in the constructor.
-            // I can't really think of an alternative that is nearly as pleasant to use
-            // as the shouldRun() method.
-            // While something such as PhaseEntry somewhat fixes the whole issue,
-            // requiring an extra class just for a condition seems really annoying.
-            // For now, this works. Let's not complain :D
-            phase.closeAndReportException();
-            next();
-        }
-    }
-
-    /**
-     * Gets the current phase, or an instance of {@link LGPhase.Null} if there isn't any phase
-     * running right now.
-     *
-     * @return the current phase, or {@link LGPhase.Null}
-     */
-    public final LGPhase current() {
-        return runningPhase == null ? new LGPhase.Null(orchestrator) : runningPhase.phase;
-    }
-
-    public final boolean isRunning() {
-        return running;
-    }
-
-    void stop() {
-        if (!running) {
-            return;
-        }
-
-        running = false;
-        updatePhase(null);
-    }
-
-    void start() {
-        if (running) {
-            return;
-        }
-
-        running = true;
-        phaseIterator = phases.listIterator();
-        next();
+        subscription = getPhaseRunner().run(new PhaseRunner.RunToken(phase, factory))
+                .subscribe(r -> next(), e -> { /* TODO: Handle exceptions */ });
     }
 
     protected List<ContentFactory<? extends RunnableLGPhase>> getPhases() {
@@ -114,21 +61,28 @@ public class PhaseCycle implements Terminable {
 
         int index = determineNewIndex(newPhasesList);
 
-        updatePhase(null);
-        this.phases = newPhasesList;
-        this.phaseIterator = newPhasesList.listIterator(index);
-        next();
+        phases = newPhasesList;
+        phaseIterator = newPhasesList.listIterator(index);
+
+        if (!phases.isEmpty() && getPhaseRunner().getCurrent() != null &&
+            !Objects.equals(phases.get(index), getPhaseRunner().getCurrent().getSource())) {
+            next();
+        }
     }
 
+    @SuppressWarnings("unchecked")
     private int determineNewIndex(
             LinkedList<? extends ContentFactory<? extends RunnableLGPhase>> newPhases) {
         // The cycle's not running or we have no phases.
-        if (phases.isEmpty() || runningPhase == null || newPhases.isEmpty()) {
+        if (phases.isEmpty() || getPhaseRunner().getCurrent() == null || newPhases.isEmpty()) {
             return 0;
         }
 
         // If the current phase is in the list, use it.
-        int newCurrentPhaseIndex = newPhases.indexOf(runningPhase.factory);
+        ContentFactory<? extends RunnableLGPhase> runningFactory =
+                (ContentFactory<? extends RunnableLGPhase>) getPhaseRunner().getCurrent().getSource();
+
+        int newCurrentPhaseIndex = newPhases.indexOf(runningFactory);
         if (newCurrentPhaseIndex != -1) {
             return newCurrentPhaseIndex;
         }
@@ -164,7 +118,7 @@ public class PhaseCycle implements Terminable {
         // And why isn't it E? Because it has been moved into the back!
         // Hope you understood this stupid algorithm :D
 
-        int oldCurrentPhaseIndex = phases.indexOf(runningPhase.factory);
+        int oldCurrentPhaseIndex = phases.indexOf(runningFactory);
         Set<ContentFactory<? extends RunnableLGPhase>> oldPrecedingPhases = new HashSet<>();
         Set<ContentFactory<? extends RunnableLGPhase>> newPrecedingPhases = new HashSet<>();
 
@@ -181,72 +135,13 @@ public class PhaseCycle implements Terminable {
         return Math.min(oldCurrentPhaseIndex - elementsNotPreceding, newPhases.size() - 1);
     }
 
-    protected void runPhase(PhasePair phasePair) {
-        updatePhase(phasePair);
-
-        phasePair.phase.run()
-                .exceptionally(this::handlePhaseException)
-                .thenRun(() -> {
-                    if (phasePair.runsNext) {
-                        next();
-                    }
-                })
-                .exceptionally(this::handlePostPhaseException);
-    }
-
-    private void updatePhase(@Nullable PhasePair newPhasePair) {
-        if (runningPhase != null) {
-            runningPhase.dispose();
-        }
-
-        runningPhase = newPhasePair;
-    }
-
-    private Void handlePhaseException(Throwable ex) {
-        if (FutureExceptionUtils.isCancellation(ex)) {
-            // That's cancelled, rethrow to avoid executing further actions.
-
-            throw FutureExceptionUtils.asCompletionException(ex);
-        } else {
-            // If something wrong happens, let's just log and continue.
-            // We still want the game to continue!
-
-            orchestrator.logger().log(Level.SEVERE, "Unhandled exception while running phase: " + runningPhase, ex);
-            return null;
-        }
-    }
-
-    private Void handlePostPhaseException(Throwable ex) {
-        if (!FutureExceptionUtils.isCancellation(ex)) {
-            orchestrator.logger().log(Level.SEVERE, "Unhandled exception while the game was running the next phase.", ex);
-        }
-        // TODO: What do we do here?
-        return null;
+    @Override
+    protected void startProgram() {
+        next();
     }
 
     @Override
-    @OverridingMethodsMustInvokeSuper
-    public void close() throws Exception {
-        if (runningPhase != null) {
-            runningPhase.dispose();
-        }
-    }
-
-    protected static final class PhasePair {
-        final RunnableLGPhase phase;
-        final ContentFactory<? extends RunnableLGPhase> factory;
-        boolean runsNext = true;
-
-        public PhasePair(RunnableLGPhase phase, ContentFactory<? extends RunnableLGPhase> factory) {
-            this.phase = phase;
-            this.factory = factory;
-        }
-
-        public void dispose() {
-            runsNext = false;
-            if (phase != null && !phase.isClosed()) {
-                phase.closeAndReportException();
-            }
-        }
+    protected void stopProgram() {
+        subscription.dispose();
     }
 }

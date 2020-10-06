@@ -3,7 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.chat;
 import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 
 import java.util.Objects;
 
@@ -29,7 +29,7 @@ public abstract class ChatChannel {
 
         setupView(view);
 
-        ImmutableSet<ChatChannelViewMechanic> mechanics = view.getOrchestrator().getGameBox()
+        ImmutableList<ChatChannelViewMechanic> mechanics = view.getOrchestrator().getGameBox()
                 .contents(LGExtensionPoints.CHAT_CHANNEL_VIEW_MECHANICS);
 
         for (ChatChannelViewMechanic mechanic : mechanics) {

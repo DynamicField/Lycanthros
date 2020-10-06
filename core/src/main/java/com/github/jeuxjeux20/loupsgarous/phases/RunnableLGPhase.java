@@ -36,7 +36,7 @@ public abstract class RunnableLGPhase implements LGPhase, Terminable {
         this.orchestrator = orchestrator;
     }
 
-    public final CompletableFuture<Void> run() {
+    final CompletableFuture<Void> run() {
         Preconditions.checkState(!isClosed, "This phase has already been ran, or it has closed.");
 
         callStartingEvent();
@@ -155,6 +155,16 @@ public abstract class RunnableLGPhase implements LGPhase, Terminable {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean cancel() {
+        if (isClosed) {
+            return false;
+        }
+
+        closeAndReportException();
+        return true;
     }
 
     @Override

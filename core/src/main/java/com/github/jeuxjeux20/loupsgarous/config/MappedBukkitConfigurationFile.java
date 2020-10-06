@@ -23,7 +23,7 @@ public abstract class MappedBukkitConfigurationFile<T> extends BukkitConfigurati
             if (getRootNode().isEmpty()) {
                 mappedObject = getDefaultValue();
             } else {
-                mappedObject = getMapper().bindToNew().populate(getRootNode());
+                mappedObject = getMapper().load(getRootNode());
             }
         } catch (Exception e) {
             mappedObject = getDefaultValue();
@@ -33,7 +33,7 @@ public abstract class MappedBukkitConfigurationFile<T> extends BukkitConfigurati
 
     @Override
     protected void unsafeSave() throws Exception {
-        getMapper().bind(mappedObject).serialize(getRootNode());
+        getMapper().save(mappedObject, getRootNode());
         super.unsafeSave();
     }
 

@@ -1,44 +1,61 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.phases.descriptor.LGPhaseDescriptorRegistry;
-import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
+import org.jetbrains.annotations.Nullable;
 
 public class LGPhasesOrchestrator extends OrchestratorComponent {
     private final LGPhaseDescriptorRegistry descriptorRegistry;
+    private final PhaseRunner phaseRunner;
 
-    private PhaseCycle cycle;
+    private @Nullable PhaseProgram program;
 
     @Inject
     LGPhasesOrchestrator(LGGameOrchestrator orchestrator,
                          LGPhaseDescriptorRegistry descriptorRegistry) {
         super(orchestrator);
         this.descriptorRegistry = descriptorRegistry;
-        setCycle(new EmptyPhaseCycle(orchestrator));
+        this.phaseRunner = new PhaseRunner(orchestrator);
+        this.program = new EmptyPhaseProgram(orchestrator);
 
-        bind(() -> cycle.close());
+        bind(() -> stopProgram(program));
     }
 
     public LGPhase current() {
-        return cycle.current();
+        PhaseRunner.RunToken currentToken = phaseRunner.getCurrent();
+        return currentToken == null ? new LGPhase.Null(orchestrator) : currentToken.getPhase();
     }
 
-    public PhaseCycle getCycle() {
-        return cycle;
+    public @Nullable PhaseProgram getProgram() {
+        return program;
     }
 
-    public void setCycle(PhaseCycle cycle) {
-        Preconditions.checkNotNull(cycle, "cycle is null");
-
-        if (this.cycle != null) {
-            this.cycle.stop();
-            this.cycle.closeAndReportException();
+    void startProgram(PhaseProgram program) {
+        if (program == null || this.program == program || program.isRunning()) {
+            return;
         }
 
-        this.cycle = cycle;
-        this.cycle.start();
+        stopProgram(this.program);
+        this.program = program;
+        program.setRunning(true);
+        program.startProgram();
+    }
+
+    void stopProgram(PhaseProgram program) {
+        if (program == null || this.program != program || !program.isRunning()) {
+            return;
+        }
+
+        this.program = null;
+        program.setRunning(false);
+        program.stopProgram();
+        getPhaseRunner().terminateCurrent();
+    }
+
+    PhaseRunner getPhaseRunner() {
+        return phaseRunner;
     }
 
     /**

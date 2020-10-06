@@ -2,22 +2,18 @@ package com.github.jeuxjeux20.loupsgarous.config;
 
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.ObjectMapper;
 import org.spongepowered.configurate.objectmapping.ObjectMappingException;
-import org.spongepowered.configurate.objectmapping.Setting;
-import org.spongepowered.configurate.serialize.ConfigSerializable;
 
 import java.nio.file.Path;
 
 @ConfigSerializable
 public final class RootConfiguration {
-    @Setting(value = "world-pool")
     private WorldPoolConfiguration worldPool = new WorldPoolConfiguration();
 
-    @Setting(value = "default-world")
     private @Nullable String defaultWorld = "loups_garous";
 
-    @Setting
     private boolean debug = false;
 
     public WorldPoolConfiguration getWorldPool() {
@@ -58,7 +54,7 @@ public final class RootConfiguration {
 
         @Override
         protected ObjectMapper<RootConfiguration> getMapper() throws ObjectMappingException {
-            return ObjectMapper.forClass(RootConfiguration.class);
+            return ObjectMapper.factory().get(RootConfiguration.class);
         }
 
         @Override

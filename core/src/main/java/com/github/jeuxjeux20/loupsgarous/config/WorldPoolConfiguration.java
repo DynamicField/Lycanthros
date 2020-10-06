@@ -1,17 +1,14 @@
 package com.github.jeuxjeux20.loupsgarous.config;
 
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.configurate.objectmapping.Setting;
-import org.spongepowered.configurate.serialize.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 import java.util.OptionalInt;
 
 @ConfigSerializable
 public final class WorldPoolConfiguration {
-    @Setting(value = "min-worlds")
     private int minWorlds = 4;
 
-    @Setting(value = "max-worlds")
     private @Nullable Integer maxWorlds = null;
 
     public int getMinWorlds() {

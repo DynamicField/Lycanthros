@@ -4,6 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import me.lucko.helper.Events;
 import me.lucko.helper.Schedulers;
@@ -107,7 +108,7 @@ public class LGChatOrchestrator extends OrchestratorComponent {
         sendMessage(channel, p -> message);
     }
 
-    public Set<ChatChannel> getChannels() {
+    public ImmutableList<ChatChannel> getChannels() {
         return orchestrator.getGameBox().contents(LGExtensionPoints.CHAT_CHANNELS);
     }
 
