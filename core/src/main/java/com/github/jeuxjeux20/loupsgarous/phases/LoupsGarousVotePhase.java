@@ -4,7 +4,6 @@ import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.chat.ChatChannel;
 import com.github.jeuxjeux20.loupsgarous.chat.LGChatChannels;
-import com.github.jeuxjeux20.loupsgarous.IdentifiedAs;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
@@ -28,10 +27,7 @@ import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.player;
         title = "Les loups vont dévorer un innocent...",
         color = PhaseColor.RED
 )
-@IdentifiedAs(LoupsGarousVotePhase.IDENTIFIER)
 public final class LoupsGarousVotePhase extends CountdownLGPhase {
-    public static final String IDENTIFIER = "LoupsGarousVote";
-
     private final LoupGarouVote votable;
 
     public LoupsGarousVotePhase(LGGameOrchestrator orchestrator) {

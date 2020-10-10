@@ -1,40 +1,35 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.common.base.MoreObjects;
-import com.google.common.reflect.TypeToken;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import java.util.Objects;
 
 public class ExtensionPoint<T> {
     private final String id;
-    private final TypeToken<T> valueType;
 
-    public ExtensionPoint(String id, Class<T> valueType) {
-        this(id, TypeToken.of(valueType));
-    }
-
-    public ExtensionPoint(String id, TypeToken<T> valueType) {
+    public ExtensionPoint(String id) {
         this.id = id;
-        this.valueType = valueType;
-    }
-
-    public final Extension<T> extend(T value) {
-        return new Extension<>(this, value);
     }
 
     public String getId() {
         return id;
     }
 
-    public TypeToken<T> getValueType() {
-        return valueType;
+    public ImmutableList<T> getContents(LGGameOrchestrator orchestrator) {
+        return orchestrator.getGameBox().contents(this);
+    }
+
+    public ImmutableSet<Extension<T>> getExtensions(LGGameOrchestrator orchestrator) {
+        return orchestrator.getGameBox().extensions(this);
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("id", id)
-                .add("valueType", valueType)
                 .toString();
     }
 

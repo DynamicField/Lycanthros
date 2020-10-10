@@ -26,11 +26,7 @@ import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.*;
         color = PhaseColor.BLUE,
         isTemporary = true
 )
-@Order(position = -2)
-@IdentifiedAs(CupidonCouplePhase.IDENTIFIER)
 public final class CupidonCouplePhase extends CountdownLGPhase {
-    public static final String IDENTIFIER = "CupidonCouple";
-
     private final CupidonCoupleCreator coupleCreator;
 
     public CupidonCouplePhase(LGGameOrchestrator orchestrator) {

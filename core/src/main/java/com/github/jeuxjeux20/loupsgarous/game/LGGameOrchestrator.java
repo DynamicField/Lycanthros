@@ -21,7 +21,6 @@ import com.github.jeuxjeux20.loupsgarous.scoreboard.LGScoreboardManager;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.Provider;
 import me.lucko.helper.metadata.MetadataMap;
 import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.OfflinePlayer;
@@ -108,10 +107,6 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     void delete();
 
     void nextTimeOfDay();
-
-    <T> T resolve(Class<T> clazz);
-
-    <T> T resolve(Provider<T> provider);
 
 
     String getId();

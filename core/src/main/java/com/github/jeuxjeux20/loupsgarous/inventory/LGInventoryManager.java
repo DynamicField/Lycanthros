@@ -12,6 +12,7 @@ import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.util.ClassArrayUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -202,7 +203,7 @@ public class LGInventoryManager extends OrchestratorComponent {
         return orchestrator.getPlayer(player.getUniqueId()).isPresent();
     }
 
-    private List<InventoryItem> getInventoryItems() {
-        return orchestrator.getGameBox().contents(LGExtensionPoints.INVENTORY_ITEMS).asList();
+    private ImmutableList<InventoryItem> getInventoryItems() {
+        return LGExtensionPoints.INVENTORY_ITEMS.getContents(orchestrator);
     }
 }

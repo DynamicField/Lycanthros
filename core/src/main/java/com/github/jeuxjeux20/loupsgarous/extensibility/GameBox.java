@@ -3,6 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.extensibility;
 import com.github.jeuxjeux20.loupsgarous.event.GameEventHandler;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.relativesorting.ElementSorter;
+import com.github.jeuxjeux20.relativesorting.OrderConstraints;
 import com.github.jeuxjeux20.relativesorting.config.SortingConfiguration;
 import com.github.jeuxjeux20.relativesorting.config.UnresolvableIdentifierHandling;
 import com.google.common.base.Preconditions;
@@ -36,7 +37,6 @@ public final class GameBox implements Terminable {
     private final Multimap<Rule, Extension<?>> extensionsByRule = LinkedHashMultimap.create();
     private final Multimap<ExtensionPoint<?>, Extension<?>> extensionsByPoint = LinkedHashMultimap.create();
     private final Multimap<ExtensionPoint<?>, Object> contents = LinkedListMultimap.create();
-    private final Map<HandledExtensionPoint<?, ?>, ExtensionPointHandler> handlers = new HashMap<>();
 
     private final ModRegistryListener modRegistryListener;
 
@@ -85,12 +85,6 @@ public final class GameBox implements Terminable {
         return ImmutableSet.copyOf(
                 (Collection<Extension<T>>) (Collection<?>) extensionsByPoint.get(extensionPoint)
         );
-    }
-
-    @SuppressWarnings("unchecked")
-    public <H extends ExtensionPointHandler> H handler(HandledExtensionPoint<?, H> extensionPoint) {
-        return (H) handlers.computeIfAbsent(extensionPoint,
-                k -> orchestrator.resolve(k.getHandlerClass()));
     }
 
     public void enable(Mod mod) {
@@ -328,16 +322,64 @@ public final class GameBox implements Terminable {
     public String getContentsString() {
         StringBuilder builder = new StringBuilder();
 
-        for (ExtensionPoint<?> extensionPoint : contents.keySet()) {
+        for (ExtensionPoint<?> extensionPoint : extensionsByPoint.keySet()) {
             builder.append(extensionPoint.getId()).append("\n");
-            for (Object item : contents.get(extensionPoint)) {
+
+            for (Extension<?> extension : extensionsByPoint.get(extensionPoint)) {
                 builder.append("- ")
-                        .append(item)
+                        .append(formatExtension(extension))
                         .append("\n");
             }
         }
 
         return builder.toString();
+    }
+
+    private String formatExtension(Extension<?> extension) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        String identifier = extension.getExtensionMetadata().getIdentifier();
+        if (identifier == null) {
+            identifier = "<unnamed>";
+        }
+
+        stringBuilder.append(identifier)
+                .append(": ")
+                .append(extension.getValue())
+        .append(" - Ordering: ");
+
+        List<String> orderingAttributes = new ArrayList<>();
+        OrderConstraints constraints = extension.getExtensionMetadata().getOrderConstraints();
+
+        if (!constraints.getBefore().isEmpty()) {
+            String beforeIds = constraints.getBefore().stream()
+                    .map(Objects::toString)
+                    .collect(Collectors.joining(", "));
+
+            orderingAttributes.add("before: [" + beforeIds + "]");
+        }
+
+        if (!constraints.getAfter().isEmpty()) {
+            String afterIds = constraints.getAfter().stream()
+                    .map(Objects::toString)
+                    .collect(Collectors.joining(", "));
+
+            orderingAttributes.add("after: [" + afterIds + "]");
+        }
+
+        if (constraints.getPosition() != 0) {
+            orderingAttributes.add("position: " + constraints.getPosition());
+        }
+
+        if (orderingAttributes.isEmpty()) {
+            stringBuilder.append("<none>");
+        } else {
+            stringBuilder.append('{')
+                    .append(String.join(", ", orderingAttributes))
+                    .append('}');
+        }
+
+        return stringBuilder.toString();
     }
 
     void completeOperation() {

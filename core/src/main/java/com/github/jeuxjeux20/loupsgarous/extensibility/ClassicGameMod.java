@@ -40,7 +40,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.*;
-import static com.github.jeuxjeux20.loupsgarous.extensibility.SortableContentFactory.createFactory;
 
 @ModInfo(
         name = "Loups-Garous classique",
@@ -70,8 +69,11 @@ public class ClassicGameMod extends Mod {
         @Override
         public List<Extension<?>> getExtensions() {
             return Extension.listBuilder()
-                    .extendSingle(PHASES,
-                            createFactory(MaireElectionPhase.class))
+                    .extend(PHASES, b -> b
+                            .add(MaireElectionPhase::new)
+                            .id("MaireElection")
+                            .locatedBefore("VillageVote")
+                            .locatedAfter("RevealAllKills"))
                     .extendSingle(PLAYER_VOTE_OUTCOME_TRANSFORMERS,
                             new MaireVoteOutcomeTransformer())
                     .build();
@@ -112,7 +114,11 @@ public class ClassicGameMod extends Mod {
         @Override
         public List<Extension<?>> getOtherExtensions() {
             return Extension.listBuilder()
-                    .extendSingle(PHASES, createFactory(SorcierePotionPhase.class))
+                    .extend(PHASES, b -> b
+                            .add(SorcierePotionPhase::new)
+                            .id("SoricerePotion")
+                            .locatedBefore("NextTimeOfDay")
+                            .locatedAfter("LoupsGarousVote"))
                     .build();
         }
 
@@ -158,8 +164,7 @@ public class ClassicGameMod extends Mod {
         @Override
         public List<Extension<?>> getOtherExtensions() {
             return Extension.listBuilder()
-                    .extendSingle(DUSK_ACTIONS,
-                            createFactory(VoyanteDuskAction.class))
+                    .extend(DUSK_ACTIONS, b -> b.add(VoyanteDuskAction::new).id("Voyante"))
                     .extendSingle(MECHANIC_MODIFIERS,
                             new VoyanteSeesInspectedPlayersCard())
                     .build();
@@ -179,8 +184,10 @@ public class ClassicGameMod extends Mod {
         @Override
         public List<Extension<?>> getOtherExtensions() {
             return Extension.listBuilder()
-                    .extendSingle(PHASES,
-                            createFactory(CupidonCouplePhase.class))
+                    .extend(PHASES, b ->
+                            b.add(CupidonCouplePhase::new)
+                                    .id("CupidonCouple")
+                                    .orderPosition(-2))
                     .extendSingle(COMPOSITION_VALIDATORS,
                             new PossibleCouplesCupidonCompositionValidator())
                     .build();
@@ -195,9 +202,11 @@ public class ClassicGameMod extends Mod {
 
         @Override
         public List<Extension<?>> getExtensions() {
-            return ImmutableList.of(
-                    WIN_CONDITIONS.extend(new CoupleWinCondition())
-            );
+            return Extension.listBuilder()
+                    .extend(WIN_CONDITIONS, b -> b
+                            .add(new CoupleWinCondition())
+                            .id("CoupleWin"))
+                    .build();
         }
 
         @GameEvent
@@ -231,35 +240,42 @@ public class ClassicGameMod extends Mod {
         @Override
         public List<Extension<?>> getExtensions() {
             return Extension.listBuilder()
-                    .extend(PHASES, b -> b
-                            .with(createFactory(DuskPhase.class))
-                            .with(createFactory(LoupsGarousVotePhase.class))
-                            .with(createFactory(NextTimeOfDayPhase.class))
-                            .with(createFactory(RevealAllKillsPhase.class))
-                            .with(createFactory(VillageVotePhase.class)))
-                    .extend(CARDS, b -> b
-                            .with(LoupGarouCard.INSTANCE)
-                            .with(VillageoisCard.INSTANCE))
-                    .extend(COMPOSITION_VALIDATORS, b -> b
-                            .with(new MultipleTeamsCompositionValidator())
-                            .with(new UniqueCardCompositionValidator()))
-                    .extend(SCOREBOARD_COMPONENTS, b -> b
-                            .with(new LobbyOwnerScoreboardComponent())
-                            .with(new PlayersAliveScoreboardComponent())
-                            .with(new CompositionScoreboardComponent())
-                            .with(new CurrentVotesScoreboardComponent()))
-                    .extend(INVENTORY_ITEMS, b -> b
-                            .with(new EditLobbyItem())
-                            .with(new EditModsItem())
-                            .with(new QuitGameItem()))
-                    .extend(WIN_CONDITIONS, b -> b
-                            .with(new EveryoneDeadWinCondition())
-                            .with(new LoupsGarousWinCondition())
-                            .with(new VillageWinCondition()))
-                    .extend(CHAT_CHANNELS, b -> b
-                            .with(LGChatChannels.DAY)
-                            .with(LGChatChannels.DEAD)
-                            .with(LGChatChannels.LOUPS_GAROUS))
+                    .extend(PHASES, b -> {
+                        b.add(DuskPhase::new).id("Dusk");
+                        b.add(LoupsGarousVotePhase::new).id("LoupsGarouVote");
+                        b.add(NextTimeOfDayPhase::new).id("NextTimeOfDay");
+                        b.add(RevealAllKillsPhase::new).id("RevealAllKills");
+                        b.add(VillageVotePhase::new).id("VillageVote");
+                    })
+                    .extend(CARDS, b -> {
+                        b.add(LoupGarouCard.INSTANCE);
+                        b.add(VillageoisCard.INSTANCE);
+                    })
+                    .extend(COMPOSITION_VALIDATORS, b -> {
+                        b.add(new MultipleTeamsCompositionValidator());
+                        b.add(new UniqueCardCompositionValidator());
+                    })
+                    .extend(SCOREBOARD_COMPONENTS, b -> {
+                        b.add(new LobbyOwnerScoreboardComponent()).id("LobbyOwner");
+                        b.add(new PlayersAliveScoreboardComponent()).id("PlayersAlive");
+                        b.add(new CompositionScoreboardComponent()).id("Composition");
+                        b.add(new CurrentVotesScoreboardComponent()).id("CurrentVotes");
+                    })
+                    .extend(INVENTORY_ITEMS, b -> {
+                        b.add(new EditLobbyItem()).id("EditLobby");
+                        b.add(new EditModsItem()).id("EditMods");
+                        b.add(new QuitGameItem()).id("QuitGame");
+                    })
+                    .extend(WIN_CONDITIONS, b -> {
+                        b.add(new EveryoneDeadWinCondition()).id("EveryoneDead");
+                        b.add(new LoupsGarousWinCondition()).id("LoupsGarousWin");
+                        b.add(new VillageWinCondition()).id("VillageWin");
+                    })
+                    .extend(CHAT_CHANNELS, b -> {
+                        b.add(LGChatChannels.DAY);
+                        b.add(LGChatChannels.DEAD);
+                        b.add(LGChatChannels.LOUPS_GAROUS);
+                    })
                     .build();
         }
 

@@ -3,6 +3,8 @@ package com.github.jeuxjeux20.demoplugin;
 import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.extensibility.*;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.inventory.InventoryItem;
 import com.github.jeuxjeux20.loupsgarous.powers.LGPower;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeam;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeams;
@@ -30,6 +32,33 @@ public class PatateMod extends Mod {
         public LGCard getCard() {
             return PatateCard.INSTANCE;
         }
+
+        @Override
+        protected List<Extension<?>> getOtherExtensions() {
+            return Extension.listBuilder()
+                    .extend(LGExtensionPoints.INVENTORY_ITEMS, b ->
+                            b.add(new PatateItem())
+                                    .id("Patate")
+                                    .locatedBefore("QuitGame"))
+                    .build();
+        }
+    }
+
+    public static class PatateItem implements InventoryItem {
+        @Override
+        public boolean isShown(LGPlayer player, LGGameOrchestrator orchestrator) {
+            return true;
+        }
+
+        @Override
+        public ItemStack getItemStack() {
+            return new ItemStack(Material.POTATO);
+        }
+
+        @Override
+        public void onClick(LGPlayer player, LGGameOrchestrator orchestrator) {
+            player.sendMessage("Bah ça marche en fait.");
+        }
     }
 
     public static class PatateCard extends LGCard {
@@ -53,6 +82,8 @@ public class PatateMod extends Mod {
             return "Patates";
         }
 
+
+
         @Override
         public boolean isFeminineName() {
             return true;
@@ -67,11 +98,11 @@ public class PatateMod extends Mod {
         public String getDescription() {
             return "UNE PATATE MDR";
         }
-
         @Override
         public ItemStack createGuiItem() {
             return new ItemStack(Material.POTATO);
         }
+
     }
 
     public static final class ModItem implements ItemProvider {

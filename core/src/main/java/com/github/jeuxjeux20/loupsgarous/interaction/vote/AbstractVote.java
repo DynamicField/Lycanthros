@@ -2,6 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.interaction.vote;
 
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickRemovedEvent;
+import com.github.jeuxjeux20.loupsgarous.extensibility.ExtensionPoint;
 import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
@@ -30,9 +31,10 @@ public abstract class AbstractVote<T>
     public final VoteOutcome<T> getOutcome() {
         VoteOutcomeContext<T> context = createContext();
         VoteOutcome<T> outcome = voteOutcomeDeterminer.determine(context);
+        ExtensionPoint<VoteOutcomeTransformer<T>> extensionPoint =
+                LGExtensionPoints.voteOutcomeTransformers(candidateClass);
 
-        for (VoteOutcomeTransformer<T> transformer : orchestrator.getGameBox()
-                .contents(LGExtensionPoints.voteOutcomeTransformers(candidateClass))) {
+        for (VoteOutcomeTransformer<T> transformer : extensionPoint.getContents(orchestrator)) {
             outcome = transformer.transform(context, outcome);
         }
 

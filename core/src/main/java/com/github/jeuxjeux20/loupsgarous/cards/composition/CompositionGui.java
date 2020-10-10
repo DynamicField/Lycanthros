@@ -49,12 +49,9 @@ public final class CompositionGui extends OwnerGui {
     private static final char BULLET = '\u2022'; // Bullet: •
 
     private List<LGCard> cards;
-    private final CompositionValidator compositionValidator;
 
     public CompositionGui(Player player, LGGameOrchestrator orchestrator) {
         super(player, 6, "Composition", orchestrator);
-        this.compositionValidator = orchestrator.getGameBox().handler(LGExtensionPoints.COMPOSITION_VALIDATORS);
-
         updateCards();
     }
 
@@ -94,6 +91,8 @@ public final class CompositionGui extends OwnerGui {
     }
 
     private Map<Problem.Type, List<Problem>> getValidationProblemsPerType() {
+        CompositionValidator compositionValidator = CompositionValidator.getHandler(orchestrator);
+
         return compositionValidator.validate(getComposition()).stream()
                 .collect(Collectors.groupingBy(Problem::getType, TreeMap::new, Collectors.toList()));
     }
@@ -198,7 +197,7 @@ public final class CompositionGui extends OwnerGui {
     }
 
     private void updateCards() {
-        cards = orchestrator.getGameBox().contents(LGExtensionPoints.CARDS).stream()
+        cards = LGExtensionPoints.CARDS.getContents(orchestrator).stream()
                 .sorted(Comparator.comparing(LGCard::getName))
                 .collect(Collectors.toList());
 

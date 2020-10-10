@@ -2,14 +2,23 @@ package com.github.jeuxjeux20.loupsgarous.cards.composition.validation;
 
 import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.ChatColor;
 
 import java.util.Objects;
 import java.util.function.LongFunction;
 
+import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.COMPOSITION_VALIDATORS;
+
 public interface CompositionValidator {
     ImmutableSet<Problem> validate(Composition composition);
+
+    static CompositionValidator getHandler(LGGameOrchestrator orchestrator) {
+        return composition -> COMPOSITION_VALIDATORS.getContents(orchestrator).stream()
+                .flatMap(v -> v.validate(composition).stream())
+                .collect(ImmutableSet.toImmutableSet());
+    }
 
     final class Problem {
         private final Type type;

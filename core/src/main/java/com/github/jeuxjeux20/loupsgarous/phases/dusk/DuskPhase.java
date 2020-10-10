@@ -3,7 +3,6 @@ package com.github.jeuxjeux20.loupsgarous.phases.dusk;
 import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff;
 import com.github.jeuxjeux20.loupsgarous.extensibility.ContentFactory;
-import com.github.jeuxjeux20.loupsgarous.IdentifiedAs;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.phases.CountdownLGPhase;
@@ -14,10 +13,7 @@ import com.google.common.collect.ImmutableList;
 import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.DUSK_ACTIONS;
 
 @PhaseInfo(name = "Crépuscule", color = PhaseColor.PURPLE)
-@IdentifiedAs(DuskPhase.IDENTIFIER)
 public final class DuskPhase extends CountdownLGPhase {
-    public static final String IDENTIFIER = "Dusk";
-
     private final ImmutableList<DuskAction> actionsToRun;
 
     public DuskPhase(LGGameOrchestrator orchestrator) {
@@ -26,7 +22,7 @@ public final class DuskPhase extends CountdownLGPhase {
         ImmutableList.Builder<DuskAction> actionsToRunBuilder = ImmutableList.builder();
 
         for (ContentFactory<? extends DuskAction> actionFactory :
-                orchestrator.getGameBox().contents(DUSK_ACTIONS)) {
+                DUSK_ACTIONS.getContents(orchestrator)) {
             DuskAction action = actionFactory.create(orchestrator);
 
             if (action.shouldRun()) {

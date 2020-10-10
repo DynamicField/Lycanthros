@@ -3,7 +3,6 @@ package com.github.jeuxjeux20.loupsgarous.phases;
 import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator;
-import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidatorHandler;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionUpdateEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerJoinEvent;
@@ -15,8 +14,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
-
-import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.COMPOSITION_VALIDATORS;
 
 public final class LobbyPhase extends CountdownLGPhase {
     private static final int START_DELAY = 15;
@@ -92,8 +89,7 @@ public final class LobbyPhase extends CountdownLGPhase {
     }
 
     private void validateComposition() {
-        CompositionValidatorHandler validator =
-                orchestrator.getGameBox().handler(COMPOSITION_VALIDATORS);
+        CompositionValidator validator = CompositionValidator.getHandler(orchestrator);
 
         worstCompositionProblemType =
                 validator.validate(orchestrator.getComposition()).stream()

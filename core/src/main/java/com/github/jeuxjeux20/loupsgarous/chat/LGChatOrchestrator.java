@@ -109,7 +109,7 @@ public class LGChatOrchestrator extends OrchestratorComponent {
     }
 
     public ImmutableList<ChatChannel> getChannels() {
-        return orchestrator.getGameBox().contents(LGExtensionPoints.CHAT_CHANNELS);
+        return LGExtensionPoints.CHAT_CHANNELS.getContents(orchestrator);
     }
 
     @Override

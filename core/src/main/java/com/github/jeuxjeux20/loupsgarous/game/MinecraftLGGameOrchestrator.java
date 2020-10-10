@@ -32,7 +32,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import com.google.inject.Provider;
 import io.reactivex.rxjava3.disposables.Disposable;
 import me.lucko.helper.Events;
@@ -63,8 +62,6 @@ import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.*;
 class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     // Terminables
     private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
-    // Base dependencies
-    private final Injector injector;
     private final LoupsGarous plugin;
     private final OrchestratorLogger logger;
     private final LGGameManager gameManager;
@@ -91,15 +88,13 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     private final MetadataMap metadataMap = MetadataMap.create();
 
     @Inject
-    MinecraftLGGameOrchestrator(Injector injector,
-                                LoupsGarous plugin,
+    MinecraftLGGameOrchestrator(LoupsGarous plugin,
                                 LobbyTeleporter.Factory lobbyTeleporterFactory,
                                 LGGameManager gameManager,
                                 OrchestratorScope scope,
                                 ModRegistry modRegistry,
                                 ModDescriptorRegistry modDescriptorRegistry,
                                 Provider<DelayedDependencies> delayedDependenciesProvider) {
-        this.injector = injector;
         this.gameManager = gameManager;
         this.lobbyTeleporterFactory = lobbyTeleporterFactory;
         this.plugin = plugin;
@@ -190,15 +185,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         Events.call(new LGTurnChangeEvent(this));
     }
 
-    @Override
-    public <T> T resolve(Class<T> clazz) {
-        try (OrchestratorScope.Block ignored = scope.use(this)) {
-            return injector.getInstance(clazz);
-        }
-    }
-
-    @Override
-    public <T> T resolve(Provider<T> provider) {
+    private <T> T resolve(Provider<T> provider) {
         try (OrchestratorScope.Block ignored = scope.use(this)) {
             return provider.get();
         }

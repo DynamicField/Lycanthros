@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
-import com.github.jeuxjeux20.loupsgarous.extensibility.SortableContentFactory;
+import com.github.jeuxjeux20.loupsgarous.extensibility.ContentFactory;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -20,8 +20,8 @@ public class GamePhaseCycle extends PhaseCycle {
     }
 
     private void updatePhases() {
-        ImmutableList<SortableContentFactory<? extends RunnableLGPhase>> phases =
-                orchestrator.getGameBox().contents(PHASES);
+        ImmutableList<ContentFactory<? extends RunnableLGPhase>> phases =
+                PHASES.getContents(orchestrator);
 
         setPhases(phases);
     }

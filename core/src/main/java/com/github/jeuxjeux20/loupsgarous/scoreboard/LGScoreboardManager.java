@@ -60,7 +60,7 @@ public class LGScoreboardManager extends OrchestratorComponent {
                 .bindWith(this);
 
         bind(Disposable.toAutoCloseable(
-            orchestrator.getGameBox().onChange().subscribe(x -> updateAll())
+                orchestrator.getGameBox().onChange().subscribe(x -> updateAll())
         ));
     }
 
@@ -110,6 +110,6 @@ public class LGScoreboardManager extends OrchestratorComponent {
     }
 
     private ImmutableList<ScoreboardComponent> getScoreboardComponents() {
-        return orchestrator.getGameBox().contents(LGExtensionPoints.SCOREBOARD_COMPONENTS);
+        return LGExtensionPoints.SCOREBOARD_COMPONENTS.getContents(orchestrator);
     }
 }
