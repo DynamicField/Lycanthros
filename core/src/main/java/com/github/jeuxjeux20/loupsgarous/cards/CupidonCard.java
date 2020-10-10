@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.cards;
 
+import com.github.jeuxjeux20.loupsgarous.mechanic.RevelationRequest;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.annotations.Unique;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.powers.CupidonPower;
@@ -71,11 +72,11 @@ public final class CupidonCard extends LGCard {
     }
 
     @Override
-    protected void setupRevelation(CardRevelationContext context) {
-        List<LGTeam> holderCouples = getCouples(context.getHolder());
-        List<LGTeam> viewerCouples = getCouples(context.getViewer());
+    protected boolean isRevealed(RevelationRequest<LGCard> request) {
+        List<LGTeam> holderCouples = getCouples(request.getHolder());
+        List<LGTeam> viewerCouples = getCouples(request.getViewer());
 
-        context.setRevealed(!Collections.disjoint(holderCouples, viewerCouples));
+        return !Collections.disjoint(holderCouples, viewerCouples);
     }
 
     private List<LGTeam> getCouples(LGPlayer player) {

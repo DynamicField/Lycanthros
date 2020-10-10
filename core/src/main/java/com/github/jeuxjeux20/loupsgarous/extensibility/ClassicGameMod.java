@@ -92,7 +92,7 @@ public class ClassicGameMod extends Mod {
         @Override
         public List<Extension<?>> getOtherExtensions() {
             return Extension.listBuilder()
-                    .extendSingle(CHAT_CHANNEL_VIEW_MECHANICS,
+                    .extendSingle(MECHANIC_MODIFIERS,
                             new PetiteFilleSpiesOnLoupsGarous())
                     .build();
         }
@@ -160,7 +160,7 @@ public class ClassicGameMod extends Mod {
             return Extension.listBuilder()
                     .extendSingle(DUSK_ACTIONS,
                             createFactory(VoyanteDuskAction.class))
-                    .extendSingle(CARD_REVELATION_MECHANICS,
+                    .extendSingle(MECHANIC_MODIFIERS,
                             new VoyanteSeesInspectedPlayersCard())
                     .build();
         }

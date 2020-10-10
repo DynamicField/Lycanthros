@@ -208,6 +208,9 @@ public class OrchestratedLGPlayer implements LGPlayer {
 
     private void addImplicitCardProperties(LGCard card) {
         ImmutableSet<LGPower> cardPowers = card.createPowers();
+        for (LGPower power : cardPowers) {
+            powers.put(power.getClass(), power);
+        }
 
         ImmutableSet<LGTeam> cardTeams = card.getTeams();
         for (LGTeam team : cardTeams) {

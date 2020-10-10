@@ -1,39 +1,41 @@
 package com.github.jeuxjeux20.loupsgarous.teams;
 
+import com.github.jeuxjeux20.loupsgarous.mechanic.RevelationMechanic;
+import com.github.jeuxjeux20.loupsgarous.mechanic.RevelationRequest;
+import com.github.jeuxjeux20.loupsgarous.mechanic.RevelationResult;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import org.bukkit.ChatColor;
 
-import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.TEAM_REVELATION_MECHANICS;
-
 public abstract class LGTeam {
+    public static final RevelationMechanic<LGTeam> REVELATION_MECHANIC =
+            new RevelationMechanic<LGTeam>() {
+                @Override
+                public RevelationResult get(RevelationRequest<LGTeam> request) {
+                    if (!request.getHolder().teams().has(request.getTarget())) {
+                        return new RevelationResult(false);
+                    }
+
+                    return super.get(request);
+                }
+
+                @Override
+                protected RevelationResult serve(RevelationRequest<LGTeam> request) {
+                    return new RevelationResult(request.getTarget().isRevealed(request));
+                }
+            };
+
     public abstract String getName();
 
     public abstract ChatColor getColor();
 
     public final boolean isRevealed(LGGameOrchestrator orchestrator,
                                     LGPlayer holder, LGPlayer viewer) {
-        TeamRevelationContext context =
-                new TeamRevelationContext(orchestrator, holder, viewer, this);
-
-        if (!holder.teams().has(this)) {
-            return false;
-        }
-
-        setupRevelation(context);
-
-        for (TeamRevelationMechanic revelationMechanic :
-                orchestrator.getGameBox().contents(TEAM_REVELATION_MECHANICS)) {
-            if (revelationMechanic.handlesTeam(this) &&
-                (!context.isRevealed() || revelationMechanic.canHide())) {
-                revelationMechanic.execute(context);
-            }
-        }
-
-        return context.isRevealed();
+        return REVELATION_MECHANIC.get(
+                new RevelationRequest<>(orchestrator, holder, viewer, this)).isRevealed();
     }
 
-    protected void setupRevelation(TeamRevelationContext context) {
-        context.hide();
+    protected boolean isRevealed(RevelationRequest<LGTeam> request) {
+        return false;
     }
 }

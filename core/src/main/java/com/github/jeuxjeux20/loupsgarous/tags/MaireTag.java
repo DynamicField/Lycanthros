@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.tags;
 
+import com.github.jeuxjeux20.loupsgarous.mechanic.RevelationRequest;
 import org.bukkit.ChatColor;
 
 public final class MaireTag extends LGTag {
@@ -19,7 +20,7 @@ public final class MaireTag extends LGTag {
     }
 
     @Override
-    protected void setupRevelation(TagRevelationContext context) {
-        context.reveal();
+    protected boolean isRevealed(RevelationRequest<LGTag> request) {
+        return true;
     }
 }

@@ -1,5 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.teams;
 
+import com.github.jeuxjeux20.loupsgarous.mechanic.RevelationRequest;
 import org.bukkit.ChatColor;
 
 public final class CoupleTeam extends LGTeam {
@@ -17,9 +18,7 @@ public final class CoupleTeam extends LGTeam {
     }
 
     @Override
-    protected void setupRevelation(TeamRevelationContext context) {
-        if (context.getViewer().teams().has(this)) {
-            context.reveal();
-        }
+    protected boolean isRevealed(RevelationRequest<LGTeam> request) {
+        return request.getViewer().teams().has(this);
     }
 }

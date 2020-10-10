@@ -1,39 +1,41 @@
 package com.github.jeuxjeux20.loupsgarous.tags;
 
+import com.github.jeuxjeux20.loupsgarous.mechanic.RevelationMechanic;
+import com.github.jeuxjeux20.loupsgarous.mechanic.RevelationRequest;
+import com.github.jeuxjeux20.loupsgarous.mechanic.RevelationResult;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import org.bukkit.ChatColor;
 
-import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.TAG_REVELATION_MECHANICS;
-
 public abstract class LGTag {
+    public static final RevelationMechanic<LGTag> REVELATION_MECHANIC =
+            new RevelationMechanic<LGTag>() {
+                @Override
+                public RevelationResult get(RevelationRequest<LGTag> request) {
+                    if (!request.getHolder().tags().has(request.getTarget())) {
+                        return new RevelationResult(false);
+                    }
+
+                    return super.get(request);
+                }
+
+                @Override
+                protected RevelationResult serve(RevelationRequest<LGTag> request) {
+                    return new RevelationResult(request.getTarget().isRevealed(request));
+                }
+            };
+
     public abstract String getName();
 
     public abstract ChatColor getColor();
 
     public final boolean isRevealed(LGGameOrchestrator orchestrator,
                                     LGPlayer holder, LGPlayer viewer) {
-        TagRevelationContext context =
-                new TagRevelationContext(orchestrator, holder, viewer, this);
-
-        if (!holder.tags().has(this)) {
-            return false;
-        }
-
-        setupRevelation(context);
-
-        for (TagRevelationMechanic revelationMechanic :
-                orchestrator.getGameBox().contents(TAG_REVELATION_MECHANICS)) {
-            if (revelationMechanic.handlesTag(this) &&
-                (!context.isRevealed() || revelationMechanic.canHide())) {
-                revelationMechanic.execute(context);
-            }
-        }
-
-        return context.isRevealed();
+        return REVELATION_MECHANIC.get(
+                new RevelationRequest<>(orchestrator, holder, viewer, this)).isRevealed();
     }
 
-    protected void setupRevelation(TagRevelationContext context) {
-        context.hide();
+    protected boolean isRevealed(RevelationRequest<LGTag> request) {
+        return false;
     }
 }

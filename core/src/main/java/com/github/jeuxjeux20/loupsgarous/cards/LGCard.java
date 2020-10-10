@@ -1,6 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.cards;
 
 import com.github.jeuxjeux20.loupsgarous.UserFriendlyNamed;
+import com.github.jeuxjeux20.loupsgarous.mechanic.RevelationMechanic;
+import com.github.jeuxjeux20.loupsgarous.mechanic.RevelationRequest;
+import com.github.jeuxjeux20.loupsgarous.mechanic.RevelationResult;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
@@ -11,12 +14,31 @@ import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.CARD_REVELATION_MECHANICS;
-
 /**
  * The base class for all Loups-Garous cards.
  */
 public abstract class LGCard implements UserFriendlyNamed {
+    public static final RevelationMechanic<LGCard> REVELATION_MECHANIC =
+            new RevelationMechanic<LGCard>() {
+                @Override
+                public RevelationResult get(RevelationRequest<LGCard> request) {
+                    if (request.getHolder().getCard() != request.getTarget()) {
+                        return new RevelationResult(false);
+                    } else if (request.getOrchestrator().getState() == LGGameState.FINISHED ||
+                               request.getHolder() == request.getViewer() ||
+                               request.getHolder().isDead()) {
+                        return new RevelationResult(true);
+                    }
+
+                    return super.get(request);
+                }
+
+                @Override
+                protected RevelationResult serve(RevelationRequest<LGCard> request) {
+                    return new RevelationResult(request.getTarget().isRevealed(request));
+                }
+            };
+
     /**
      * Gets the teams that this card is part of.
      *
@@ -81,30 +103,11 @@ public abstract class LGCard implements UserFriendlyNamed {
     public final boolean isRevealed(LGGameOrchestrator orchestrator,
                                     LGPlayer holder,
                                     LGPlayer viewer) {
-        CardRevelationContext context =
-                new CardRevelationContext(orchestrator, holder, viewer);
-
-        if (holder.getCard() != this) {
-            return false;
-        } else if (orchestrator.getState() == LGGameState.FINISHED ||
-                   holder == viewer ||
-                   holder.isDead()) {
-            return true;
-        }
-
-        setupRevelation(context);
-
-        for (CardRevelationMechanic revelationMechanic :
-                orchestrator.getGameBox().contents(CARD_REVELATION_MECHANICS)) {
-            if (!context.isRevealed() || revelationMechanic.canHide()) {
-                revelationMechanic.execute(context);
-            }
-        }
-
-        return context.isRevealed();
+        return REVELATION_MECHANIC.get(
+                new RevelationRequest<>(orchestrator, holder, viewer, this)).isRevealed();
     }
 
-    protected void setupRevelation(CardRevelationContext context) {
-        context.hide();
+    protected boolean isRevealed(RevelationRequest<LGCard> request) {
+        return false;
     }
 }
