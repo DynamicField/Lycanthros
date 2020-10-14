@@ -7,20 +7,12 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcomeTransformer;
 import com.github.jeuxjeux20.loupsgarous.inventory.InventoryItem;
 import com.github.jeuxjeux20.loupsgarous.mechanic.MechanicModifier;
-import com.github.jeuxjeux20.loupsgarous.mechanic.MechanicModifierSource;
 import com.github.jeuxjeux20.loupsgarous.phases.RunnableLGPhase;
 import com.github.jeuxjeux20.loupsgarous.phases.dusk.DuskAction;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.ScoreboardComponent;
 import com.github.jeuxjeux20.loupsgarous.winconditions.WinCondition;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.LoadingCache;
 
 public final class LGExtensionPoints {
-    private static final LoadingCache<Class<?>, ExtensionPoint<?>>
-            VOTE_OUTCOME_TRANSFORMER_CACHE =
-            CacheBuilder.newBuilder()
-                    .build(new ClassExtensionPointCacheLoader<>("vote_outcome_transformers"));
-
     public static final ExtensionPoint<ContentFactory<? extends RunnableLGPhase>> PHASES =
             new ExtensionPoint<>("phases");
 
@@ -58,10 +50,8 @@ public final class LGExtensionPoints {
     private LGExtensionPoints() {
     }
 
-    @SuppressWarnings("unchecked")
     public static <D>
     ExtensionPoint<VoteOutcomeTransformer<D>> voteOutcomeTransformers(Class<D> candidateClass) {
-        return (ExtensionPoint<VoteOutcomeTransformer<D>>)
-                VOTE_OUTCOME_TRANSFORMER_CACHE.getUnchecked(candidateClass);
+        return new ExtensionPoint<>("vote_outcome_transformers[" + candidateClass.getName() + "]");
     }
 }
