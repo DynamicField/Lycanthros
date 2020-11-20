@@ -5,10 +5,9 @@ import com.github.jeuxjeux20.loupsgarous.atmosphere.VoteStructure;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.interaction.Interactable;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
-import com.github.jeuxjeux20.loupsgarous.interaction.vote.AbstractPlayerVote;
+import com.github.jeuxjeux20.loupsgarous.interaction.vote.PlayerVote;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.VillageVoteKillCause;
 import org.bukkit.ChatColor;
@@ -17,19 +16,19 @@ import java.util.Optional;
 
 import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.info;
 
-@MajorityVoteShortensCountdown(LGInteractableKeys.Names.PLAYER_VOTE)
+@MajorityVoteShortensCountdown(LGInteractableKeys.PLAYER_VOTE)
 @PhaseInfo(
         name = "Vote du village",
         title = "Le village va voter."
 )
-public final class VillageVotePhase extends CountdownLGPhase {
+public final class VillageVotePhase extends CountdownPhase {
     private final VillageVote vote;
     private final VoteStructure voteStructure;
 
     public VillageVotePhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
-        this.vote = Interactable.createBound(VillageVote::new, LGInteractableKeys.PLAYER_VOTE, this);
+        this.vote = new VillageVote(orchestrator);
 
         this.voteStructure = new VoteStructure(
                 orchestrator,
@@ -37,7 +36,6 @@ public final class VillageVotePhase extends CountdownLGPhase {
                 this.vote
         );
 
-        bind(voteStructure);
         bindModule(voteStructure.createInteractionModule());
     }
 
@@ -59,19 +57,21 @@ public final class VillageVotePhase extends CountdownLGPhase {
 
     @Override
     protected void start() {
+        vote.register(LGInteractableKeys.PLAYER_VOTE).bindWith(this);
         voteStructure.build();
     }
 
     @Override
     protected void finish() {
         vote.conclude();
+        voteStructure.remove();
     }
 
     public VillageVote votes() {
         return vote;
     }
 
-    public static final class VillageVote extends AbstractPlayerVote {
+    public static final class VillageVote extends PlayerVote {
         public VillageVote(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }

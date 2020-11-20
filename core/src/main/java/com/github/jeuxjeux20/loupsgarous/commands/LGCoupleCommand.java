@@ -1,8 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.commands;
 
+import com.github.jeuxjeux20.loupsgarous.interaction.Pick;
 import com.github.jeuxjeux20.loupsgarous.interaction.Couple;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
-import com.github.jeuxjeux20.loupsgarous.interaction.Pick;
 import com.github.jeuxjeux20.loupsgarous.interaction.handler.CoupleInteractableCommandHandler;
 import com.google.inject.Inject;
 import com.google.inject.Provider;

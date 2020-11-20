@@ -4,7 +4,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.ObjectMapper;
-import org.spongepowered.configurate.objectmapping.ObjectMappingException;
+import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.nio.file.Path;
 
@@ -53,7 +53,7 @@ public final class RootConfiguration {
         }
 
         @Override
-        protected ObjectMapper<RootConfiguration> getMapper() throws ObjectMappingException {
+        protected ObjectMapper<RootConfiguration> getMapper() throws SerializationException {
             return ObjectMapper.factory().get(RootConfiguration.class);
         }
 

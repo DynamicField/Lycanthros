@@ -1,11 +1,10 @@
 package com.github.jeuxjeux20.loupsgarous.kill;
 
+import com.github.jeuxjeux20.loupsgarous.event.LGKillEvent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.event.LGKillEvent;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.LGKillCause;
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.Inject;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +20,6 @@ public class PendingKillRegistry {
 
     private final Map<LGPlayer, LGKillCause> kills = new HashMap<>();
 
-    @Inject
     PendingKillRegistry(LGGameOrchestrator orchestrator, PlayerKiller playerKiller) {
         this.orchestrator = orchestrator;
         this.playerKiller = playerKiller;

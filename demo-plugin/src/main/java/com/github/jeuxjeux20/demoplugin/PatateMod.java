@@ -82,8 +82,6 @@ public class PatateMod extends Mod {
             return "Patates";
         }
 
-
-
         @Override
         public boolean isFeminineName() {
             return true;
@@ -98,11 +96,11 @@ public class PatateMod extends Mod {
         public String getDescription() {
             return "UNE PATATE MDR";
         }
+
         @Override
         public ItemStack createGuiItem() {
             return new ItemStack(Material.POTATO);
         }
-
     }
 
     public static final class ModItem implements ItemProvider {

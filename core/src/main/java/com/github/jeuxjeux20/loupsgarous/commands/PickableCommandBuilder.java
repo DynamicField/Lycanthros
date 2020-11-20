@@ -1,12 +1,13 @@
 package com.github.jeuxjeux20.loupsgarous.commands;
 
+import com.github.jeuxjeux20.loupsgarous.SafeResult;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.interaction.InteractableKey;
 import com.github.jeuxjeux20.loupsgarous.interaction.Pick;
 import com.github.jeuxjeux20.loupsgarous.interaction.handler.InteractableCommandHandler;
-import com.github.jeuxjeux20.loupsgarous.SafeResult;
+import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
+import com.google.inject.TypeLiteral;
 import me.lucko.helper.Commands;
 import me.lucko.helper.command.Command;
 import me.lucko.helper.command.context.CommandContext;
@@ -20,18 +21,21 @@ import java.util.List;
 import java.util.Objects;
 
 public final class PickableCommandBuilder<P extends Pick<?>, H extends InteractableCommandHandler<? super P>> {
-    private InteractableKey<P> key;
+    private String key;
     private final H handler;
     private final InGameHandlerCondition inGameHandlerCondition;
+    private final TypeLiteral<P> pickType;
 
     private final List<Consumer<FunctionalCommandBuilder<Player>>> commandConfigurators = new ArrayList<>();
     private String failureMessage = "Vous ne pouvez pas faire ça maintenant.";
 
     @Inject
     public PickableCommandBuilder(H handler,
-                                  InGameHandlerCondition inGameHandlerCondition) {
+                                  InGameHandlerCondition inGameHandlerCondition,
+                                  TypeLiteral<P> pickType) {
         this.handler = handler;
         this.inGameHandlerCondition = inGameHandlerCondition;
+        this.pickType = pickType;
     }
 
     public PickableCommandBuilder<P, H> failureMessage(String errorMessage) {
@@ -44,7 +48,7 @@ public final class PickableCommandBuilder<P extends Pick<?>, H extends Interacta
         return this;
     }
 
-    public Command build(InteractableKey<P> key) {
+    public Command build(String key) {
         this.key = Objects.requireNonNull(key);
 
         FunctionalCommandBuilder<Player> builder = Commands.create()
@@ -58,8 +62,10 @@ public final class PickableCommandBuilder<P extends Pick<?>, H extends Interacta
         return builder.handler(inGameHandlerCondition.wrap(this::handle));
     }
 
+    @SuppressWarnings("unchecked")
     private void handle(CommandContext<Player> context, LGPlayer player, LGGameOrchestrator orchestrator) {
         SafeResult<P> maybePickable = orchestrator.interactables().single(key)
+                .type((TypeToken<P>) TypeToken.of(pickType.getType()))
                 .check(p -> p.conditions().checkPicker(player))
                 .failureMessage(failureMessage)
                 .get();

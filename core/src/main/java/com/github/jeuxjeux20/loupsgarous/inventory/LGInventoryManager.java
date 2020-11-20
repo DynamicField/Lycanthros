@@ -4,19 +4,16 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.github.jeuxjeux20.loupsgarous.HasTriggers;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.util.ClassArrayUtils;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
-import com.google.inject.Inject;
-import io.reactivex.rxjava3.disposables.Disposable;
 import me.lucko.helper.Events;
+import me.lucko.helper.Schedulers;
 import me.lucko.helper.metadata.Metadata;
 import me.lucko.helper.metadata.MetadataKey;
 import me.lucko.helper.protocol.Protocol;
@@ -46,8 +43,7 @@ public class LGInventoryManager extends OrchestratorComponent {
     private static final MetadataKey<Map<Integer, InventoryItem>> ITEMS_KEY
             = MetadataKey.create("inv_manager", new TypeToken<Map<Integer, InventoryItem>>() {});
 
-    @Inject
-    LGInventoryManager(LGGameOrchestrator orchestrator) {
+    public LGInventoryManager(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
         registerEvents();
@@ -56,10 +52,13 @@ public class LGInventoryManager extends OrchestratorComponent {
     private void registerEvents() {
         registerUpdateItemsEvent();
 
+        // TODO: Fix this so it works with a left click on a block as well.
         Events.subscribe(PlayerInteractEvent.class)
                 .filter(this::concernsMe)
                 .filter(e -> e.getAction() != Action.PHYSICAL)
-                .handler(e -> handleItemClick(e.getPlayer(), e.getPlayer().getInventory().getHeldItemSlot()))
+                .filter(PlayerInteractEvent::hasItem)
+                .handler(e -> handleItemClick(e.getPlayer(),
+                        e.getPlayer().getInventory().getHeldItemSlot()))
                 .bindWith(this);
 
         Events.subscribe(InventoryClickEvent.class)
@@ -89,19 +88,17 @@ public class LGInventoryManager extends OrchestratorComponent {
     }
 
     private void registerUpdateItemsEvent() {
-        Events.merge(LGEvent.class,
-                ClassArrayUtils.merge(getInventoryItems().stream().map(HasTriggers::getUpdateTriggers)))
-                .filter(this::concernsMe)
-                .handler(this::updateAllInventories);
+        // TODO: fix this
 
-        bind(Disposable.toAutoCloseable(
-                orchestrator.getGameBox().onChange().subscribe(this::updateAllInventories)
-        ));
+        Schedulers.sync().runRepeating(this::updateAllInventories, 0L, 10L)
+                .bindWith(this);
+
+        bind(orchestrator.getGameBox().updates().subscribe(e -> updateAllInventories())::dispose);
     }
 
     public void update(LGPlayer player) {
         Player minecraftPlayer = player.minecraft().orElse(null);
-        if (minecraftPlayer == null) return;
+        if (minecraftPlayer == null) { return; }
 
         PlayerInventory inventory = minecraftPlayer.getInventory();
         inventory.clear();
@@ -114,7 +111,7 @@ public class LGInventoryManager extends OrchestratorComponent {
         for (int i = inventoryItems.size() - 1; i >= 0; i--) {
             InventoryItem item = inventoryItems.get(i);
 
-            if (!item.isShown(player, orchestrator)) return;
+            if (!item.isShown(player, orchestrator)) { return; }
 
             inventory.setItem(slot, item.getItemStack());
 
@@ -178,10 +175,6 @@ public class LGInventoryManager extends OrchestratorComponent {
         }
     }
 
-    // Used as a method reference
-    private void updateAllInventories(Object whatever) {
-        updateAllInventories();
-    }
 
     private boolean concernsMe(PlayerEvent event) {
         return isPlayerInGame(event.getPlayer());

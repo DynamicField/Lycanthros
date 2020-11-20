@@ -30,7 +30,6 @@ public final class GameBox implements Terminable {
     private final LGGameOrchestrator orchestrator;
     private final ModRegistry modRegistry;
     private final GameEventHandler eventHandler;
-    private final ModDescriptorRegistry modDescriptorRegistry;
 
     private final Map<Mod, ModData> mods = new HashMap<>();
     private final Multimap<@Nullable Mod, Rule> rules = LinkedHashMultimap.create();
@@ -46,18 +45,15 @@ public final class GameBox implements Terminable {
     private final Subject<Change> changeSubject = PublishSubject.create();
 
     public GameBox(LGGameOrchestrator orchestrator,
-                   ModRegistry modRegistry,
-                   ModDescriptorRegistry modDescriptorRegistry) {
+                   ModRegistry modRegistry) {
         this.orchestrator = orchestrator;
         this.modRegistry = modRegistry;
         this.eventHandler = new GameEventHandler(orchestrator.getLoupsGarous());
-        this.modDescriptorRegistry = modDescriptorRegistry;
         this.modRegistryListener = new ModRegistryListener() {
             @Override
             public void onModRemoved(Mod mod) {
                 if (isReactiveToModChanges()) {
                     removeMods(Collections.singleton(mod));
-                    completeOperation();
                 }
             }
 
@@ -65,14 +61,11 @@ public final class GameBox implements Terminable {
             public void onModAdded(Mod mod) {
                 if (isReactiveToModChanges()) {
                     addMods(Collections.singleton(mod));
-                    completeOperation();
                 }
             }
         };
 
         modRegistry.addListener(modRegistryListener);
-
-        addMods(modRegistry.getMods());
     }
 
     @SuppressWarnings("unchecked")
@@ -90,13 +83,11 @@ public final class GameBox implements Terminable {
     public void enable(Mod mod) {
         orchestrator.logger().fine("Enabling mod " + mod);
         updateModData(mod, d -> d.enabled = true);
-        completeOperation();
     }
 
     public void disable(Mod mod) {
         orchestrator.logger().fine("Disabling mod " + mod);
         updateModData(mod, d -> d.enabled = false);
-        completeOperation();
     }
 
     public void toggle(Mod mod) {
@@ -112,7 +103,6 @@ public final class GameBox implements Terminable {
     public void configure(Mod mod, ConfigurationNode configuration) {
         orchestrator.logger().fine("Configuring mod " + mod);
         updateModData(mod, d -> d.configuration = configuration);
-        completeOperation();
     }
 
     public @Nullable ModData getModData(Mod mod) {
@@ -130,7 +120,7 @@ public final class GameBox implements Terminable {
                 .findAny();
     }
 
-    public Observable<Change> onChange() {
+    public Observable<Change> updates() {
         return changeSubject;
     }
 
@@ -141,7 +131,7 @@ public final class GameBox implements Terminable {
         updateMods(Collections.singleton(mod));
     }
 
-    private void addMods(Collection<Mod> mods) {
+    public void addMods(Collection<Mod> mods) {
         orchestrator.logger().fine("Adding mods: " + formatForLogging(mods));
         for (Mod mod : mods) {
             this.mods.put(mod, new ModData(mod));
@@ -149,7 +139,7 @@ public final class GameBox implements Terminable {
         updateMods(mods);
     }
 
-    private void removeMods(Collection<Mod> mods) {
+    public void removeMods(Collection<Mod> mods) {
         orchestrator.logger().fine("Removing mods: " + formatForLogging(mods));
         for (Mod mod : mods) {
             this.mods.remove(mod);
@@ -194,6 +184,8 @@ public final class GameBox implements Terminable {
         long elapsedTime = System.nanoTime() - startTime;
         orchestrator.logger().finer("Mods update took " +
                                     TimeUnit.NANOSECONDS.toMicros(elapsedTime) + "µs");
+
+        completeOperation();
     }
 
     void attachRule(@Nullable Mod mod, Rule rule) {
@@ -498,7 +490,7 @@ public final class GameBox implements Terminable {
 
         private ModData(Mod mod) {
             this.enabled = orchestrator.allowsJoin() &&
-                           modDescriptorRegistry.get(mod.getClass()).isEnabledByDefault();
+                           mod.getDescriptor().isEnabledByDefault();
             this.configuration = mod.getDefaultConfiguration();
         }
 

@@ -2,15 +2,14 @@ package com.github.jeuxjeux20.loupsgarous.phases;
 
 import com.github.jeuxjeux20.loupsgarous.extensibility.ContentFactory;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.phases.descriptor.LGPhaseDescriptor;
 import com.google.common.collect.Sets;
 import io.reactivex.rxjava3.disposables.Disposable;
 
 import java.util.*;
 
 public class PhaseCycle extends PhaseProgram {
-    private List<ContentFactory<? extends RunnableLGPhase>> phases = new LinkedList<>();
-    private ListIterator<ContentFactory<? extends RunnableLGPhase>> phaseIterator;
+    private List<ContentFactory<? extends RunnablePhase>> phases = new LinkedList<>();
+    private ListIterator<ContentFactory<? extends RunnablePhase>> phaseIterator;
 
     private Disposable subscription = Disposable.disposed();
 
@@ -24,7 +23,7 @@ public class PhaseCycle extends PhaseProgram {
      *
      * @param phaseFactory the phase factory to insert
      */
-    public void insert(ContentFactory<? extends RunnableLGPhase> phaseFactory) {
+    public void insert(ContentFactory<? extends RunnablePhase> phaseFactory) {
         phaseIterator.add(phaseFactory);
         phaseIterator.previous();
     }
@@ -39,24 +38,23 @@ public class PhaseCycle extends PhaseProgram {
         if (!phaseIterator.hasNext())
             phaseIterator = phases.listIterator(); // Reset the iterator
 
-        ContentFactory<? extends RunnableLGPhase> factory = phaseIterator.next();
-        RunnableLGPhase phase = factory.create(orchestrator);
-        LGPhaseDescriptor descriptor = orchestrator.phases().descriptors().get(phase.getClass());
+        ContentFactory<? extends RunnablePhase> factory = phaseIterator.next();
+        RunnablePhase phase = factory.create(orchestrator);
 
-        if (descriptor.isTemporary())
+        if (phase.getDescriptor().isTemporary())
             phaseIterator.remove();
 
         subscription = getPhaseRunner().run(new PhaseRunner.RunToken(phase, factory))
                 .subscribe(r -> next(), e -> { /* TODO: Handle exceptions */ });
     }
 
-    protected List<ContentFactory<? extends RunnableLGPhase>> getPhases() {
+    protected List<ContentFactory<? extends RunnablePhase>> getPhases() {
         return phases;
     }
 
     protected void setPhases(
-            Collection<? extends ContentFactory<? extends RunnableLGPhase>> newPhases) {
-        LinkedList<ContentFactory<? extends RunnableLGPhase>> newPhasesList =
+            Collection<? extends ContentFactory<? extends RunnablePhase>> newPhases) {
+        LinkedList<ContentFactory<? extends RunnablePhase>> newPhasesList =
                 new LinkedList<>(newPhases);
 
         int index = determineNewIndex(newPhasesList);
@@ -72,15 +70,15 @@ public class PhaseCycle extends PhaseProgram {
 
     @SuppressWarnings("unchecked")
     private int determineNewIndex(
-            LinkedList<? extends ContentFactory<? extends RunnableLGPhase>> newPhases) {
+            LinkedList<? extends ContentFactory<? extends RunnablePhase>> newPhases) {
         // The cycle's not running or we have no phases.
         if (phases.isEmpty() || getPhaseRunner().getCurrent() == null || newPhases.isEmpty()) {
             return 0;
         }
 
         // If the current phase is in the list, use it.
-        ContentFactory<? extends RunnableLGPhase> runningFactory =
-                (ContentFactory<? extends RunnableLGPhase>) getPhaseRunner().getCurrent().getSource();
+        ContentFactory<? extends RunnablePhase> runningFactory =
+                (ContentFactory<? extends RunnablePhase>) getPhaseRunner().getCurrent().getSource();
 
         int newCurrentPhaseIndex = newPhases.indexOf(runningFactory);
         if (newCurrentPhaseIndex != -1) {
@@ -119,8 +117,8 @@ public class PhaseCycle extends PhaseProgram {
         // Hope you understood this stupid algorithm :D
 
         int oldCurrentPhaseIndex = phases.indexOf(runningFactory);
-        Set<ContentFactory<? extends RunnableLGPhase>> oldPrecedingPhases = new HashSet<>();
-        Set<ContentFactory<? extends RunnableLGPhase>> newPrecedingPhases = new HashSet<>();
+        Set<ContentFactory<? extends RunnablePhase>> oldPrecedingPhases = new HashSet<>();
+        Set<ContentFactory<? extends RunnablePhase>> newPrecedingPhases = new HashSet<>();
 
         for (int i = 0; i < oldCurrentPhaseIndex; i++) {
             oldPrecedingPhases.add(phases.get(i));

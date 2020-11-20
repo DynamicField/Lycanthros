@@ -5,23 +5,20 @@ import com.github.jeuxjeux20.loupsgarous.actionbar.LGActionBarManager;
 import com.github.jeuxjeux20.loupsgarous.bossbar.LGBossBarManager;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.ImmutableComposition;
-import com.github.jeuxjeux20.loupsgarous.chat.LGChatOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.chat.ChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
-import com.github.jeuxjeux20.loupsgarous.event.LGGameFinishedEvent;
-import com.github.jeuxjeux20.loupsgarous.event.LGGameStartEvent;
 import com.github.jeuxjeux20.loupsgarous.extensibility.GameBox;
 import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegistry;
 import com.github.jeuxjeux20.loupsgarous.inventory.LGInventoryManager;
-import com.github.jeuxjeux20.loupsgarous.kill.LGKillsOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.lobby.LGGameBootstrapData;
+import com.github.jeuxjeux20.loupsgarous.kill.KillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.lobby.PlayerJoinException;
-import com.github.jeuxjeux20.loupsgarous.phases.LGPhasesOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.phases.PhasesOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.LGScoreboardManager;
+import com.github.jeuxjeux20.loupsgarous.storage.StorageProvider;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.ImmutableSet;
-import me.lucko.helper.metadata.MetadataMap;
 import me.lucko.helper.terminable.TerminableConsumer;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -35,28 +32,10 @@ import java.util.stream.Stream;
 
 /**
  * Manages a Loups-Garous game instance.
- * <p>
- * The game state can be changed using the appropriate methods: {@link #initialize(LGGameBootstrapData)}, {@link
- * #start()}, {@link #finish(LGEnding)} and {@link #delete()}.
- * <p>
- * This also implements {@link TerminableConsumer}, where all the bound terminables get terminated
- * as soon as the orchestrator is in the {@link LGGameState#DELETING} state.
- * <p>
- * Other aspects of the game can be used using components that break up features into multiple
- * methods:
- * <ul>
- *     <li>{@link #chat()}: Send messages using channels. ({@link LGChatOrchestrator}) </li>
- *     <li>{@link #phases()}: Manages the phases of the game. ({@link LGPhasesOrchestrator})</li>
- *     <li>{@link #kills()}: Kill people instantly, or at a later time. ({@link LGKillsOrchestrator})</li>
- * </ul>
  *
  * @author jeuxjeux20
- * @see LGChatOrchestrator
- * @see LGPhasesOrchestrator
- * @see LGKillsOrchestrator
- * @see LGGameState
  */
-public interface LGGameOrchestrator extends TerminableConsumer {
+public interface LGGameOrchestrator extends TerminableConsumer, StorageProvider {
     LoupsGarousRoot getLoupsGarous();
 
     World getWorld();
@@ -65,49 +44,7 @@ public interface LGGameOrchestrator extends TerminableConsumer {
         return getState() == LGGameState.STARTED;
     }
 
-
-    /**
-     * Initializes the game to be ready to accept new players. Usually, this method is called
-     * internally. This will change state to {@link LGGameState#LOBBY}.
-     *
-     * @param bootstrapData the data used to initialize the game
-     */
-    void initialize(LGGameBootstrapData bootstrapData) throws GameCreationException;
-
-    /**
-     * Starts the game and calls the {@link LGGameStartEvent}. This will change state to {@link
-     * LGGameState#STARTED}.
-     *
-     * @throws IllegalStateException when the game state is not in the {@linkplain
-     *                               LGGameState#LOBBY} state.
-     */
-    void start();
-
-    /**
-     * Finishes the game with the given ending and calls the {@link LGGameFinishedEvent}. This will
-     * change state to {@link LGGameState#FINISHED}.
-     *
-     * @param ending why the game ended
-     * @throws IllegalStateException when the game is {@linkplain LGGameState#FINISHED finished},
-     *                               {@linkplain LGGameState#DELETING deleting} or {@linkplain
-     *                               LGGameState#DELETED deleted}
-     */
-    void finish(LGEnding ending);
-
-    /**
-     * Deletes the game and calls the deletion events.
-     * <p>
-     * This changes state to {@link LGGameState#DELETING}, terminates every terminable bound to this
-     * orchestrator, teleports all players to the spawn, and finally changes state to {@link
-     * LGGameState#DELETED}.
-     *
-     * @throws IllegalStateException when the game is {@linkplain LGGameState#DELETING deleting} or
-     *                               {@linkplain LGGameState#DELETED deleted}
-     */
-    void delete();
-
     void nextTimeOfDay();
-
 
     String getId();
 
@@ -124,8 +61,6 @@ public interface LGGameOrchestrator extends TerminableConsumer {
     void setOwner(LGPlayer owner);
 
     GameBox getGameBox();
-
-    MetadataMap getMetadata();
 
     default Stream<LGPlayer> getAlivePlayers() {
         return getPlayers().stream().filter(LGPlayer::isAlive);
@@ -160,6 +95,10 @@ public interface LGGameOrchestrator extends TerminableConsumer {
      */
     LGPlayer ensurePresent(LGPlayer player);
 
+    boolean isEndingWhenEmpty();
+
+    void setEndingWhenEmpty(boolean endingWhenEmpty);
+
     LGPlayer join(Player player) throws PlayerJoinException;
 
     boolean leave(UUID playerUUID);
@@ -178,11 +117,15 @@ public interface LGGameOrchestrator extends TerminableConsumer {
 
     void setComposition(Composition composition);
 
-    LGChatOrchestrator chat();
+    StateTransitionHandler stateTransitions();
 
-    LGPhasesOrchestrator phases();
+    PhasesOrchestrator phases();
 
-    LGKillsOrchestrator kills();
+    ChatOrchestrator chat();
+
+    KillsOrchestrator kills();
+
+    InteractableRegistry interactables();
 
     LGActionBarManager actionBar();
 
@@ -192,7 +135,7 @@ public interface LGGameOrchestrator extends TerminableConsumer {
 
     LGBossBarManager bossBar();
 
-    InteractableRegistry interactables();
+    OrchestratorComponentManager components();
 
     Logger logger();
 

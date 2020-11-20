@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff;
 import com.github.jeuxjeux20.loupsgarous.extensibility.ContentFactory;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
-import com.github.jeuxjeux20.loupsgarous.phases.CountdownLGPhase;
+import com.github.jeuxjeux20.loupsgarous.phases.CountdownPhase;
 import com.github.jeuxjeux20.loupsgarous.phases.PhaseColor;
 import com.github.jeuxjeux20.loupsgarous.phases.PhaseInfo;
 import com.google.common.collect.ImmutableList;
@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableList;
 import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.DUSK_ACTIONS;
 
 @PhaseInfo(name = "Crépuscule", color = PhaseColor.PURPLE)
-public final class DuskPhase extends CountdownLGPhase {
+public final class DuskPhase extends CountdownPhase {
     private final ImmutableList<DuskAction> actionsToRun;
 
     public DuskPhase(LGGameOrchestrator orchestrator) {
@@ -33,8 +33,7 @@ public final class DuskPhase extends CountdownLGPhase {
         }
 
         actionsToRun = actionsToRunBuilder.build();
-
-        bind(this::closeAllActions);
+        actionsToRun.forEach(this::bind);
     }
 
     @Override
@@ -66,9 +65,5 @@ public final class DuskPhase extends CountdownLGPhase {
 
     public ImmutableList<DuskAction> getActions() {
         return actionsToRun;
-    }
-
-    private void closeAllActions() {
-        actionsToRun.forEach(DuskAction::closeAndReportException);
     }
 }

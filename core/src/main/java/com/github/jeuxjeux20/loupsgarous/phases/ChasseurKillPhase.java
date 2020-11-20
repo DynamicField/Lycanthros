@@ -1,14 +1,13 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
-import com.github.jeuxjeux20.loupsgarous.chat.ComponentStyles;
-import com.github.jeuxjeux20.loupsgarous.chat.ComponentTemplates;
 import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
+import com.github.jeuxjeux20.loupsgarous.chat.ComponentStyles;
+import com.github.jeuxjeux20.loupsgarous.chat.ComponentTemplates;
 import com.github.jeuxjeux20.loupsgarous.extensibility.ContentFactory;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.interaction.AbstractPlayerPick;
-import com.github.jeuxjeux20.loupsgarous.interaction.Interactable;
+import com.github.jeuxjeux20.loupsgarous.interaction.PlayerPick;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.ChasseurKillCause;
@@ -24,7 +23,7 @@ import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.info;
         name = "Tir du chasseur",
         isTemporary = true
 )
-public final class ChasseurKillPhase extends CountdownLGPhase {
+public final class ChasseurKillPhase extends CountdownPhase {
     private final LGPlayer chasseur;
     private final ChasseurKill killable;
 
@@ -32,14 +31,10 @@ public final class ChasseurKillPhase extends CountdownLGPhase {
         super(orchestrator);
 
         this.chasseur = chasseur;
-        this.killable = Interactable.createBound(o -> new ChasseurKill(o, chasseur),
-                LGInteractableKeys.KILL, this);
+        this.killable = new ChasseurKill(orchestrator, chasseur);
 
-        orchestrator.phases().descriptors().get(getClass())
+        getDescriptor()
                 .setTitle("Le chasseur " + chasseur.getName() + " va tirer sa balle (ou non) !");
-
-        // Reset the title after the phase ends.
-        bind(() -> this.orchestrator.phases().descriptors().invalidate(getClass()));
     }
 
     @Override
@@ -54,6 +49,8 @@ public final class ChasseurKillPhase extends CountdownLGPhase {
 
     @Override
     protected void start() {
+        killable.register(LGInteractableKeys.KILL).bindWith(this);
+
         chasseur.minecraft(player -> {
             player.spigot().respawn();
 
@@ -81,7 +78,7 @@ public final class ChasseurKillPhase extends CountdownLGPhase {
         return chasseur;
     }
 
-    public static class ChasseurKill extends AbstractPlayerPick {
+    public static class ChasseurKill extends PlayerPick {
         private boolean killed = false;
         private final LGPlayer chasseur;
 

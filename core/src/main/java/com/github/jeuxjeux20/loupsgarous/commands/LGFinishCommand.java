@@ -1,9 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.commands;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGGameState;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayerAndGame;
+import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.endings.FinishCommandEnding;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
@@ -52,7 +49,8 @@ public class LGFinishCommand implements HelperCommandRegisterer {
                         }
                     }
 
-                    if (game.get().getState() == LGGameState.FINISHED) {
+                    LGGameOrchestrator orchestrator = game.get();
+                    if (orchestrator.getState() == LGGameState.FINISHED) {
                         c.sender().sendMessage(ChatColor.RED + "La partie est déjà terminée.");
                         return;
                     }
@@ -60,7 +58,11 @@ public class LGFinishCommand implements HelperCommandRegisterer {
                     String reason = hasProvidedGame && c.args().size() == 1 || c.args().size() == 0 ? null :
                             c.args().stream().skip(hasProvidedGame ? 1 : 0).collect(Collectors.joining(" "));
 
-                    game.get().finish(new FinishCommandEnding(reason));
+                    StateTransition transition =
+                            new FinishGameTransition(new FinishCommandEnding(reason));
+                    if (!orchestrator.stateTransitions().requestExecutionOverride(transition)) {
+                        c.reply("Impossible de terminer la partie, elle est occupée.");
+                    }
                 })
                 .register("lgfinish", "lg finish");
     }

@@ -2,11 +2,9 @@ package com.github.jeuxjeux20.loupsgarous.extensibility.gui;
 
 import com.github.jeuxjeux20.loupsgarous.extensibility.GameBox;
 import com.github.jeuxjeux20.loupsgarous.extensibility.Mod;
-import com.github.jeuxjeux20.loupsgarous.extensibility.ModDescriptor;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.gui.OwnerGui;
 import com.google.common.collect.ImmutableMap;
-import io.reactivex.rxjava3.disposables.Disposable;
 import me.lucko.helper.item.ItemStackBuilder;
 import me.lucko.helper.menu.Item;
 import me.lucko.helper.menu.scheme.MenuPopulator;
@@ -49,20 +47,17 @@ public class ModsGui extends OwnerGui {
             Mod mod = entry.getKey();
             GameBox.ModData modData = entry.getValue();
 
-            ModDescriptor descriptor =
-                    orchestrator.getLoupsGarous().getModRegistry().descriptors().get(mod.getClass());
-
-            if (descriptor.isHidden()) {
+            if (mod.getDescriptor().isHidden()) {
                 continue;
             }
 
-            ItemStack descriptorItem = descriptor.getItem();
+            ItemStack descriptorItem = mod.getDescriptor().getItem();
             ChatColor statusColor = modData.isEnabled() ? ChatColor.GREEN : ChatColor.RED;
             String statusText = statusColor + (modData.isEnabled() ? "&lactivé" : "&ldesactivé");
 
             ItemStackBuilder builder = ItemStackBuilder.of(descriptorItem.clone())
                     .hideAttributes()
-                    .name(statusColor.toString() + ChatColor.BOLD + descriptor.getName())
+                    .name(statusColor.toString() + ChatColor.BOLD + mod.getDescriptor().getName())
                     .lore(ChatColor.WHITE + "Statut : " + statusText)
                     .lore("description? maybe? idk");
 
@@ -78,9 +73,7 @@ public class ModsGui extends OwnerGui {
     }
 
     private void listenToEvents() {
-        bind(Disposable.toAutoCloseable(
-                orchestrator.getGameBox().onChange()
-                        .subscribe(x -> redraw())
-        ));
+        bind(orchestrator.getGameBox().updates()
+                        .subscribe(x -> redraw())::dispose);
     }
 }

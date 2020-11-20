@@ -7,19 +7,26 @@ import me.lucko.helper.terminable.composite.CompositeTerminable;
 import javax.annotation.Nonnull;
 
 public abstract class OrchestratorComponent
-        implements TerminableConsumer, Terminable, OrchestratorDependent {
+        implements TerminableConsumer, Terminable, OrchestratorAware {
     protected final LGGameOrchestrator orchestrator;
 
     private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
+    private boolean closed = false;
 
     public OrchestratorComponent(LGGameOrchestrator orchestrator) {
         this.orchestrator = orchestrator;
+        terminableRegistry.bind(this::cleanup);
     }
 
     @Override
     public LGGameOrchestrator getOrchestrator() {
         return orchestrator;
     }
+
+    protected void onStart() {}
+    protected void onStop() {}
+
+    protected void cleanup() {}
 
     @Nonnull
     @Override
@@ -30,5 +37,11 @@ public abstract class OrchestratorComponent
     @Override
     public final void close() throws Exception {
         terminableRegistry.close();
+        closed = true;
+    }
+
+    @Override
+    public boolean isClosed() {
+        return closed;
     }
 }

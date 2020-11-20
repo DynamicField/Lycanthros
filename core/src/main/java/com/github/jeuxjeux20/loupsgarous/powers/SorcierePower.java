@@ -3,8 +3,8 @@ package com.github.jeuxjeux20.loupsgarous.powers;
 import com.google.common.base.Preconditions;
 
 public final class SorcierePower extends LGPower {
-    private boolean hasHealPotion = true;
-    private boolean hasKillPotion = true;
+    private boolean healPotionAvailable = true;
+    private boolean killPotionAvailable = true;
 
     public SorcierePower(Object source) {
         super(source);
@@ -16,28 +16,28 @@ public final class SorcierePower extends LGPower {
     }
 
     public void useHealPotion() {
-        Preconditions.checkState(hasHealPotion, "No heal potion to use.");
-        hasHealPotion = false;
+        Preconditions.checkState(healPotionAvailable, "No heal potion to use.");
+        healPotionAvailable = false;
     }
 
-    public boolean hasHealPotion() {
-        return hasHealPotion;
+    public boolean isHealPotionAvailable() {
+        return healPotionAvailable;
     }
 
-    public void setHasHealPotion(boolean hasHealPotion) {
-        this.hasHealPotion = hasHealPotion;
+    public void setHealPotionAvailable(boolean healPotionAvailable) {
+        this.healPotionAvailable = healPotionAvailable;
     }
 
     public void useKillPotion() {
-        Preconditions.checkState(hasKillPotion, "No kill potion to use.");
-        hasKillPotion = false;
+        Preconditions.checkState(killPotionAvailable, "No kill potion to use.");
+        killPotionAvailable = false;
     }
 
-    public boolean hasKillPotion() {
-        return hasKillPotion;
+    public boolean isKillPotionAvailable() {
+        return killPotionAvailable;
     }
 
-    public void setHasKillPotion(boolean hasKillPotion) {
-        this.hasKillPotion = hasKillPotion;
+    public void setKillPotionAvailable(boolean killPotionAvailable) {
+        this.killPotionAvailable = killPotionAvailable;
     }
 }

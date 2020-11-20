@@ -5,6 +5,8 @@ import com.github.jeuxjeux20.loupsgarous.cards.UnknownCard;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.LGKillCause;
 import com.github.jeuxjeux20.loupsgarous.powers.LGPower;
 import com.github.jeuxjeux20.loupsgarous.powers.PowerRegistry;
+import com.github.jeuxjeux20.loupsgarous.storage.MapStorage;
+import com.github.jeuxjeux20.loupsgarous.storage.Storage;
 import com.github.jeuxjeux20.loupsgarous.tags.LGTag;
 import com.github.jeuxjeux20.loupsgarous.tags.TagRegistry;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeam;
@@ -13,7 +15,6 @@ import com.google.common.collect.ClassToInstanceMap;
 import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.MutableClassToInstanceMap;
-import me.lucko.helper.metadata.MetadataMap;
 
 import java.util.*;
 
@@ -25,7 +26,7 @@ public class OrchestratedLGPlayer implements LGPlayer {
     private LGCard card = UnknownCard.INSTANCE;
     private boolean isDead;
     private boolean isAway;
-    private final MetadataMap metadataMap = MetadataMap.create();
+    private final Storage storage = new MapStorage();
 
     private final LGGameOrchestrator orchestrator;
 
@@ -54,11 +55,6 @@ public class OrchestratedLGPlayer implements LGPlayer {
     @Override
     public boolean isAway() {
         return isAway;
-    }
-
-    @Override
-    public MetadataMap metadata() {
-        return metadataMap;
     }
 
     @Override
@@ -224,7 +220,7 @@ public class OrchestratedLGPlayer implements LGPlayer {
     }
 
     @Override
-    public boolean willDie() {
+    public boolean isGoingToDie() {
         return orchestrator.kills().pending().contains(this);
     }
 
@@ -262,5 +258,10 @@ public class OrchestratedLGPlayer implements LGPlayer {
             throw new IllegalStateException("This player is already away.");
         }
         isAway = true;
+    }
+
+    @Override
+    public Storage getStorage() {
+        return storage;
     }
 }

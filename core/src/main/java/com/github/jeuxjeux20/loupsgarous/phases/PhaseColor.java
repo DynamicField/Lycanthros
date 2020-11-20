@@ -3,6 +3,8 @@ package com.github.jeuxjeux20.loupsgarous.phases;
 import org.bukkit.ChatColor;
 import org.bukkit.boss.BarColor;
 
+import java.util.Optional;
+
 public enum PhaseColor {
     DEFAULT(null, null),
     PINK(BarColor.PINK, ChatColor.LIGHT_PURPLE),
@@ -21,8 +23,8 @@ public enum PhaseColor {
         this.chatColor = chatColor;
     }
 
-    public BarColor toBarColor(BarColor fallback) {
-        return barColor == null ? fallback : barColor;
+    public Optional<BarColor> toBarColor() {
+        return Optional.ofNullable(barColor);
     }
 
     public ChatColor toChatColor(ChatColor fallback) {

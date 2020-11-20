@@ -9,7 +9,8 @@ import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.cards.VillageoisCard;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.Composition;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.ImmutableComposition;
-import com.github.jeuxjeux20.loupsgarous.chat.LGChatOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.chat.ActualChatOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.chat.ChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.event.*;
 import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionUpdateEvent;
@@ -18,25 +19,26 @@ import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.extensibility.GameBox;
 import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
-import com.github.jeuxjeux20.loupsgarous.extensibility.ModDescriptorRegistry;
 import com.github.jeuxjeux20.loupsgarous.extensibility.ModRegistry;
+import com.github.jeuxjeux20.loupsgarous.interaction.ActualInteractableRegistry;
 import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegistry;
 import com.github.jeuxjeux20.loupsgarous.inventory.LGInventoryManager;
-import com.github.jeuxjeux20.loupsgarous.kill.LGKillsOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.kill.ActualKillsOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.kill.KillsOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.PlayerQuitKillCause;
 import com.github.jeuxjeux20.loupsgarous.lobby.*;
 import com.github.jeuxjeux20.loupsgarous.phases.*;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.LGScoreboardManager;
+import com.github.jeuxjeux20.loupsgarous.storage.MapStorage;
+import com.github.jeuxjeux20.loupsgarous.storage.Storage;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
 import io.reactivex.rxjava3.disposables.Disposable;
 import me.lucko.helper.Events;
-import me.lucko.helper.metadata.MetadataMap;
-import me.lucko.helper.terminable.Terminable;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -47,10 +49,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -60,81 +59,72 @@ import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.*;
 import static com.github.jeuxjeux20.loupsgarous.game.LGGameState.*;
 
 class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
-    // Terminables
     private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
-    private final LoupsGarous plugin;
-    private final OrchestratorLogger logger;
-    private final LGGameManager gameManager;
-    private final OrchestratorScope scope;
-    private DelayedDependencies delayedDependencies;
-    private LobbyTeleporter lobbyTeleporter;
-    // Pre-initialization stuff
-    private final Provider<DelayedDependencies> delayedDependenciesProvider;
-    private final LobbyTeleporter.Factory lobbyTeleporterFactory;
-    // Game state
-    private String id;
-    private LGGameState state = LOBBY;
 
+    private final String id;
+    private LGGameState state = LOBBY;
     private final Map<UUID, LGPlayer> players = new HashMap<>();
     private LGPlayer owner;
     private ImmutableComposition composition;
-
     private final MutableLGGameTurn turn = new MutableLGGameTurn();
     private @Nullable LGEnding ending;
+    private boolean endingWhenEmpty = false;
 
+    private final LoupsGarous plugin;
+    private final OrchestratorLogger logger;
+    private final LGGameManager gameManager;
+    private final StateTransitionHandler stateTransitionHandler;
+    private final LobbyTeleporter lobbyTeleporter;
+    private final OrchestratorComponentManager componentManager;
+    private final PhasesOrchestrator phases;
+    private final ChatOrchestrator chat;
+    private final KillsOrchestrator kills;
+    private final ActualInteractableRegistry interactables;
     private final GameBox gameBox;
+    private final Storage storage = new MapStorage();
+
     private final Disposable cardRemovalSubscription;
 
-    private final MetadataMap metadataMap = MetadataMap.create();
-
     @Inject
-    MinecraftLGGameOrchestrator(LoupsGarous plugin,
-                                LobbyTeleporter.Factory lobbyTeleporterFactory,
-                                LGGameManager gameManager,
-                                OrchestratorScope scope,
-                                ModRegistry modRegistry,
-                                ModDescriptorRegistry modDescriptorRegistry,
-                                Provider<DelayedDependencies> delayedDependenciesProvider) {
-        this.gameManager = gameManager;
-        this.lobbyTeleporterFactory = lobbyTeleporterFactory;
-        this.plugin = plugin;
-        this.scope = scope;
-        this.delayedDependenciesProvider = delayedDependenciesProvider;
-        this.logger = new OrchestratorLogger();
-
-        this.gameBox = new GameBox(this, modRegistry, modDescriptorRegistry);
-        this.cardRemovalSubscription = gameBox.onChange().subscribe(this::removeBoxRemovedCards);
-
-        bind(gameBox);
-        bind(Disposable.toAutoCloseable(cardRemovalSubscription));
-    }
-
-    @Override
-    public void initialize(LGGameBootstrapData bootstrapData) throws GameCreationException {
+    MinecraftLGGameOrchestrator(@Assisted LGGameBootstrapData data,
+            LoupsGarous plugin,
+            LobbyTeleporter.Factory lobbyTeleporterFactory,
+            LGGameManager gameManager,
+            ModRegistry modRegistry) throws GameCreationException {
         try {
-            id = bootstrapData.getId();
-            lobbyTeleporter = bind(lobbyTeleporterFactory.create());
-            delayedDependencies = bind(resolve(delayedDependenciesProvider));
+            this.id = data.getId();
+            this.lobbyTeleporter = bind(lobbyTeleporterFactory.create());
+            doSetComposition(data.getComposition(), false);
 
-            setComposition(bootstrapData.getComposition());
+            this.gameManager = gameManager;
+            this.plugin = plugin;
+            this.stateTransitionHandler = new StateTransitionHandler(this);
+            this.logger = new OrchestratorLogger();
 
-            try {
-                join(bootstrapData.getOwner());
-            } catch (PlayerJoinException e) {
-                throw new InvalidOwnerException(e);
-            }
+            this.phases = bind(new ActualPhasesOrchestrator(this));
+            this.chat = bind(new ActualChatOrchestrator(this));
+            this.kills = bind(new ActualKillsOrchestrator(this));
+            this.interactables = bind(new ActualInteractableRegistry(this));
+
+            this.gameBox = bind(new GameBox(this, modRegistry));
+            this.cardRemovalSubscription = gameBox.updates().subscribe(this::removeBoxRemovedCards);
+            bind(cardRemovalSubscription::dispose);
+
+            this.componentManager = new OrchestratorComponentManager(this);
+            bind(componentManager::close);
 
             registerEventListeners();
 
+            gameBox.addMods(modRegistry.getMods());
+
             new LobbyPhaseCycle(this).start();
         } catch (Throwable e) {
-            terminableRegistry.closeAndReportException();
+            delete();
             throw e;
         }
     }
 
-    @Override
-    public void start() {
+    private void start() {
         state.mustBe(LOBBY);
 
         cardRemovalSubscription.dispose();
@@ -146,8 +136,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         new GamePhaseCycle(this).start();
     }
 
-    @Override
-    public void finish(LGEnding ending) {
+    private void finish(LGEnding ending) {
         state.mustNotBe(FINISHED, DELETING, DELETED);
 
         this.ending = ending;
@@ -157,11 +146,8 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         new GameEndPhaseProgram(this).start();
     }
 
-    @Override
-    public void delete() {
+    private void delete() {
         state.mustNotBe(DELETING, DELETED);
-
-        new EmptyPhaseProgram(this).start();
 
         changeStateTo(DELETING, LGGameDeletingEvent::new);
 
@@ -185,15 +171,35 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         Events.call(new LGTurnChangeEvent(this));
     }
 
-    private <T> T resolve(Provider<T> provider) {
-        try (OrchestratorScope.Block ignored = scope.use(this)) {
-            return provider.get();
+    void dispatchStateTransition(StateTransition transition) {
+        if (transition instanceof StartGameTransition) {
+            start();
+        } else if (transition instanceof FinishGameTransition) {
+            finish(((FinishGameTransition) transition).getEnding());
+        } else if (transition instanceof DeleteGameTransition) {
+            delete();
+        } else {
+            throw new UnsupportedOperationException(
+                    "Unknown state transition " + transition);
         }
     }
 
     private void deleteIfEmpty() {
-        if (isEmpty() && state.isEnabled()) {
-            delete();
+        if (endingWhenEmpty && isEmpty() && state.isEnabled()) {
+            stateTransitionHandler.requestExecutionOverride(new DeleteGameTransition());
+        }
+    }
+
+    @Override
+    public boolean isEndingWhenEmpty() {
+        return endingWhenEmpty;
+    }
+
+    @Override
+    public void setEndingWhenEmpty(boolean endingWhenEmpty) {
+        this.endingWhenEmpty = endingWhenEmpty;
+        if (endingWhenEmpty) {
+            deleteIfEmpty();
         }
     }
 
@@ -244,7 +250,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     @Override
     public boolean leave(UUID playerUUID) {
         LGPlayer player = players.get(playerUUID);
-        if (player == null || player.isAway()) return false;
+        if (player == null || player.isAway()) { return false; }
 
         ((OrchestratedLGPlayer) player).goAway();
         if (allowsJoin()) {
@@ -257,8 +263,9 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
             player.die(PlayerQuitKillCause.INSTANCE);
         }
         if (allowsJoin()) {
-            chat().sendToEveryone(player(player.getName()) + lobbyMessage(" a quitté la partie ! ") +
-                                  slots(getSlotsDisplay()));
+            chat().sendToEveryone(
+                    player(player.getName()) + lobbyMessage(" a quitté la partie ! ") +
+                    slots(getSlotsDisplay()));
         }
 
         Events.call(new LGPlayerQuitEvent(this, playerUUID, player));
@@ -296,6 +303,10 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
     @Override
     public void setComposition(Composition composition) {
+        doSetComposition(composition, true);
+    }
+
+    private void doSetComposition(Composition composition, boolean raiseEvent) {
         Preconditions.checkArgument(allowsJoin(),
                 "Impossible to change the composition while the game is not in is lobby phase.");
 
@@ -308,7 +319,9 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         }
 
         this.composition = new ImmutableComposition(cards);
-        Events.call(new LGCompositionUpdateEvent(this));
+        if (raiseEvent) {
+            Events.call(new LGCompositionUpdateEvent(this));
+        }
     }
 
     private void removeBoxRemovedCards(GameBox.Change change) {
@@ -367,15 +380,15 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
     @Override
     public void setOwner(LGPlayer owner) {
-        if (this.owner == owner) return;
+        if (this.owner == owner) { return; }
         this.owner = owner;
 
         Events.call(new LGOwnerChangeEvent(this, owner));
     }
 
     @Override
-    public MetadataMap getMetadata() {
-        return metadataMap;
+    public Storage getStorage() {
+        return storage;
     }
 
     @Override
@@ -429,8 +442,8 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     }
 
     private void changeStateTo(LGGameState state,
-                               @Nullable Function<? super LGGameOrchestrator, ? extends LGEvent> eventFunction) {
-        if (this.getState() == state) return;
+            @Nullable Function<? super LGGameOrchestrator, ? extends LGEvent> eventFunction) {
+        if (this.getState() == state) { return; }
 
         LGGameState oldState = this.getState();
         this.state = state;
@@ -442,104 +455,63 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         }
     }
 
-    private void checkDelayedDependencies() {
-        Preconditions.checkState(delayedDependencies != null,
-                "This game is not initialized yet.");
+    @Override
+    public StateTransitionHandler stateTransitions() {
+        return stateTransitionHandler;
     }
 
     @Override
-    public LGChatOrchestrator chat() {
-        checkDelayedDependencies();
-
-        return delayedDependencies.chatOrchestrator;
+    public ChatOrchestrator chat() {
+        return chat;
     }
 
     @Override
-    public LGPhasesOrchestrator phases() {
-        checkDelayedDependencies();
-
-        return delayedDependencies.phasesOrchestrator;
+    public PhasesOrchestrator phases() {
+        return phases;
     }
 
     @Override
-    public LGKillsOrchestrator kills() {
-        checkDelayedDependencies();
-
-        return delayedDependencies.killsOrchestrator;
-    }
-
-    @Override
-    public LGActionBarManager actionBar() {
-        checkDelayedDependencies();
-
-        return delayedDependencies.actionBarManager;
-    }
-
-    @Override
-    public LGBossBarManager bossBar() {
-        checkDelayedDependencies();
-
-        return delayedDependencies.bossBarManager;
+    public KillsOrchestrator kills() {
+        return kills;
     }
 
     @Override
     public InteractableRegistry interactables() {
-        checkDelayedDependencies();
+        return interactables;
+    }
 
-        return delayedDependencies.interactableRegistry;
+    @Override
+    public LGActionBarManager actionBar() {
+        return componentManager.get(LGActionBarManager.class)
+                .orElseThrow(NoSuchElementException::new);
+    }
+
+    @Override
+    public LGBossBarManager bossBar() {
+        return componentManager.get(LGBossBarManager.class)
+                .orElseThrow(NoSuchElementException::new);
+    }
+
+    @Override
+    public OrchestratorComponentManager components() {
+        return componentManager;
     }
 
     @Override
     public LGScoreboardManager scoreboard() {
-        checkDelayedDependencies();
-
-        return delayedDependencies.scoreboardManager;
+        return componentManager.get(LGScoreboardManager.class)
+                .orElseThrow(NoSuchElementException::new);
     }
 
     @Override
     public LGInventoryManager inventory() {
-        checkDelayedDependencies();
-
-        return delayedDependencies.inventoryManager;
-    }
-
-    private static final class DelayedDependencies implements Terminable {
-        @Inject
-        LGPhasesOrchestrator phasesOrchestrator;
-        @Inject
-        LGKillsOrchestrator killsOrchestrator;
-        @Inject
-        LGChatOrchestrator chatOrchestrator;
-        @Inject
-        InteractableRegistry interactableRegistry;
-        @Inject
-        LGActionBarManager actionBarManager;
-        @Inject
-        LGBossBarManager bossBarManager;
-        @Inject
-        LGInventoryManager inventoryManager;
-        @Inject
-        LGScoreboardManager scoreboardManager;
-
-        @Inject
-        DelayedDependencies() {}
-
-        @Override
-        public void close() throws Exception {
-            phasesOrchestrator.close();
-            killsOrchestrator.close();
-            chatOrchestrator.close();
-            interactableRegistry.close();
-            actionBarManager.close();
-            bossBarManager.close();
-            inventoryManager.close();
-            scoreboardManager.close();
-        }
+        return componentManager.get(LGInventoryManager.class)
+                .orElseThrow(NoSuchElementException::new);
     }
 
     private class OrchestratorLogger extends Logger {
         public OrchestratorLogger() {
-            super(MinecraftLGGameOrchestrator.this.getClass().getCanonicalName(), null);
+            super(getLoupsGarous().getLogger().getName(), null);
             setParent(getLoupsGarous().getLogger());
             setLevel(Level.ALL);
         }
@@ -551,8 +523,7 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
         }
 
         private String getPrefix() {
-            return "[LoupsGarous] " +
-                   (id == null ? "(Pre-initialization)" : "(Game " + id + ")") +
+            return (id == null ? "(Pre-initialization)" : "(Game " + id + ")") +
                    " ";
         }
     }

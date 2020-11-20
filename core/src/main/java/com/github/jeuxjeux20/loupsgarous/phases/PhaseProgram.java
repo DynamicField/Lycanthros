@@ -3,8 +3,8 @@ package com.github.jeuxjeux20.loupsgarous.phases;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 
 public abstract class PhaseProgram {
-    private boolean isRunning;
     protected final LGGameOrchestrator orchestrator;
+    private boolean isRunning;
 
     protected PhaseProgram(LGGameOrchestrator orchestrator) {
         this.orchestrator = orchestrator;
@@ -15,7 +15,15 @@ public abstract class PhaseProgram {
     }
 
     void setRunning(boolean running) {
-        isRunning = running;
+        if (isRunning != running) {
+            isRunning = running;
+
+            if (isRunning) {
+                startProgram();
+            } else {
+                stopProgram();
+            }
+        }
     }
 
     public final void start() {
@@ -27,6 +35,7 @@ public abstract class PhaseProgram {
     }
 
     protected abstract void startProgram();
+
     protected abstract void stopProgram();
 
     public LGGameOrchestrator getOrchestrator() {
@@ -34,6 +43,6 @@ public abstract class PhaseProgram {
     }
 
     protected PhaseRunner getPhaseRunner() {
-        return orchestrator.phases().getPhaseRunner();
+        return ((ActualPhasesOrchestrator) orchestrator.phases()).getPhaseRunner();
     }
 }

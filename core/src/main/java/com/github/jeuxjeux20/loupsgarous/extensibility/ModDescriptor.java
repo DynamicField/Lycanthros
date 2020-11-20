@@ -1,17 +1,35 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
-import com.github.jeuxjeux20.loupsgarous.descriptor.Descriptor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public final class ModDescriptor extends Descriptor<Mod> {
+import java.util.logging.Level;
+
+public final class ModDescriptor {
     private String name = "";
     private boolean hidden = false;
     private boolean enabledByDefault = false;
     private ItemStack item = new ItemStack(Material.BARRIER);
 
-    public ModDescriptor(Class<? extends Mod> describedClass) {
-        super(describedClass);
+    public static ModDescriptor fromClass(Class<? extends Mod> describedClass) {
+        ModDescriptor descriptor = new ModDescriptor();
+
+        ModInfo annotation = describedClass.getAnnotation(ModInfo.class);
+        if (annotation != null) {
+            descriptor.setName(annotation.name());
+            descriptor.setHidden(annotation.hidden());
+            descriptor.setEnabledByDefault(annotation.enabledByDefault());
+
+            try {
+                ItemProvider itemProvider = annotation.item().getConstructor().newInstance();
+                descriptor.setItem(itemProvider.get());
+            } catch (Exception e) {
+                Bukkit.getLogger().log(Level.WARNING, "ItemProvider failed!", e);
+            }
+        }
+
+        return descriptor;
     }
 
     public String getName() {

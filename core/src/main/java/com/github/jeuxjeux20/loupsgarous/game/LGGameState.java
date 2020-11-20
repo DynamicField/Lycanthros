@@ -6,8 +6,6 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum LGGameState {
-    @Deprecated
-    UNINITIALIZED,
     LOBBY,
     STARTED,
     FINISHED,
@@ -33,7 +31,8 @@ public enum LGGameState {
             if (this == state) {
                 throw new IllegalStateException(
                         "The game state (" + this + ") MUST NOT be in [" +
-                        Arrays.stream(states).map(Object::toString).collect(Collectors.joining(", ")) +
+                        Arrays.stream(states).map(Object::toString)
+                                .collect(Collectors.joining(", ")) +
                         "].");
             }
         }
@@ -51,12 +50,20 @@ public enum LGGameState {
 
     public void mustBe(LGGameState... states) {
         for (LGGameState state : states) {
-            if (this == state) return;
+            if (this == state) {
+                return;
+            }
         }
 
         throw new IllegalStateException(
                 "The game state (" + this + ") MUST be in [" +
                 Arrays.stream(states).map(Object::toString).collect(Collectors.joining(", ")) +
                 "].");
+    }
+
+    public void mustBeActive() {
+        if (isDisabled()) {
+            throw new IllegalStateException("The game must not be DELETING or DELETED.");
+        }
     }
 }

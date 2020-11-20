@@ -7,4 +7,9 @@ public abstract class LGEnding {
     public abstract String getMessage();
 
     public abstract PlayerGameOutcome getOutcomeFor(LGPlayer player);
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
 }

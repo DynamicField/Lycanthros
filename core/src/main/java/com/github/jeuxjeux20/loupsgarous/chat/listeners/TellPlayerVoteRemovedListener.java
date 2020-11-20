@@ -6,7 +6,6 @@ import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickRemovedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.PickData;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.Vote;
-import com.google.common.reflect.TypeToken;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,24 +20,23 @@ public class TellPlayerVoteRemovedListener implements Listener {
             return;
         }
 
-        event.getPickData().cast(new TypeToken<Vote<?>>() {})
-                .ifPresent(p -> onVoteRemoved(event, p));
-    }
+        PickData<?> pickData = event.getPickData();
 
-    private void onVoteRemoved(LGPickRemovedEvent event, PickData<?, ? extends Vote<?>> pickData) {
-        ChatChannel channel = pickData.getSource().getInfoMessagesChannel();
+        if (pickData.getSource() instanceof Vote<?>) {
+            ChatChannel channel = pickData.getSource().getInfoMessagesChannel();
 
-        LGPlayer picker = pickData.getPicker();
-        Object target = pickData.getTarget();
+            LGPlayer picker = pickData.getPicker();
+            Object target = pickData.getTarget();
 
-        String pickerName = picker.getName();
-        String targetName = UserFriendlyNamed.stringify(target);
+            String pickerName = picker.getName();
+            String targetName = UserFriendlyNamed.get(target);
 
-        String message = vote(player(pickerName)) +
-                         vote(" retire son vote ") +
-                         ChatColor.ITALIC + "(" + player(ChatColor.ITALIC + targetName) +
-                         vote(ChatColor.ITALIC + ")");
+            String message = vote(player(pickerName)) +
+                             vote(" retire son vote ") +
+                             ChatColor.ITALIC + "(" + player(ChatColor.ITALIC + targetName) +
+                             vote(ChatColor.ITALIC + ")");
 
-        event.getOrchestrator().chat().sendMessage(channel, message);
+            event.getOrchestrator().chat().sendMessage(channel, message);
+        }
     }
 }

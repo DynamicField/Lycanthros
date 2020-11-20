@@ -1,7 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous;
 
 import com.github.jeuxjeux20.loupsgarous.config.RootConfiguration;
-import com.github.jeuxjeux20.loupsgarous.extensibility.ModDescriptorRegistry;
 import com.github.jeuxjeux20.loupsgarous.extensibility.ModRegistry;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import org.bukkit.Bukkit;
@@ -14,8 +13,6 @@ public interface LoupsGarousRoot extends Plugin {
     LGGameManager getGameManager();
 
     ModRegistry getModRegistry();
-
-    ModDescriptorRegistry getModDescriptorRegistry();
 
     RootConfiguration.File getRootConfig();
 

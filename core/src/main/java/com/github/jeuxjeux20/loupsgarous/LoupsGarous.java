@@ -5,7 +5,6 @@ import com.github.jeuxjeux20.guicybukkit.command.CommandConfigurator;
 import com.github.jeuxjeux20.guicybukkit.command.CommandNotFoundException;
 import com.github.jeuxjeux20.loupsgarous.commands.HelperCommandRegisterer;
 import com.github.jeuxjeux20.loupsgarous.config.RootConfiguration;
-import com.github.jeuxjeux20.loupsgarous.extensibility.ModDescriptorRegistry;
 import com.github.jeuxjeux20.loupsgarous.extensibility.ModRegistry;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameManager;
 import com.github.jeuxjeux20.loupsgarous.lobby.MultiverseLobbiesModule;
@@ -68,11 +67,6 @@ public final class LoupsGarous extends ExtendedJavaPlugin implements LoupsGarous
     }
 
     @Override
-    public ModDescriptorRegistry getModDescriptorRegistry() {
-        return pluginDependencies.modDescriptorRegistry;
-    }
-
-    @Override
     public RootConfiguration.File getRootConfig() {
         return pluginDependencies.rootConfig;
     }
@@ -83,9 +77,6 @@ public final class LoupsGarous extends ExtendedJavaPlugin implements LoupsGarous
 
         @Inject
         ModRegistry modRegistry;
-
-        @Inject
-        ModDescriptorRegistry modDescriptorRegistry;
 
         @Inject
         RootConfiguration.File rootConfig;

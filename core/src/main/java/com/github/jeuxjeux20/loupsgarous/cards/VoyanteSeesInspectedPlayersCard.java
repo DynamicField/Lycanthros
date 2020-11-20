@@ -10,7 +10,7 @@ import java.util.Set;
 public class VoyanteSeesInspectedPlayersCard extends CardRevelationModifier {
     @Override
     protected void execute(RevelationRequest<LGCard> request, RevelationResult result) {
-        Set<LGPlayer> playersSaw = VoyantePower.PLAYERS_SAW.get(request.getViewer());
+        Set<LGPlayer> playersSaw = request.getViewer().getStored(VoyantePower.PLAYERS_SAW_PROPERTY);
 
         result.setRevealed(playersSaw.contains(request.getHolder()));
     }

@@ -1,13 +1,14 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
-import com.github.jeuxjeux20.loupsgarous.*;
+import com.github.jeuxjeux20.loupsgarous.Check;
+import com.github.jeuxjeux20.loupsgarous.Countdown;
+import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.chat.ComponentStyles;
 import com.github.jeuxjeux20.loupsgarous.chat.ComponentTemplates;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.interaction.AbstractPlayerPick;
-import com.github.jeuxjeux20.loupsgarous.interaction.Interactable;
+import com.github.jeuxjeux20.loupsgarous.interaction.PlayerPick;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.interaction.PickableConditions;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
@@ -34,15 +35,15 @@ import static me.lucko.helper.text.format.TextDecoration.BOLD;
         name = "Sorcière",
         title = "La sorcière va utiliser ses potions..."
 )
-public final class SorcierePotionPhase extends CountdownLGPhase {
+public final class SorcierePotionPhase extends CountdownPhase {
     private final SorciereHeal heal;
     private final SorciereKill kill;
 
     public SorcierePotionPhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
-        this.heal = Interactable.createBound(SorciereHeal::new, LGInteractableKeys.HEAL, this);
-        this.kill = Interactable.createBound(SorciereKill::new, LGInteractableKeys.KILL, this);
+        this.heal = new SorciereHeal(orchestrator);
+        this.kill = new SorciereKill(orchestrator);
     }
 
     @Override
@@ -58,6 +59,9 @@ public final class SorcierePotionPhase extends CountdownLGPhase {
 
     @Override
     protected void start() {
+        heal.register(LGInteractableKeys.HEAL).bindWith(this);
+        kill.register(LGInteractableKeys.KILL).bindWith(this);
+
         orchestrator.getPlayers().stream()
                 .filter(Check.predicate(SorcierePick::canSorciereAct))
                 .forEach(this::sendNotification);
@@ -84,7 +88,7 @@ public final class SorcierePotionPhase extends CountdownLGPhase {
                         .color(TextColor.LIGHT_PURPLE)
                         .decoration(BOLD, true));
 
-        if (power.hasHealPotion()) {
+        if (power.isHealPotionAvailable()) {
             Set<LGKill> pendingKills = orchestrator.kills().pending().getAll();
 
             builder.append(TextComponent.of("\n" + HEAL_SYMBOL + " ").color(GREEN));
@@ -122,7 +126,7 @@ public final class SorcierePotionPhase extends CountdownLGPhase {
             }
         }
 
-        if (power.hasKillPotion()) {
+        if (power.isKillPotionAvailable()) {
             TextComponent poison = TextComponent.of("\n" + SKULL_SYMBOL + " Vous avez votre potion de poison !")
                     .color(RED);
 
@@ -135,7 +139,7 @@ public final class SorcierePotionPhase extends CountdownLGPhase {
             builder.append(poison).append(tipBuilder.build());
         }
 
-        if (!power.hasKillPotion() && !power.hasHealPotion()) {
+        if (!power.isKillPotionAvailable() && !power.isHealPotionAvailable()) {
             builder.append(TextComponent.of("\nVous n'avez plus de potions.").color(YELLOW));
         }
 
@@ -149,7 +153,7 @@ public final class SorcierePotionPhase extends CountdownLGPhase {
 
     // PickData stuff
 
-    private static abstract class SorcierePick extends AbstractPlayerPick {
+    private static abstract class SorcierePick extends PlayerPick {
         protected SorcierePick(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }
@@ -183,7 +187,7 @@ public final class SorcierePotionPhase extends CountdownLGPhase {
         protected PickConditions<LGPlayer> powerConditions() {
             return conditionsBuilder()
                     .ensurePicker(this::hasHealPotion, "Vous avez déjà utilisé votre potion de soin !")
-                    .ensureTarget(LGPlayer::willDie, "Ce joueur ne va pas mourir ce tour ci.")
+                    .ensureTarget(LGPlayer::isGoingToDie, "Ce joueur ne va pas mourir ce tour ci.")
                     .build();
         }
 
@@ -201,7 +205,7 @@ public final class SorcierePotionPhase extends CountdownLGPhase {
         }
 
         private boolean hasHealPotion(LGPlayer player) {
-            return getSorcierePower(player).hasHealPotion();
+            return getSorcierePower(player).isHealPotionAvailable();
         }
     }
 
@@ -233,11 +237,11 @@ public final class SorcierePotionPhase extends CountdownLGPhase {
         }
 
         private boolean hasKillPotion(LGPlayer player) {
-            return getSorcierePower(player).hasKillPotion();
+            return getSorcierePower(player).isKillPotionAvailable();
         }
 
         private boolean isSorciereAwareAboutPlayerDeath(LGPlayer picker, LGPlayer target) {
-            return getSorcierePower(picker).hasHealPotion() && target.willDie();
+            return getSorcierePower(picker).isHealPotionAvailable() && target.isGoingToDie();
         }
     }
 }

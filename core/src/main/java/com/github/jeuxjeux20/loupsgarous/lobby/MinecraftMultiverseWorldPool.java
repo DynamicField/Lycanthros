@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.lobby;
 
-import com.github.jeuxjeux20.loupsgarous.Plugin;
+import com.github.jeuxjeux20.loupsgarous.LoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.config.RootConfiguration;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -30,9 +30,9 @@ class MinecraftMultiverseWorldPool implements MultiverseWorldPool {
     @Inject
     MinecraftMultiverseWorldPool(MultiverseCore multiverse,
                                  RootConfiguration.File configuration,
-                                 @Plugin Logger logger) {
+                                 LoupsGarous loupsGarous) {
         this.multiverse = multiverse;
-        this.logger = logger;
+        this.logger = loupsGarous.getLogger();
         this.configuration = configuration;
 
         try {

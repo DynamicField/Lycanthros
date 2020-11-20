@@ -6,7 +6,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.SKULL_SYMBOL;
 import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.killMessage;
 
-public final class RevealAllKillsPhase extends LogicLGPhase {
+public final class RevealAllKillsPhase extends LogicPhase {
     public RevealAllKillsPhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }

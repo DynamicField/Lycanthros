@@ -1,14 +1,14 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorDependent;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorAware;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public abstract class Rule implements OrchestratorDependent {
+public abstract class Rule implements OrchestratorAware {
     protected final LGGameOrchestrator orchestrator;
 
     private GameBox gameBox;

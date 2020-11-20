@@ -16,7 +16,7 @@ public interface PickConditions<T> {
 
     Check checkPick(LGPlayer picker, T target);
 
-    default Check checkPick(PickData<T, ?> pickData) {
+    default Check checkPick(PickData<T> pickData) {
         return checkPick(pickData.getPicker(), pickData.getTarget());
     }
 

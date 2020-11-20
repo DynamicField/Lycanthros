@@ -1,11 +1,11 @@
 package com.github.jeuxjeux20.loupsgarous.listeners;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickRemovedEvent;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.Vote;
 import com.github.jeuxjeux20.loupsgarous.phases.CountdownTimedPhase;
-import com.github.jeuxjeux20.loupsgarous.phases.LGPhase;
+import com.github.jeuxjeux20.loupsgarous.phases.Phase;
 import com.github.jeuxjeux20.loupsgarous.phases.MajorityVoteShortensCountdown;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,15 +21,13 @@ public class ShortenVoteCountdownListener implements Listener {
         updatePhaseCountdown(event.getOrchestrator().phases().current());
     }
 
-    private void updatePhaseCountdown(LGPhase phase) {
+    private void updatePhaseCountdown(Phase phase) {
         LGGameOrchestrator orchestrator = phase.getOrchestrator();
 
         MajorityVoteShortensCountdown annotation = phase.getClass().getAnnotation(MajorityVoteShortensCountdown.class);
         if (annotation == null) return;
 
-        CountdownTimedPhase countdownPhase = phase.safeCast(CountdownTimedPhase.class).orElse(null);
-
-        if (countdownPhase == null) {
+        if (!(phase instanceof CountdownTimedPhase)) {
             orchestrator.logger().warning("MajorityVoteShortensCountdown: " +
                                           "Phase " + phase.getClass().getName() + " is annotated with " +
                                           "MajorityVoteShortensCountdown but doesn't implement " +
@@ -37,24 +35,27 @@ public class ShortenVoteCountdownListener implements Listener {
             return;
         }
 
-        Vote<?> vote = orchestrator.interactables().findKey(annotation.value())
-                .flatMap(key -> key.cast(Vote.class))
-                .flatMap(key -> orchestrator.interactables().single(key).getOptional())
-                .orElse(null);
+        Vote<?> vote = (Vote<?>) orchestrator.interactables().single(annotation.value())
+                .type(Vote.class)
+                .getOrNull();
 
         if (vote == null) {
-            orchestrator.logger().warning("MajorityVoteShortensCountdown: No vote with a key named "
+            orchestrator.logger().warning(
+                    "MajorityVoteShortensCountdown: No vote with a key named "
                                           + annotation.value() + " found.");
             return;
         }
 
         // Nothing will change anyway, we're under the time left.
-        if (countdownPhase.getCountdown().getStartSnapshot().getTimerNow() <= annotation.timeLeft()) return;
+        CountdownTimedPhase countdownTimedPhase = (CountdownTimedPhase) phase;
+        if (countdownTimedPhase.getCountdown()
+                    .getStartSnapshot()
+                    .getTimerNow() <= annotation.timeLeft()) return;
 
         if (shouldShorten(annotation, vote)) {
-            shortenTime(annotation, countdownPhase);
+            shortenTime(annotation, countdownTimedPhase);
         } else {
-            cancelShortenedTime(countdownPhase);
+            cancelShortenedTime(countdownTimedPhase);
         }
     }
 

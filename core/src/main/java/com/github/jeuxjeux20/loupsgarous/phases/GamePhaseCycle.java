@@ -14,13 +14,13 @@ public class GamePhaseCycle extends PhaseCycle {
         super(orchestrator);
 
         updatePhases();
-        updateSubscription = orchestrator.getGameBox().onChange()
+        updateSubscription = orchestrator.getGameBox().updates()
                 .filter(c -> !c.getContentsDiff(PHASES).isEmpty())
                 .subscribe(c -> updatePhases());
     }
 
     private void updatePhases() {
-        ImmutableList<ContentFactory<? extends RunnableLGPhase>> phases =
+        ImmutableList<ContentFactory<? extends RunnablePhase>> phases =
                 PHASES.getContents(orchestrator);
 
         setPhases(phases);

@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.event;
 
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorDependent;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorAware;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -49,9 +49,9 @@ public class GameEventHandler {
     }
 
     private void handle(Listener listener, Event event, Method method) {
-        if (event instanceof LGEvent && listener instanceof OrchestratorDependent) {
+        if (event instanceof LGEvent && listener instanceof OrchestratorAware) {
             if (((LGEvent) event).getOrchestrator() !=
-                ((OrchestratorDependent) listener).getOrchestrator()) {
+                ((OrchestratorAware) listener).getOrchestrator()) {
                 return;
             }
         }

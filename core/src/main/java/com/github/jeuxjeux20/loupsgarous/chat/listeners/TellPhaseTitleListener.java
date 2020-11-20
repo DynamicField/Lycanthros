@@ -1,9 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.chat.listeners;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseStartingEvent;
-import com.github.jeuxjeux20.loupsgarous.phases.LGPhase;
-import com.github.jeuxjeux20.loupsgarous.phases.descriptor.LGPhaseDescriptor;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -15,10 +13,7 @@ public class TellPhaseTitleListener implements Listener {
     public void onLGPhaseStarted(LGPhaseStartingEvent event) {
         LGGameOrchestrator orchestrator = event.getOrchestrator();
 
-        LGPhase phase = event.getPhase();
-        LGPhaseDescriptor descriptor = orchestrator.phases().descriptors().get(phase.getClass());
-
-        String title = descriptor.getTitle();
+        String title = event.getPhase().getDescriptor().getTitle();
         if (title != null) {
             orchestrator.chat().sendToEveryone(importantInfo(title));
 

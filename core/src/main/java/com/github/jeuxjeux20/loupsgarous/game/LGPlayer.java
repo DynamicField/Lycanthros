@@ -1,13 +1,12 @@
 package com.github.jeuxjeux20.loupsgarous.game;
 
-import com.github.jeuxjeux20.loupsgarous.MetadataContainer;
 import com.github.jeuxjeux20.loupsgarous.UserFriendlyNamed;
 import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.LGKillCause;
 import com.github.jeuxjeux20.loupsgarous.powers.PowerRegistry;
+import com.github.jeuxjeux20.loupsgarous.storage.StorageProvider;
 import com.github.jeuxjeux20.loupsgarous.tags.TagRegistry;
 import com.github.jeuxjeux20.loupsgarous.teams.TeamRegistry;
-import me.lucko.helper.metadata.MetadataMap;
 import me.lucko.helper.text.Text;
 import me.lucko.helper.text.TextComponent;
 import org.bukkit.Bukkit;
@@ -18,7 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public interface LGPlayer extends UserFriendlyNamed, MetadataContainer, OrchestratorDependent {
+public interface LGPlayer extends UserFriendlyNamed, OrchestratorAware, StorageProvider {
     boolean isDead();
 
     default boolean isAlive() {
@@ -33,10 +32,10 @@ public interface LGPlayer extends UserFriendlyNamed, MetadataContainer, Orchestr
 
     void setCard(LGCard card);
 
-    boolean willDie();
+    boolean isGoingToDie();
 
-    default boolean willNotDie() {
-        return !willDie();
+    default boolean isNotGoingToDie() {
+        return !isGoingToDie();
     }
 
     void die(LGKillCause cause);
@@ -52,8 +51,6 @@ public interface LGPlayer extends UserFriendlyNamed, MetadataContainer, Orchestr
     default boolean isCardVisibleFor(LGPlayer viewer) {
         return getCard().isRevealed(getOrchestrator(), this, viewer);
     }
-
-    MetadataMap metadata();
 
     boolean isAway();
 

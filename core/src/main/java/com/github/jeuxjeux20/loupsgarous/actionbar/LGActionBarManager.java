@@ -3,15 +3,15 @@ package com.github.jeuxjeux20.loupsgarous.actionbar;
 import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator.Problem;
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
-import com.github.jeuxjeux20.loupsgarous.event.CountdownTickEvent;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionUpdateEvent;
 import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseStartedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.*;
+import com.github.jeuxjeux20.loupsgarous.phases.CountdownTimedPhase;
 import com.github.jeuxjeux20.loupsgarous.phases.LobbyPhase;
-import com.github.jeuxjeux20.loupsgarous.phases.PhaseEventUtils;
+import com.github.jeuxjeux20.loupsgarous.phases.Phase;
 import com.github.jeuxjeux20.loupsgarous.phases.TimedPhase;
-import com.google.inject.Inject;
+import io.reactivex.rxjava3.disposables.Disposable;
 import me.lucko.helper.Events;
 import me.lucko.helper.Schedulers;
 import me.lucko.helper.terminable.TerminableConsumer;
@@ -28,10 +28,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LGActionBarManager extends OrchestratorComponent {
-    @Inject
-    LGActionBarManager(LGGameOrchestrator orchestrator) {
+    public LGActionBarManager(LGGameOrchestrator orchestrator) {
         super(orchestrator);
+    }
 
+    @Override
+    protected void onStart() {
         bindModule(new UpdateModule());
     }
 
@@ -96,7 +98,8 @@ public class LGActionBarManager extends OrchestratorComponent {
                     components.add(new TextComponent("Vous avez perdu !"));
                     break;
                 case SHRUG:
-                    components.add(new TextComponent("Vous avez... " + PlayerGameOutcome.SHRUG_EMOJI));
+                    components.add(new TextComponent(
+                            "Vous avez... " + PlayerGameOutcome.SHRUG_EMOJI));
                     break;
             }
         }
@@ -128,15 +131,16 @@ public class LGActionBarManager extends OrchestratorComponent {
 
             components.add(slotsComponent);
         } else if (orchestrator.getState() == LGGameState.STARTED) {
-            orchestrator.phases().current().safeCast(TimedPhase.class).ifPresent(timedPhase -> {
-                String formattedDuration = formatTimeLeft(timedPhase);
+            Phase phase = orchestrator.phases().current();
+            if (phase instanceof TimedPhase) {
+                String formattedDuration = formatTimeLeft(((TimedPhase) phase));
 
                 TextComponent timeComponent = new TextComponent(formattedDuration);
                 timeComponent.setBold(true);
                 timeComponent.setColor(ChatColor.GREEN);
 
                 components.add(timeComponent);
-            });
+            }
         }
 
         return components;
@@ -173,17 +177,19 @@ public class LGActionBarManager extends OrchestratorComponent {
     private final class UpdateModule implements TerminableModule {
         @Override
         public void setup(@Nonnull TerminableConsumer consumer) {
-            Events.subscribe(CountdownTickEvent.class)
-                    .filter(e -> PhaseEventUtils.isCurrentPhaseCountdownEvent(orchestrator, e))
-                    .handler(e -> update())
-                    .bindWith(consumer);
+            Disposable subscription = orchestrator.phases().currentUpdates()
+                    .compose(CountdownTimedPhase::notifyOnTick)
+                    .subscribe(x -> update());
+
+            consumer.bind(subscription::dispose);
 
             Events.merge(LGEvent.class, LGPhaseStartedEvent.class, LGCompositionUpdateEvent.class)
                     .filter(orchestrator::isMyEvent)
                     .handler(e -> update())
                     .bindWith(consumer);
 
-            Schedulers.sync().runRepeating((Runnable) LGActionBarManager.this::update, 0L, 5L);
+            Schedulers.sync().runRepeating((Runnable) LGActionBarManager.this::update, 0L, 5L)
+                    .bindWith(consumer);
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.config;
 
 import org.bukkit.plugin.Plugin;
-import org.spongepowered.configurate.BasicConfigurationNode;
+import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
@@ -11,22 +11,22 @@ import java.util.logging.Level;
 public abstract class BukkitConfigurationFile<T> implements ConfigurationFile<T> {
     private final Plugin plugin;
 
-    private BasicConfigurationNode rootNode = BasicConfigurationNode.root();
+    private CommentedConfigurationNode rootNode = CommentedConfigurationNode.root();
     private final YamlConfigurationLoader loader;
 
     public BukkitConfigurationFile(Plugin plugin) {
         this.plugin = plugin;
 
         YamlConfigurationLoader.Builder builder = YamlConfigurationLoader.builder()
-                .setPath(getPath(plugin.getDataFolder().toPath()))
-                .setNodeStyle(NodeStyle.FLOW);
+                .path(getPath(plugin.getDataFolder().toPath()))
+                .nodeStyle(NodeStyle.FLOW);
         configureLoader(builder);
         this.loader = builder.build();
 
         reload();
     }
 
-    protected final BasicConfigurationNode getRootNode() {
+    protected final CommentedConfigurationNode getRootNode() {
         return rootNode;
     }
 
@@ -43,7 +43,7 @@ public abstract class BukkitConfigurationFile<T> implements ConfigurationFile<T>
         try {
             unsafeReload();
 
-            if (rootNode.isEmpty()) {
+            if (rootNode.empty()) {
                 save();
             }
         } catch (Exception e) {

@@ -1,44 +1,32 @@
 package com.github.jeuxjeux20.loupsgarous;
 
-import com.github.jeuxjeux20.loupsgarous.event.CountdownTickEvent;
-import com.github.jeuxjeux20.loupsgarous.util.FutureExceptionUtils;
 import com.google.common.base.Preconditions;
-import me.lucko.helper.Events;
-import me.lucko.helper.Helper;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.subjects.CompletableSubject;
+import io.reactivex.rxjava3.subjects.PublishSubject;
 import me.lucko.helper.Schedulers;
 import me.lucko.helper.scheduler.Task;
-import me.lucko.helper.terminable.Terminable;
-import me.lucko.helper.terminable.TerminableConsumer;
-import me.lucko.helper.terminable.composite.CompositeTerminable;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-public class Countdown implements Terminable, TerminableConsumer {
-    private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
-
-    private final CompletableFuture<Void> future = new CompletableFuture<>();
+public class Countdown {
+    private final CompletableSubject taskSubject = CompletableSubject.create();
+    private final PublishSubject<Snapshot> tickSubject = PublishSubject.create();
     private @Nullable Task countdownTask;
 
     private int timer;
     private int biggestTimerValue;
-
     private Snapshot startSnapshot;
-
     private State state = State.READY;
     private boolean paused = false;
 
     public Countdown(int timerSeconds) {
         this.timer = timerSeconds;
         this.biggestTimerValue = timerSeconds;
-
-        // Just in case the server gets reloaded and for some obscure reason
-        // the countdown doesn't get cancelled.
-        terminableRegistry.bindWith(Helper.hostPlugin());
     }
 
     public static Countdown of(int seconds) {
@@ -55,7 +43,7 @@ public class Countdown implements Terminable, TerminableConsumer {
 
     // Start & Interrupt
 
-    public final CompletableFuture<Void> start() {
+    public final Completable start() {
         Preconditions.checkState(state == State.READY, "The countdown must be ready");
         state = State.RUNNING;
         startSnapshot = takeSnapshot();
@@ -65,16 +53,7 @@ public class Countdown implements Terminable, TerminableConsumer {
             startTask(false);
         }
 
-        future.whenComplete((r, e) -> {
-            if (FutureExceptionUtils.isCancellation(e)) {
-                finish(true);
-            } else if (state == State.RUNNING) {
-                // The future has somehow completed while it was running?
-                // That's like doing interrupt().
-                interrupt();
-            }
-        });
-        return future;
+        return taskSubject;
     }
 
     public final void tryInterrupt() {
@@ -87,7 +66,7 @@ public class Countdown implements Terminable, TerminableConsumer {
         Preconditions.checkState(state != State.FINISHED, "The countdown must not be finished.");
 
         timer = 0;
-        finish(false);
+        finish();
     }
 
     // Internal stuff
@@ -111,28 +90,24 @@ public class Countdown implements Terminable, TerminableConsumer {
 
     private void handleTick() {
         onTick();
-        Events.call(new CountdownTickEvent(this));
+        tickSubject.onNext(takeSnapshot());
 
         if (timer == 0 && state != State.FINISHED) {
-            finish(false);
+            finish();
         }
     }
 
-    private void finish(boolean cancelled) {
+    private void finish() {
         Preconditions.checkState(state != State.FINISHED, "The countdown must not be finished.");
         state = State.FINISHED;
 
         stopTask();
 
-        terminableRegistry.closeAndReportException();
-
-        if (!cancelled) {
-            try {
-                onFinish();
-                future.complete(null);
-            } catch (Throwable e) {
-                future.completeExceptionally(e);
-            }
+        try {
+            onFinish();
+            taskSubject.onComplete();
+        } catch (Throwable e) {
+            taskSubject.onError(e);
         }
     }
 
@@ -213,24 +188,8 @@ public class Countdown implements Terminable, TerminableConsumer {
         return startSnapshot;
     }
 
-    // Terminables
-
-    @Nonnull
-    @Override
-    public <T extends AutoCloseable> T bind(@Nonnull T terminable) {
-        return terminableRegistry.bind(terminable);
-    }
-
-    @Override
-    public void close() {
-        if (state != State.FINISHED) {
-            finish(true);
-        }
-    }
-
-    @Override
-    public boolean isClosed() {
-        return state == State.FINISHED;
+    public Observable<Snapshot> tickUpdates() {
+        return tickSubject;
     }
 
     public enum State {

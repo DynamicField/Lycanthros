@@ -6,7 +6,6 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.commands.InGameHandlerCondition;
 import com.github.jeuxjeux20.loupsgarous.interaction.Interactable;
-import com.github.jeuxjeux20.loupsgarous.interaction.InteractableKey;
 import com.google.inject.Inject;
 import me.lucko.helper.Commands;
 import me.lucko.helper.command.context.CommandContext;
@@ -38,12 +37,12 @@ public class LGCurrentInteractablesCommand implements HelperCommandRegisterer {
 
         StringBuilder builder = new StringBuilder();
 
-        for (Map.Entry<InteractableKey<?>, Interactable> entry : orchestrator.interactables().getAll().entries()) {
+        for (Map.Entry<String, Interactable> entry : orchestrator.interactables().getAll().entries()) {
             if (builder.length() != 0) {
                 builder.append("\n");
             }
 
-            String entryLine = ChatColor.AQUA + entry.getKey().getName() +
+            String entryLine = ChatColor.AQUA + entry.getKey() +
                                ChatColor.GREEN + " -> " +
                                ChatColor.GOLD + entry.getValue();
 

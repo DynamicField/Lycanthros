@@ -1,14 +1,15 @@
 package com.github.jeuxjeux20.loupsgarous.scoreboard;
 
-import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickRemovedEvent;
 import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseStartingEvent;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.Vote;
 import com.google.common.collect.ImmutableList;
+import com.google.common.reflect.TypeToken;
 import org.bukkit.ChatColor;
 
 import java.util.Optional;
@@ -23,6 +24,7 @@ public class CurrentVotesScoreboardComponent implements ScoreboardComponent {
         // TODO: Broader votables
         Optional<Vote<LGPlayer>> maybeVotable =
                 orchestrator.interactables().single(LGInteractableKeys.PLAYER_VOTE)
+                        .type(new TypeToken<Vote<LGPlayer>>() {})
                         .check(x -> x.conditions().checkPicker(player))
                         .getOptional();
 

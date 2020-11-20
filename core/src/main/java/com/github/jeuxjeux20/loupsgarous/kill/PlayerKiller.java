@@ -1,9 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.kill;
 
-import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.event.LGKillEvent;
+import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratedLGPlayer;
 import com.google.common.base.Preconditions;
-import com.google.inject.Inject;
 import me.lucko.helper.Events;
 
 import java.util.Collection;
@@ -14,7 +14,6 @@ import java.util.Collection;
 final class PlayerKiller {
     private final LGGameOrchestrator orchestrator;
 
-    @Inject
     PlayerKiller(LGGameOrchestrator orchestrator) {
         this.orchestrator = orchestrator;
     }

@@ -4,8 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.Check;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.interaction.AbstractPlayerPick;
-import com.github.jeuxjeux20.loupsgarous.interaction.Interactable;
+import com.github.jeuxjeux20.loupsgarous.interaction.PlayerPick;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
 import com.github.jeuxjeux20.loupsgarous.powers.VoyantePower;
@@ -25,7 +24,7 @@ public class VoyanteDuskAction extends DuskAction {
     public VoyanteDuskAction(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
-        this.look = Interactable.createBound(VoyanteLookable::new, LGInteractableKeys.LOOK, this);
+        this.look = new VoyanteLookable(orchestrator);
     }
 
     @Override
@@ -36,6 +35,8 @@ public class VoyanteDuskAction extends DuskAction {
 
     @Override
     protected void onDuskStart() {
+        look.register(LGInteractableKeys.LOOK).bindWith(this);
+
         orchestrator.getPlayers().stream()
                 .filter(Check.predicate(look.conditions()::checkPicker))
                 .map(LGPlayer::minecraft)
@@ -59,7 +60,7 @@ public class VoyanteDuskAction extends DuskAction {
         return look;
     }
 
-    private static final class VoyanteLookable extends AbstractPlayerPick {
+    private static final class VoyanteLookable extends PlayerPick {
         private final List<LGPlayer> playersWhoLooked = new ArrayList<>();
 
         public VoyanteLookable(LGGameOrchestrator orchestrator) {
@@ -80,7 +81,7 @@ public class VoyanteDuskAction extends DuskAction {
         protected void safePick(LGPlayer picker, LGPlayer target) {
             playersWhoLooked.add(picker);
 
-            VoyantePower.PLAYERS_SAW.get(picker).add(target);
+            picker.getStored(VoyantePower.PLAYERS_SAW_PROPERTY).add(target);
 
             picker.minecraft(player -> {
                 player.sendMessage(

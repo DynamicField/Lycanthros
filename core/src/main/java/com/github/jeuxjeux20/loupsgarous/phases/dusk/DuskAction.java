@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.phases.dusk;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorDependent;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorAware;
 import com.google.inject.Inject;
 import me.lucko.helper.terminable.Terminable;
 import me.lucko.helper.terminable.TerminableConsumer;
@@ -11,7 +11,7 @@ import me.lucko.helper.terminable.composite.CompositeTerminable;
 import javax.annotation.Nonnull;
 
 public abstract class DuskAction
-        implements Terminable, TerminableConsumer, OrchestratorDependent {
+        implements Terminable, TerminableConsumer, OrchestratorAware {
     private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
 
     protected final LGGameOrchestrator orchestrator;
@@ -31,6 +31,9 @@ public abstract class DuskAction
     protected void onDuskEnd() {
     }
 
+    protected void cleanup() {
+    }
+
     @Nonnull
     @Override
     public <T extends AutoCloseable> T bind(@Nonnull T terminable) {
@@ -44,6 +47,7 @@ public abstract class DuskAction
 
     @Override
     public final void close() throws CompositeClosingException {
+        cleanup();
         terminableRegistry.close();
     }
 }

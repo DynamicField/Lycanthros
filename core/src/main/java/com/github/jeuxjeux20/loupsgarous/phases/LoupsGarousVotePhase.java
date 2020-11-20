@@ -7,10 +7,9 @@ import com.github.jeuxjeux20.loupsgarous.chat.LGChatChannels;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.interaction.Interactable;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
-import com.github.jeuxjeux20.loupsgarous.interaction.vote.AbstractPlayerVote;
+import com.github.jeuxjeux20.loupsgarous.interaction.vote.PlayerVote;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.kill.causes.NightKillCause;
 import com.github.jeuxjeux20.loupsgarous.teams.LGTeams;
@@ -21,19 +20,19 @@ import java.util.Optional;
 
 import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.player;
 
-@MajorityVoteShortensCountdown(value = LGInteractableKeys.Names.PLAYER_VOTE, timeLeft = 10)
+@MajorityVoteShortensCountdown(value = LGInteractableKeys.PLAYER_VOTE, timeLeft = 10)
 @PhaseInfo(
         name = "Loups-garous",
         title = "Les loups vont dévorer un innocent...",
         color = PhaseColor.RED
 )
-public final class LoupsGarousVotePhase extends CountdownLGPhase {
+public final class LoupsGarousVotePhase extends CountdownPhase {
     private final LoupGarouVote votable;
 
     public LoupsGarousVotePhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
-        this.votable = Interactable.createBound(LoupGarouVote::new, LGInteractableKeys.PLAYER_VOTE, this);
+        this.votable = new LoupGarouVote(orchestrator);
     }
 
     @Override
@@ -48,10 +47,15 @@ public final class LoupsGarousVotePhase extends CountdownLGPhase {
     }
 
     @Override
+    protected void start() {
+        votable.register(LGInteractableKeys.PLAYER_VOTE).bindWith(this);
+    }
+
+    @Override
     protected void finish() {
         if (votable.conclude()) {
             howl();
-        }
+        }  
     }
 
     private void howl() {
@@ -66,7 +70,7 @@ public final class LoupsGarousVotePhase extends CountdownLGPhase {
         return votable;
     }
 
-    public static final class LoupGarouVote extends AbstractPlayerVote {
+    public static final class LoupGarouVote extends PlayerVote {
         public LoupGarouVote(LGGameOrchestrator orchestrator) {
             super(orchestrator);
         }

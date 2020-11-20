@@ -7,13 +7,13 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcomeTransformer;
 import com.github.jeuxjeux20.loupsgarous.inventory.InventoryItem;
 import com.github.jeuxjeux20.loupsgarous.mechanic.MechanicModifier;
-import com.github.jeuxjeux20.loupsgarous.phases.RunnableLGPhase;
+import com.github.jeuxjeux20.loupsgarous.phases.RunnablePhase;
 import com.github.jeuxjeux20.loupsgarous.phases.dusk.DuskAction;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.ScoreboardComponent;
 import com.github.jeuxjeux20.loupsgarous.winconditions.WinCondition;
 
 public final class LGExtensionPoints {
-    public static final ExtensionPoint<ContentFactory<? extends RunnableLGPhase>> PHASES =
+    public static final ExtensionPoint<ContentFactory<? extends RunnablePhase>> PHASES =
             new ExtensionPoint<>("phases");
 
     public static final ExtensionPoint<ContentFactory<? extends DuskAction>> DUSK_ACTIONS =
@@ -39,9 +39,6 @@ public final class LGExtensionPoints {
 
     public static final ExtensionPoint<MechanicModifier> MECHANIC_MODIFIERS =
             new ExtensionPoint<>("mechanic_modifiers");
-
-    public static final ExtensionPoint<MechanicModifierSource> MECHANIC_MODIFIER_SOURCES =
-            new ExtensionPoint<>("mechanic_modifier_sources");
 
     public static ExtensionPoint<VoteOutcomeTransformer<LGPlayer>> PLAYER_VOTE_OUTCOME_TRANSFORMERS =
             voteOutcomeTransformers(LGPlayer.class);

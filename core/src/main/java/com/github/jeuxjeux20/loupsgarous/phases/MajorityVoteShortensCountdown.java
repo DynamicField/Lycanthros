@@ -9,7 +9,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * When annotated on a {@link LGPhase} implementing {@link CountdownTimedPhase} with the first votable
+ * When annotated on a {@link Phase} implementing {@link CountdownTimedPhase} with the first votable
  * of the specified key name ({@link #value()}),
  * changes the timer of the countdown to
  * {@link #timeLeft()} when the candidate having a relative majority

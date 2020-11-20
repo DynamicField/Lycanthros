@@ -8,6 +8,7 @@ import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionUpdateEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
+import com.github.jeuxjeux20.loupsgarous.game.StartGameTransition;
 import me.lucko.helper.Events;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -15,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 
-public final class LobbyPhase extends CountdownLGPhase {
+public final class LobbyPhase extends CountdownPhase {
     private static final int START_DELAY = 15;
 
     private @Nullable CompositionValidator.Problem.Type worstCompositionProblemType;
@@ -52,7 +53,16 @@ public final class LobbyPhase extends CountdownLGPhase {
 
     @Override
     protected void finish() {
-        orchestrator.start();
+        orchestrator.stateTransitions().requestExecution(new StartGameTransition());
+    }
+
+    @Override
+    public boolean stop() {
+        if (isStarting()) {
+            return super.stop();
+        } else {
+            return false;
+        }
     }
 
     private void tick() {

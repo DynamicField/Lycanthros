@@ -1,16 +1,20 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.util.FutureExceptionUtils;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.subjects.PublishSubject;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.Optional;
 import java.util.logging.Level;
 
 public class PhaseRunner {
-    private @Nullable RunToken current;
     private final LGGameOrchestrator orchestrator;
+    private @Nullable RunToken current;
+    private @Nullable Disposable currentSubscription;
+    private final PublishSubject<Optional<RunToken>> currentSubject = PublishSubject.create();
 
     PhaseRunner(LGGameOrchestrator orchestrator) {
         this.orchestrator = orchestrator;
@@ -20,11 +24,26 @@ public class PhaseRunner {
         return current;
     }
 
-    public Single<PhaseResult> run(RunnableLGPhase phase) {
+    private void setCurrent(@Nullable RunToken current) {
+        try {
+            terminateCurrent();
+        } catch (PhaseTransitioningException e) {
+            orchestrator.logger().log(Level.WARNING,
+                    "Discarding current phase while it is transitioning.", e);
+        }
+        this.current = current;
+        currentSubject.onNext(Optional.ofNullable(current));
+    }
+
+    public Observable<Optional<RunToken>> currentUpdates() {
+        return currentSubject;
+    }
+
+    public Single<PhaseResult> run(RunnablePhase phase) {
         return run(new RunToken(phase, null));
     }
 
-    public Single<PhaseResult> run(RunnableLGPhase phase, Object source) {
+    public Single<PhaseResult> run(RunnablePhase phase, Object source) {
         return run(new RunToken(phase, source));
     }
 
@@ -35,61 +54,65 @@ public class PhaseRunner {
             );
         }
 
-        RunnableLGPhase phase = token.getPhase();
+        RunnablePhase phase = token.getPhase();
+        setCurrent(token);
 
-        if (!phase.shouldRun()) {
-            phase.closeAndReportException();
-            return Single.just(new PhaseResult(token, PhaseTerminationMethod.NOT_RAN));
+        Single<PhaseResult> phaseTask = phase.run()
+                .toSingle(() -> new PhaseResult(token, phase.getTerminationMethod()))
+                .doOnSuccess(r -> orchestrator.logger()
+                        .fine("Phase " + phase + " terminated: " + r.getTerminationMethod()))
+                .doOnError(e -> orchestrator.logger()
+                        .log(Level.WARNING, "Phase " + phase + " failed to execute.", e))
+                .cache();
+
+        if (currentSubscription != null) {
+            currentSubscription.dispose();
         }
 
-        terminateCurrent();
-        this.current = token;
-        CompletableFuture<Void> phaseTask = phase.run();
-
-        return Single.create(subscriber -> phaseTask.whenComplete((r, e) -> {
-            if (this.current == token) {
-                this.current = null;
+        currentSubscription = phaseTask.subscribe((result, e) -> {
+            if (current == token) {
+                clearCurrent();
             }
+        });
 
-            PhaseResult result = null;
-
-            if (FutureExceptionUtils.isCancellation(e)) {
-                result = new PhaseResult(token, PhaseTerminationMethod.CANCELLED);
-            } else if (e == null) {
-                result = new PhaseResult(token, PhaseTerminationMethod.NORMAL);
-            }
-
-            if (result != null) {
-                subscriber.onSuccess(result);
-            } else {
-                orchestrator.logger().log(
-                        Level.WARNING, "Phase " + phase + " failed to execute.", e);
-                subscriber.onError(e);
-            }
-        }));
+        return phaseTask;
     }
 
     public LGGameOrchestrator getOrchestrator() {
         return orchestrator;
     }
 
-    public void terminateCurrent() {
+    public void terminateCurrent() throws PhaseTransitioningException {
         if (current != null) {
-            current.getPhase().closeAndReportException();
-            current = null;
+            RunnablePhase phase = current.getPhase();
+
+            if (phase.getState() == Phase.State.TERMINATED || phase.interrupt()) {
+                clearCurrent();
+            } else {
+                throw new PhaseTransitioningException(
+                        "Cannot terminate current phase " + phase + " while in a " +
+                        "transitioning state (" + phase.getState() + ")");
+            }
+        }
+    }
+
+    private void clearCurrent() {
+        current = null;
+        if (currentSubscription != null) {
+            currentSubscription.dispose();
         }
     }
 
     public static final class RunToken {
-        private final RunnableLGPhase phase;
+        private final RunnablePhase phase;
         private final Object source;
 
-        public RunToken(RunnableLGPhase phase, Object source) {
+        public RunToken(RunnablePhase phase, Object source) {
             this.phase = phase;
             this.source = source;
         }
 
-        public RunnableLGPhase getPhase() {
+        public RunnablePhase getPhase() {
             return phase;
         }
 

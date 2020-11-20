@@ -1,13 +1,13 @@
 package com.github.jeuxjeux20.loupsgarous.event.phase;
 
-import com.github.jeuxjeux20.loupsgarous.phases.LGPhase;
+import com.github.jeuxjeux20.loupsgarous.phases.Phase;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 public class LGPhaseEndingEvent extends LGPhaseEvent {
     private static final HandlerList handlerList = new HandlerList();
 
-    public LGPhaseEndingEvent(LGPhase phase) {
+    public LGPhaseEndingEvent(Phase phase) {
         super(phase);
     }
 

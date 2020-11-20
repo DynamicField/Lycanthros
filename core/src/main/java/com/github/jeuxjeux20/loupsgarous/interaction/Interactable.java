@@ -1,44 +1,60 @@
 package com.github.jeuxjeux20.loupsgarous.interaction;
 
+import com.github.jeuxjeux20.loupsgarous.Registration;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.game.OrchestratorDependent;
-import me.lucko.helper.terminable.Terminable;
-import me.lucko.helper.terminable.TerminableConsumer;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorAware;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Function;
+import java.util.Objects;
 
-/**
- * The base interface for interactable objects.
- * <p>
- * Interactables have the following properties:
- * <ul>
- *     <li><b>Context awareness.</b> They must be aware of their game orchestrator,
- *     which is why they are {@link OrchestratorDependent}.</li>
- *     <li><b>Disposability.</b> Interactables are {@link Terminable} and can be closed.
- *     Once they are closed, {@link #isClosed()} must <b>return {@code true}</b>, and
- *     any state must be <b>unmodifiable</b>.</li>
- * </ul>
- *
- * @see AbstractInteractable
- */
-public interface Interactable extends Terminable, OrchestratorDependent {
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    boolean isClosed();
+public abstract class Interactable implements OrchestratorAware {
+    protected final LGGameOrchestrator orchestrator;
 
-    void addTerminationListener(TerminationListener<? super Interactable> listener);
+    private @Nullable String key;
 
-    static <I extends Interactable, H extends TerminableConsumer & OrchestratorDependent>
-    I createBound(Function<LGGameOrchestrator, I> interactableFactory,
-                  InteractableKey<? super I> key,
-                  H holder) {
-        LGGameOrchestrator orchestrator = holder.getOrchestrator();
-
-        I interactable = interactableFactory.apply(orchestrator);
-        interactable.bindWith(holder);
-        orchestrator.interactables().register(key, interactable);
-        return interactable;
+    protected Interactable(LGGameOrchestrator orchestrator) {
+        this.orchestrator = orchestrator;
     }
+
+    @Override
+    public LGGameOrchestrator getOrchestrator() {
+        return orchestrator;
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName();
+    }
+
+    public @Nullable String getKey() {
+        return key;
+    }
+
+    void setKey(@Nullable String key) {
+        if (!Objects.equals(this.key, key)) {
+            this.key = key;
+
+            if (key != null) {
+                onRegister();
+            } else {
+                onUnregister();
+            }
+        }
+    }
+
+    public boolean isRegistered() {
+        return key != null;
+    }
+
+    public final Registration register(String key) {
+        return orchestrator.interactables().register(key, this);
+    }
+
+    protected void onRegister() {}
+
+    public final void unregister() {
+        orchestrator.interactables().unregister(this);
+    }
+
+    protected void onUnregister() {}
 }

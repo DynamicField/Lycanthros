@@ -1,24 +1,25 @@
 package com.github.jeuxjeux20.loupsgarous.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorAware;
 import com.google.common.base.MoreObjects;
 import com.google.common.reflect.TypeToken;
 
 import java.util.Objects;
 import java.util.Optional;
 
-public final class PickData<T, P extends Pick<T>> {
-    private final P source;
+public final class PickData<T> {
+    private final Pick<T> source;
     private final LGPlayer picker;
     private final T target;
 
-    public PickData(P source, LGPlayer picker, T target) {
+    public PickData(Pick<T> source, LGPlayer picker, T target) {
         this.source = Objects.requireNonNull(source, "source is null");
         this.picker = Objects.requireNonNull(picker, "picker is null");
         this.target = Objects.requireNonNull(target, "target is null");
     }
 
-    public P getSource() {
+    public Pick<T> getSource() {
         return source;
     }
 
@@ -31,9 +32,9 @@ public final class PickData<T, P extends Pick<T>> {
     }
 
     @SuppressWarnings("unchecked")
-    public <NT, NP extends Pick<? extends NT>> Optional<PickData<NT, ? extends NP>> cast(TypeToken<NP> type) {
+    public <NT, NP extends OrchestratorAware> Optional<PickData<NT>> cast(TypeToken<NP> type) {
         if (type.isSupertypeOf(source.getClass())) {
-            return Optional.of((PickData<NT, ? extends NP>) this);
+            return Optional.of((PickData<NT>) this);
         } else {
             return Optional.empty();
         }
@@ -43,7 +44,7 @@ public final class PickData<T, P extends Pick<T>> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PickData<?, ?> pickData = (PickData<?, ?>) o;
+        PickData<?> pickData = (PickData<?>) o;
         return source.equals(pickData.source) &&
                picker.equals(pickData.picker) &&
                target.equals(pickData.target);

@@ -1,11 +1,12 @@
 package com.github.jeuxjeux20.loupsgarous.phases;
 
-import com.github.jeuxjeux20.loupsgarous.*;
+import com.github.jeuxjeux20.loupsgarous.Check;
+import com.github.jeuxjeux20.loupsgarous.Countdown;
+import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.interaction.AbstractCouplePick;
+import com.github.jeuxjeux20.loupsgarous.interaction.CouplePick;
 import com.github.jeuxjeux20.loupsgarous.interaction.Couple;
-import com.github.jeuxjeux20.loupsgarous.interaction.Interactable;
 import com.github.jeuxjeux20.loupsgarous.interaction.LGInteractableKeys;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.FunctionalPickConditions;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.PickConditions;
@@ -26,16 +27,12 @@ import static com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff.*;
         color = PhaseColor.BLUE,
         isTemporary = true
 )
-public final class CupidonCouplePhase extends CountdownLGPhase {
+public final class CupidonCouplePhase extends CountdownPhase {
     private final CupidonCoupleCreator coupleCreator;
 
     public CupidonCouplePhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
-        this.coupleCreator = Interactable.createBound(
-                CupidonCoupleCreator::new,
-                LGInteractableKeys.COUPLE_CREATOR,
-                this
-        );
+        this.coupleCreator = new CupidonCoupleCreator(orchestrator);
     }
 
     @Override
@@ -50,6 +47,7 @@ public final class CupidonCouplePhase extends CountdownLGPhase {
 
     @Override
     protected void start() {
+        coupleCreator.register(LGInteractableKeys.COUPLE_CREATOR).bindWith(this);
         coupleCreator.getEligibleCupidons().forEach(this::sendTipNotification);
     }
 
@@ -72,7 +70,7 @@ public final class CupidonCouplePhase extends CountdownLGPhase {
         return coupleCreator;
     }
 
-    public static class CupidonCoupleCreator extends AbstractCouplePick {
+    public static class CupidonCoupleCreator extends CouplePick {
         private final Map<LGPlayer, Couple> couplePicks = new HashMap<>();
 
         public CupidonCoupleCreator(LGGameOrchestrator orchestrator) {

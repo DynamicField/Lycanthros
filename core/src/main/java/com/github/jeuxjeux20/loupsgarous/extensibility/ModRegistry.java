@@ -20,13 +20,9 @@ public class ModRegistry {
     private final Multimap<Plugin, Mod> mods = LinkedHashMultimap.create();
     private final List<ModRegistryListener> registryListeners = new ArrayList<>();
 
-    private final ModDescriptorRegistry descriptorRegistry;
-
     @Inject
     ModRegistry(ClassicGameMod classicGameMod,
-                LoupsGarous plugin,
-                ModDescriptorRegistry descriptorRegistry) {
-        this.descriptorRegistry = descriptorRegistry;
+                LoupsGarous plugin) {
 
         register(classicGameMod, plugin);
 
@@ -69,10 +65,6 @@ public class ModRegistry {
     private void unregister(Plugin plugin, Mod mod) {
         mods.remove(plugin, mod);
         notifyListeners(l -> l.onModRemoved(mod));
-    }
-
-    public ModDescriptorRegistry descriptors() {
-        return descriptorRegistry;
     }
 
     public void addListener(ModRegistryListener listener) {

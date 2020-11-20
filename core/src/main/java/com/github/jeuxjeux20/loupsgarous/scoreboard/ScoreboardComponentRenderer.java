@@ -4,7 +4,6 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Singleton;
 import org.bukkit.scoreboard.Objective;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +14,6 @@ import java.util.function.Supplier;
 
 import static com.github.jeuxjeux20.loupsgarous.scoreboard.ScoreboardComponent.Line;
 
-@Singleton
 final class ScoreboardComponentRenderer {
     public void renderObjective(Objective objective, Collection<ScoreboardComponent> components,
                                 LGPlayer player, LGGameOrchestrator orchestrator) {

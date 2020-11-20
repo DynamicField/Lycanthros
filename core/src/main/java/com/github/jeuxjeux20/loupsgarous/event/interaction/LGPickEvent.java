@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 public final class LGPickEvent extends LGPickEventBase {
     private static final HandlerList handlerList = new HandlerList();
 
-    public LGPickEvent(LGGameOrchestrator orchestrator, PickData<?, ?> pickData) {
+    public LGPickEvent(LGGameOrchestrator orchestrator, PickData<?> pickData) {
         super(orchestrator, pickData);
     }
 

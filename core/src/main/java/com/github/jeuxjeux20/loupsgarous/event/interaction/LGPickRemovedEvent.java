@@ -10,7 +10,7 @@ public final class LGPickRemovedEvent extends LGPickEventBase {
 
     private final boolean isInvalidate;
 
-    public LGPickRemovedEvent(LGGameOrchestrator orchestrator, PickData<?, ?> pickData, boolean isInvalidate) {
+    public LGPickRemovedEvent(LGGameOrchestrator orchestrator, PickData<?> pickData, boolean isInvalidate) {
         super(orchestrator, pickData);
         this.isInvalidate = isInvalidate;
     }

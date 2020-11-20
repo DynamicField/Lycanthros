@@ -1,20 +1,20 @@
 package com.github.jeuxjeux20.loupsgarous.event.phase;
 
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
-import com.github.jeuxjeux20.loupsgarous.phases.LGPhase;
+import com.github.jeuxjeux20.loupsgarous.phases.Phase;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class LGPhaseEvent extends LGEvent {
     private static final HandlerList handlerList = new HandlerList();
-    private final LGPhase phase;
+    private final Phase phase;
 
-    public LGPhaseEvent(LGPhase phase) {
+    public LGPhaseEvent(Phase phase) {
         super(phase.getOrchestrator());
         this.phase = phase;
     }
 
-    public LGPhase getPhase() {
+    public Phase getPhase() {
         return phase;
     }
 

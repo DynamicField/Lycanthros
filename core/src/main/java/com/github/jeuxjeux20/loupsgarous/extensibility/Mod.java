@@ -7,6 +7,8 @@ import org.spongepowered.configurate.ConfigurationNode;
 import java.util.List;
 
 public abstract class Mod {
+    private ModDescriptor descriptor;
+
     protected void configureDefaults(ConfigurationNode configuration) {
     }
 
@@ -16,6 +18,13 @@ public abstract class Mod {
         configureDefaults(configuration);
 
         return configuration;
+    }
+
+    public ModDescriptor getDescriptor() {
+        if (descriptor == null) {
+            descriptor = ModDescriptor.fromClass(getClass());
+        }
+        return descriptor;
     }
 
     @Override
