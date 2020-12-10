@@ -6,7 +6,8 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
-import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
+import com.github.jeuxjeux20.loupsgarous.event.registry.RegistryChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.extensibility.registry.GameRegistries;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
@@ -93,7 +94,10 @@ public class LGInventoryManager extends OrchestratorComponent {
         Schedulers.sync().runRepeating(this::updateAllInventories, 0L, 10L)
                 .bindWith(this);
 
-        bind(orchestrator.getGameBox().updates().subscribe(e -> updateAllInventories())::dispose);
+        Events.subscribe(RegistryChangeEvent.class)
+                .filter(e -> e.getRegistry() == GameRegistries.INVENTORY_ITEMS.get(orchestrator))
+                .handler(e -> updateAllInventories())
+                .bindWith(this);
     }
 
     public void update(LGPlayer player) {
@@ -197,6 +201,6 @@ public class LGInventoryManager extends OrchestratorComponent {
     }
 
     private ImmutableList<InventoryItem> getInventoryItems() {
-        return LGExtensionPoints.INVENTORY_ITEMS.getContents(orchestrator);
+        return GameRegistries.INVENTORY_ITEMS.get(orchestrator).getValues().asList();
     }
 }

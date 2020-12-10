@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.LGSoundStuff;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
-import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionUpdateEvent;
+import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
@@ -35,7 +35,7 @@ public final class LobbyPhase extends CountdownPhase {
     }
 
     private void registerEventListeners() {
-        Events.subscribe(LGCompositionUpdateEvent.class)
+        Events.subscribe(LGCompositionChangeEvent.class)
                 .filter(orchestrator::isMyEvent)
                 .handler(e -> updateStatus(true))
                 .bindWith(this);

@@ -5,14 +5,11 @@ import com.github.jeuxjeux20.loupsgarous.interaction.PickData;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public final class LGPickRemovedEvent extends LGPickEvent {
+public final class LGPickAddedEvent extends LGPickEvent {
     private static final HandlerList handlerList = new HandlerList();
 
-    private final boolean isInvalidate;
-
-    public LGPickRemovedEvent(LGGameOrchestrator orchestrator, PickData<?> pickData, boolean isInvalidate) {
+    public LGPickAddedEvent(LGGameOrchestrator orchestrator, PickData<?> pickData) {
         super(orchestrator, pickData);
-        this.isInvalidate = isInvalidate;
     }
 
     public static @NotNull HandlerList getHandlerList() {
@@ -22,13 +19,5 @@ public final class LGPickRemovedEvent extends LGPickEvent {
     @Override
     public @NotNull HandlerList getHandlers() {
         return handlerList;
-    }
-
-    public boolean isInvalidate() {
-        return isInvalidate;
-    }
-
-    public boolean isOrganic() {
-        return !isInvalidate;
     }
 }

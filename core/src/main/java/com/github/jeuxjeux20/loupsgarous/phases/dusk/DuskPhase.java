@@ -3,6 +3,7 @@ package com.github.jeuxjeux20.loupsgarous.phases.dusk;
 import com.github.jeuxjeux20.loupsgarous.Countdown;
 import com.github.jeuxjeux20.loupsgarous.chat.LGChatStuff;
 import com.github.jeuxjeux20.loupsgarous.extensibility.ContentFactory;
+import com.github.jeuxjeux20.loupsgarous.extensibility.registry.GameRegistries;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameTurnTime;
 import com.github.jeuxjeux20.loupsgarous.phases.CountdownPhase;
@@ -10,29 +11,27 @@ import com.github.jeuxjeux20.loupsgarous.phases.PhaseColor;
 import com.github.jeuxjeux20.loupsgarous.phases.PhaseInfo;
 import com.google.common.collect.ImmutableList;
 
-import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.DUSK_ACTIONS;
+import java.util.ArrayList;
+import java.util.List;
 
 @PhaseInfo(name = "Crépuscule", color = PhaseColor.PURPLE)
 public final class DuskPhase extends CountdownPhase {
-    private final ImmutableList<DuskAction> actionsToRun;
+    private final List<DuskAction> actionsToRun = new ArrayList<>();
 
     public DuskPhase(LGGameOrchestrator orchestrator) {
         super(orchestrator);
 
-        ImmutableList.Builder<DuskAction> actionsToRunBuilder = ImmutableList.builder();
-
         for (ContentFactory<? extends DuskAction> actionFactory :
-                DUSK_ACTIONS.getContents(orchestrator)) {
+                GameRegistries.DUSK_ACTIONS.get(orchestrator)) {
             DuskAction action = actionFactory.create(orchestrator);
 
             if (action.shouldRun()) {
-                actionsToRunBuilder.add(action);
+                actionsToRun.add(action);
             } else {
                 action.closeAndReportException();
             }
         }
 
-        actionsToRun = actionsToRunBuilder.build();
         actionsToRun.forEach(this::bind);
     }
 
@@ -64,6 +63,6 @@ public final class DuskPhase extends CountdownPhase {
     }
 
     public ImmutableList<DuskAction> getActions() {
-        return actionsToRun;
+        return ImmutableList.copyOf(actionsToRun);
     }
 }

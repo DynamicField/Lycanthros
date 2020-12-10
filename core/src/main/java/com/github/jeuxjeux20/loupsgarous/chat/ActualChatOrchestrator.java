@@ -1,9 +1,9 @@
 package com.github.jeuxjeux20.loupsgarous.chat;
 
-import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
+import com.github.jeuxjeux20.loupsgarous.extensibility.registry.GameRegistries;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.Events;
 import me.lucko.helper.Schedulers;
 import me.lucko.helper.terminable.Terminable;
@@ -114,8 +114,8 @@ public class ActualChatOrchestrator implements Terminable, ChatOrchestrator {
     }
 
     @Override
-    public ImmutableList<ChatChannel> getChannels() {
-        return LGExtensionPoints.CHAT_CHANNELS.getContents(orchestrator);
+    public ImmutableSet<ChatChannel> getChannels() {
+        return GameRegistries.CHAT_CHANNELS.get(orchestrator).getValues();
     }
 
     private void sendMessageInternal(ChatChannel channel, InternalMessageSender messageSender) {

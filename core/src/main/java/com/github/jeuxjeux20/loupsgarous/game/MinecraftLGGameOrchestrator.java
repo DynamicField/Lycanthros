@@ -13,13 +13,17 @@ import com.github.jeuxjeux20.loupsgarous.chat.ActualChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.chat.ChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.event.*;
-import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionUpdateEvent;
+import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.event.lobby.LGOwnerChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
-import com.github.jeuxjeux20.loupsgarous.extensibility.GameBox;
-import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
+import com.github.jeuxjeux20.loupsgarous.event.registry.RegistryChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.extensibility.GameModsContainer;
+import com.github.jeuxjeux20.loupsgarous.extensibility.ModEntry;
 import com.github.jeuxjeux20.loupsgarous.extensibility.ModRegistry;
+import com.github.jeuxjeux20.loupsgarous.extensibility.registry.GameRegistries;
+import com.github.jeuxjeux20.loupsgarous.extensibility.registry.GameRegistryKey;
+import com.github.jeuxjeux20.loupsgarous.extensibility.registry.Registry;
 import com.github.jeuxjeux20.loupsgarous.interaction.ActualInteractableRegistry;
 import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegistry;
 import com.github.jeuxjeux20.loupsgarous.inventory.LGInventoryManager;
@@ -34,10 +38,10 @@ import com.github.jeuxjeux20.loupsgarous.storage.Storage;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultiset;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.reactivex.rxjava3.disposables.Disposable;
 import me.lucko.helper.Events;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
 import org.bukkit.World;
@@ -62,13 +66,14 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     private final CompositeTerminable terminableRegistry = CompositeTerminable.create();
 
     private final String id;
-    private LGGameState state = LOBBY;
+    private final MutableLGGameTurn turn = new MutableLGGameTurn();
     private final Map<UUID, LGPlayer> players = new HashMap<>();
+    private final Map<GameRegistryKey<?>, Registry<?>> gameRegistries = new HashMap<>();
+    private LGGameState state = LOBBY;
     private LGPlayer owner;
     private ImmutableComposition composition;
-    private final MutableLGGameTurn turn = new MutableLGGameTurn();
     private @Nullable LGEnding ending;
-    private boolean endingWhenEmpty = false;
+    private boolean endingWhenEmpty;
 
     private final LoupsGarous plugin;
     private final OrchestratorLogger logger;
@@ -80,10 +85,8 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     private final ChatOrchestrator chat;
     private final KillsOrchestrator kills;
     private final ActualInteractableRegistry interactables;
-    private final GameBox gameBox;
+    private final GameModsContainer modsContainer;
     private final Storage storage = new MapStorage();
-
-    private final Disposable cardRemovalSubscription;
 
     @Inject
     MinecraftLGGameOrchestrator(@Assisted LGGameBootstrapData data,
@@ -106,18 +109,23 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
             this.kills = bind(new ActualKillsOrchestrator(this));
             this.interactables = bind(new ActualInteractableRegistry(this));
 
-            this.gameBox = bind(new GameBox(this, modRegistry));
-            this.cardRemovalSubscription = gameBox.updates().subscribe(this::removeBoxRemovedCards);
-            bind(cardRemovalSubscription::dispose);
+            this.modsContainer = bind(new GameModsContainer(this, modRegistry));
 
             this.componentManager = new OrchestratorComponentManager(this);
             bind(componentManager::close);
 
             registerEventListeners();
 
-            gameBox.addMods(modRegistry.getMods());
+            for (ModEntry entry : modRegistry.getEntries()) {
+                modsContainer.addMods(entry.getModFactory().create(this));
+            }
 
-            new LobbyPhaseCycle(this).start();
+            Events.subscribe(RegistryChangeEvent.class)
+                    .filter(e -> e.getRegistry() == getGameRegistry(GameRegistries.CARDS))
+                    .handler(e -> removeBoxRemovedCards())
+                    .bindWith(this);
+
+            new LobbyPhaseProgram(this).start();
         } catch (Throwable e) {
             delete();
             throw e;
@@ -127,7 +135,6 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     private void start() {
         state.mustBe(LOBBY);
 
-        cardRemovalSubscription.dispose();
         new CardDistributor().distribute(composition, players.values());
 
         changeStateTo(STARTED, LGGameStartEvent::new);
@@ -292,8 +299,19 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
     }
 
     @Override
-    public GameBox getGameBox() {
-        return gameBox;
+    public GameModsContainer getModsContainer() {
+        return modsContainer;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> Registry<T> getGameRegistry(GameRegistryKey<T> key) {
+        return (Registry<T>) gameRegistries.computeIfAbsent(key, k -> k.createRegistry(this));
+    }
+
+    @Override
+    public ImmutableMap<GameRegistryKey<?>, Registry<?>> getGameRegistries() {
+        return ImmutableMap.copyOf(gameRegistries);
     }
 
     @Override
@@ -320,21 +338,16 @@ class MinecraftLGGameOrchestrator implements LGGameOrchestrator {
 
         this.composition = new ImmutableComposition(cards);
         if (raiseEvent) {
-            Events.call(new LGCompositionUpdateEvent(this));
+            Events.call(new LGCompositionChangeEvent(this));
         }
     }
 
-    private void removeBoxRemovedCards(GameBox.Change change) {
-        ImmutableSet<LGCard> removedCards =
-                change.getContentsDiff(LGExtensionPoints.CARDS).getRemoved();
-
-        if (removedCards.isEmpty()) {
-            return;
-        }
-
+    private void removeBoxRemovedCards() {
         ImmutableComposition newComposition = composition.with(cards -> {
-            for (LGCard removedCard : removedCards) {
-                cards.remove(removedCard, Integer.MAX_VALUE);
+            for (LGCard card : composition.getContents()) {
+                if (!getGameRegistry(GameRegistries.CARDS).containsValue(card)) {
+                    cards.remove(card, Integer.MAX_VALUE);
+                }
             }
         });
 

@@ -12,7 +12,7 @@ public final class ModDescriptor {
     private boolean enabledByDefault = false;
     private ItemStack item = new ItemStack(Material.BARRIER);
 
-    public static ModDescriptor fromClass(Class<? extends Mod> describedClass) {
+    public static ModDescriptor fromClass(Class<?> describedClass) {
         ModDescriptor descriptor = new ModDescriptor();
 
         ModInfo annotation = describedClass.getAnnotation(ModInfo.class);

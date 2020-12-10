@@ -8,7 +8,9 @@ import com.github.jeuxjeux20.loupsgarous.cards.composition.ImmutableComposition;
 import com.github.jeuxjeux20.loupsgarous.chat.ChatOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
-import com.github.jeuxjeux20.loupsgarous.extensibility.GameBox;
+import com.github.jeuxjeux20.loupsgarous.extensibility.GameModsContainer;
+import com.github.jeuxjeux20.loupsgarous.extensibility.registry.GameRegistryKey;
+import com.github.jeuxjeux20.loupsgarous.extensibility.registry.Registry;
 import com.github.jeuxjeux20.loupsgarous.interaction.InteractableRegistry;
 import com.github.jeuxjeux20.loupsgarous.inventory.LGInventoryManager;
 import com.github.jeuxjeux20.loupsgarous.kill.KillsOrchestrator;
@@ -17,6 +19,7 @@ import com.github.jeuxjeux20.loupsgarous.phases.PhasesOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.LGScoreboardManager;
 import com.github.jeuxjeux20.loupsgarous.storage.StorageProvider;
 import com.github.jeuxjeux20.loupsgarous.util.OptionalUtils;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.terminable.TerminableConsumer;
@@ -60,7 +63,11 @@ public interface LGGameOrchestrator extends TerminableConsumer, StorageProvider 
 
     void setOwner(LGPlayer owner);
 
-    GameBox getGameBox();
+    GameModsContainer getModsContainer();
+
+    <T> Registry<T> getGameRegistry(GameRegistryKey<T> key);
+
+    ImmutableMap<GameRegistryKey<?>, Registry<?>> getGameRegistries();
 
     default Stream<LGPlayer> getAlivePlayers() {
         return getPlayers().stream().filter(LGPlayer::isAlive);
@@ -138,6 +145,8 @@ public interface LGGameOrchestrator extends TerminableConsumer, StorageProvider 
     OrchestratorComponentManager components();
 
     Logger logger();
+
+    // Utility methods
 
     default boolean isMyEvent(LGEvent event) {
         return event.getOrchestrator() == this;

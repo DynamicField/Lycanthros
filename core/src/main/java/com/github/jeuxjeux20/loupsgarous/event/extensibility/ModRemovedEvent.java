@@ -1,18 +1,18 @@
-package com.github.jeuxjeux20.loupsgarous.event.lobby;
+package com.github.jeuxjeux20.loupsgarous.event.extensibility;
 
+import com.github.jeuxjeux20.loupsgarous.extensibility.Mod;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class LGCompositionUpdateEvent extends LGEvent {
+public class ModRemovedEvent extends ModEvent {
     private static final HandlerList handlerList = new HandlerList();
 
-    public LGCompositionUpdateEvent(LGGameOrchestrator orchestrator) {
-        super(orchestrator);
+    public ModRemovedEvent(LGGameOrchestrator orchestrator, Mod mod) {
+        super(orchestrator, mod);
     }
 
-    public static @NotNull HandlerList getHandlerList() {
+    public static HandlerList getHandlerList() {
         return handlerList;
     }
 

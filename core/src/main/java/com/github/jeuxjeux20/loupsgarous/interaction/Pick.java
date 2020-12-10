@@ -2,7 +2,7 @@ package com.github.jeuxjeux20.loupsgarous.interaction;
 
 import com.github.jeuxjeux20.loupsgarous.chat.ChatChannel;
 import com.github.jeuxjeux20.loupsgarous.chat.LGChatChannels;
-import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickEventBase;
+import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickEvent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.condition.FunctionalPickConditions;
@@ -90,7 +90,7 @@ public abstract class Pick<T> extends Interactable {
 
     protected abstract void safePick(LGPlayer picker, T target);
 
-    public boolean isMyEvent(LGPickEventBase event) {
+    public boolean isMyEvent(LGPickEvent event) {
         return event.getPickData().getSource() == this;
     }
 

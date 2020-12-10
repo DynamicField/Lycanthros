@@ -1,6 +1,6 @@
 package com.github.jeuxjeux20.loupsgarous.listeners;
 
-import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickEvent;
+import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickAddedEvent;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickRemovedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.Vote;
@@ -12,7 +12,7 @@ import org.bukkit.event.Listener;
 
 public class ShortenVoteCountdownListener implements Listener {
     @EventHandler(ignoreCancelled = true)
-    public void onLGPick(LGPickEvent event) {
+    public void onLGPick(LGPickAddedEvent event) {
         updatePhaseCountdown(event.getOrchestrator().phases().current());
     }
 

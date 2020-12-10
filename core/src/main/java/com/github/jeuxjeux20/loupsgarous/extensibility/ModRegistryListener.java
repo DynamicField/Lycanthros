@@ -1,7 +1,7 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
 public interface ModRegistryListener {
-    void onModRemoved(Mod mod);
+    void onModRemoved(ModEntry entry);
 
-    void onModAdded(Mod mod);
+    void onModAdded(ModEntry entry);
 }

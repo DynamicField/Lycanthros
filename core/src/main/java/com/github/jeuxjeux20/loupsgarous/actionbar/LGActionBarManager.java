@@ -4,7 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator.Problem;
 import com.github.jeuxjeux20.loupsgarous.endings.LGEnding;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
-import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionUpdateEvent;
+import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionChangeEvent;
 import com.github.jeuxjeux20.loupsgarous.event.phase.LGPhaseStartedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.*;
 import com.github.jeuxjeux20.loupsgarous.phases.CountdownTimedPhase;
@@ -183,7 +183,7 @@ public class LGActionBarManager extends OrchestratorComponent {
 
             consumer.bind(subscription::dispose);
 
-            Events.merge(LGEvent.class, LGPhaseStartedEvent.class, LGCompositionUpdateEvent.class)
+            Events.merge(LGEvent.class, LGPhaseStartedEvent.class, LGCompositionChangeEvent.class)
                     .filter(orchestrator::isMyEvent)
                     .handler(e -> update())
                     .bindWith(consumer);

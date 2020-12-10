@@ -5,8 +5,8 @@ import com.github.jeuxjeux20.loupsgarous.cards.LGCard;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.util.CompositionFormatUtil;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.validation.CompositionValidator.Problem;
-import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionUpdateEvent;
-import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
+import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.extensibility.registry.GameRegistries;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.gui.OwnerGui;
 import me.lucko.helper.Events;
@@ -197,7 +197,7 @@ public final class CompositionGui extends OwnerGui {
     }
 
     private void updateCards() {
-        cards = LGExtensionPoints.CARDS.getContents(orchestrator).stream()
+        cards = GameRegistries.CARDS.get(orchestrator).getValues().stream()
                 .sorted(Comparator.comparing(LGCard::getName))
                 .collect(Collectors.toList());
 
@@ -207,7 +207,7 @@ public final class CompositionGui extends OwnerGui {
     }
 
     private void listenToEvents() {
-        Events.subscribe(LGCompositionUpdateEvent.class)
+        Events.subscribe(LGCompositionChangeEvent.class)
                 .filter(orchestrator::isMyEvent)
                 .handler(e -> redraw())
                 .bindWith(this);

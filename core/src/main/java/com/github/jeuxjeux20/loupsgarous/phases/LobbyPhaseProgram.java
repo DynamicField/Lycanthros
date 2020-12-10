@@ -2,8 +2,8 @@ package com.github.jeuxjeux20.loupsgarous.phases;
 
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 
-public class LobbyPhaseCycle extends PhaseProgram {
-    public LobbyPhaseCycle(LGGameOrchestrator orchestrator) {
+public class LobbyPhaseProgram extends PhaseProgram {
+    public LobbyPhaseProgram(LGGameOrchestrator orchestrator) {
         super(orchestrator);
     }
 

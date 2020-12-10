@@ -70,9 +70,6 @@ commands:
     usage: /lgreloadconfig
     description: Met à jour la configuration en se basant sur config.yml
     aliases: lg reloadconfig
-  color:
-    usage: /color <stuff>
-    description: debuggi debuggo
     
 permissions:
   loupsgarous.game.list:
@@ -84,8 +81,8 @@ permissions:
   loupsgarous.game.join:
     description: Permet de rejoindre une partie
     default: true
-  loupsgarous.debug.boxcontents:
-    description: Allows you to see the orchestrator's GameBox contents.
+  loupsgarous.debug.registries:
+    description: Allows you to see all the game registries.
     default: op
   loupsgarous.debug.skipstage:
     description: Allows you to skip a stage.

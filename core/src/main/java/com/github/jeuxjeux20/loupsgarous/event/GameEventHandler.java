@@ -18,7 +18,7 @@ public class GameEventHandler {
     }
 
     @SuppressWarnings("unchecked")
-    public void register(Listener target) {
+    public <T extends Listener & OrchestratorAware> void register(T target) {
         plugin.getServer().getPluginManager().registerEvents(target, plugin);
 
         for (Method method : target.getClass().getDeclaredMethods()) {
@@ -44,12 +44,12 @@ public class GameEventHandler {
         }
     }
 
-    public void unregister(Listener target) {
+    public <T extends Listener & OrchestratorAware> void unregister(T target) {
         HandlerList.unregisterAll(target);
     }
 
     private void handle(Listener listener, Event event, Method method) {
-        if (event instanceof LGEvent && listener instanceof OrchestratorAware) {
+        if (event instanceof LGEvent) {
             if (((LGEvent) event).getOrchestrator() !=
                 ((OrchestratorAware) listener).getOrchestrator()) {
                 return;

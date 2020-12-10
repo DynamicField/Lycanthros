@@ -2,11 +2,12 @@ package com.github.jeuxjeux20.loupsgarous.scoreboard;
 
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerJoinEvent;
 import com.github.jeuxjeux20.loupsgarous.event.player.LGPlayerQuitEvent;
-import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
+import com.github.jeuxjeux20.loupsgarous.event.registry.RegistryChangeEvent;
+import com.github.jeuxjeux20.loupsgarous.extensibility.registry.GameRegistries;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.game.OrchestratorComponent;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.Events;
 import me.lucko.helper.Schedulers;
 import me.lucko.helper.metadata.Metadata;
@@ -35,8 +36,6 @@ public class LGScoreboardManager extends OrchestratorComponent {
     }
 
     private void registerEvents() {
-        // TODO: Fix this too pls
-
         Schedulers.sync().runRepeating(this::updateAll, 0L, 10L)
                 .bindWith(this);
 
@@ -50,7 +49,10 @@ public class LGScoreboardManager extends OrchestratorComponent {
                 .handler(e -> removePlayer(e.getLGPlayer()))
                 .bindWith(this);
 
-        bind(orchestrator.getGameBox().updates().subscribe(x -> updateAll())::dispose);
+        Events.subscribe(RegistryChangeEvent.class)
+                .filter(e -> e.getRegistry() == GameRegistries.INVENTORY_ITEMS.get(orchestrator))
+                .handler(e -> updateAll())
+                .bindWith(this);
     }
 
     public void updatePlayer(LGPlayer player) {
@@ -102,7 +104,7 @@ public class LGScoreboardManager extends OrchestratorComponent {
         player.minecraftNoContext(this::removePlayer);
     }
 
-    private ImmutableList<ScoreboardComponent> getScoreboardComponents() {
-        return LGExtensionPoints.SCOREBOARD_COMPONENTS.getContents(orchestrator);
+    private ImmutableSet<ScoreboardComponent> getScoreboardComponents() {
+        return GameRegistries.SCOREBOARD_COMPONENTS.get(orchestrator).getValues();
     }
 }

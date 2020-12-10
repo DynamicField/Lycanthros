@@ -5,7 +5,7 @@ import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.cards.composition.util.CompositionFormatUtil;
 import com.github.jeuxjeux20.loupsgarous.event.LGEvent;
 import com.github.jeuxjeux20.loupsgarous.event.LGKillEvent;
-import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionUpdateEvent;
+import com.github.jeuxjeux20.loupsgarous.event.lobby.LGCompositionChangeEvent;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.ChatColor;
 
@@ -27,6 +27,6 @@ public class CompositionScoreboardComponent implements ScoreboardComponent {
 
     @Override
     public ImmutableList<Class<? extends LGEvent>> getUpdateTriggers() {
-        return ImmutableList.of(LGCompositionUpdateEvent.class, LGKillEvent.class);
+        return ImmutableList.of(LGCompositionChangeEvent.class, LGKillEvent.class);
     }
 }

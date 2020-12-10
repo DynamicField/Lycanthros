@@ -1,13 +1,13 @@
 package com.github.jeuxjeux20.loupsgarous.interaction.vote;
 
-import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickEvent;
+import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickAddedEvent;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickRemovedEvent;
-import com.github.jeuxjeux20.loupsgarous.extensibility.ExtensionPoint;
-import com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints;
+import com.github.jeuxjeux20.loupsgarous.extensibility.registry.GameRegistries;
+import com.github.jeuxjeux20.loupsgarous.extensibility.registry.Registry;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
-import com.github.jeuxjeux20.loupsgarous.interaction.StatefulPick;
 import com.github.jeuxjeux20.loupsgarous.interaction.PickData;
+import com.github.jeuxjeux20.loupsgarous.interaction.StatefulPick;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcome;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcomeContext;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.VoteOutcomeDeterminer;
@@ -35,10 +35,11 @@ public abstract class Vote<T>
     public final VoteOutcome<T> getOutcome() {
         VoteOutcomeContext<T> context = createContext();
         VoteOutcome<T> outcome = voteOutcomeDeterminer.determine(context);
-        ExtensionPoint<VoteOutcomeTransformer<T>> extensionPoint =
-                LGExtensionPoints.voteOutcomeTransformers(candidateClass);
 
-        for (VoteOutcomeTransformer<T> transformer : extensionPoint.getContents(orchestrator)) {
+        Registry<VoteOutcomeTransformer<T>> registry =
+                GameRegistries.voteOutcomeTransformers(candidateClass).get(orchestrator);
+
+        for (VoteOutcomeTransformer<T> transformer : registry) {
             outcome = transformer.transform(context, outcome);
         }
 
@@ -95,7 +96,7 @@ public abstract class Vote<T>
         super.safePick(picker, target);
 
         if (isRegistered()) {
-            Events.call(new LGPickEvent(orchestrator, createPick(picker, target)));
+            Events.call(new LGPickAddedEvent(orchestrator, createPick(picker, target)));
         }
     }
 

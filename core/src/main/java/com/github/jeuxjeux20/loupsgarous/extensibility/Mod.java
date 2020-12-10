@@ -1,23 +1,73 @@
 package com.github.jeuxjeux20.loupsgarous.extensibility;
 
+import com.github.jeuxjeux20.loupsgarous.event.GameEventHandler;
+import com.github.jeuxjeux20.loupsgarous.event.extensibility.ModDisabledEvent;
+import com.github.jeuxjeux20.loupsgarous.event.extensibility.ModEnabledEvent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
-import org.spongepowered.configurate.BasicConfigurationNode;
-import org.spongepowered.configurate.ConfigurationNode;
+import com.github.jeuxjeux20.loupsgarous.game.OrchestratorAware;
+import me.lucko.helper.Events;
+import me.lucko.helper.terminable.TerminableConsumer;
+import me.lucko.helper.terminable.composite.CompositeTerminable;
+import org.bukkit.event.Listener;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
-public abstract class Mod {
+public abstract class Mod implements TerminableConsumer, Listener, OrchestratorAware {
+    protected final LGGameOrchestrator orchestrator;
+    private CompositeTerminable terminableRegistry = CompositeTerminable.create();
+    private final GameEventHandler eventHandler;
     private ModDescriptor descriptor;
+    private boolean enabled;
 
-    protected void configureDefaults(ConfigurationNode configuration) {
+    public Mod(LGGameOrchestrator orchestrator) {
+        this.orchestrator = orchestrator;
+        this.eventHandler = new GameEventHandler(orchestrator.getLoupsGarous());
     }
 
-    public final ConfigurationNode getDefaultConfiguration() {
-        BasicConfigurationNode configuration = BasicConfigurationNode.root();
+    public boolean isEnabled() {
+        return enabled;
+    }
 
-        configureDefaults(configuration);
+    void setEnabled(boolean enabled) {
+        if (this.enabled != enabled) {
+            this.enabled = enabled;
 
-        return configuration;
+            if (enabled) {
+                doActivate();
+            } else {
+                doDeactivate();
+            }
+        }
+    }
+
+    private void doActivate() {
+        eventHandler.register(this);
+        activate();
+        Events.call(new ModEnabledEvent(orchestrator, this));
+    }
+
+    private void doDeactivate() {
+        eventHandler.unregister(this);
+        terminableRegistry.closeAndReportException();
+        terminableRegistry = CompositeTerminable.create();
+        deactivate();
+        Events.call(new ModDisabledEvent(orchestrator, this));
+    }
+
+    protected void activate() {
+    }
+
+    protected void deactivate() {
+    }
+
+    @Override
+    public LGGameOrchestrator getOrchestrator() {
+        return orchestrator;
+    }
+
+    @NotNull
+    @Override
+    public <T extends AutoCloseable> T bind(@NotNull T terminable) {
+        return terminableRegistry.bind(terminable);
     }
 
     public ModDescriptor getDescriptor() {
@@ -27,10 +77,8 @@ public abstract class Mod {
         return descriptor;
     }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
+    @FunctionalInterface
+    public interface Factory {
+        Mod create(LGGameOrchestrator orchestrator);
     }
-
-    public abstract List<Rule> createRules(LGGameOrchestrator orchestrator, ConfigurationNode configuration);
 }

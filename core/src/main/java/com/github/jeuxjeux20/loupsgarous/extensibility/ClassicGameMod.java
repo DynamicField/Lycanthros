@@ -8,6 +8,7 @@ import com.github.jeuxjeux20.loupsgarous.chat.LGChatChannels;
 import com.github.jeuxjeux20.loupsgarous.chat.PetiteFilleSpiesOnLoupsGarous;
 import com.github.jeuxjeux20.loupsgarous.event.GameEvent;
 import com.github.jeuxjeux20.loupsgarous.event.LGKillEvent;
+import com.github.jeuxjeux20.loupsgarous.extensibility.registry.GameRegistries;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import com.github.jeuxjeux20.loupsgarous.interaction.vote.outcome.MaireVoteOutcomeTransformer;
@@ -15,7 +16,6 @@ import com.github.jeuxjeux20.loupsgarous.inventory.EditLobbyItem;
 import com.github.jeuxjeux20.loupsgarous.inventory.EditModsItem;
 import com.github.jeuxjeux20.loupsgarous.inventory.QuitGameItem;
 import com.github.jeuxjeux20.loupsgarous.kill.LGKill;
-import com.github.jeuxjeux20.loupsgarous.kill.causes.CouplePartnerKillCause;
 import com.github.jeuxjeux20.loupsgarous.phases.*;
 import com.github.jeuxjeux20.loupsgarous.phases.dusk.DuskPhase;
 import com.github.jeuxjeux20.loupsgarous.phases.dusk.VoyanteDuskAction;
@@ -24,261 +24,119 @@ import com.github.jeuxjeux20.loupsgarous.scoreboard.CompositionScoreboardCompone
 import com.github.jeuxjeux20.loupsgarous.scoreboard.CurrentVotesScoreboardComponent;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.LobbyOwnerScoreboardComponent;
 import com.github.jeuxjeux20.loupsgarous.scoreboard.PlayersAliveScoreboardComponent;
-import com.github.jeuxjeux20.loupsgarous.teams.LGTeam;
-import com.github.jeuxjeux20.loupsgarous.teams.LGTeams;
 import com.github.jeuxjeux20.loupsgarous.winconditions.CoupleWinCondition;
 import com.github.jeuxjeux20.loupsgarous.winconditions.EveryoneDeadWinCondition;
 import com.github.jeuxjeux20.loupsgarous.winconditions.LoupsGarousWinCondition;
 import com.github.jeuxjeux20.loupsgarous.winconditions.VillageWinCondition;
-import com.google.common.collect.ImmutableList;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.spongepowered.configurate.ConfigurationNode;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import static com.github.jeuxjeux20.loupsgarous.extensibility.LGExtensionPoints.*;
 
 @ModInfo(
-        name = "Loups-Garous classique",
-        hidden = true,
-        enabledByDefault = true
+        name = "Jeu classique",
+        enabledByDefault = true,
+        hidden = true
 )
 public class ClassicGameMod extends Mod {
+    public ClassicGameMod(LGGameOrchestrator orchestrator) {
+        super(orchestrator);
+    }
+
     @Override
-    public List<Rule> createRules(LGGameOrchestrator orchestrator, ConfigurationNode configuration) {
-        return ImmutableList.of(
-                new FundamentalsRule(orchestrator),
-                new CupidonRule(orchestrator),
-                new CoupleRule(orchestrator),
-                new MaireRule(orchestrator),
-                new PetiteFilleRule(orchestrator),
-                new SorciereRule(orchestrator),
-                new ChasseurRule(orchestrator),
-                new VoyanteRule(orchestrator)
-        );
+    protected void activate() {
+        orchestrator.getGameRegistry(GameRegistries.CARDS)
+                .registerMany(r -> {
+                    r.register(LoupGarouCard.INSTANCE);
+                    r.register(VillageoisCard.INSTANCE);
+                    r.register(CupidonCard.INSTANCE);
+                    r.register(SorciereCard.INSTANCE);
+                    r.register(PetiteFilleCard.INSTANCE);
+                    r.register(VoyanteCard.INSTANCE);
+                    r.register(ChasseurCard.INSTANCE);
+                })
+                .bindWith(this);
+
+        orchestrator.getGameRegistry(GameRegistries.PHASES)
+                .registerMany(r -> {
+                    r.register(CupidonCouplePhase::new).name("CupidonCouple");
+                    r.register(DuskPhase::new).name("Dusk");
+                    r.register(LoupsGarousVotePhase::new).name("LoupsGarouVote");
+                    r.register(NextTimeOfDayPhase::new).name("NextTimeOfDay");
+                    r.register(RevealAllKillsPhase::new).name("RevealAllKills");
+                    r.register(MaireElectionPhase::new).name("MaireElection");
+                    r.register(VillageVotePhase::new).name("VillageVote");
+                })
+                .bindWith(this);
+
+        orchestrator.getGameRegistry(GameRegistries.DUSK_ACTIONS)
+                .registerMany(r -> r.register(VoyanteDuskAction::new).name("Voyante"))
+                .bindWith(this);
+
+        orchestrator.getGameRegistry(GameRegistries.COMPOSITION_VALIDATORS)
+                .registerMany(r -> {
+                    r.register(new MultipleTeamsCompositionValidator());
+                    r.register(new UniqueCardCompositionValidator());
+                    r.register(new PossibleCouplesCupidonCompositionValidator());
+                })
+                .bindWith(this);
+
+        orchestrator.getGameRegistry(GameRegistries.SCOREBOARD_COMPONENTS)
+                .registerMany(r -> {
+                    r.register(new LobbyOwnerScoreboardComponent()).name("LobbyOwner");
+                    r.register(new PlayersAliveScoreboardComponent()).name("PlayersAlive");
+                    r.register(new CompositionScoreboardComponent()).name("Composition");
+                    r.register(new CurrentVotesScoreboardComponent()).name("CurrentVotes");
+                })
+                .bindWith(this);
+
+        orchestrator.getGameRegistry(GameRegistries.INVENTORY_ITEMS)
+                .registerMany(r -> {
+                    r.register(new EditLobbyItem()).name("EditLobby");
+                    r.register(new EditModsItem()).name("EditMods");
+                    r.register(new QuitGameItem()).name("QuitGame");
+                })
+                .bindWith(this);
+
+        orchestrator.getGameRegistry(GameRegistries.WIN_CONDITIONS)
+                .registerMany(r -> {
+                    r.register(new EveryoneDeadWinCondition()).name("EveryoneDead");
+                    r.register(new LoupsGarousWinCondition()).name("LoupsGarousWin");
+                    r.register(new VillageWinCondition()).name("VillageWin");
+                    r.register(new CoupleWinCondition()).name("CoupleWin");
+                })
+                .bindWith(this);
+
+        orchestrator.getGameRegistry(GameRegistries.MECHANIC_MODIFIERS)
+                .registerMany(r -> {
+                    r.register(new VoyanteSeesInspectedPlayersCard());
+                    r.register(new PetiteFilleSpiesOnLoupsGarous());
+                })
+                .bindWith(this);
+
+        orchestrator.getGameRegistry(GameRegistries.PLAYER_VOTE_OUTCOME_TRANSFORMERS)
+                .registerMany(r -> r.register(new MaireVoteOutcomeTransformer()))
+                .bindWith(this);
+
+        orchestrator.getGameRegistry(GameRegistries.CHAT_CHANNELS)
+                .registerMany(r -> {
+                    r.register(LGChatChannels.DAY);
+                    r.register(LGChatChannels.DEAD);
+                    r.register(LGChatChannels.LOUPS_GAROUS);
+                })
+                .bindWith(this);
     }
 
-    public static class MaireRule extends Rule {
-        public MaireRule(LGGameOrchestrator orchestrator) {
-            super(orchestrator);
-        }
+    @GameEvent(priority = EventPriority.HIGH)
+    public void onLGKillChasseur(LGKillEvent event) {
+        for (LGKill kill : event.getKills()) {
+            LGPlayer victim = kill.getVictim();
 
-        @Override
-        public List<Extension<?>> getExtensions() {
-            return Extension.listBuilder()
-                    .extend(PHASES, b -> b
-                            .add(MaireElectionPhase::new)
-                            .id("MaireElection")
-                            .locatedBefore("VillageVote")
-                            .locatedAfter("RevealAllKills"))
-                    .extendSingle(PLAYER_VOTE_OUTCOME_TRANSFORMERS,
-                            new MaireVoteOutcomeTransformer())
-                    .build();
-        }
+            if (victim.powers().has(ChasseurPower.class) && victim.isPresent()) {
+                PhaseProgram program = event.getOrchestrator().phases().getProgram();
 
-    }
-
-    public static class PetiteFilleRule extends CardRule {
-        public PetiteFilleRule(LGGameOrchestrator orchestrator) {
-            super(orchestrator);
-        }
-
-        @Override
-        public LGCard getCard() {
-            return PetiteFilleCard.INSTANCE;
-        }
-
-        @Override
-        public List<Extension<?>> getOtherExtensions() {
-            return Extension.listBuilder()
-                    .extendSingle(MECHANIC_MODIFIERS,
-                            new PetiteFilleSpiesOnLoupsGarous())
-                    .build();
-        }
-
-    }
-
-    public static class SorciereRule extends CardRule {
-        public SorciereRule(LGGameOrchestrator orchestrator) {
-            super(orchestrator);
-        }
-
-        @Override
-        public LGCard getCard() {
-            return SorciereCard.INSTANCE;
-        }
-
-        @Override
-        public List<Extension<?>> getOtherExtensions() {
-            return Extension.listBuilder()
-                    .extend(PHASES, b -> b
-                            .add(SorcierePotionPhase::new)
-                            .id("SoricerePotion")
-                            .locatedBefore("NextTimeOfDay")
-                            .locatedAfter("LoupsGarousVote"))
-                    .build();
-        }
-
-    }
-
-    public static class ChasseurRule extends CardRule implements Listener {
-        public ChasseurRule(LGGameOrchestrator orchestrator) {
-            super(orchestrator);
-        }
-
-        @Override
-        public LGCard getCard() {
-            return ChasseurCard.INSTANCE;
-        }
-
-        @GameEvent(priority = EventPriority.HIGH)
-        public void onLGKill(LGKillEvent event) {
-            for (LGKill kill : event.getKills()) {
-                LGPlayer victim = kill.getVictim();
-
-                if (victim.powers().has(ChasseurPower.class) && victim.isPresent()) {
-                    PhaseProgram program = event.getOrchestrator().phases().getProgram();
-
-                    if (program instanceof PhaseCycle) {
-                        ChasseurKillPhase.Factory phaseFactory = new ChasseurKillPhase.Factory(victim);
-                        ((PhaseCycle) program).insert(phaseFactory);
-                    }
+                if (program instanceof PhaseCycle) {
+                    ChasseurKillPhase.Factory phaseFactory = new ChasseurKillPhase.Factory(victim);
+                    ((PhaseCycle) program).insert(phaseFactory);
                 }
             }
         }
     }
-
-    public static class VoyanteRule extends CardRule {
-        public VoyanteRule(LGGameOrchestrator orchestrator) {
-            super(orchestrator);
-        }
-
-        @Override
-        public LGCard getCard() {
-            return VoyanteCard.INSTANCE;
-        }
-
-        @Override
-        public List<Extension<?>> getOtherExtensions() {
-            return Extension.listBuilder()
-                    .extend(DUSK_ACTIONS, b -> b.add(VoyanteDuskAction::new).id("Voyante"))
-                    .extendSingle(MECHANIC_MODIFIERS,
-                            new VoyanteSeesInspectedPlayersCard())
-                    .build();
-        }
-    }
-
-    public static class CupidonRule extends CardRule {
-        public CupidonRule(LGGameOrchestrator orchestrator) {
-            super(orchestrator);
-        }
-
-        @Override
-        public LGCard getCard() {
-            return CupidonCard.INSTANCE;
-        }
-
-        @Override
-        public List<Extension<?>> getOtherExtensions() {
-            return Extension.listBuilder()
-                    .extend(PHASES, b ->
-                            b.add(CupidonCouplePhase::new)
-                                    .id("CupidonCouple")
-                                    .orderPosition(-2))
-                    .extendSingle(COMPOSITION_VALIDATORS,
-                            new PossibleCouplesCupidonCompositionValidator())
-                    .build();
-        }
-
-    }
-
-    public static class CoupleRule extends Rule {
-        public CoupleRule(LGGameOrchestrator orchestrator) {
-            super(orchestrator);
-        }
-
-        @Override
-        public List<Extension<?>> getExtensions() {
-            return Extension.listBuilder()
-                    .extend(WIN_CONDITIONS, b -> b
-                            .add(new CoupleWinCondition())
-                            .id("CoupleWin"))
-                    .build();
-        }
-
-        @GameEvent
-        private void onLGKill(LGKillEvent event) {
-            for (LGKill kill : event.getKills()) {
-                LGPlayer whoDied = kill.getVictim();
-
-                Optional<LGTeam> coupleTeam = whoDied.teams().get().stream()
-                        .filter(LGTeams::isCouple)
-                        .findFirst();
-
-                coupleTeam.ifPresent(team -> {
-                    Stream<LGPlayer> partners = event.getOrchestrator().getAlivePlayers()
-                            .filter(x -> x.teams().get().contains(team));
-
-                    partners.forEach(partner -> killPartner(partner, whoDied));
-                });
-            }
-        }
-
-        private void killPartner(LGPlayer partner, LGPlayer me) {
-            partner.die(new CouplePartnerKillCause(me));
-        }
-    }
-
-    public static class FundamentalsRule extends Rule {
-        public FundamentalsRule(LGGameOrchestrator orchestrator) {
-            super(orchestrator);
-        }
-
-        @Override
-        public List<Extension<?>> getExtensions() {
-            return Extension.listBuilder()
-                    .extend(PHASES, b -> {
-                        b.add(DuskPhase::new).id("Dusk");
-                        b.add(LoupsGarousVotePhase::new).id("LoupsGarouVote");
-                        b.add(NextTimeOfDayPhase::new).id("NextTimeOfDay");
-                        b.add(RevealAllKillsPhase::new).id("RevealAllKills");
-                        b.add(VillageVotePhase::new).id("VillageVote");
-                    })
-                    .extend(CARDS, b -> {
-                        b.add(LoupGarouCard.INSTANCE);
-                        b.add(VillageoisCard.INSTANCE);
-                    })
-                    .extend(COMPOSITION_VALIDATORS, b -> {
-                        b.add(new MultipleTeamsCompositionValidator());
-                        b.add(new UniqueCardCompositionValidator());
-                    })
-                    .extend(SCOREBOARD_COMPONENTS, b -> {
-                        b.add(new LobbyOwnerScoreboardComponent()).id("LobbyOwner");
-                        b.add(new PlayersAliveScoreboardComponent()).id("PlayersAlive");
-                        b.add(new CompositionScoreboardComponent()).id("Composition");
-                        b.add(new CurrentVotesScoreboardComponent()).id("CurrentVotes");
-                    })
-                    .extend(INVENTORY_ITEMS, b -> {
-                        b.add(new EditLobbyItem()).id("EditLobby");
-                        b.add(new EditModsItem()).id("EditMods");
-                        b.add(new QuitGameItem()).id("QuitGame");
-                    })
-                    .extend(WIN_CONDITIONS, b -> {
-                        b.add(new EveryoneDeadWinCondition()).id("EveryoneDead");
-                        b.add(new LoupsGarousWinCondition()).id("LoupsGarousWin");
-                        b.add(new VillageWinCondition()).id("VillageWin");
-                    })
-                    .extend(CHAT_CHANNELS, b -> {
-                        b.add(LGChatChannels.DAY);
-                        b.add(LGChatChannels.DEAD);
-                        b.add(LGChatChannels.LOUPS_GAROUS);
-                    })
-                    .build();
-        }
-
-    }
 }
-

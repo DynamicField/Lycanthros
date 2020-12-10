@@ -1,8 +1,8 @@
 package com.github.jeuxjeux20.loupsgarous.atmosphere;
 
 import com.github.jeuxjeux20.loupsgarous.Check;
+import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickAddedEvent;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickEvent;
-import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickEventBase;
 import com.github.jeuxjeux20.loupsgarous.event.interaction.LGPickRemovedEvent;
 import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
@@ -147,7 +147,7 @@ public class VoteStructure implements Structure {
     private class InteractionModule implements TerminableModule {
         @Override
         public void setup(@Nonnull TerminableConsumer consumer) {
-            Events.merge(LGPickEventBase.class, LGPickEvent.class, LGPickRemovedEvent.class)
+            Events.merge(LGPickEvent.class, LGPickAddedEvent.class, LGPickRemovedEvent.class)
                     .filter(vote::isMyEvent)
                     .handler(e -> build())
                     .bindWith(consumer);
