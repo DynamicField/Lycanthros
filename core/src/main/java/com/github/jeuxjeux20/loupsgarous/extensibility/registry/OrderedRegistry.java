@@ -6,7 +6,6 @@ import com.github.jeuxjeux20.relativesorting.ElementSorter;
 import com.github.jeuxjeux20.relativesorting.OrderedElement;
 import com.github.jeuxjeux20.relativesorting.config.SortingConfiguration;
 import com.github.jeuxjeux20.relativesorting.config.UnresolvableIdentifierHandling;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.Events;
@@ -22,26 +21,27 @@ public class OrderedRegistry<T> implements Registry<T> {
 
     private final Set<RegistryEntry<T>> allEntries = new LinkedHashSet<>();
     private final Map<String, RegistryEntry<T>> namedEntries = new HashMap<>();
+    private final Map<T, RegistryEntry<T>> valueToEntry = new HashMap<>();
 
     private @Nullable ImmutableSet<RegistryEntry<T>> orderedEntries;
     private @Nullable ImmutableSet<T> orderedValues;
 
     @Override
     public Registration register(RegistryEntry<T> entry) {
-        Preconditions.checkArgument(!namedEntries.containsKey(entry.getName()),
-                "An entry with the name " + entry.getName() + " has already been registered.");
-
-        for (RegistryEntry<T> currentEntry : allEntries) {
-            if (entry.getValue() == currentEntry.getValue()) {
-                throw new IllegalArgumentException(
-                        "An entry of the same value has already been registered.");
-            }
+        if (containsKey(entry.getName())) {
+            throw new IllegalArgumentException(
+                    "An entry with the name " + entry.getName() + " has already been registered.");
+        }
+        if (containsEntry(entry)) {
+            throw new IllegalArgumentException(
+                    "An entry of the same value has already been registered.");
         }
 
         allEntries.add(entry);
         if (entry.getName() != null) {
             namedEntries.put(entry.getName(), entry);
         }
+        valueToEntry.put(entry.getValue(), entry);
 
         registryChanged();
 
@@ -49,7 +49,7 @@ public class OrderedRegistry<T> implements Registry<T> {
             @Override
             public void unregister() {
                 if (isRegistered()) {
-                    OrderedRegistry.this.unregister(entry.getName());
+                    OrderedRegistry.this.unregister(entry);
                 }
             }
 
@@ -61,13 +61,24 @@ public class OrderedRegistry<T> implements Registry<T> {
     }
 
     @Override
-    public void unregister(String name) {
-        if (namedEntries.containsKey(name)) {
-            RegistryEntry<T> entry = namedEntries.remove(name);
+    public void unregister(RegistryEntry<T> entry) {
+        if (containsEntry(entry)) {
             allEntries.remove(entry);
+            namedEntries.remove(entry.getName());
+            valueToEntry.remove(entry.getValue());
 
             registryChanged();
         }
+    }
+
+    @Override
+    public void unregister(T value) {
+        unregister(valueToEntry.get(value));
+    }
+
+    @Override
+    public void unregister(String name) {
+        unregister(namedEntries.get(name));
     }
 
     @Override
@@ -78,6 +89,16 @@ public class OrderedRegistry<T> implements Registry<T> {
     @Override
     public Optional<RegistryEntry<T>> getEntry(String name) {
         return Optional.ofNullable(namedEntries.get(name));
+    }
+
+    @Override
+    public Optional<RegistryEntry<T>> getEntry(T value) {
+        return Optional.ofNullable(valueToEntry.get(value));
+    }
+
+    @Override
+    public boolean containsEntry(RegistryEntry<T> entry) {
+        return allEntries.contains(entry);
     }
 
     @Override

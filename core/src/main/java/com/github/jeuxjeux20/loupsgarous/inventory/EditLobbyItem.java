@@ -12,21 +12,25 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class EditLobbyItem implements InventoryItem {
+public class EditLobbyItem extends InventoryItem {
+    public EditLobbyItem(LGGameOrchestrator orchestrator) {
+        super(orchestrator);
+    }
+
     @Override
-    public boolean isShown(LGPlayer player, LGGameOrchestrator orchestrator) {
+    public boolean isShown(LGPlayer player) {
         return orchestrator.getOwner() == player && orchestrator.allowsJoin();
     }
 
     @Override
-    public ItemStack getItemStack() {
+    public ItemStack render() {
         return ItemStackBuilder.of(Material.EMERALD)
                 .name(ChatColor.GREEN.toString() + ChatColor.BOLD + "Modifier la composition")
                 .build();
     }
 
     @Override
-    public void onClick(LGPlayer player, LGGameOrchestrator orchestrator) {
+    public void onClick(LGPlayer player) {
         player.minecraft(mcPlayer -> new CompositionGui(mcPlayer, orchestrator).open());
     }
 

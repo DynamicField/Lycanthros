@@ -5,10 +5,16 @@ import com.github.jeuxjeux20.loupsgarous.game.LGGameOrchestrator;
 import com.github.jeuxjeux20.loupsgarous.game.LGPlayer;
 import org.bukkit.inventory.ItemStack;
 
-public interface InventoryItem extends HasTriggers {
-    boolean isShown(LGPlayer player, LGGameOrchestrator orchestrator);
+public abstract class InventoryItem implements HasTriggers {
+    protected final LGGameOrchestrator orchestrator;
 
-    ItemStack getItemStack();
+    protected InventoryItem(LGGameOrchestrator orchestrator) {
+        this.orchestrator = orchestrator;
+    }
 
-    void onClick(LGPlayer player, LGGameOrchestrator orchestrator);
+    public abstract boolean isShown(LGPlayer player);
+
+    public abstract ItemStack render();
+
+    public abstract void onClick(LGPlayer player);
 }

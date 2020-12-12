@@ -28,9 +28,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.Nullable;
@@ -53,13 +51,18 @@ public class LGInventoryManager extends OrchestratorComponent {
     private void registerEvents() {
         registerUpdateItemsEvent();
 
-        // TODO: Fix this so it works with a left click on a block as well.
         Events.subscribe(PlayerInteractEvent.class)
                 .filter(this::concernsMe)
-                .filter(e -> e.getAction() != Action.PHYSICAL)
+                .filter(e -> e.getAction() == Action.RIGHT_CLICK_AIR ||
+                             e.getAction() == Action.RIGHT_CLICK_BLOCK)
                 .filter(PlayerInteractEvent::hasItem)
-                .handler(e -> handleItemClick(e.getPlayer(),
-                        e.getPlayer().getInventory().getHeldItemSlot()))
+                .handler(this::handleWorldClick)
+                .bindWith(this);
+
+        Events.subscribe(PlayerAnimationEvent.class)
+                .filter(this::concernsMe)
+                .filter(e -> e.getAnimationType() == PlayerAnimationType.ARM_SWING)
+                .handler(this::handleWorldClick)
                 .bindWith(this);
 
         Events.subscribe(InventoryClickEvent.class)
@@ -89,8 +92,6 @@ public class LGInventoryManager extends OrchestratorComponent {
     }
 
     private void registerUpdateItemsEvent() {
-        // TODO: fix this
-
         Schedulers.sync().runRepeating(this::updateAllInventories, 0L, 10L)
                 .bindWith(this);
 
@@ -105,24 +106,38 @@ public class LGInventoryManager extends OrchestratorComponent {
         if (minecraftPlayer == null) { return; }
 
         PlayerInventory inventory = minecraftPlayer.getInventory();
-        inventory.clear();
 
         Map<Integer, InventoryItem> itemSlots =
                 Metadata.provideForPlayer(minecraftPlayer).getOrPut(ITEMS_KEY, HashMap::new);
         List<InventoryItem> inventoryItems = getInventoryItems();
 
+        itemSlots.clear();
+
         int slot = 8;
+
         for (int i = inventoryItems.size() - 1; i >= 0; i--) {
             InventoryItem item = inventoryItems.get(i);
 
-            if (!item.isShown(player, orchestrator)) { return; }
+            if (!item.isShown(player)) { return; }
 
-            inventory.setItem(slot, item.getItemStack());
+            ItemStack rendered = item.render();
+            ItemStack current = inventory.getItem(slot);
+
+            if (!rendered.equals(current)) {
+                inventory.setItem(slot, rendered);
+            }
 
             itemSlots.put(slot, item);
             slot--;
             if (slot == 0) {
-                slot = 36;
+                slot = 35; // Go back to the main inventory if we lack space.
+            }
+        }
+
+        // Clear all unused slots.
+        for (int i = 0; i < 36; i++) {
+            if (!itemSlots.containsKey(i)) {
+                inventory.setItem(i, null);
             }
         }
     }
@@ -137,12 +152,17 @@ public class LGInventoryManager extends OrchestratorComponent {
         handleItemClick(event.getWhoClicked(), event.getSlot());
     }
 
+    private void handleWorldClick(PlayerEvent e) {
+        handleItemClick(e.getPlayer(),
+                e.getPlayer().getInventory().getHeldItemSlot());
+    }
+
     private void handleItemClick(HumanEntity player, int slot) {
         LGPlayer lgPlayer = orchestrator.getPlayerOrThrow(player.getUniqueId());
 
         InventoryItem item = getItem(lgPlayer, slot);
         if (item != null) {
-            item.onClick(lgPlayer, orchestrator);
+            item.onClick(lgPlayer);
         }
     }
 

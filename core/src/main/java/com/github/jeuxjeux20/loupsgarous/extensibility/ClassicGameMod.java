@@ -89,9 +89,9 @@ public class ClassicGameMod extends Mod {
 
         orchestrator.getGameRegistry(GameRegistries.INVENTORY_ITEMS)
                 .registerMany(r -> {
-                    r.register(new EditLobbyItem()).name("EditLobby");
-                    r.register(new EditModsItem()).name("EditMods");
-                    r.register(new QuitGameItem()).name("QuitGame");
+                    r.register(new EditLobbyItem(orchestrator)).name("EditLobby");
+                    r.register(new EditModsItem(orchestrator)).name("EditMods");
+                    r.register(new QuitGameItem(orchestrator)).name("QuitGame");
                 })
                 .bindWith(this);
 

@@ -28,25 +28,29 @@ public class PatateMod extends Mod {
                 .bindWith(this);
 
         orchestrator.getGameRegistry(GameRegistries.INVENTORY_ITEMS)
-                .registerMany(b -> b.register(new PatateItem())
+                .registerMany(b -> b.register(new PatateItem(orchestrator))
                         .name("Patate")
                         .locatedBefore("QuitGame"))
                 .bindWith(this);
     }
     
-    public static class PatateItem implements InventoryItem {
+    public static class PatateItem extends InventoryItem {
+        protected PatateItem(LGGameOrchestrator orchestrator) {
+            super(orchestrator);
+        }
+
         @Override
-        public boolean isShown(LGPlayer player, LGGameOrchestrator orchestrator) {
+        public boolean isShown(LGPlayer player) {
             return true;
         }
 
         @Override
-        public ItemStack getItemStack() {
+        public ItemStack render() {
             return new ItemStack(Material.POTATO);
         }
 
         @Override
-        public void onClick(LGPlayer player, LGGameOrchestrator orchestrator) {
+        public void onClick(LGPlayer player) {
             player.sendMessage("Patate !");
         }
     }

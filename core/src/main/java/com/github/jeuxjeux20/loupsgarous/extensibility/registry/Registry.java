@@ -4,6 +4,7 @@ import com.github.jeuxjeux20.loupsgarous.Registration;
 import com.google.common.collect.ImmutableSet;
 import me.lucko.helper.terminable.Terminable;
 import me.lucko.helper.terminable.composite.CompositeTerminable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,11 +43,19 @@ public interface Registry<T> extends Iterable<T> {
         return CompositeTerminable.create().withAll(registrations);
     }
 
+    void unregister(@Nullable RegistryEntry<T> entry);
+
+    void unregister(T value);
+
     void unregister(String name);
 
     Optional<T> get(String name);
 
     Optional<RegistryEntry<T>> getEntry(String name);
+
+    Optional<RegistryEntry<T>> getEntry(T value);
+
+    boolean containsEntry(RegistryEntry<T> entry);
 
     boolean containsKey(String name);
 

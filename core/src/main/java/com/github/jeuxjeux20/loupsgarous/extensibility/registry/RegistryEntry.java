@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class RegistryEntry<T> {
@@ -40,6 +41,21 @@ public class RegistryEntry<T> {
 
     public OrderConstraints getConstraints() {
         return constraints;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        RegistryEntry<?> that = (RegistryEntry<?>) o;
+        return Objects.equals(name, that.name) &&
+               Objects.equals(value, that.value) &&
+               Objects.equals(constraints, that.constraints);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, value, constraints);
     }
 
     public static final class Builder<T> {

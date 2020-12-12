@@ -8,21 +8,25 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class EditModsItem implements InventoryItem {
+public class EditModsItem extends InventoryItem {
+    public EditModsItem(LGGameOrchestrator orchestrator) {
+        super(orchestrator);
+    }
+
     @Override
-    public boolean isShown(LGPlayer player, LGGameOrchestrator orchestrator) {
+    public boolean isShown(LGPlayer player) {
         return orchestrator.getOwner() == player && orchestrator.allowsJoin();
     }
 
     @Override
-    public ItemStack getItemStack() {
+    public ItemStack render() {
         return ItemStackBuilder.of(Material.DIAMOND)
                 .name(ChatColor.LIGHT_PURPLE + "&lModifier les mods")
                 .build();
     }
 
     @Override
-    public void onClick(LGPlayer player, LGGameOrchestrator orchestrator) {
+    public void onClick(LGPlayer player) {
         player.minecraft(mcPlayer -> new ModsGui(mcPlayer, orchestrator).open());
     }
 }
